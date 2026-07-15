@@ -1,0 +1,3106 @@
+{
+  "updatedAt": "2026-07-14",
+  "site": "동김제농협 가공센터",
+  "certification": "FSSC22000 V6",
+  "sourceLabel": "최종본260714",
+  "fsscRootNote": "",
+  "categories": [
+    {
+      "id": "manual",
+      "label": "통합매뉴얼",
+      "code": "DKJ-M",
+      "icon": "📘",
+      "description": "식품안전경영시스템 통합매뉴얼 (FSSC22000 V6)",
+      "menuGroup": "문서체계",
+      "workflowStatus": "완료",
+      "count": 1
+    },
+    {
+      "id": "procedure",
+      "label": "절차서",
+      "code": "DKJ-P",
+      "icon": "📗",
+      "description": "FSSC22000 V6 운영 절차서 — SIPOC·실무TIP·심사확인",
+      "menuGroup": "문서체계",
+      "workflowStatus": "완료",
+      "count": 20
+    },
+    {
+      "id": "prp",
+      "label": "선행요건(PRP)",
+      "code": "PRP",
+      "icon": "🧪",
+      "description": "PRP-001~008 관리기준 · PP 체계 인덱스",
+      "menuGroup": "선행요건",
+      "workflowStatus": "완료",
+      "count": 9
+    },
+    {
+      "id": "prp_form",
+      "label": "선행요건 일지",
+      "code": "DKJ-S-02",
+      "icon": "📒",
+      "description": "작업장·위생·온습도·검교정 등 일상 PRP 점검 기록",
+      "menuGroup": "선행요건",
+      "workflowStatus": "완료",
+      "count": 30
+    },
+    {
+      "id": "sop",
+      "label": "SOP·작업표준",
+      "code": "DKJ-W",
+      "icon": "📙",
+      "description": "현장 작업표준서 (입고~출하·부적합)",
+      "menuGroup": "현장표준",
+      "workflowStatus": "완료",
+      "count": 11
+    },
+    {
+      "id": "haccp",
+      "label": "HACCP·CCP",
+      "code": "DKJ-H",
+      "icon": "🛡️",
+      "description": "CCP 점검·검증·교육·HACCP팀 양식",
+      "menuGroup": "HACCP",
+      "workflowStatus": "완료",
+      "count": 14
+    },
+    {
+      "id": "form",
+      "label": "기록양식(Form)",
+      "code": "DKJ-F",
+      "icon": "📋",
+      "description": "시스템 기록양식 DKJ-F / FR 연동",
+      "menuGroup": "기록",
+      "workflowStatus": "완료",
+      "count": 42
+    },
+    {
+      "id": "education",
+      "label": "교육자료",
+      "code": "EDU",
+      "icon": "🎓",
+      "description": "CCP·위생·내부심사·식품방어 교육 PPT",
+      "menuGroup": "교육·심사",
+      "workflowStatus": "완료",
+      "count": 11
+    },
+    {
+      "id": "audit",
+      "label": "내부심사",
+      "code": "IA",
+      "icon": "🔍",
+      "description": "내부심사 계획·체크리스트·결과·CAR 패키지",
+      "menuGroup": "교육·심사",
+      "workflowStatus": "완료",
+      "count": 7
+    },
+    {
+      "id": "mgmt_review",
+      "label": "경영검토",
+      "code": "MR",
+      "icon": "📊",
+      "description": "경영검토 입력자료·의사록·식품안전문화",
+      "menuGroup": "교육·심사",
+      "workflowStatus": "완료",
+      "count": 1
+    },
+    {
+      "id": "mdr",
+      "label": "MDR·문서관리",
+      "code": "MDR",
+      "icon": "📑",
+      "description": "MDR-001 Rev11 정본 · 186건 등록",
+      "menuGroup": "문서체계",
+      "workflowStatus": "완료",
+      "count": 3
+    }
+  ],
+  "documents": [
+    {
+      "id": "DKJ-M-01",
+      "category": "manual",
+      "code": "DKJ-M-01",
+      "title": "식품안전경영시스템 통합매뉴얼",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-P-01",
+      "category": "procedure",
+      "code": "DKJ-P-01",
+      "title": "문서관리 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "문서",
+        "MDR",
+        "외부문서"
+      ],
+      "highlights": [
+        "MDR 관리",
+        "외부문서",
+        "실무TIP",
+        "심사확인"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-01.txt"
+    },
+    {
+      "id": "DKJ-P-02",
+      "category": "procedure",
+      "code": "DKJ-P-02",
+      "title": "기록관리 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "기록",
+        "보관"
+      ],
+      "highlights": [
+        "기록 식별",
+        "보존기간"
+      ]
+    },
+    {
+      "id": "DKJ-P-03",
+      "category": "procedure",
+      "code": "DKJ-P-03",
+      "title": "교육훈련 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "OJT",
+        "자격인정"
+      ],
+      "highlights": [
+        "OJT·신입·전달교육",
+        "CCP 자격인정",
+        "코엔에프 벤치마킹 반영"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-03.txt"
+    },
+    {
+      "id": "DKJ-P-04",
+      "category": "procedure",
+      "code": "DKJ-P-04",
+      "title": "공급업체 및 구매관리 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "공급업체",
+        "구매"
+      ],
+      "highlights": [
+        "승인평가",
+        "재평가 주기"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-04.txt"
+    },
+    {
+      "id": "DKJ-P-05",
+      "category": "procedure",
+      "code": "DKJ-P-05",
+      "title": "원부자재 입고검사 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "입고",
+        "검사",
+        "PRP"
+      ],
+      "highlights": [
+        "운송차량 위생",
+        "입고검사 기준"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-05.txt"
+    },
+    {
+      "id": "DKJ-P-06",
+      "category": "procedure",
+      "code": "DKJ-P-06",
+      "title": "제품회수 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "회수",
+        "RECALL"
+      ],
+      "highlights": [
+        "RECALL 정의",
+        "모의회수 연 1회"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-06.txt"
+    },
+    {
+      "id": "DKJ-P-07",
+      "category": "procedure",
+      "code": "DKJ-P-07",
+      "title": "내부심사 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "내부심사",
+        "심사"
+      ],
+      "highlights": [
+        "특별심사 4종",
+        "7일 전 계획",
+        "시작/종료회의"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-07.txt"
+    },
+    {
+      "id": "DKJ-P-08",
+      "category": "procedure",
+      "code": "DKJ-P-08",
+      "title": "경영검토 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "경영검토"
+      ],
+      "highlights": [
+        "입력자료",
+        "후속조치"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-08.txt"
+    },
+    {
+      "id": "DKJ-P-09",
+      "category": "procedure",
+      "code": "DKJ-P-09",
+      "title": "시정조치 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "CAR",
+        "시정",
+        "예방"
+      ],
+      "highlights": [
+        "시정·예방조치",
+        "사후관리"
+      ]
+    },
+    {
+      "id": "DKJ-P-10",
+      "category": "procedure",
+      "code": "DKJ-P-10",
+      "title": "계측기 검교정 관리 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "검교정",
+        "계측기"
+      ],
+      "highlights": [
+        "CAL-XXX 관리번호",
+        "유효성 평가",
+        "파손표지"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-10.txt"
+    },
+    {
+      "id": "DKJ-P-11",
+      "category": "procedure",
+      "code": "DKJ-P-11",
+      "title": "변경관리 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "변경관리"
+      ],
+      "highlights": [
+        "변경 영향평가"
+      ]
+    },
+    {
+      "id": "DKJ-P-12",
+      "category": "procedure",
+      "code": "DKJ-P-12",
+      "title": "의사소통 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "의사소통"
+      ],
+      "highlights": [
+        "내·외부 의사소통"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-12.txt"
+    },
+    {
+      "id": "DKJ-P-13",
+      "category": "procedure",
+      "code": "DKJ-P-13",
+      "title": "식품방어 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PR"
+      ],
+      "highlights": [
+        "운영중",
+        "Rev4 정본"
+      ]
+    },
+    {
+      "id": "DKJ-P-14",
+      "category": "procedure",
+      "code": "DKJ-P-14",
+      "title": "식품사기 예방 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PR"
+      ],
+      "highlights": [
+        "운영중",
+        "Rev4 정본"
+      ]
+    },
+    {
+      "id": "DKJ-P-15",
+      "category": "procedure",
+      "code": "DKJ-P-15",
+      "title": "알레르겐 관리 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PR"
+      ],
+      "highlights": [
+        "운영중",
+        "Rev4 정본"
+      ]
+    },
+    {
+      "id": "DKJ-P-16",
+      "category": "procedure",
+      "code": "DKJ-P-16",
+      "title": "환경모니터링 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "환경",
+        "FSSC V6"
+      ],
+      "highlights": [
+        "모니터링 계획",
+        "Trend 분석"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-16.txt"
+    },
+    {
+      "id": "DKJ-P-17",
+      "category": "procedure",
+      "code": "DKJ-P-17",
+      "title": "부적합품 관리 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "부적합"
+      ],
+      "highlights": [
+        "부적합 식별·격리·처분"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-17.txt"
+    },
+    {
+      "id": "DKJ-P-18",
+      "category": "procedure",
+      "code": "DKJ-P-18",
+      "title": "추적성 관리 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "추적성",
+        "LOT"
+      ],
+      "highlights": [
+        "제품식별",
+        "모의추적"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-18.txt"
+    },
+    {
+      "id": "DKJ-P-19",
+      "category": "procedure",
+      "code": "DKJ-P-19",
+      "title": "비상대응 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PR"
+      ],
+      "highlights": [
+        "운영중",
+        "Rev4 정본"
+      ]
+    },
+    {
+      "id": "DKJ-P-20",
+      "category": "procedure",
+      "code": "DKJ-P-20",
+      "title": "고객불만 관리 절차서",
+      "rev": "RevDOCX",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PR"
+      ],
+      "highlights": [
+        "운영중",
+        "Rev4 정본"
+      ]
+    },
+    {
+      "id": "PP-00",
+      "category": "prp",
+      "code": "PP-00",
+      "title": "PRP 체계 인덱스",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP",
+        "선행요건"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "PRP-001",
+      "category": "prp",
+      "code": "PRP-001",
+      "title": "영업장관리 기준",
+      "rev": "Rev4",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP",
+        "선행요건"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "PRP-002",
+      "category": "prp",
+      "code": "PRP-002",
+      "title": "위생관리 기준",
+      "rev": "Rev4",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP",
+        "선행요건"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "PRP-003",
+      "category": "prp",
+      "code": "PRP-003",
+      "title": "제조시설·설비관리 기준",
+      "rev": "Rev4",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP",
+        "선행요건"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "PRP-004",
+      "category": "prp",
+      "code": "PRP-004",
+      "title": "냉장·냉동시설·설비관리 기준",
+      "rev": "Rev4",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP",
+        "선행요건"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "PRP-005",
+      "category": "prp",
+      "code": "PRP-005",
+      "title": "용수관리 기준",
+      "rev": "Rev4",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP",
+        "선행요건"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "PRP-006",
+      "category": "prp",
+      "code": "PRP-006",
+      "title": "보관·운송관리 기준",
+      "rev": "Rev4",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP",
+        "선행요건"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "PRP-007",
+      "category": "prp",
+      "code": "PRP-007",
+      "title": "검사관리 기준",
+      "rev": "Rev4",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP",
+        "선행요건"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "PRP-008",
+      "category": "prp",
+      "code": "PRP-008",
+      "title": "회수프로그램관리 기준",
+      "rev": "Rev4",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP",
+        "선행요건"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-01",
+      "category": "prp_form",
+      "code": "DKJ-S-02-01",
+      "title": "작업장 위생점검일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-02",
+      "category": "prp_form",
+      "code": "DKJ-S-02-02",
+      "title": "조도점검일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-03",
+      "category": "prp_form",
+      "code": "DKJ-S-02-03",
+      "title": "개인위생점검일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-04",
+      "category": "prp_form",
+      "code": "DKJ-S-02-04",
+      "title": "이물관리점검일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-05",
+      "category": "prp_form",
+      "code": "DKJ-S-02-05",
+      "title": "작업장 온도점검일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-06",
+      "category": "prp_form",
+      "code": "DKJ-S-02-06",
+      "title": "환기 및 급·배기시설점검표",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-07",
+      "category": "prp_form",
+      "code": "DKJ-S-02-07",
+      "title": "방충방서관리점검일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-08",
+      "category": "prp_form",
+      "code": "DKJ-S-02-08",
+      "title": "폐기물관리대장",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-09",
+      "category": "prp_form",
+      "code": "DKJ-S-02-09",
+      "title": "세척·소독제관리대장",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-11",
+      "category": "prp_form",
+      "code": "DKJ-S-02-11",
+      "title": "제조시설·설비이력카드",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-12",
+      "category": "prp_form",
+      "code": "DKJ-S-02-12",
+      "title": "제조시설·설비점검표",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "xls",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-13",
+      "category": "prp_form",
+      "code": "DKJ-S-02-13",
+      "title": "저수조 물탱크 위생점검일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-14",
+      "category": "prp_form",
+      "code": "DKJ-S-02-14",
+      "title": "원·부재료입고검사일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-15",
+      "category": "prp_form",
+      "code": "DKJ-S-02-15",
+      "title": "부자재(포장재)입고검사일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-16",
+      "category": "prp_form",
+      "code": "DKJ-S-02-16",
+      "title": "연 협력업체 점검계획서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-17",
+      "category": "prp_form",
+      "code": "DKJ-S-02-17",
+      "title": "협력업체 평가표",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-18",
+      "category": "prp_form",
+      "code": "DKJ-S-02-18",
+      "title": "운송차량 위생점검표",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-19",
+      "category": "prp_form",
+      "code": "DKJ-S-02-19",
+      "title": "부적합품 처리보고서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-20",
+      "category": "prp_form",
+      "code": "DKJ-S-02-20",
+      "title": "고객불만접수 및 처리대장",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-21",
+      "category": "prp_form",
+      "code": "DKJ-S-02-21",
+      "title": "고객불만처리보고서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-22",
+      "category": "prp_form",
+      "code": "DKJ-S-02-22",
+      "title": "연 미생물검사계획서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-23",
+      "category": "prp_form",
+      "code": "DKJ-S-02-23",
+      "title": "연간 계측기 검교정계획서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-24",
+      "category": "prp_form",
+      "code": "DKJ-S-02-24",
+      "title": "사내검교정일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-25",
+      "category": "prp_form",
+      "code": "DKJ-S-02-25",
+      "title": "회수계획서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-26",
+      "category": "prp_form",
+      "code": "DKJ-S-02-26",
+      "title": "긴급회수문",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-27",
+      "category": "prp_form",
+      "code": "DKJ-S-02-27",
+      "title": "회수결과보고서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-28",
+      "category": "prp_form",
+      "code": "DKJ-S-02-28",
+      "title": "압축공기필터관리대장",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-29",
+      "category": "prp_form",
+      "code": "DKJ-S-02-29",
+      "title": "종사자건강상태확인",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-30",
+      "category": "prp_form",
+      "code": "DKJ-S-02-30",
+      "title": "외부출입자 안내절차 및 주의사항",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-S-02-31",
+      "category": "prp_form",
+      "code": "DKJ-S-02-31",
+      "title": "이물 관리 대장",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "PRP일지",
+        "일상점검"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-001",
+      "category": "sop",
+      "code": "DKJ-W-001",
+      "title": "원부자재 입고검사 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-002",
+      "category": "sop",
+      "code": "DKJ-W-002",
+      "title": "원료 보관 및 선입선출 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-003",
+      "category": "sop",
+      "code": "DKJ-W-003",
+      "title": "작업자 위생 및 입실 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-004",
+      "category": "sop",
+      "code": "DKJ-W-004",
+      "title": "세척 및 소독 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-005",
+      "category": "sop",
+      "code": "DKJ-W-005",
+      "title": "전처리 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-006",
+      "category": "sop",
+      "code": "DKJ-W-006",
+      "title": "가열 및 냉각 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-007",
+      "category": "sop",
+      "code": "DKJ-W-007",
+      "title": "금속검출기 운영 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-008",
+      "category": "sop",
+      "code": "DKJ-W-008",
+      "title": "포장 및 표시확인 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-009",
+      "category": "sop",
+      "code": "DKJ-W-009",
+      "title": "완제품 보관 및 출하 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-010",
+      "category": "sop",
+      "code": "DKJ-W-010",
+      "title": "폐기물 및 부산물 관리 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-W-011",
+      "category": "sop",
+      "code": "DKJ-W-011",
+      "title": "부적합품처리 작업표준서",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "SOP",
+        "작업표준"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-01",
+      "category": "haccp",
+      "code": "DKJ-H-01-01",
+      "title": "중요관리점(CCP 1BC) 점검표 소독·헹굼공정",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-02",
+      "category": "haccp",
+      "code": "DKJ-H-01-02",
+      "title": "중요관리점(CCP 2P) 점검표 금속검출공정",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-03",
+      "category": "haccp",
+      "code": "DKJ-H-01-03",
+      "title": "업무인수인계서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-04",
+      "category": "haccp",
+      "code": "DKJ-H-01-04",
+      "title": "HACCP팀 회의록",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-05",
+      "category": "haccp",
+      "code": "DKJ-H-01-05",
+      "title": "중요관리점(CCP)검증점검표(월간)",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-06",
+      "category": "haccp",
+      "code": "DKJ-H-01-06",
+      "title": "HACCP 연간검증계획서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-07",
+      "category": "haccp",
+      "code": "DKJ-H-01-07",
+      "title": "검증결과보고서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-08",
+      "category": "haccp",
+      "code": "DKJ-H-01-08",
+      "title": "검증개선조치보고서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-09",
+      "category": "haccp",
+      "code": "DKJ-H-01-09",
+      "title": "HACCP 실시상황평가표",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-10",
+      "category": "haccp",
+      "code": "DKJ-H-01-10",
+      "title": "연간 교육훈련 계획서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-11",
+      "category": "haccp",
+      "code": "DKJ-H-01-11",
+      "title": "교육훈련일지",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "hwp",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-H-01-12",
+      "category": "haccp",
+      "code": "DKJ-H-01-12",
+      "title": "교육평가서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "HC-00",
+      "category": "haccp",
+      "code": "HC-00",
+      "title": "HACCP 체계 인덱스",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "REF-01",
+      "category": "haccp",
+      "code": "REF-01",
+      "title": "담당자 역할매핑 및 교육대상자 구분표",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "HACCP",
+        "CCP"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-001",
+      "category": "form",
+      "code": "DKJ-F-001",
+      "title": "문서 제개정 요청서",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-002",
+      "category": "form",
+      "code": "DKJ-F-002",
+      "title": "문서배포대장",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-003",
+      "category": "form",
+      "code": "DKJ-F-003",
+      "title": "문서회수대장",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-004",
+      "category": "form",
+      "code": "DKJ-F-004",
+      "title": "외부문서관리대장",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-005",
+      "category": "form",
+      "code": "DKJ-F-005",
+      "title": "폐기문서관리대장",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-006",
+      "category": "form",
+      "code": "DKJ-F-006",
+      "title": "기록관리대장",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-007",
+      "category": "form",
+      "code": "DKJ-F-007",
+      "title": "기록폐기대장",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-008",
+      "category": "form",
+      "code": "DKJ-F-008",
+      "title": "연간 교육훈련 계획서",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-009",
+      "category": "form",
+      "code": "DKJ-F-009",
+      "title": "교육훈련 실시 및 평가 기록",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-010",
+      "category": "form",
+      "code": "DKJ-F-010",
+      "title": "개인별 역량평가표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-011",
+      "category": "form",
+      "code": "DKJ-F-011",
+      "title": "공급업체 승인평가표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-012",
+      "category": "form",
+      "code": "DKJ-F-012",
+      "title": "승인공급업체 목록",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-013",
+      "category": "form",
+      "code": "DKJ-F-013",
+      "title": "구매 발주 및 검토 기록",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-015",
+      "category": "form",
+      "code": "DKJ-F-015",
+      "title": "부적합 원부자재 처리기록",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-018",
+      "category": "form",
+      "code": "DKJ-F-018",
+      "title": "내부심사 계획서",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-019",
+      "category": "form",
+      "code": "DKJ-F-019",
+      "title": "내부심사 체크리스트",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-020",
+      "category": "form",
+      "code": "DKJ-F-020",
+      "title": "내부심사 결과보고서",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-021",
+      "category": "form",
+      "code": "DKJ-F-021",
+      "title": "시정조치 요구서(CAR)",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-022",
+      "category": "form",
+      "code": "DKJ-F-022",
+      "title": "시정조치 관리대장",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-023",
+      "category": "form",
+      "code": "DKJ-F-023",
+      "title": "경영검토 입력자료",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-024",
+      "category": "form",
+      "code": "DKJ-F-024",
+      "title": "경영검토 회의록",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-025",
+      "category": "form",
+      "code": "DKJ-F-025",
+      "title": "경영검토 후속조치표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-028",
+      "category": "form",
+      "code": "DKJ-F-028",
+      "title": "변경관리 신청서",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-029",
+      "category": "form",
+      "code": "DKJ-F-029",
+      "title": "변경 영향평가표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-030",
+      "category": "form",
+      "code": "DKJ-F-030",
+      "title": "의사소통 기록대장",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-031",
+      "category": "form",
+      "code": "DKJ-F-031",
+      "title": "식품방어 취약성 평가표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-032",
+      "category": "form",
+      "code": "DKJ-F-032",
+      "title": "식품방어 실행계획서",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-033",
+      "category": "form",
+      "code": "DKJ-F-033",
+      "title": "식품사기 취약성 평가표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-034",
+      "category": "form",
+      "code": "DKJ-F-034",
+      "title": "식품사기 예방 실행계획서",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-035",
+      "category": "form",
+      "code": "DKJ-F-035",
+      "title": "알레르겐 원료 평가표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-036",
+      "category": "form",
+      "code": "DKJ-F-036",
+      "title": "알레르겐 전환세척 점검기록",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-037",
+      "category": "form",
+      "code": "DKJ-F-037",
+      "title": "환경모니터링 계획서",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-038",
+      "category": "form",
+      "code": "DKJ-F-038",
+      "title": "환경모니터링 결과 및 Trend표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-040",
+      "category": "form",
+      "code": "DKJ-F-040",
+      "title": "추적성 점검 및 모의추적 기록",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-041",
+      "category": "form",
+      "code": "DKJ-F-041",
+      "title": "비상상황 발생보고서",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-043",
+      "category": "form",
+      "code": "DKJ-F-043",
+      "title": "제품 미생물검사 기록지",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-044",
+      "category": "form",
+      "code": "DKJ-F-044",
+      "title": "작업자 위생검사 기록지",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-045",
+      "category": "form",
+      "code": "DKJ-F-045",
+      "title": "Loss & Waste 관리표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-046",
+      "category": "form",
+      "code": "DKJ-F-046",
+      "title": "설비 예방보전 계획 및 기록",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-047",
+      "category": "form",
+      "code": "DKJ-F-047",
+      "title": "식품안전문화 평가표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-048",
+      "category": "form",
+      "code": "DKJ-F-048",
+      "title": "자격인정자 관리대장",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DKJ-F-049",
+      "category": "form",
+      "code": "DKJ-F-049",
+      "title": "직무별 자격기준표",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "Form",
+        "기록"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-001",
+      "category": "education",
+      "code": "EDU-001",
+      "title": "CCP담당자 교육",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-002",
+      "category": "education",
+      "code": "EDU-002",
+      "title": "일반작업자 교육",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-003",
+      "category": "education",
+      "code": "EDU-003",
+      "title": "내부심사원 교육",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-003-1",
+      "category": "education",
+      "code": "EDU-003-1",
+      "title": "내부심사 기본과 윤리 강사용 풀버전",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-003-2",
+      "category": "education",
+      "code": "EDU-003-2",
+      "title": "ISO22000 2018 요구사항 심사실무 강사용 풀버전",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-003-3",
+      "category": "education",
+      "code": "EDU-003-3",
+      "title": "PRP FSSC V6 HACCP 통합심사 강사용 풀버전",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-003-4",
+      "category": "education",
+      "code": "EDU-003-4",
+      "title": "부적합 CAR 작성실습 강사용 풀버전",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-004",
+      "category": "education",
+      "code": "EDU-004",
+      "title": "검사관리 실무교육",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-005",
+      "category": "education",
+      "code": "EDU-005",
+      "title": "위생교육",
+      "rev": "Rev1",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-006",
+      "category": "education",
+      "code": "EDU-006",
+      "title": "현장 OX 체크 및 원포인트레슨",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "EDU-007",
+      "category": "education",
+      "code": "EDU-007",
+      "title": "식품방어·식품사기 예방교육",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "pptx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "교육",
+        "PPT"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "01_DKJ-F-018_내부심사_세부계획서_REV2안_IA-2026-01",
+      "category": "audit",
+      "code": "01_DKJ-F-018_내부심사_세부계획서_REV2안_IA-2026-01",
+      "title": "01_DKJ-F-018_내부심사_세부계획서_REV2안_IA-2026-01",
+      "rev": "Rev2",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "내부심사"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "02_내부심사원_자격인정자료_최민재_이다은_권화선_IA-2026-01",
+      "category": "audit",
+      "code": "02_내부심사원_자격인정자료_최민재_이다은_권화선_IA-2026-01",
+      "title": "02_내부심사원_자격인정자료_최민재_이다은_권화선_IA-2026-01",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "내부심사"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "03_DKJ-F-019_FSSC22000_V6_통합_내부심사_체크리스트_",
+      "category": "audit",
+      "code": "03_DKJ-F-019_FSSC22000_V6_통합_내부심사_체크리스트_",
+      "title": "03_DKJ-F-019_FSSC22000_V6_통합_내부심사_체크리스트_",
+      "rev": "Rev3",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "내부심사"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "04_DKJ-F-020_내부심사_결과보고서_REV2안_IA-2026-01",
+      "category": "audit",
+      "code": "04_DKJ-F-020_내부심사_결과보고서_REV2안_IA-2026-01",
+      "title": "04_DKJ-F-020_내부심사_결과보고서_REV2안_IA-2026-01",
+      "rev": "Rev2",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "내부심사"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "05_DKJ-F-021_내부심사_CAR_개선계획서_REV2안_IA-202",
+      "category": "audit",
+      "code": "05_DKJ-F-021_내부심사_CAR_개선계획서_REV2안_IA-202",
+      "title": "6 01",
+      "rev": "Rev2",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "내부심사"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "06_DKJ-F-021연계_CAR_개선조치_및_효과확인보고서_개별양식_I",
+      "category": "audit",
+      "code": "06_DKJ-F-021연계_CAR_개선조치_및_효과확인보고서_개별양식_I",
+      "title": "A 2026 01",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "내부심사"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "07_DKJ-F-022_내부심사_CAR_개선조치_현황_REV2안_IA-2",
+      "category": "audit",
+      "code": "07_DKJ-F-022_내부심사_CAR_개선조치_현황_REV2안_IA-2",
+      "title": "026 01",
+      "rev": "Rev2",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "내부심사"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "FSC-01",
+      "category": "mgmt_review",
+      "code": "FSC-01",
+      "title": "식품안전문화 실행계획서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "경영검토"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "DOC-001",
+      "category": "mdr",
+      "code": "DOC-001",
+      "title": "문서번호 체계",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "문서번호",
+        "DKJ-P",
+        "DKJ-WI",
+        "FR"
+      ],
+      "highlights": [
+        "DKJ-P / WI / FR / H / S 체계"
+      ]
+    },
+    {
+      "id": "DT-001",
+      "category": "mdr",
+      "code": "DT-001",
+      "title": "문서체계 템플릿",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "MDR",
+        "문서관리"
+      ],
+      "highlights": [
+        "최종본 260714 정본",
+        "FSSC22000 V6"
+      ]
+    },
+    {
+      "id": "MDR-001",
+      "category": "mdr",
+      "code": "MDR-001",
+      "title": "Master Document Register",
+      "rev": "RevXLSX",
+      "workflowStatus": "완료",
+      "fileType": "xlsx",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "sourcePath": "",
+      "tags": [
+        "MDR",
+        "현장"
+      ],
+      "highlights": [
+        "현장 빠른 참조",
+        "문서 목록 요약"
+      ]
+    }
+  ],
+  "mdrSource": {
+    "file": "",
+    "rev": "Rev11",
+    "entryCount": 186,
+    "syncedAt": "2026-07-14"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2026-07-09",
+  "site": "동김제농협 산지유통센터 가공공장",
+  "finishedProducts": [
+    { "code": "DKJ-FG-01", "name": "샐러디 채소믹스", "brand": "샐러디", "type": "채소믹스" },
+    { "code": "DKJ-FG-02", "name": "농협 채소믹스", "brand": "농협", "type": "채소믹스" },
+    { "code": "DKJ-FG-03", "name": "슬로우캘리 채소믹스", "brand": "슬로우캘리", "type": "채소믹스" },
+    { "code": "DKJ-FG-04", "name": "포케올데이 채소믹스", "brand": "포케올데이", "type": "채소믹스" },
+    { "code": "DKJ-FG-05", "name": "샐러디아 채소믹스", "brand": "샐러디아", "type": "채소믹스" },
+    { "code": "DKJ-FG-06", "name": "NH닭가슴살샐러드", "brand": "NH", "type": "단백질샐러드" },
+    { "code": "DKJ-FG-07", "name": "슬로우캘리샐러드믹스", "brand": "슬로우캘리", "type": "샐러드믹스" },
+    { "code": "DKJ-FG-08", "name": "양상추샐러드", "brand": "동김제", "type": "단일채소" }
+  ],
+  "rawMaterialPresets": [
+    { "name": "양상추", "materialType": "원료", "unit": "kg", "products": ["DKJ-FG-08", "DKJ-FG-01", "DKJ-FG-02", "DKJ-FG-03", "DKJ-FG-04", "DKJ-FG-05", "DKJ-FG-07"] },
+    { "name": "혼합채소(채소믹스용)", "materialType": "원료", "unit": "kg", "products": ["DKJ-FG-01", "DKJ-FG-02", "DKJ-FG-03", "DKJ-FG-04", "DKJ-FG-05", "DKJ-FG-07"] },
+    { "name": "닭가슴살(원료)", "materialType": "원료", "unit": "kg", "products": ["DKJ-FG-06"] },
+    { "name": "샐러드용 소스·부자재", "materialType": "부자재", "unit": "kg", "products": ["DKJ-FG-06", "DKJ-FG-07"] },
+    { "name": "포장트레이", "materialType": "포장재", "unit": "EA", "products": [] },
+    { "name": "필름·라벨", "materialType": "포장재", "unit": "EA", "products": [] },
+    { "name": "소독·세척제", "materialType": "소독제", "unit": "L", "products": [] }
+  ]
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#008352">
+  <title>기록양식 | 동김제농협 가공센터</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dkj-portal.css">
+</head>
+<body class="docs-page">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <div class="brand-mark">DKJ</div>
+        <div class="brand-text"><strong>동김제농협</strong><span>가공센터 · FSSC22000 V6</span></div>
+      </a>
+      <nav class="gnb" id="gnb" data-dkj-nav data-active="records" data-base="" aria-label="주요 메뉴"></nav>
+      <div class="header-utils">
+        <a class="pill-btn blue" href="docs-center.html">문서센터</a>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <section class="docs-hero" style="background:linear-gradient(135deg,#1565c0,#0d47a1);">
+    <div class="container">
+      <h1>📝 기록양식 FR</h1>
+      <p id="recordsHeroNote">FR-001~047 · 절차서와 연결 · 태블릿 HTML 전환 예정 (현재 xlsx 메타)</p>
+      <div class="docs-status-row">
+        <span class="status-pill done">47종 Rev1 초보자 O/X</span>
+        <span class="status-pill wip">HTML 작성 — 단계적 전환</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="container docs-layout">
+    <aside class="docs-sidebar" id="recordsSidebar"></aside>
+    <section class="docs-main">
+      <div id="categoryHead"></div>
+      <div class="docs-toolbar">
+        <input type="search" class="docs-search" id="recordSearch" placeholder="FR번호·제목 검색…">
+        <select class="docs-filter" id="recordFreqFilter">
+          <option value="all">전체 주기</option>
+          <option value="매일">매일</option>
+          <option value="주간">주간</option>
+          <option value="월간">월간</option>
+          <option value="연간">연간</option>
+          <option value="이슈">이슈 발생 시</option>
+        </select>
+      </div>
+      <p class="docs-count" id="recordCount">불러오는 중…</p>
+      <div class="doc-list" id="recordList"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container" style="padding:24px 0;">
+      <a href="docs-center.html" style="color:var(--dkj-green);font-weight:700;">← 문서센터</a>
+    </div>
+  </footer>
+
+  <script src="js/record-catalog.bundle.js"></script>
+  <script src="js/menu-catalog.bundle.js"></script>
+  <script src="js/dkj-nav.js"></script>
+  <script src="js/records-center.js"></script>
+</body>
+</html>

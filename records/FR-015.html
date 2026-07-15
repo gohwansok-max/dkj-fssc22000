@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#c62828">
+  <title>FR-015 부적합 원부자재 처리 | 동김제농협</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dkj-portal.css">
+  <link rel="stylesheet" href="../css/dkj-form.css">
+  <link rel="stylesheet" href="../css/dkj-print.css">
+  <style>
+    .dkj-form-header.nc { background: linear-gradient(135deg, #c62828, #8e0000); }
+    .reason-chip { padding: 10px 14px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 13px; cursor: pointer; min-height: 44px; }
+    .reason-chip.on { background: #ffebee; border-color: #c62828; color: #b71c1c; font-weight: 700; }
+    #reasonGrid { display: flex; flex-wrap: wrap; gap: 8px; }
+  </style>
+</head>
+<body class="dkj-form-page">
+  <div class="screen-only">
+  <header class="dkj-form-header nc">
+    <div class="container">
+      <div>
+        <h1>FR-015 부적합 원부자재 처리기록</h1>
+        <p>Rev1 · DKJ-P-05·P-17 연계 · FR-014 연동</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="pill-btn ghost" href="../records-center.html" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">← FR 목록</a>
+        <a class="pill-btn ghost" href="FR-014.html" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">FR-014 입고검사</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container dkj-form-body">
+    <div class="process-bar-wrap">
+      <p style="font-size:12px;color:#888;margin:0 0 6px;">가공공정 흐름 — <strong style="color:var(--dkj-green)">입고</strong> 단계 부적합 처리</p>
+      <div id="processBar"></div>
+    </div>
+
+    <div class="dkj-form-toolbar">
+      <div class="dkj-status" id="saveStatus"><span class="dot"></span> 준비</div>
+      <button type="button" class="pill-btn green" id="btnSave">저장</button>
+      <button type="button" class="pill-btn blue" id="btnLock">작성완료</button>
+      <button type="button" class="pill-btn ghost" id="btnNew">새 건</button>
+      <button type="button" class="pill-btn ghost" id="btnPrint">인쇄(정본)</button>
+    </div>
+
+    <div class="viewer-notice" id="carBanner" hidden style="margin-bottom:14px;background:#ffebee;border-color:#ef9a9a;color:#b71c1c;">
+      CAR 필요 — <a href="../record-viewer.html?id=FR-021" style="font-weight:700;">FR-021 시정조치 요구서</a> 검토
+    </div>
+
+    <section class="dkj-panel">
+      <h2>① FR-014 입고검사 연동</h2>
+      <div class="dkj-field full">
+        <label for="linkedFr014">연결할 입고검사 기록</label>
+        <select id="linkedFr014"></select>
+        <p style="font-size:12px;color:#888;margin:8px 0 0;">부적합·격리 판정된 FR-014만 표시됩니다.</p>
+      </div>
+    </section>
+
+    <section class="dkj-panel">
+      <h2>② 부적합 자재 정보</h2>
+      <p style="font-size:12px;color:#888;margin:-8px 0 10px;">원료 빠른 선택</p>
+      <div class="preset-row" id="rawPresets"></div>
+      <div id="linkedProductTags" class="linked-products"></div>
+      <div class="dkj-field-grid" style="margin-top:12px;">
+        <div class="dkj-field">
+          <label for="processDate">처리일자 *</label>
+          <input type="date" id="processDate">
+        </div>
+        <div class="dkj-field">
+          <label for="discoverStep">발견 공정</label>
+          <select id="discoverStep"></select>
+        </div>
+        <div class="dkj-field">
+          <label for="supplier">공급업체 *</label>
+          <input type="text" id="supplier">
+        </div>
+        <div class="dkj-field">
+          <label for="itemName">품목명 *</label>
+          <input type="text" id="itemName">
+        </div>
+        <div class="dkj-field">
+          <label for="lot">LOT *</label>
+          <input type="text" id="lot">
+          <button type="button" class="btn-lot" id="btnLot">LOT 자동생성</button>
+        </div>
+        <div class="dkj-field" style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+          <div><label for="qty">수량</label><input type="number" id="qty" step="0.1"></div>
+          <div><label for="unit">단위</label><select id="unit"><option>kg</option><option>EA</option></select></div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#888;margin:14px 0 8px;">연계 완제품 (8종)</p>
+      <div class="product-chip-row" id="linkedProductChips"></div>
+    </section>
+
+    <section class="dkj-panel">
+      <h2>③ 부적합 사유</h2>
+      <div id="reasonGrid"></div>
+      <div class="dkj-field full" style="margin-top:12px;">
+        <label for="reasonText">상세 내용</label>
+        <textarea id="reasonText" placeholder="이물 종류, 온도 수치, 사진 번호 등"></textarea>
+      </div>
+    </section>
+
+    <section class="dkj-panel">
+      <h2>④ 격리·처리 (DKJ-P-17)</h2>
+      <div class="dkj-field-grid">
+        <div class="dkj-field">
+          <label for="isolateLocation">격리 장소</label>
+          <input type="text" id="isolateLocation" value="부적합 격리구역">
+        </div>
+        <div class="dkj-field">
+          <label for="disposition">처리방법</label>
+          <select id="disposition">
+            <option value="격리">격리·보류</option>
+            <option value="반품">반품</option>
+            <option value="폐기">폐기</option>
+            <option value="선별">선별 후 사용</option>
+            <option value="조건부">조건부 사용 (HACCP팀장 승인)</option>
+          </select>
+        </div>
+        <div class="dkj-field">
+          <label for="notifySupplier">공급업체 통보</label>
+          <select id="notifySupplier"><option>예</option><option>아니오</option></select>
+        </div>
+        <div class="dkj-field">
+          <label for="carRequired">CAR 발행 필요</label>
+          <select id="carRequired"><option>아니오</option><option>예</option></select>
+        </div>
+        <div class="dkj-field">
+          <label for="handler">처리담당 *</label>
+          <input type="text" id="handler">
+        </div>
+        <div class="dkj-field">
+          <label for="approver">승인 (HACCP팀장)</label>
+          <input type="text" id="approver">
+        </div>
+        <div class="dkj-field full">
+          <label for="remark">후속조치·비고</label>
+          <textarea id="remark" placeholder="공급업체 재평가, FR-014 재검사 등"></textarea>
+        </div>
+      </div>
+      <div class="dkj-link-bar">
+        <a class="link-chip sm" href="../doc-viewer.html?id=DKJ-P-05">P-05 입고검사</a>
+        <a class="link-chip sm" href="../doc-viewer.html?id=DKJ-P-17">P-17 부적합품</a>
+        <a class="link-chip sm" href="FR-014.html">FR-014</a>
+        <a class="link-chip sm" href="../record-viewer.html?id=FR-021">FR-021 CAR</a>
+      </div>
+    </section>
+
+    <section class="dkj-panel history">
+      <h2>⑤ 최근 처리 기록</h2>
+      <div id="historyList"></div>
+    </section>
+  </main>
+
+  </div>
+  <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
+
+
+  <script src="../js/dkj-record-store.js"></script>
+  <script src="../js/dkj-print-form.js"></script>
+  <script src="../js/dkj-master-data.js"></script>
+  <script src="../js/FR-015.js"></script>
+</body>
+</html>

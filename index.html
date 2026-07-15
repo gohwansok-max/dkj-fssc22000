@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#008352">
+  <meta name="description" content="동김제농협 가공센터 FSSC22000 V6 · HACCP 품질·식품안전 포털">
+  <title>동김제농협 가공센터 | FSSC22000 품질포털</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dkj-portal.css">
+  <link rel="stylesheet" href="css/dkj-form.css">
+</head>
+<body>
+  <!-- GNB -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="동김제농협 가공센터 홈">
+        <div class="brand-mark" aria-hidden="true">DKJ</div>
+        <div class="brand-text">
+          <strong>동김제농협</strong>
+          <span>가공센터 · FSSC22000 V6</span>
+        </div>
+      </a>
+
+      <nav class="gnb" id="gnb" data-dkj-nav data-active="home" data-base="" aria-label="주요 메뉴"></nav>
+
+      <div class="header-utils">
+        <a class="pill-btn blue" href="records/FR-014.html">현장기록</a>
+        <a class="pill-btn green" href="docs-center.html">문서센터</a>
+        <button class="pill-btn ghost" type="button" onclick="alert('영문 페이지는 추후 제공 예정입니다.')">ENGLISH</button>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="gnb">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero" aria-label="메인 비주얼">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-content">
+        <div class="hero-kicker">FSSC22000 V6 인증 운영체계</div>
+        <h1>안전한 농산물 가공,<br>신뢰받는 식품안전</h1>
+        <p>동김제농협 가공센터의 HACCP·선행요건·현장 기록을 한곳에서 관리합니다.</p>
+        <div class="hero-actions">
+          <a class="pill-btn green" href="docs-center.html">문서센터 열람</a>
+          <a class="pill-btn green" href="records/DKJ-S-02-03.html">개인위생</a>
+          <a class="pill-btn green" href="records/DKJ-S-02-05.html">온습도</a>
+          <a class="pill-btn green" href="records/DKJ-H-01-01.html">CCP-1BC</a>
+          <a class="pill-btn ghost" href="records/FR-014.html" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.35);">입고→보관</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick links (농협형) -->
+    <section class="quick-bar" aria-label="빠른 메뉴">
+      <div class="container">
+        <ul>
+          <li><a href="records/DKJ-S-02-01.html">작업장 위생점검</a></li>
+          <li><a href="records/DKJ-S-02-03.html">개인위생점검</a></li>
+          <li><a href="records/DKJ-S-02-29.html">종사자건강</a></li>
+          <li><a href="records/DKJ-S-02-04.html">이물점검</a></li>
+          <li><a href="records/DKJ-S-02-05.html">온습도점검</a></li>
+          <li><a href="records/DKJ-S-02-07.html">방충방서</a></li>
+          <li><a href="records/DKJ-H-01-01.html">CCP-1BC 소독·헹굼</a></li>
+          <li><a href="records/DKJ-H-01-02.html">CCP-2P 금속검출</a></li>
+          <li><a href="records/FR-014.html">FR-014 입고검사</a></li>
+          <li><a href="records/DKJ-STORE-01.html">보관·FIFO</a></li>
+          <li><a href="mdr-register.html">MDR-001 Rev11</a></li>
+          <li><a href="docs-center.html?cat=procedure">절차서 DKJ-P</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="section" id="about" aria-labelledby="info-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="info-title">INFORMATION <em>DKJ</em></h2>
+          <p>동김제농협 가공센터 운영체계 한눈에 보기</p>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-icon" aria-hidden="true">🏅</div>
+            <div class="stat-value">V6</div>
+            <div class="stat-label">FSSC22000</div>
+            <div class="stat-desc">Food Defense·Fraud·알레르겐 반영</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon" aria-hidden="true">📋</div>
+            <div class="stat-value">149</div>
+            <div class="stat-label">문서 정본</div>
+            <div class="stat-desc">최종본260714 · 카탈로그 연동</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon" aria-hidden="true">⚙️</div>
+            <div class="stat-value">20</div>
+            <div class="stat-label">절차서 DKJ-P</div>
+            <div class="stat-desc">SIPOC·실무TIP·심사확인 포함</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon" aria-hidden="true">🛡️</div>
+            <div class="stat-value">2</div>
+            <div class="stat-label">CCP 운영</div>
+            <div class="stat-desc">소독·헹굼 / 금속검출 공정</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon" aria-hidden="true">🧪</div>
+            <div class="stat-value">8</div>
+            <div class="stat-label">PRP 기준</div>
+            <div class="stat-desc">PRP-001~008 + 일상일지 30건</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process line -->
+    <section class="section" id="process" style="padding-top:0;background:#f4f6f8;">
+      <div class="container">
+        <div class="section-head">
+          <h2>PROCESS <em>LINE</em></h2>
+          <p>신선편의식품 13단계 · CCP-1BC 소독·헹굼 · CCP-2P 금속검출</p>
+        </div>
+        <div class="process-bar-wrap" style="background:#fff;padding:16px;border-radius:var(--dkj-radius);border:1px solid var(--dkj-border);">
+          <div id="portalProcessBar"></div>
+        </div>
+        <div class="stats-grid" style="margin-top:20px;">
+          <article class="stat-card" style="cursor:pointer;" onclick="location.href='records/FR-014.html'">
+            <div class="stat-icon">📦</div>
+            <div class="stat-value">FR-014</div>
+            <div class="stat-label">입고검사</div>
+            <div class="stat-desc">공정 1단계 · 매일</div>
+          </article>
+          <article class="stat-card" style="cursor:pointer;" onclick="location.href='records/FR-015.html'">
+            <div class="stat-icon">⛔</div>
+            <div class="stat-value">FR-015</div>
+            <div class="stat-label">부적합 처리</div>
+            <div class="stat-desc">입고 부적합 시 연동</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature tiles -->
+    <section class="section" id="fssc" style="padding-top:0;">
+      <div class="container tile-grid">
+        <article class="feature-tile tile-a">
+          <div class="tile-body">
+            <h3>문서센터</h3>
+            <p>절차서·MDR·SOP·프로세스맵 — 완료/수정필요 상태 표시</p>
+            <a class="link" href="docs-center.html">바로가기 →</a>
+          </div>
+        </article>
+        <article class="feature-tile tile-b">
+          <div class="tile-body">
+            <h3>기록양식 FR</h3>
+            <p>FR-001~047 · 절차서 연결 · 매일/주간/이슈 구분</p>
+            <a class="link" href="records-center.html">바로가기 →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- News band -->
+    <section class="news-band" id="quality" aria-labelledby="news-title">
+      <div class="container">
+        <div class="section-head" style="color:#fff;">
+          <h2 id="news-title" style="color:#fff;">품질·운영 소식</h2>
+          <p style="color:rgba(255,255,255,.8);">공지 · 심사 · 현장 이슈를 한곳에서 확인</p>
+        </div>
+        <div class="news-grid">
+          <div class="news-col">
+            <h3>공지사항 <button type="button" aria-label="더보기">+</button></h3>
+            <article class="news-card">
+              <span class="tag">FSSC 인증</span>
+              <h4>FSSC22000 V6 최종본260714 · MDR Rev11 반영</h4>
+              <p>절차서·PRP·SOP·HACCP·교육·내부심사 149건을 포털 메가메뉴·문서센터에 연동했습니다.</p>
+              <div class="date">2026.07.14</div>
+            </article>
+          </div>
+          <div class="news-col">
+            <h3>현장 알림 <button type="button" aria-label="더보기">+</button></h3>
+            <article class="news-card">
+              <span class="tag">CCP</span>
+              <h4>CCP-1BC 소독·헹굼 / CCP-2P 금속검출 일지 매일 작성</h4>
+              <p>생산일에는 반드시 일지를 당일 마감하고 HACCP팀장 확인을 받습니다.</p>
+              <div class="date">2026.07.08</div>
+            </article>
+          </div>
+          <div class="news-col">
+            <h3>교육·심사 <button type="button" aria-label="더보기">+</button></h3>
+            <article class="news-card">
+              <span class="tag">내부심사</span>
+              <h4>DKJ-P-07 Rev1 내부심사 절차서 시행</h4>
+              <p>특별심사 트리거·7일 전 계획 배포·시작/종료회의 절차가 반영되었습니다.</p>
+              <div class="date">2026.07.07</div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About shortcuts -->
+    <section class="section" id="records" aria-labelledby="about-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="about-title">ABOUT <em>DKJ</em></h2>
+          <p>현장에서 자주 쓰는 문서·기록 바로가기</p>
+        </div>
+        <div class="about-grid">
+          <a class="about-card about-1" href="records-center.html?cat=daily">
+            <strong>매일 작성기록</strong>
+            <span class="go">바로가기 →</span>
+          </a>
+          <a class="about-card about-2" href="docs-center.html?cat=haccp">
+            <strong>CCP 점검표</strong>
+            <span class="go">바로가기 →</span>
+          </a>
+          <a class="about-card about-3" href="docs-center.html?cat=mdr">
+            <strong>MDR·문서체계</strong>
+            <span class="go">바로가기 →</span>
+          </a>
+          <a class="about-card about-4" href="docs-center.html?cat=procedure">
+            <strong>절차서·교육</strong>
+            <span class="go">바로가기 →</span>
+          </a>
+          <a class="about-card about-5" href="docs-center.html?cat=sop">
+            <strong>SOP·작업표준</strong>
+            <span class="go">완료 · 열람</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Portal placeholder -->
+    <section class="section" id="portal" style="background:var(--dkj-green-light);padding:48px 0;">
+      <div class="container" style="text-align:center;">
+        <h2 style="margin:0 0 10px;font-size:24px;">스마트 QMS 연동 영역</h2>
+        <p style="margin:0 0 20px;color:var(--dkj-text-muted);">인증 후 코엔에프 스마트 HACCP 엔진을 이 포털에 연결할 예정입니다.</p>
+        <a class="pill-btn green" href="../../HTML(QMS관리)/conf_qms.html" style="display:inline-flex;">코엔에프 QMS 미리보기 (개발용)</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer-grid">
+      <div>
+        <strong>동김제농협 가공센터</strong>
+        <p style="margin:8px 0 0;">전라북드 김제시 · FSSC22000 V6 운영체계</p>
+        <div class="footer-links">
+          <a href="#">개인정보처리방침</a>
+          <a href="#">이메일무단수집거부</a>
+          <a href="#">찾아오시는 길</a>
+        </div>
+      </div>
+      <div>
+        <strong>품질·HACCP 문의</strong>
+        <p style="margin:8px 0 0;">Tel. 063-000-0000<br>E-mail. quality@dkj-nh.local</p>
+      </div>
+      <div>
+        <strong>운영 안내</strong>
+        <p style="margin:8px 0 0;">평일 09:00–18:00<br>현장 기록은 스마트폰·태블릿에서도 작성 가능</p>
+      </div>
+    </div>
+    <div class="container" style="margin-top:24px;padding-top:16px;border-top:1px solid var(--dkj-border);">
+      © 동김제농협 가공센터. All rights reserved. · 템플릿 v0.1 (농협 톤 참고)
+    </div>
+  </footer>
+
+  <div class="float-utils" aria-label="바로가기">
+    <a href="#" title="유튜브" aria-label="유튜브">▶</a>
+    <a href="#" title="카카오" aria-label="카카오">💬</a>
+    <button type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="맨 위로">TOP</button>
+  </div>
+
+  <script src="js/menu-catalog.bundle.js"></script>
+  <script src="js/dkj-master-data.js"></script>
+  <script src="js/dkj-nav.js"></script>
+  <script>
+    (function () {
+      if (window.DkjMaster) {
+        DkjMaster.renderProcessBar('portalProcessBar', 'recv');
+      }
+    })();
+  </script>
+</body>
+</html>

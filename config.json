@@ -1,0 +1,23 @@
+{
+  "tenantId": "dkj",
+  "displayName": "동김제농협 가공센터",
+  "certification": "FSSC22000_V6",
+  "theme": "nonghyup-corporate",
+  "organization": {
+    "shortName": "동김제농협",
+    "fullName": "동김제농협 가공센터",
+    "roles": ["조합장", "센터장", "HACCP팀장", "생산팀장", "품질담당"]
+  },
+  "portal": {
+    "heroTitle": "안전한 농산물 가공, 신뢰받는 식품안전",
+    "heroSubtitle": "FSSC22000 V6 최종본260714 · MDR Rev11 · 현장 기록 포털",
+    "contactTel": "063-000-0000",
+    "contactEmail": "quality@dkj-nh.local"
+  },
+  "features": {
+    "mixingOcr": false,
+    "foodDefense": true,
+    "allergen": true,
+    "envMonitoring": true
+  }
+}

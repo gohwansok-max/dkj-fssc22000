@@ -1,0 +1,34 @@
+{
+  "updatedAt": "2026-07-09",
+  "title": "신선편의식품 가공공정",
+  "steps": [
+    { "id": "recv", "label": "입고", "forms": ["FR-014"], "ccp": false },
+    { "id": "store1", "label": "보관", "forms": ["DKJ-STORE-01"], "ccp": false },
+    { "id": "cut", "label": "절단", "forms": [], "ccp": false },
+    { "id": "weigh", "label": "계량", "forms": [], "ccp": false },
+    { "id": "mix", "label": "혼합", "forms": [], "ccp": false },
+    { "id": "optical", "label": "광학선별", "forms": [], "ccp": false },
+    { "id": "ccp1", "label": "소독", "forms": ["DKJ-H-01-01"], "ccp": true, "ccpCode": "CCP-1BC" },
+    { "id": "rinse", "label": "헹굼", "forms": ["DKJ-H-01-01"], "ccp": true, "ccpCode": "CCP-1BC" },
+    { "id": "dehydrate", "label": "탈수", "forms": [], "ccp": false },
+    { "id": "pack", "label": "포장", "forms": [], "ccp": false },
+    { "id": "ccp2", "label": "금속검출", "forms": ["DKJ-H-01-02"], "ccp": true, "ccpCode": "CCP-2P" },
+    { "id": "cold", "label": "냉장보관", "forms": [], "ccp": false },
+    { "id": "ship", "label": "출하", "forms": [], "ccp": false }
+  ],
+  "ncSteps": [
+    { "id": "recv", "label": "입고검사" },
+    { "id": "store1", "label": "보관" },
+    { "id": "cut", "label": "절단" },
+    { "id": "weigh", "label": "계량" },
+    { "id": "mix", "label": "혼합" },
+    { "id": "optical", "label": "광학선별" },
+    { "id": "ccp1", "label": "소독(CCP-1BC)" },
+    { "id": "rinse", "label": "헹굼(CCP-1BC)" },
+    { "id": "dehydrate", "label": "탈수" },
+    { "id": "pack", "label": "포장" },
+    { "id": "ccp2", "label": "금속검출(CCP-2P)" },
+    { "id": "cold", "label": "냉장보관" },
+    { "id": "ship", "label": "출하" }
+  ]
+}

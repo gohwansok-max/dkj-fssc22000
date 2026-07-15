@@ -1,0 +1,348 @@
+/* 정본형 인쇄 시트 — 화면 UX(.screen-only)와 분리 */
+
+.print-sheet {
+  display: none;
+}
+
+@media screen {
+  .print-sheet {
+    display: none !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 12mm 12mm;
+  }
+
+  html, body {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .screen-only,
+  .dkj-form-header,
+  .dkj-form-toolbar,
+  .dkj-form-body,
+  .dkj-panel.history,
+  .site-header,
+  .viewer-top,
+  .viewer-tabs,
+  .pdf-toolbar,
+  .pill-btn {
+    display: none !important;
+  }
+
+  .print-sheet {
+    display: block !important;
+  }
+
+  .ps-page {
+    font-family: "Noto Sans KR", "맑은 고딕", "Malgun Gothic", sans-serif;
+    font-size: 9pt;
+    color: #000;
+    width: 100%;
+  }
+
+  .ps-org {
+    text-align: right;
+    font-size: 9pt;
+    font-weight: 700;
+    margin-bottom: 4pt;
+  }
+
+  .ps-meta,
+  .ps-rev,
+  .ps-info,
+  .ps-grid {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6pt;
+  }
+
+  .ps-meta td,
+  .ps-meta th,
+  .ps-rev td,
+  .ps-rev th,
+  .ps-info td,
+  .ps-info th,
+  .ps-grid td,
+  .ps-grid th {
+    border: 0.5pt solid #000;
+    padding: 3pt 4pt;
+    vertical-align: middle;
+  }
+
+  .ps-title-cell {
+    text-align: left;
+    padding: 6pt 8pt !important;
+  }
+
+  .ps-docno {
+    font-size: 8pt;
+    color: #333;
+    margin-bottom: 2pt;
+  }
+
+  .ps-title {
+    font-size: 14pt;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .ps-apv-lab {
+    width: 28pt;
+    writing-mode: vertical-rl;
+    text-align: center;
+    font-size: 8pt;
+  }
+
+  .ps-apv {
+    width: 48pt;
+    text-align: center;
+    font-size: 8pt;
+    background: #e8e8e8 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .ps-sign {
+    height: 36pt;
+    text-align: center;
+    font-size: 9pt;
+  }
+
+  .ps-rev th,
+  .ps-info th,
+  .ps-grid thead th {
+    background: #d9d9d9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: 700;
+    text-align: center;
+    font-size: 8pt;
+  }
+
+  .ps-grid td.c,
+  .ps-info td {
+    text-align: center;
+  }
+
+  .ps-grid td.l {
+    text-align: left;
+  }
+
+  .ps-foot {
+    margin-top: 8pt;
+    font-size: 9pt;
+    line-height: 1.5;
+  }
+
+  .ps-note {
+    margin-top: 6pt;
+    font-size: 8pt;
+    color: #222;
+  }
+
+  .ps-brand {
+    margin-top: 14pt;
+    text-align: right;
+    font-size: 8pt;
+    color: #444;
+  }
+
+  /* ===== 정본 HWP형 (CCP 등 고밀도) ===== */
+  .off-ccp {
+    font-family: "맑은 고딕", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    font-size: 8pt;
+    color: #000;
+    line-height: 1.25;
+  }
+
+  .off-ccp table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .off-ccp th,
+  .off-ccp td {
+    border: 0.6pt solid #000;
+    padding: 1.5pt 2pt;
+    vertical-align: middle;
+  }
+
+  .off-head {
+    margin-bottom: 2pt;
+  }
+
+  .off-meta {
+    width: 24%;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .off-meta-in th {
+    width: 38%;
+    background: #fff !important;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .off-meta-in td {
+    font-size: 7.5pt;
+    text-align: center;
+  }
+
+  .off-title-cell {
+    width: 48%;
+    text-align: center;
+    border: 0.6pt solid #000 !important;
+  }
+
+  .off-title {
+    font-size: 13pt;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .off-sub {
+    font-size: 11pt;
+    font-weight: 700;
+    margin-top: 2pt;
+  }
+
+  .off-apv-wrap {
+    width: 28%;
+    padding: 0 !important;
+    border: none !important;
+    vertical-align: top;
+  }
+
+  .off-apv th,
+  .off-apv td {
+    font-size: 7.5pt;
+  }
+
+  .off-apv-lab {
+    width: 18pt;
+    text-align: center;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .off-apv .off-sign {
+    height: 28pt;
+    text-align: center;
+    font-size: 8pt;
+  }
+
+  .off-date {
+    margin: 2pt 0 3pt;
+  }
+
+  .off-date td {
+    border: none !important;
+    padding: 1pt 0 !important;
+    font-size: 8.5pt;
+  }
+
+  .off-date .r {
+    text-align: right;
+  }
+
+  .off-grid th.lab,
+  .off-grid .lab {
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: 700;
+    text-align: center;
+    font-size: 7.5pt;
+  }
+
+  .off-grid thead th,
+  .off-mon thead th {
+    background: #e8e8e8 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: 700;
+    text-align: center;
+    font-size: 7pt;
+    line-height: 1.15;
+  }
+
+  .off-grid .c { text-align: center; }
+  .off-grid .l { text-align: left; padding-left: 3pt !important; }
+  .off-grid .r { text-align: right; }
+  .off-grid .strong { font-weight: 700; }
+  .off-grid .tiny,
+  .off-box.tiny,
+  td.tiny {
+    font-size: 6.5pt !important;
+    line-height: 1.35;
+    text-align: left;
+  }
+
+  .off-sec {
+    text-align: center;
+    font-weight: 800;
+    font-size: 8.5pt;
+    margin: 4pt 0 2pt;
+  }
+
+  .off-box {
+    border: 0.6pt solid #000;
+    padding: 3pt 4pt;
+    margin-bottom: 3pt;
+  }
+
+  .off-mon td {
+    height: 14pt;
+    font-size: 7.5pt;
+  }
+
+  .off-foot {
+    margin-top: 4pt;
+    text-align: right;
+    font-size: 7pt;
+    color: #333;
+  }
+
+  .off-topmeta .pad0 {
+    padding: 0 !important;
+  }
+
+  .off-nest {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+  }
+
+  .off-nest th,
+  .off-nest td {
+    border: 0.5pt solid #000;
+    padding: 1pt 2pt;
+    font-size: 6.5pt;
+  }
+
+  .off-nest-hd th {
+    background: #e8e8e8 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .off-correct th.vert {
+    width: 12%;
+    writing-mode: horizontal-tb;
+    letter-spacing: 0;
+    line-height: 1.35;
+    font-size: 7.5pt;
+    padding: 4pt 2pt !important;
+  }
+}

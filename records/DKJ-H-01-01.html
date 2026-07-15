@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#c62828">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>DKJ-H-01-01 CCP-1BC 소독·헹굼 | 동김제농협</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dkj-portal.css">
+  <link rel="stylesheet" href="../css/dkj-form.css">
+  <link rel="stylesheet" href="../css/dkj-print.css">
+</head>
+<body class="dkj-form-page">
+  <div class="screen-only">
+  <header class="dkj-form-header" style="background:linear-gradient(135deg,#c62828,#8e0000);">
+    <div class="container">
+      <div>
+        <h1>DKJ-H-01-01 CCP-1BC 점검표</h1>
+        <p>중요관리점 · 소독·헹굼공정 · 이탈 시 즉시조치 필수</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="pill-btn ghost" href="../docs-center.html?cat=haccp" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">← HACCP</a>
+        <a class="pill-btn ghost" href="../doc-viewer.html?id=DKJ-H-01-01" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">정본</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container dkj-form-body">
+    <div class="dkj-form-toolbar">
+      <div class="dkj-status" id="saveStatus"><span class="dot"></span> 준비</div>
+      <button type="button" class="pill-btn green" id="btnSave">저장</button>
+      <button type="button" class="pill-btn blue" id="btnLock">작성완료</button>
+      <button type="button" class="pill-btn ghost" id="btnNew">새 일보</button>
+      <button type="button" class="pill-btn ghost" id="btnPrint">인쇄(정본)</button>
+    </div>
+
+    <div class="viewer-notice" style="margin-bottom:14px;background:#fff8e1;border-color:#ffe082;color:#5d4037;">
+      <strong>한계기준(임시 운영값)</strong> — HACCP관리기준서 확정값으로 교체하세요.<br>
+      유효염소 <strong>50~200 ppm</strong> · 침지시간 <strong>≥ 60초</strong> · 헹굼 <strong>완료(O)</strong>
+    </div>
+
+    <section class="dkj-panel">
+      <h2>① 생산·CCP 기본정보</h2>
+      <div class="dkj-field-grid">
+        <div class="dkj-field">
+          <label for="workDate">작업일자 *</label>
+          <input type="date" id="workDate" required>
+        </div>
+        <div class="dkj-field">
+          <label for="disinfectant">소독제</label>
+          <select id="disinfectant">
+            <option value="NaOCl">차아염소산나트륨(NaOCl)</option>
+            <option value="ClO2">이산화염소</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+        <div class="dkj-field">
+          <label for="productName">품목 *</label>
+          <input type="text" id="productName" placeholder="예: 세척채소 믹스">
+        </div>
+        <div class="dkj-field">
+          <label for="lot">LOT *</label>
+          <input type="text" id="lot" placeholder="생산LOT">
+        </div>
+        <div class="dkj-field">
+          <label for="clMin">한계기준 하한 (ppm)</label>
+          <input type="number" id="clMin" value="50" min="0" step="1">
+        </div>
+        <div class="dkj-field">
+          <label for="clMax">한계기준 상한 (ppm)</label>
+          <input type="number" id="clMax" value="200" min="0" step="1">
+        </div>
+        <div class="dkj-field">
+          <label for="timeMin">최소 침지시간 (초)</label>
+          <input type="number" id="timeMin" value="60" min="0" step="1">
+        </div>
+        <div class="dkj-field">
+          <label for="monitorName">모니터링 담당 *</label>
+          <input type="text" id="monitorName" placeholder="성명">
+        </div>
+      </div>
+    </section>
+
+    <section class="dkj-panel">
+      <h2>② 모니터링 결과 <span style="font-weight:500;color:#888;font-size:12px;">(작업 시작·중·품목변경·종료)</span></h2>
+      <div class="mon-toolbar">
+        <button type="button" class="pill-btn green" id="btnAddRow">＋ 측정행 추가</button>
+        <button type="button" class="pill-btn ghost" id="btnNow">지금시각 채우기</button>
+      </div>
+      <div class="mon-table-wrap">
+        <table class="mon-table" id="monTable">
+          <thead>
+            <tr>
+              <th>시각</th>
+              <th>유효염소<br>(ppm)</th>
+              <th>침지<br>(초)</th>
+              <th>헹굼</th>
+              <th>판정</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="monBody"></tbody>
+        </table>
+      </div>
+      <p id="deviationBanner" class="viewer-notice" hidden style="margin-top:12px;background:#ffebee;border-color:#ef9a9a;color:#b71c1c;">
+        🚨 한계기준 이탈 감지 — 아래 이탈조치에 <strong>필수</strong> 기록하세요.
+      </p>
+    </section>
+
+    <section class="dkj-panel">
+      <h2>③ 이탈·개선조치</h2>
+      <div class="dkj-field-grid">
+        <div class="dkj-field full">
+          <label for="deviation">이탈 내용 (시각·측정값·원인)</label>
+          <textarea id="deviation" placeholder="이탈 없으면 '해당없음'"></textarea>
+        </div>
+        <div class="dkj-field full">
+          <label for="corrective">시정조치 (제품처분·재작업·재측정·조치자·완료시각)</label>
+          <textarea id="corrective" placeholder="이탈 시 필수 · 해당없으면 공란"></textarea>
+        </div>
+        <div class="dkj-field">
+          <label for="confirmer">확인자 (HACCP팀장)</label>
+          <input type="text" id="confirmer" placeholder="성명">
+        </div>
+        <div class="dkj-field">
+          <label for="remark">비고</label>
+          <input type="text" id="remark" placeholder="소독액 교체 시각 등">
+        </div>
+      </div>
+      <div class="dkj-link-bar">
+        <span>관련:</span>
+        <a class="link-chip sm" href="../doc-viewer.html?id=DKJ-H-01-01">CCP 일지 정본</a>
+        <a class="link-chip sm" href="../doc-viewer.html?id=DKJ-W-004">SOP 세척·소독</a>
+        <a class="link-chip sm" href="DKJ-H-01-02.html">CCP-2P 금속검출</a>
+        <a class="link-chip sm" href="DKJ-S-02-01.html">작업장 위생점검</a>
+      </div>
+    </section>
+
+    <section class="dkj-panel history">
+      <h2>④ 최근 저장 기록 (이 기기)</h2>
+      <div id="historyList"></div>
+    </section>
+  </main>
+
+  </div>
+  <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
+
+
+  <script src="../js/dkj-record-store.js"></script>
+  <script src="../js/dkj-print-form.js"></script>
+  <script src="../js/dkj-print-official.js"></script>
+  <script src="../js/DKJ-H-01-01.js"></script>
+</body>
+</html>

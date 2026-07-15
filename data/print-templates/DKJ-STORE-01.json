@@ -1,0 +1,61 @@
+{
+  "layout": "ox",
+  "columnMode": "result",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "DKJ-STORE-01",
+  "title": "원료보관·선입선출 점검",
+  "rev": "0",
+  "enactDate": "2026.07.10",
+  "reviseDate": "2026.07.10",
+  "rows": [
+    {
+      "key": "c01",
+      "group": "식별",
+      "label": "품명·LOT 라벨 부착",
+      "hint": "식별 가능하게 표시",
+      "freq": "D",
+      "ampm": false
+    },
+    {
+      "key": "c02",
+      "group": "FIFO",
+      "label": "선입선출 위치 지정",
+      "hint": "오래된 LOT가 앞에",
+      "freq": "D",
+      "ampm": false
+    },
+    {
+      "key": "c03",
+      "group": "온도",
+      "label": "보관온도 기준 내",
+      "hint": "냉장/상온 기준 준수",
+      "freq": "D",
+      "ampm": false
+    },
+    {
+      "key": "c04",
+      "group": "위생",
+      "label": "용기·파렛 청결",
+      "hint": "이물·오염 없음",
+      "freq": "D",
+      "ampm": false
+    },
+    {
+      "key": "c05",
+      "group": "격리",
+      "label": "부적합·보류품과 분리",
+      "hint": "교차취급 방지",
+      "freq": "D",
+      "ampm": false
+    },
+    {
+      "key": "c06",
+      "group": "알레르겐",
+      "label": "알레르겐 원료 구분 보관",
+      "hint": "해당시",
+      "freq": "D",
+      "ampm": false
+    }
+  ],
+  "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간"
+}

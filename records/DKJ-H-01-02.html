@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#c62828">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>DKJ-H-01-02 CCP-2P 금속검출 | 동김제농협</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dkj-portal.css">
+  <link rel="stylesheet" href="../css/dkj-form.css">
+  <link rel="stylesheet" href="../css/dkj-print.css">
+</head>
+<body class="dkj-form-page">
+  <div class="screen-only">
+  <header class="dkj-form-header" style="background:linear-gradient(135deg,#1565c0,#0d47a1);">
+    <div class="container">
+      <div>
+        <h1>DKJ-H-01-02 CCP-2P 점검표</h1>
+        <p>중요관리점 · 금속검출공정 · 표준시편 검출 확인</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="pill-btn ghost" href="../docs-center.html?cat=haccp" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">← HACCP</a>
+        <a class="pill-btn ghost" href="../doc-viewer.html?id=DKJ-W-007" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">SOP W-007</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container dkj-form-body">
+    <div class="dkj-form-toolbar">
+      <div class="dkj-status" id="saveStatus"><span class="dot"></span> 준비</div>
+      <button type="button" class="pill-btn green" id="btnSave">저장</button>
+      <button type="button" class="pill-btn blue" id="btnLock">작성완료</button>
+      <button type="button" class="pill-btn ghost" id="btnNew">새 일보</button>
+      <button type="button" class="pill-btn ghost" id="btnPrint">인쇄(정본)</button>
+    </div>
+
+    <div class="viewer-notice" style="margin-bottom:14px;background:#e3f2fd;border-color:#90caf9;color:#0d47a1;">
+      <strong>한계기준(임시 운영값)</strong> — HACCP관리기준서 확정값으로 교체하세요.<br>
+      표준시편 <strong>Fe Ø1.5㎜ · SUS Ø2.0㎜</strong> → 모두 <strong>검출(O)</strong> · 제품만 통과 시 오검출 없음
+    </div>
+
+    <section class="dkj-panel">
+      <h2>① 생산·설비 기본정보</h2>
+      <div class="dkj-field-grid">
+        <div class="dkj-field">
+          <label for="workDate">작업일자 *</label>
+          <input type="date" id="workDate" required>
+        </div>
+        <div class="dkj-field">
+          <label for="equipment">금속검출기</label>
+          <input type="text" id="equipment" placeholder="호기·관리번호" value="MD-01">
+        </div>
+        <div class="dkj-field">
+          <label for="productName">품목 *</label>
+          <input type="text" id="productName" placeholder="예: 세척채소 믹스">
+        </div>
+        <div class="dkj-field">
+          <label for="lot">LOT *</label>
+          <input type="text" id="lot" placeholder="생산LOT">
+        </div>
+        <div class="dkj-field">
+          <label for="feSize">Fe 시편 (㎜)</label>
+          <input type="text" id="feSize" value="1.5">
+        </div>
+        <div class="dkj-field">
+          <label for="susSize">SUS 시편 (㎜)</label>
+          <input type="text" id="susSize" value="2.0">
+        </div>
+        <div class="dkj-field">
+          <label for="monitorName">모니터링 담당 *</label>
+          <input type="text" id="monitorName" placeholder="성명">
+        </div>
+        <div class="dkj-field">
+          <label for="timing">점검 구분</label>
+          <select id="timing">
+            <option value="시작전">작업시작 전</option>
+            <option value="작업중">작업 중(2h)</option>
+            <option value="품목변경">품목 변경</option>
+            <option value="종료">작업종료</option>
+          </select>
+        </div>
+    </section>
+
+    <section class="dkj-panel">
+      <h2>② 모니터링 결과 <span style="font-weight:500;color:#888;font-size:12px;">(검샬 O · 불검출 X)</span></h2>
+      <div class="mon-toolbar">
+        <button type="button" class="pill-btn green" id="btnAddRow">＋ 측젔행 추가</button>
+        <button type="button" class="pill-btn ghost" id="btnNow">지금싔각 채우기</button>
+      </div>
+      <div class="mon-table-wrap">
+        <table class="mon-table" id="monTable">
+          <thead>
+            <tr>
+              <th rowspan="2">시각</th>
+              <th colspan="2">시편짌</th>
+              <th colspan="2">제품+시편</th>
+              <th rowspan="2">판정</th>
+              <th rowspan="2"></th>
+            </tr>
+            <tr>
+              <th>Fe</th>
+              <th>SUS</th>
+              <th>Fe</th>
+              <th>SUS</th>
+            </tr>
+          </thead>
+          <tbody id="monBody"></tbody>
+        </table>
+      </div>
+      <p id="deviationBanner" class="viewer-notice" hidden style="margin-top:12px;background:#ffebee;border-color:#ef9a9a;color:#b71c1c;">
+        🚨 한계기준 이탈불검출) — 아래 이탈조치에 <strong>필수</strong> 기록하세요. 해당 LOT 격리·재검사.
+      </p>
+    </section>
+
+    <section class="dkj-panel">
+      <h2>③ 이탈·개선조치</h2>
+      <div class="dkj-field-grid">
+        <div class="dkj-field full">
+          <label for="deviation">이탈 내용 (시각·불검출 항목·원인)</label>
+          <textarea id="deviation" placeholder="이탈 없으면 '해당없음'"></textarea>
+        </div>
+        <div class="dkj-field full">
+          <label for="corrective">시정조치 (제품처분·감도조정·재테스트·조치자·완료시각)</label>
+          <textarea id="corrective" placeholder="이탈 시 필수 · SOP DKJ-W-007 절차 준수"></textarea>
+        </div>
+        <div class="dkj-field">
+          <label for="confirmer">확인자 (HACCP팀장)</label>
+          <input type="text" id="confirmer" placeholder="성명">
+        </div>
+        <div class="dkj-field">
+          <label for="remark">비고</label>
+          <input type="text" id="remark" placeholder="감도설정값·고장유무 등">
+        </div>
+      </div>
+      <div class="dkj-link-bar">
+        <span>관련:</span>
+        <a class="link-chip sm" href="../doc-viewer.html?id=DKJ-H-01-02">CCP 일지 정본</a>
+        <a class="link-chip sm" href="../doc-viewer.html?id=DKJ-W-007">SOP 금속검출기</a>
+        <a class="link-chip sm" href="DKJ-H-01-01.html">CCP-1BC</a>
+        <a class="link-chip sm" href="DKJ-S-02-01.html">작업장 위생</a>
+      </div>
+    </section>
+
+    <section class="dkj-panel history">
+      <h2>④ 최근 저장 기록 (이 기기)</h2>
+      <div id="historyList"></div>
+    </section>
+  </main>
+
+  </div>
+  <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
+
+
+  <script src="../js/dkj-record-store.js"></script>
+  <script src="../js/dkj-print-form.js"></script>
+  <script src="../js/dkj-print-official.js"></script>
+  <script src="../js/DKJ-H-01-02.js"></script>
+</body>
+</html>

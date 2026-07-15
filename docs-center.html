@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#008352">
+  <title>문서센터 | 동김제농협 가공센터</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dkj-portal.css">
+</head>
+<body class="docs-page">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="동김제농협 가공센터 홈">
+        <div class="brand-mark" aria-hidden="true">DKJ</div>
+        <div class="brand-text">
+          <strong>동김제농협</strong>
+          <span>가공센터 · FSSC22000 V6</span>
+        </div>
+      </a>
+
+      <nav class="gnb" id="gnb" data-dkj-nav data-active="docs" data-base="" aria-label="주요 메뉴"></nav>
+
+      <div class="header-utils">
+        <a class="pill-btn blue" href="mdr-register.html">MDR Rev11</a>
+        <a class="pill-btn green" href="records-center.html">기록양식</a>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="gnb">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="docs-hero">
+    <div class="container">
+      <h1>📚 문서센터</h1>
+      <p>통합매뉴얼 · 절차서 · PRP · SOP · HACCP · 교육 · 심사 — <strong>최종본260714</strong> · MDR Rev11</p>
+      <div class="docs-status-row" id="docsStatusRow" aria-label="문서 진행 현황"></div>
+    </div>
+  </section>
+
+  <main class="container docs-layout">
+    <aside class="docs-sidebar" id="docsSidebar" aria-label="문서 카테고리"></aside>
+
+    <section class="docs-main" aria-labelledby="categoryHead">
+      <div id="categoryHead"></div>
+
+      <div class="docs-toolbar">
+        <input type="search" class="docs-search" id="docSearch" placeholder="문서번호·제목·태그 검색…" aria-label="문서 검색">
+        <select class="docs-filter" id="docStatusFilter" aria-label="진행상태 필터">
+          <option value="all">전체 상태</option>
+          <option value="완료">완료</option>
+          <option value="수정필요">수정필요</option>
+        </select>
+      </div>
+
+      <p class="docs-count" id="docCount">불러오는 중…</p>
+      <div class="doc-list" id="docList" role="list"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container" style="padding:24px 0;">
+      <a href="index.html" style="color:var(--dkj-green);font-weight:700;">← 포털 홈</a>
+      <span style="margin-left:12px;color:var(--dkj-text-muted);font-size:13px;">문서센터 · FSSC22000 V6 최종본260714 · 149건 카탈로그</span>
+    </div>
+  </footer>
+
+  <script src="js/doc-catalog.bundle.js"></script>
+  <script src="js/menu-catalog.bundle.js"></script>
+  <script src="js/dkj-links.js"></script>
+  <script src="js/dkj-nav.js"></script>
+  <script src="js/docs-center.js"></script>
+</body>
+</html>

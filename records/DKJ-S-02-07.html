@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#008352">
+  <title>DKJ-S-02-07 방충방서관리점검일지 | 동김제농협</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dkj-portal.css">
+  <link rel="stylesheet" href="../css/dkj-form.css">
+  <link rel="stylesheet" href="../css/dkj-print.css">
+</head>
+<body class="dkj-form-page">
+  <div class="screen-only">
+  <header class="dkj-form-header">
+    <div class="container">
+      <div>
+        <h1>DKJ-S-02-07 방충방서관리점검일지</h1>
+        <p>선행요건 · 월간 · 트랩·차단·발생징후 O/X</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="pill-btn ghost" href="../records-center.html?cat=daily" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">← 기록목록</a><a class="pill-btn ghost" href="DKJ-S-02-01.html" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">작업장 위생</a>
+      </div>
+    </div>
+  </header>
+  <main class="container dkj-form-body">
+    <div class="dkj-form-toolbar">
+      <div class="dkj-status" id="saveStatus"><span class="dot"></span> 준비</div>
+      <button type="button" class="pill-btn green" id="btnSave">저장</button>
+      <button type="button" class="pill-btn blue" id="btnLock">작성완료</button>
+      <button type="button" class="pill-btn ghost" id="btnNew">새 일보</button>
+      <button type="button" class="pill-btn ghost" id="btnPrint">인쇄(정본)</button>
+    </div>
+    
+    <section class="dkj-panel">
+      <h2>① 점검 기본정보</h2>
+      <div class="dkj-field-grid">
+        <div class="dkj-field"><label for="checkDate">점검일자 *</label><input type="date" id="checkDate"></div><div class="dkj-field"><label for="shift">근무조</label><select id="shift"><option value="주간">주간</option><option value="야간">야간</option><option value="기타">기타</option></select></div><div class="dkj-field"><label for="area">점검구역</label><select id="area"><option value="전처리">전처리실</option><option value="소독헹굼">소독·헹굼실</option><option value="포장">포장실</option><option value="냉장">냉장창고</option><option value="전체">작업장 전체</option></select></div><div class="dkj-field"><label for="pestVendor">방제업체/담당</label><input type="text" id="pestVendor" placeholder="해당시"></div>
+      </div>
+    </section>
+    <section class="dkj-panel">
+      <h2>② 방충방서 O/X <span style="font-weight:500;color:#888;font-size:12px;">(O 적합 · X 부적합 · - 해당없음)</span></h2>
+      <div class="ox-grid" id="oxGrid"></div>
+    </section>
+    <section class="dkj-panel">
+      <h2>③ 판정·시정</h2>
+      <div class="dkj-field-grid">
+        <div class="dkj-field full"><label>종합판정 *</label>
+          <div class="judge-row">
+            <button type="button" class="judge-btn ok" id="judgeOk" data-judge="적합">✓ 적합</button>
+            <button type="button" class="judge-btn ng" id="judgeNg" data-judge="부적합">✕ 부적합</button>
+          </div>
+        </div>
+        <div class="dkj-field full"><label for="corrective">부적합 시 즉시조치</label>
+          <textarea id="corrective" placeholder="내용·조치자·완료시각"></textarea></div>
+        <div class="dkj-field"><label for="inspector">점검자 *</label><input type="text" id="inspector" placeholder=""></div><div class="dkj-field"><label for="confirmer">확인자</label><input type="text" id="confirmer" placeholder=""></div>
+        <div class="dkj-field full"><label for="remark">비고</label><textarea id="remark"></textarea></div>
+      </div>
+      <div class="dkj-link-bar">
+        <a class="link-chip sm" href="../doc-viewer.html?id=DKJ-S-02-07">일지 정본</a><a class="link-chip sm" href="../doc-viewer.html?id=PRP-001">PRP-001</a>
+      </div>
+    </section>
+    <section class="dkj-panel history"><h2>④ 최근 저장</h2><div id="historyList"></div></section>
+  </main>
+  </div>
+  <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
+  <script src="../js/dkj-record-store.js"></script>
+  
+  <script src="../js/dkj-print-form.js"></script>
+  <script src="../js/dkj-ox-form.js"></script>
+  <script src="../js/DKJ-S-02-07.js"></script>
+</body>
+</html>
