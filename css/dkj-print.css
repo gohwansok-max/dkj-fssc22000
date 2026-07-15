@@ -345,4 +345,11 @@
     font-size: 7.5pt;
     padding: 4pt 2pt !important;
   }
+
+  .off-note {
+    margin-top: 4pt;
+    font-size: 6.5pt;
+    line-height: 1.35;
+    color: #222;
+  }
 }

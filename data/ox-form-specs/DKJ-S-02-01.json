@@ -184,14 +184,21 @@
     }
   ],
   "print": {
-    "layout": "ox",
-    "columnMode": "result",
+    "layout": "official-prp-ox",
     "orgName": "동김제농협 가공센터",
     "docNo": "DKJ-S-02-01",
     "title": "작업장 위생점검일지",
+    "subtitle": "선행요건 · PRP",
     "rev": "0",
-    "enactDate": "2026.07.10",
-    "reviseDate": "2026.07.10",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "areaLabels": {
+      "전처리": "전처리실",
+      "소독헹굼": "소독·헹굼실",
+      "포장": "포장실",
+      "냉장": "냉장창고",
+      "전체": "작업장 전체"
+    },
     "rows": [
       {
         "key": "f01",

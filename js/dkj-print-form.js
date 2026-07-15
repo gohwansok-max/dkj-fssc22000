@@ -200,6 +200,14 @@
       sheet.innerHTML = global.DkjPrintOfficial.ccp1bc(state || {});
       return sheet;
     }
+    if (t.layout === 'official-prp-ox' && global.DkjPrintOfficial) {
+      sheet.innerHTML = global.DkjPrintOfficial.prpOx(state || {}, t);
+      return sheet;
+    }
+    if (t.layout === 'official-prp-mon-th' && global.DkjPrintOfficial) {
+      sheet.innerHTML = global.DkjPrintOfficial.prpMonTh(state || {}, t);
+      return sheet;
+    }
     var body;
     if (t.layout === 'ccp-rows') {
       body = renderCcpRows(t, state || {});

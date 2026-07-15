@@ -1,6 +1,6 @@
 /**
- * 동김제 정본형 CCP 인쇄 레이아웃 (HWP 점검표 구조 복제)
- * DkjPrintOfficial.ccp2p(state) / .ccp1bc(state)
+ * 동김제 정본형 인쇄 레이아웃 (HWP 점검표 구조 복제)
+ * CCP: ccp2p / ccp1bc · PRP: prpOx / prpMonTh
  */
 (function (global) {
   'use strict';
@@ -256,27 +256,91 @@
     state = state || {};
     var dt = ymdParts(state.workDate);
     var writer = state.monitorName || '';
+    var prod = state.productName || '';
     var rows = (state.rows || []).slice();
-    while (rows.length < 5) rows.push({ time: '', ppm: '', soak: '', rinse: '', judge: '' });
+    while (rows.length < 6) {
+      rows.push({ time: '', ppm: '', soak: '', rinse: '', judge: '' });
+    }
 
-    var body = rows.map(function (r, i) {
-      var tag = i === 0 ? '작업시작 전' : (i === rows.length - 1 ? '작업 종료 시' : '');
-      return '<tr>' +
-        '<td class="c">' + (tag || esc(state.productName || '')) + '</td>' +
+    var monBody = rows.map(function (r, i) {
+      var label = '';
+      if (i === 0) label = '작업시작 전';
+      else if (i === rows.length - 1) label = '작업종료 시';
+      var nameCell = label
+        ? '<td class="c strong">' + label + '</td>'
+        : '<td class="l">' + esc(i === 1 ? prod : (r.productName || '')) + '</td>';
+      return (
+        '<tr>' + nameCell +
         '<td class="c">' + esc(r.time || '') + '</td>' +
         '<td class="c">' + esc(r.ppm || '') + '</td>' +
         '<td class="c">' + esc(r.soak || '') + '</td>' +
         '<td class="c">' + ox(r.rinse) + '</td>' +
-        '<td class="c">' + (r.judge ? ox(r.judge) : '○ / ×') + '</td>' +
-        '<td class="c">' + esc(r.time ? writer : '') + '</td></tr>';
+        '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
+        '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'
+      );
+    }).join('');
+
+    var lotRows = (state.lotLog || [{
+      productName: prod,
+      lot: state.lot || '',
+      start: (state.rows && state.rows[0] && state.rows[0].time) || '',
+      end: (state.rows && state.rows[state.rows.length - 1] && state.rows[state.rows.length - 1].time) || '',
+      ok: state.hasDeviation ? '×' : '',
+      qty: state.processQty || '',
+      note: state.remark || ''
+    }]).map(function (p) {
+      return '<tr>' +
+        '<td class="l">' + esc(p.productName) + '</td>' +
+        '<td class="c">' + esc(p.lot) + '</td>' +
+        '<td class="c">' + esc(p.start) + '</td>' +
+        '<td class="c">' + esc(p.end) + '</td>' +
+        '<td class="c">' + ox(p.ok) + '</td>' +
+        '<td class="c">' + esc(p.qty) + '</td>' +
+        '<td class="l">' + esc(p.note) + '</td></tr>';
     }).join('');
 
     var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
     var devBody = hasDev
-      ? '<tr><td class="c"></td><td class="l">' + esc(state.deviation || '') + '</td>' +
-        '<td class="l">' + esc(state.corrective || '') + '</td><td class="c"></td>' +
-        '<td class="c">' + esc(writer) + '</td><td class="c">' + esc(state.confirmer || '') + '</td></tr>'
-      : '<tr><td style="height:18pt"></td><td></td><td></td><td></td><td></td><td></td></tr>';
+      ? '<tr>' +
+        '<td class="c">' + esc((state.rows && state.rows.find(function (r) { return r.judge === 'X'; }) || {}).time || '') + '</td>' +
+        '<td class="l">' + esc(state.deviation || '한계기준 이탈') + '</td>' +
+        '<td class="l">' + esc(state.corrective || '') + '</td>' +
+        '<td class="c"></td>' +
+        '<td class="c">' + esc(writer) + '</td>' +
+        '<td class="c">' + esc(state.confirmer || '') + '</td></tr>'
+      : '<tr><td style="height:16pt"></td><td></td><td></td><td></td><td></td><td></td></tr>' +
+        '<tr><td style="height:16pt"></td><td></td><td></td><td></td><td></td><td></td></tr>';
+
+    var limitTable =
+      '<table class="off-nest">' +
+      '<tr class="off-nest-hd"><th>구분</th><th>항목</th><th>한계기준</th><th>측정방법</th></tr>' +
+      '<tr><td class="c" rowspan="2">소독</td><td class="l">유효염소농도</td>' +
+      '<td class="c">' + esc(state.clMin || 50) + ' ~ ' + esc(state.clMax || 200) + ' ppm</td>' +
+      '<td class="c">시험지 측정</td></tr>' +
+      '<tr><td class="l">침지시간</td><td class="c">≥ ' + esc(state.timeMin || 60) + ' 초</td>' +
+      '<td class="c">타이머·관찰</td></tr>' +
+      '<tr><td class="c">헹굼</td><td class="l">헹굼완료</td><td class="c">잔류 소독제 없음</td>' +
+      '<td class="c">육안·촉각 확인</td></tr>' +
+      '</table>';
+
+    var methodHtml =
+      '* 작업시작 전 소독액 유효염소농도(시험지) 측정 및 침지시간·헹굼상태 확인<br>' +
+      '* 작업 중 LOT별(또는 2시간 이내) 유효염소농도, 침지시간, 헹굼 상태 확인<br>' +
+      '* 소독액 교체 시 농도 재측정 후 기록<br>' +
+      '* 품목 변경·작업종료 시 재측정·기록<br>' +
+      '* 판정 : 적합 - ○ , 부적합 - × , 해당 없음 -';
+
+    var correctiveHtml =
+      '<strong>1. 유효염소농도 한계기준 이탈 시</strong><br>' +
+      '- 즉시 작업을 중단하고 해당 LOT(제품)을 부적합품 보관장소에 격리·식별한다. ' +
+      '소독액을 교체하거나 농도를 재조정한 후 시험지로 재측정하여 한계기준 이내임을 확인한다. ' +
+      '이탈 발생 전 정상 확인 시점 이후 처리된 제품에 대해 재평가 후 필요시 재소독·재헹굼한다.<br>' +
+      '<strong>2. 침지시간 미달 시</strong><br>' +
+      '- 즉시 작업 중단, 해당 제품 격리, 침지시간 확보 후 재소독·재헹굼 처리한다.<br>' +
+      '<strong>3. 헹굼 미완료 시</strong><br>' +
+      '- 즉시 작업 중단, 해당 제품 격리, 충분한 헹굼 후 재평가한다.<br>' +
+      '<strong>※ 공통 :</strong> 소독·헹굼공정담당자는 한계기준 이탈 시 이탈내용과 개선조치내용을 CCP점검표에 기록하여 ' +
+      '생산팀장의 검토 후 HACCP팀장의 승인을 얻은 후 기록 관리한다.';
 
     return (
       '<div class="ps-page off-ccp">' +
@@ -291,45 +355,55 @@
         reviewer: state.confirmer || '',
         approver: state.approver || ''
       }) +
-      '<table class="off-date"><tr><td class="l">' +
-      esc(dt.y) + ' 년 &nbsp;' + esc(dt.m) + ' 월 &nbsp;' + esc(dt.d) + ' 일 &nbsp;(&nbsp;' + esc(dt.w) + '&nbsp;요일)' +
-      '</td><td class="r">작성자: ' + esc(writer) + '</td></tr></table>' +
 
-      '<table class="off-grid">' +
-      '<tr><th class="lab" style="width:14%">위해요소</th>' +
-      '<td class="l" colspan="4">병원성미생물 (교차오염·잔류 소독제 등)</td></tr>' +
-      '<tr><th class="lab">관리기준<br>(한계기준)</th>' +
-      '<td class="l" colspan="4">유효염소농도 ' + esc(state.clMin || 50) + ' ~ ' + esc(state.clMax || 200) +
-      ' ppm · 침지시간 ≥ ' + esc(state.timeMin || 60) + ' 초 · 헹굼 완료</td></tr>' +
+      '<table class="off-grid off-topmeta">' +
+      '<tr>' +
+      '<th class="lab" style="width:12%">작성일자</th>' +
+      '<td class="l" style="width:55%">' +
+      (dt.y || '　　') + ' 년 &nbsp;&nbsp;' + (dt.m || '　') + ' 월 &nbsp;&nbsp;' + (dt.d || '　') +
+      ' 일 &nbsp;(&nbsp;' + (dt.w || '　') + '&nbsp;)요일' +
+      '</td>' +
+      '<th class="lab" style="width:12%">작 성 자</th>' +
+      '<td class="c" style="width:21%">' + esc(writer) + '</td>' +
+      '</tr>' +
+      '<tr><th class="lab">위해요소</th>' +
+      '<td class="l" colspan="3">병원성미생물 (교차오염·잔류 소독제·미생물 증식 등)</td></tr>' +
+      '<tr><th class="lab">한계기준</th>' +
+      '<td class="pad0" colspan="3">' + limitTable + '</td></tr>' +
       '<tr><th class="lab">모니터링<br>주기</th>' +
-      '<td class="l" colspan="4">작업 시작 전 · 작업 중 LOT별(또는 2시간) · 작업 종료 시 · 소독액 교체 시</td></tr>' +
+      '<td class="l" colspan="3">작업시작 전, 작업 중 LOT별(또는 2시간), 품목 변경시, 작업종료 시, 소독액 교체 시</td></tr>' +
       '<tr><th class="lab">모니터링<br>방법</th>' +
-      '<td class="l tiny" colspan="4">' +
-      '1. 소독액 유효염소농도를 시험지로 측정한다.<br>' +
-      '2. 침지시간을 확인하고 헹굼 완료 여부를 확인한다.<br>' +
-      '3. 한계기준 이탈 시 즉시 생산중지·격리 후 개선조치한다.' +
-      '</td></tr>' +
+      '<td class="l tiny" colspan="3">' + methodHtml + '</td></tr>' +
       '<tr><th class="lab">품명/LOT</th>' +
-      '<td class="l" colspan="4">' + esc(state.productName || '') + ' / ' + esc(state.lot || '') +
-      ' · 소독제: ' + esc(state.disinfectant || '') + '</td></tr></table>' +
+      '<td class="l" colspan="3">' + esc(prod) + ' / ' + esc(state.lot || '') +
+      ' · 소독제: ' + esc(state.disinfectant || 'NaOCl') + '</td></tr>' +
+      '</table>' +
 
       '<div class="off-sec">● 소독·헹굼공정(CCP-1BC) 모니터링 결과 ●</div>' +
       '<table class="off-grid off-mon">' +
       '<thead><tr>' +
-      '<th>품명</th><th>점검시간</th><th>유효염소(ppm)</th><th>침지시간(초)</th><th>헹굼</th><th>판정(○/×)</th><th>서명</th>' +
-      '</tr></thead><tbody>' + body + '</tbody></table>' +
+      '<th style="width:14%">품명</th><th style="width:10%">점검시간</th>' +
+      '<th style="width:12%">유효염소<br>(ppm)</th><th style="width:12%">침지시간<br>(초)</th>' +
+      '<th style="width:8%">헹굼</th><th style="width:10%">판정<br>(○/×)</th><th style="width:10%">서명</th>' +
+      '</tr></thead><tbody>' + monBody + '</tbody></table>' +
 
-      '<div class="off-sec">이탈 시 개선조치 방법</div>' +
-      '<div class="off-box tiny">' +
-      '1. 즉시 해당 LOT를 격리하고 소독액 농도·침지시간을 재설정한다.<br>' +
-      '2. 재측정 적합 확인 후 생산을 재개하고 이탈·조치 내용을 기록한다.' +
-      '</div>' +
+      '<table class="off-grid off-correct">' +
+      '<tr><th class="lab vert">이탈시<br>개선조치<br>방법</th>' +
+      '<td class="l tiny">' + correctiveHtml + '</td></tr></table>' +
+
+      '<div class="off-sec">소독·헹굼 처리 LOT별 이탈 여부</div>' +
+      '<table class="off-grid">' +
+      '<thead><tr>' +
+      '<th>품명</th><th>LOT번호</th><th>최초 처리시간</th><th>종료시간</th>' +
+      '<th>이탈여부(○/×)</th><th>처리량</th><th>특이사항</th>' +
+      '</tr></thead><tbody>' + lotRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +
       '<table class="off-grid">' +
       '<thead><tr>' +
-      '<th>발생시간</th><th>한계기준 이탈사항</th><th>개선조치 및 결과</th>' +
-      '<th>개선조치시간</th><th>조치자</th><th>확인자</th>' +
+      '<th style="width:10%">발생시간</th><th style="width:22%">한계기준 이탈사항</th>' +
+      '<th style="width:28%">개선조치 및 결과</th><th style="width:12%">개선조치시간</th>' +
+      '<th style="width:12%">조치자</th><th style="width:12%">확인자</th>' +
       '</tr></thead><tbody>' + devBody + '</tbody></table>' +
 
       '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · DKJ-H-01-01</div>' +
@@ -337,5 +411,180 @@
     );
   }
 
-  global.DkjPrintOfficial = { ccp2p: ccp2p, ccp1bc: ccp1bc };
+  function areaLabel(code, labels) {
+    var map = {
+      '전처리': '전처리실',
+      '소독헹굼': '소독·헹굼실',
+      '포장': '포장실',
+      '냉장': '냉장창고',
+      '전체': '작업장 전체'
+    };
+    if (labels && labels[code]) return labels[code];
+    return map[code] || code || '';
+  }
+
+  /** PRP O/X 일지 정본 (DKJ-S-02-01 등) */
+  function prpOx(state, tmpl) {
+    state = state || {};
+    tmpl = tmpl || {};
+    var dt = ymdParts(state.checkDate);
+    var writer = state.inspector || '';
+    var rows = tmpl.rows || [];
+    var checks = state.checks || {};
+    var area = areaLabel(state.area, tmpl.areaLabels);
+
+    var body = rows.map(function (r, i) {
+      return '<tr>' +
+        '<td class="c">' + (i + 1) + '</td>' +
+        '<td class="c">' + esc(r.group || '') + '</td>' +
+        '<td class="l">' + esc(r.label) + '</td>' +
+        '<td class="c">' + esc(r.freq || 'D') + '</td>' +
+        '<td class="c">' + ox(checks[r.key]) + '</td>' +
+        '<td class="l">' + esc(r.hint || '') + '</td></tr>';
+    }).join('');
+
+    var note = tmpl.note ||
+      '※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간';
+
+    return (
+      '<div class="ps-page off-ccp">' +
+      officialHeader({
+        docNo: tmpl.docNo || 'DKJ-S-02-01',
+        enactDate: tmpl.enactDate || '2024. 02. 13',
+        rev: tmpl.rev || '0',
+        reviseDate: tmpl.reviseDate || '-',
+        title: tmpl.title || '작업장 위생점검일지',
+        subtitle: tmpl.subtitle || '선행요건 · PRP',
+        writer: writer,
+        reviewer: state.confirmer || '',
+        approver: state.approver || ''
+      }) +
+
+      '<table class="off-grid off-topmeta">' +
+      '<tr>' +
+      '<th class="lab" style="width:12%">점검일자</th>' +
+      '<td class="l" style="width:38%">' +
+      (dt.y || '　　') + ' 년 &nbsp;&nbsp;' + (dt.m || '　') + ' 월 &nbsp;&nbsp;' + (dt.d || '　') +
+      ' 일 &nbsp;(&nbsp;' + (dt.w || '　') + '&nbsp;)요일' +
+      '</td>' +
+      '<th class="lab" style="width:10%">점 검 자</th>' +
+      '<td class="c" style="width:18%">' + esc(writer) + '</td>' +
+      '<th class="lab" style="width:10%">근무조</th>' +
+      '<td class="c" style="width:12%">' + esc(state.shift || '') + '</td>' +
+      '</tr>' +
+      '<tr>' +
+      '<th class="lab">점검구역</th>' +
+      '<td class="l">' + esc(area) + '</td>' +
+      '<th class="lab">날씨·특이</th>' +
+      '<td class="l" colspan="3">' + esc(state.weather || '') + '</td>' +
+      '</tr></table>' +
+
+      '<div class="off-sec">● 작업장 위생점검 결과 ●</div>' +
+      '<table class="off-grid off-mon">' +
+      '<thead><tr>' +
+      '<th style="width:5%">No</th><th style="width:10%">구분</th><th>점검항목</th>' +
+      '<th style="width:7%">주기</th><th style="width:10%">결과<br>(○/×)</th><th style="width:22%">비고·기준</th>' +
+      '</tr></thead><tbody>' + body + '</tbody></table>' +
+
+      '<table class="off-grid">' +
+      '<tr><th class="lab" style="width:14%">종합판정</th>' +
+      '<td class="c" style="width:20%">' + esc(state.judge || '') + '</td>' +
+      '<th class="lab" style="width:14%">확 인 자</th>' +
+      '<td class="c">' + esc(state.confirmer || '') + '</td></tr>' +
+      '<tr><th class="lab">부적합 시<br>즉시조치</th>' +
+      '<td class="l tiny" colspan="3">' + esc(state.corrective || '') + '</td></tr>' +
+      '<tr><th class="lab">비고</th>' +
+      '<td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
+
+      '<div class="off-note tiny">' + esc(note) + '</div>' +
+      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || 'DKJ-S-02-01') + '</div>' +
+      '</div>'
+    );
+  }
+
+  /** PRP 온습도 일지 정본 (DKJ-S-02-05) */
+  function prpMonTh(state, tmpl) {
+    state = state || {};
+    tmpl = tmpl || {};
+    var dt = ymdParts(state.checkDate);
+    var writer = state.inspector || '';
+    var zones = state.zones || [];
+    var judge = state.judge || (state.hasDeviation ? '이탈' : '적합');
+
+    var body = zones.map(function (z) {
+      var hCrit = z.hMin == null ? '—' : (z.hMin + '~' + z.hMax);
+      return '<tr>' +
+        '<td class="l">' + esc(z.name) + '</td>' +
+        '<td class="c">' + esc(z.tMin) + '~' + esc(z.tMax) + '</td>' +
+        '<td class="c">' + esc(hCrit) + '</td>' +
+        '<td class="c">' + esc(z.amT) + '</td>' +
+        '<td class="c">' + esc(z.amH != null && z.amH !== '' ? z.amH : (z.hMin == null ? '—' : '')) + '</td>' +
+        '<td class="c">' + esc(z.pmT) + '</td>' +
+        '<td class="c">' + esc(z.pmH != null && z.pmH !== '' ? z.pmH : (z.hMin == null ? '—' : '')) + '</td>' +
+        '<td class="c">' + ox(z.judge) + '</td></tr>';
+    }).join('');
+
+    var stdNote = tmpl.stdNote ||
+      '※ 관리기준 — 작업실 온도 15~25℃ · 습도 40~70% · 냉장창고 0~5℃ (현장 확정 CL 적용)';
+    var note = tmpl.note || '※ 관리기준 이탈 시 즉시조치란에 기재한다.';
+
+    return (
+      '<div class="ps-page off-ccp">' +
+      officialHeader({
+        docNo: tmpl.docNo || 'DKJ-S-02-05',
+        enactDate: tmpl.enactDate || '2024. 02. 13',
+        rev: tmpl.rev || '0',
+        reviseDate: tmpl.reviseDate || '-',
+        title: tmpl.title || '온습도점검일지',
+        subtitle: tmpl.subtitle || '작업장·냉장 · 매일',
+        writer: writer,
+        reviewer: state.confirmer || '',
+        approver: state.approver || ''
+      }) +
+
+      '<table class="off-grid off-topmeta">' +
+      '<tr>' +
+      '<th class="lab" style="width:12%">점검일자</th>' +
+      '<td class="l" style="width:45%">' +
+      (dt.y || '　　') + ' 년 &nbsp;&nbsp;' + (dt.m || '　') + ' 월 &nbsp;&nbsp;' + (dt.d || '　') +
+      ' 일 &nbsp;(&nbsp;' + (dt.w || '　') + '&nbsp;)요일' +
+      '</td>' +
+      '<th class="lab" style="width:12%">점 검 자</th>' +
+      '<td class="c" style="width:18%">' + esc(writer) + '</td>' +
+      '<th class="lab" style="width:10%">계절</th>' +
+      '<td class="c" style="width:12%">' + esc(state.season || '') + '</td>' +
+      '</tr>' +
+      '<tr><th class="lab">관리기준</th>' +
+      '<td class="l tiny" colspan="5">' + esc(stdNote) + '</td></tr></table>' +
+
+      '<div class="off-sec">● 구역별 온·습도 점검 결과 ●</div>' +
+      '<table class="off-grid off-mon">' +
+      '<thead>' +
+      '<tr>' +
+      '<th rowspan="2" style="width:14%">구역</th>' +
+      '<th colspan="2">관리기준</th>' +
+      '<th colspan="2">오전</th>' +
+      '<th colspan="2">오후</th>' +
+      '<th rowspan="2" style="width:8%">판정<br>(○/×)</th>' +
+      '</tr>' +
+      '<tr><th>온도(℃)</th><th>습도(%)</th><th>℃</th><th>%</th><th>℃</th><th>%</th></tr>' +
+      '</thead><tbody>' + body + '</tbody></table>' +
+
+      '<table class="off-grid">' +
+      '<tr><th class="lab" style="width:14%">종합판정</th>' +
+      '<td class="c" style="width:20%">' + esc(judge) + '</td>' +
+      '<th class="lab" style="width:14%">확 인 자</th>' +
+      '<td class="c">' + esc(state.confirmer || '') + '</td></tr>' +
+      '<tr><th class="lab">이탈 시<br>즉시조치</th>' +
+      '<td class="l tiny" colspan="3">' + esc(state.corrective || '') + '</td></tr>' +
+      '<tr><th class="lab">비고</th>' +
+      '<td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
+
+      '<div class="off-note tiny">' + esc(note) + '</div>' +
+      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || 'DKJ-S-02-05') + '</div>' +
+      '</div>'
+    );
+  }
+
+  global.DkjPrintOfficial = { ccp2p: ccp2p, ccp1bc: ccp1bc, prpOx: prpOx, prpMonTh: prpMonTh };
 })(window);
