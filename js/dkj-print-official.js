@@ -423,17 +423,69 @@
     return map[code] || code || '';
   }
 
-  /** PRP O/X 일지 정본 (DKJ-S-02-01 등) */
+  function dateCell(dt) {
+    return (dt.y || '　　') + ' 년 &nbsp;&nbsp;' + (dt.m || '　') + ' 월 &nbsp;&nbsp;' + (dt.d || '　') +
+      ' 일 &nbsp;(&nbsp;' + (dt.w || '　') + '&nbsp;)요일';
+  }
+
+  function resolveDate(state, tmpl) {
+    var key = tmpl.dateKey || 'checkDate';
+    return state[key] || state.checkDate || state.storeDate || state.receiveDate || state.processDate || '';
+  }
+
+  function metaValue(state, tmpl, key) {
+    if (key === 'area') return areaLabel(state.area, tmpl.areaLabels);
+    var v = state[key];
+    if (v == null || v === '') return '';
+    return String(v);
+  }
+
+  /** PRP O/X 일지 정본 (result / ampm) */
   function prpOx(state, tmpl) {
     state = state || {};
     tmpl = tmpl || {};
-    var dt = ymdParts(state.checkDate);
-    var writer = state.inspector || '';
+    var dt = ymdParts(resolveDate(state, tmpl));
+    var writer = state.inspector || state.handler || '';
     var rows = tmpl.rows || [];
     var checks = state.checks || {};
-    var area = areaLabel(state.area, tmpl.areaLabels);
+    var checksPm = state.checksPm || {};
+    var ampm = tmpl.columnMode === 'ampm';
+    var dateLabel = tmpl.dateLabel || '점검일자';
+    var section = tmpl.sectionTitle || '● 점검 결과 ●';
+    var note = tmpl.note ||
+      '※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간';
+
+    var metaFields = tmpl.metaFields;
+    if (!metaFields) {
+      metaFields = [];
+      [
+        ['shift', '근무조'], ['area', '점검구역'], ['team', '작업팀'], ['headcount', '인원'],
+        ['vehicleNo', '차량번호'], ['driver', '운전자'], ['destination', '행선'],
+        ['pestVendor', '방제업체'], ['itemName', '품명'], ['lot', 'LOT'],
+        ['supplier', '공급처'], ['location', '보관장소'], ['qty', '수량'],
+        ['weather', '날씨·특이'], ['instrument', '측정기']
+      ].forEach(function (pair) {
+        if (metaValue(state, tmpl, pair[0]) || (tmpl.showMeta && tmpl.showMeta.indexOf(pair[0]) !== -1)) {
+          metaFields.push({ key: pair[0], label: pair[1] });
+        }
+      });
+      if (!metaFields.length && state.area != null) metaFields.push({ key: 'area', label: '점검구역' });
+      if (!metaFields.length && state.weather != null) metaFields.push({ key: 'weather', label: '날씨·특이' });
+    }
 
     var body = rows.map(function (r, i) {
+      if (ampm) {
+        var am = r.ampm === false ? '' : ox(checks[r.key]);
+        var pm = r.ampm === false ? '' : ox(checksPm[r.key] || '');
+        return '<tr>' +
+          '<td class="c">' + (i + 1) + '</td>' +
+          '<td class="c">' + esc(r.group || '') + '</td>' +
+          '<td class="l">' + esc(r.label) + '</td>' +
+          '<td class="c">' + esc(r.freq || 'D') + '</td>' +
+          '<td class="c">' + am + '</td>' +
+          '<td class="c">' + pm + '</td>' +
+          '<td class="l">' + esc(r.hint || '') + '</td></tr>';
+      }
       return '<tr>' +
         '<td class="c">' + (i + 1) + '</td>' +
         '<td class="c">' + esc(r.group || '') + '</td>' +
@@ -443,61 +495,68 @@
         '<td class="l">' + esc(r.hint || '') + '</td></tr>';
     }).join('');
 
-    var note = tmpl.note ||
-      '※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간';
+    var metaHtml =
+      '<table class="off-grid off-topmeta">' +
+      '<tr>' +
+      '<th class="lab" style="width:12%">' + esc(dateLabel) + '</th>' +
+      '<td class="l" style="width:38%">' + dateCell(dt) + '</td>' +
+      '<th class="lab" style="width:10%">점 검 자</th>' +
+      '<td class="c" style="width:18%">' + esc(writer) + '</td>' +
+      '<th class="lab" style="width:10%">확 인</th>' +
+      '<td class="c" style="width:12%">' + esc(state.confirmer || '') + '</td>' +
+      '</tr>';
+
+    if (metaFields.length) {
+      for (var mi = 0; mi < metaFields.length; mi += 2) {
+        var a = metaFields[mi];
+        var b = metaFields[mi + 1];
+        metaHtml += '<tr><th class="lab">' + esc(a.label) + '</th><td class="l">' +
+          esc(metaValue(state, tmpl, a.key)) + '</td>';
+        if (b) {
+          metaHtml += '<th class="lab">' + esc(b.label) + '</th><td class="l" colspan="3">' +
+            esc(metaValue(state, tmpl, b.key)) + '</td></tr>';
+        } else {
+          metaHtml += '<th class="lab"></th><td class="l" colspan="3"></td></tr>';
+        }
+      }
+    }
+    metaHtml += '</table>';
+
+    var head = ampm
+      ? '<th style="width:5%">No</th><th style="width:10%">구분</th><th>점검항목</th>' +
+        '<th style="width:7%">주기</th><th style="width:9%">오전</th><th style="width:9%">오후</th>' +
+        '<th style="width:18%">비고·기준</th>'
+      : '<th style="width:5%">No</th><th style="width:10%">구분</th><th>점검항목</th>' +
+        '<th style="width:7%">주기</th><th style="width:10%">결과<br>(○/×)</th><th style="width:22%">비고·기준</th>';
 
     return (
       '<div class="ps-page off-ccp">' +
       officialHeader({
-        docNo: tmpl.docNo || 'DKJ-S-02-01',
+        docNo: tmpl.docNo || '',
         enactDate: tmpl.enactDate || '2024. 02. 13',
         rev: tmpl.rev || '0',
         reviseDate: tmpl.reviseDate || '-',
-        title: tmpl.title || '작업장 위생점검일지',
+        title: tmpl.title || '',
         subtitle: tmpl.subtitle || '선행요건 · PRP',
         writer: writer,
         reviewer: state.confirmer || '',
         approver: state.approver || ''
       }) +
-
-      '<table class="off-grid off-topmeta">' +
-      '<tr>' +
-      '<th class="lab" style="width:12%">점검일자</th>' +
-      '<td class="l" style="width:38%">' +
-      (dt.y || '　　') + ' 년 &nbsp;&nbsp;' + (dt.m || '　') + ' 월 &nbsp;&nbsp;' + (dt.d || '　') +
-      ' 일 &nbsp;(&nbsp;' + (dt.w || '　') + '&nbsp;)요일' +
-      '</td>' +
-      '<th class="lab" style="width:10%">점 검 자</th>' +
-      '<td class="c" style="width:18%">' + esc(writer) + '</td>' +
-      '<th class="lab" style="width:10%">근무조</th>' +
-      '<td class="c" style="width:12%">' + esc(state.shift || '') + '</td>' +
-      '</tr>' +
-      '<tr>' +
-      '<th class="lab">점검구역</th>' +
-      '<td class="l">' + esc(area) + '</td>' +
-      '<th class="lab">날씨·특이</th>' +
-      '<td class="l" colspan="3">' + esc(state.weather || '') + '</td>' +
-      '</tr></table>' +
-
-      '<div class="off-sec">● 작업장 위생점검 결과 ●</div>' +
+      metaHtml +
+      '<div class="off-sec">' + esc(section) + '</div>' +
       '<table class="off-grid off-mon">' +
-      '<thead><tr>' +
-      '<th style="width:5%">No</th><th style="width:10%">구분</th><th>점검항목</th>' +
-      '<th style="width:7%">주기</th><th style="width:10%">결과<br>(○/×)</th><th style="width:22%">비고·기준</th>' +
-      '</tr></thead><tbody>' + body + '</tbody></table>' +
-
+      '<thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>' +
       '<table class="off-grid">' +
       '<tr><th class="lab" style="width:14%">종합판정</th>' +
       '<td class="c" style="width:20%">' + esc(state.judge || '') + '</td>' +
       '<th class="lab" style="width:14%">확 인 자</th>' +
       '<td class="c">' + esc(state.confirmer || '') + '</td></tr>' +
       '<tr><th class="lab">부적합 시<br>즉시조치</th>' +
-      '<td class="l tiny" colspan="3">' + esc(state.corrective || '') + '</td></tr>' +
+      '<td class="l tiny" colspan="3">' + esc(state.corrective || state.action || '') + '</td></tr>' +
       '<tr><th class="lab">비고</th>' +
       '<td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
-
       '<div class="off-note tiny">' + esc(note) + '</div>' +
-      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || 'DKJ-S-02-01') + '</div>' +
+      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || '') + '</div>' +
       '</div>'
     );
   }
@@ -586,5 +645,205 @@
     );
   }
 
-  global.DkjPrintOfficial = { ccp2p: ccp2p, ccp1bc: ccp1bc, prpOx: prpOx, prpMonTh: prpMonTh };
+  /** PRP 조도 일지 정본 (DKJ-S-02-02) */
+  function prpMonLux(state, tmpl) {
+    state = state || {};
+    tmpl = tmpl || {};
+    var dt = ymdParts(state.checkDate);
+    var writer = state.inspector || '';
+    var zones = state.zones || [];
+    var judge = state.judge || (state.hasDeviation ? '이탈' : '적합');
+    var stdNote = tmpl.stdNote ||
+      '※ 관리기준 — 일반작업 ≥200 lx · 검사·정밀작업 ≥500 lx (현장 확정 CL 적용)';
+    var note = tmpl.note || '※ 관리기준 이탈 시 즉시조치란에 기재한다.';
+
+    var body = zones.map(function (z) {
+      return '<tr>' +
+        '<td class="l">' + esc(z.name) + '</td>' +
+        '<td class="c">' + esc(z.luxMin) + '~' + esc(z.luxMax) + '</td>' +
+        '<td class="c">' + esc(z.amLux) + '</td>' +
+        '<td class="c">' + esc(z.pmLux) + '</td>' +
+        '<td class="c">' + ox(z.judge) + '</td></tr>';
+    }).join('');
+
+    return (
+      '<div class="ps-page off-ccp">' +
+      officialHeader({
+        docNo: tmpl.docNo || 'DKJ-S-02-02',
+        enactDate: tmpl.enactDate || '2024. 02. 13',
+        rev: tmpl.rev || '0',
+        reviseDate: tmpl.reviseDate || '-',
+        title: tmpl.title || '조도점검일지',
+        subtitle: tmpl.subtitle || '선행요건 · 월간',
+        writer: writer,
+        reviewer: state.confirmer || '',
+        approver: state.approver || ''
+      }) +
+      '<table class="off-grid off-topmeta">' +
+      '<tr>' +
+      '<th class="lab" style="width:12%">점검일자</th>' +
+      '<td class="l" style="width:40%">' + dateCell(dt) + '</td>' +
+      '<th class="lab" style="width:12%">점 검 자</th>' +
+      '<td class="c" style="width:16%">' + esc(writer) + '</td>' +
+      '<th class="lab" style="width:10%">조도계</th>' +
+      '<td class="c" style="width:10%">' + esc(state.instrument || '') + '</td>' +
+      '</tr>' +
+      '<tr><th class="lab">관리기준</th>' +
+      '<td class="l tiny" colspan="5">' + esc(stdNote) + '</td></tr></table>' +
+      '<div class="off-sec">● 구역별 조도 점검 결과 ●</div>' +
+      '<table class="off-grid off-mon">' +
+      '<thead><tr>' +
+      '<th style="width:22%">구역</th><th style="width:18%">기준(lx)</th>' +
+      '<th style="width:16%">오전(lx)</th><th style="width:16%">오후(lx)</th>' +
+      '<th style="width:12%">판정(○/×)</th>' +
+      '</tr></thead><tbody>' + body + '</tbody></table>' +
+      '<table class="off-grid">' +
+      '<tr><th class="lab" style="width:14%">종합판정</th>' +
+      '<td class="c" style="width:20%">' + esc(judge) + '</td>' +
+      '<th class="lab" style="width:14%">확 인 자</th>' +
+      '<td class="c">' + esc(state.confirmer || '') + '</td></tr>' +
+      '<tr><th class="lab">이탈 시<br>즉시조치</th>' +
+      '<td class="l tiny" colspan="3">' + esc(state.corrective || '') + '</td></tr>' +
+      '<tr><th class="lab">비고</th>' +
+      '<td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
+      '<div class="off-note tiny">' + esc(note) + '</div>' +
+      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || 'DKJ-S-02-02') + '</div>' +
+      '</div>'
+    );
+  }
+
+  /** FR-014 입고검사 정본 */
+  function fr014(state, tmpl) {
+    state = state || {};
+    tmpl = tmpl || {};
+    var rows = tmpl.rows || [];
+    var checks = state.checks || {};
+    if (!rows.length) {
+      rows = Object.keys(checks).map(function (k) {
+        return { key: k, group: '검사', label: k, freq: 'D', hint: '' };
+      });
+    }
+    var body = rows.map(function (r, i) {
+      return '<tr>' +
+        '<td class="c">' + (i + 1) + '</td>' +
+        '<td class="l">' + esc(r.label) + '</td>' +
+        '<td class="l">' + esc(r.hint || '') + '</td>' +
+        '<td class="c">' + ox(checks[r.key]) + '</td></tr>';
+    }).join('');
+    var dt = ymdParts(state.receiveDate || state.checkDate);
+
+    return (
+      '<div class="ps-page off-ccp">' +
+      officialHeader({
+        docNo: 'FR-014',
+        enactDate: tmpl.enactDate || '2024. 02. 13',
+        rev: tmpl.rev || '0',
+        reviseDate: tmpl.reviseDate || '-',
+        title: '원부자재 입고검사 기록',
+        subtitle: '입고 · 매일',
+        writer: state.inspector || '',
+        reviewer: state.confirmer || '',
+        approver: state.approver || ''
+      }) +
+      '<table class="off-grid off-topmeta">' +
+      '<tr><th class="lab" style="width:12%">입고일자</th><td class="l" style="width:38%">' + dateCell(dt) + '</td>' +
+      '<th class="lab" style="width:12%">구 분</th><td class="c">' + esc(state.materialType || '') + '</td></tr>' +
+      '<tr><th class="lab">공급업체</th><td class="l">' + esc(state.supplier || '') + '</td>' +
+      '<th class="lab">품 명</th><td class="l">' + esc(state.itemName || '') + '</td></tr>' +
+      '<tr><th class="lab">LOT</th><td class="c">' + esc(state.lot || '') + '</td>' +
+      '<th class="lab">수량</th><td class="c">' + esc(state.qty || '') + ' ' + esc(state.unit || '') + '</td></tr>' +
+      '<tr><th class="lab">입고온도</th><td class="c">' + esc(state.temp || '') + ' ℃</td>' +
+      '<th class="lab">연계제품</th><td class="l">' + esc(state.linkedProduct || '') + '</td></tr>' +
+      '</table>' +
+      '<div class="off-sec">● 입고검사 결과 ●</div>' +
+      '<table class="off-grid off-mon">' +
+      '<thead><tr><th style="width:6%">No</th><th style="width:28%">검사항목</th>' +
+      '<th>확인기준</th><th style="width:12%">결과(○/×)</th></tr></thead>' +
+      '<tbody>' + body + '</tbody></table>' +
+      '<table class="off-grid">' +
+      '<tr><th class="lab" style="width:14%">종합판정</th><td class="c" style="width:20%">' + esc(state.judge || '') + '</td>' +
+      '<th class="lab" style="width:14%">처리조치</th><td class="c">' + esc(state.action || '') + '</td></tr>' +
+      '<tr><th class="lab">점검자</th><td class="c">' + esc(state.inspector || '') + '</td>' +
+      '<th class="lab">확인자</th><td class="c">' + esc(state.confirmer || '') + '</td></tr>' +
+      '<tr><th class="lab">비고</th><td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
+      '<div class="off-note tiny">※ 평가 — 양호: ○ , 부적합: × , 해당없음: — · 부적합 시 FR-015 연계</div>' +
+      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · FR-014</div></div>'
+    );
+  }
+
+  /** FR-015 부적합 처리 정본 */
+  function fr015(state, tmpl) {
+    state = state || {};
+    tmpl = tmpl || {};
+    var reasons = state.reasons || {};
+    var reasonLabels = tmpl.reasonLabels || [
+      { key: 'r01', label: '표시사항 불량' },
+      { key: 'r02', label: '유통기한·제조일 이상' },
+      { key: 'r03', label: '온도 이탈' },
+      { key: 'r04', label: '외관·이물' },
+      { key: 'r05', label: '냄새·부패' },
+      { key: 'r06', label: '성적서 미비' },
+      { key: 'r07', label: '수량 불일치' },
+      { key: 'r08', label: '미승인 공급업체' },
+      { key: 'r09', label: '차량·운송 위생' },
+      { key: 'r10', label: '기타' }
+    ];
+    var reasonBody = reasonLabels.map(function (r, i) {
+      return '<tr><td class="c">' + (i + 1) + '</td><td class="l">' + esc(r.label) +
+        '</td><td class="c">' + (reasons[r.key] ? '○' : '') + '</td></tr>';
+    }).join('');
+    var dt = ymdParts(state.processDate || state.checkDate);
+    var stepMap = { recv: '입고', store: '보관', process: '가공', pack: '포장', ship: '출하' };
+
+    return (
+      '<div class="ps-page off-ccp">' +
+      officialHeader({
+        docNo: 'FR-015',
+        enactDate: tmpl.enactDate || '2024. 02. 13',
+        rev: tmpl.rev || '0',
+        reviseDate: tmpl.reviseDate || '-',
+        title: '부적합 원부자재 처리기록',
+        subtitle: '입고 부적합 · 격리·처리',
+        writer: state.handler || '',
+        reviewer: state.approver || '',
+        approver: state.approver || ''
+      }) +
+      '<table class="off-grid off-topmeta">' +
+      '<tr><th class="lab" style="width:12%">처리일자</th><td class="l" style="width:38%">' + dateCell(dt) + '</td>' +
+      '<th class="lab" style="width:14%">발견단계</th><td class="c">' +
+      esc(stepMap[state.discoverStep] || state.discoverStep || '') + '</td></tr>' +
+      '<tr><th class="lab">공급업체</th><td class="l">' + esc(state.supplier || '') + '</td>' +
+      '<th class="lab">품 명</th><td class="l">' + esc(state.itemName || '') + '</td></tr>' +
+      '<tr><th class="lab">LOT</th><td class="c">' + esc(state.lot || '') + '</td>' +
+      '<th class="lab">수량</th><td class="c">' + esc(state.qty || '') + ' ' + esc(state.unit || '') + '</td></tr>' +
+      '<tr><th class="lab">FR-014연계</th><td class="c">' + esc(state.linkedFr014 || '') + '</td>' +
+      '<th class="lab">연계제품</th><td class="l">' + esc(state.linkedProduct || '') + '</td></tr>' +
+      '</table>' +
+      '<div class="off-sec">● 부적합 사유 ●</div>' +
+      '<table class="off-grid off-mon">' +
+      '<thead><tr><th style="width:8%">No</th><th>사유</th><th style="width:14%">해당(○)</th></tr></thead>' +
+      '<tbody>' + reasonBody + '</tbody></table>' +
+      '<table class="off-grid">' +
+      '<tr><th class="lab" style="width:16%">상세사유</th><td class="l tiny" colspan="3">' + esc(state.reasonText || '') + '</td></tr>' +
+      '<tr><th class="lab">격리장소</th><td class="l">' + esc(state.isolateLocation || '') + '</td>' +
+      '<th class="lab">처리판정</th><td class="c">' + esc(state.disposition || '') + '</td></tr>' +
+      '<tr><th class="lab">공급업체통지</th><td class="c">' + esc(state.notifySupplier || '') + '</td>' +
+      '<th class="lab">시정조치(CAR)</th><td class="c">' + esc(state.carRequired || '') + '</td></tr>' +
+      '<tr><th class="lab">처리자</th><td class="c">' + esc(state.handler || '') + '</td>' +
+      '<th class="lab">승인자</th><td class="c">' + esc(state.approver || '') + '</td></tr>' +
+      '<tr><th class="lab">비고</th><td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
+      '<div class="off-note tiny">※ 부적합품은 식별·격리 후 처리판정·재검사·시정조치를 기록한다.</div>' +
+      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · FR-015</div></div>'
+    );
+  }
+
+  global.DkjPrintOfficial = {
+    ccp2p: ccp2p,
+    ccp1bc: ccp1bc,
+    prpOx: prpOx,
+    prpMonTh: prpMonTh,
+    prpMonLux: prpMonLux,
+    fr014: fr014,
+    fr015: fr015
+  };
 })(window);

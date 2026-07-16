@@ -103,14 +103,14 @@
     }
   ],
   "print": {
-    "layout": "ox",
+    "layout": "official-prp-ox",
     "columnMode": "result",
     "orgName": "동김제농협 가공센터",
     "docNo": "DKJ-S-02-04",
     "title": "이물관리점검일지",
     "rev": "0",
-    "enactDate": "2026.07.10",
-    "reviseDate": "2026.07.10",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
     "rows": [
       {
         "key": "i01",
@@ -177,7 +177,20 @@
         "ampm": false
       }
     ],
-    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간"
+    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간",
+    "subtitle": "선행요건 · 매일",
+    "sectionTitle": "● 이물관리 점검 결과 ●",
+    "showMeta": [
+      "shift",
+      "area"
+    ],
+    "areaLabels": {
+      "전처리": "전처리실",
+      "소독헹굼": "소독·헹굼실",
+      "포장": "포장실",
+      "냉장": "냉장창고",
+      "전체": "작업장 전체"
+    }
   }
 });
 })();

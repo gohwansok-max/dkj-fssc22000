@@ -1,12 +1,12 @@
 {
-  "layout": "ox",
+  "layout": "official-prp-ox",
   "columnMode": "result",
   "orgName": "동김제농협 가공센터",
   "docNo": "DKJ-S-02-07",
   "title": "방충방서관리점검일지",
   "rev": "0",
-  "enactDate": "2026.07.10",
-  "reviseDate": "2026.07.10",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
   "rows": [
     {
       "key": "p01",
@@ -18,7 +18,7 @@
     },
     {
       "key": "p02",
-      "group": "트랩",
+      "group": "급랩",
       "label": "포충등·끈끈이트랩 정상 작동",
       "hint": "부착면·전원",
       "freq": "M",
@@ -27,7 +27,7 @@
     {
       "key": "p03",
       "group": "트랩",
-      "label": "트랩 포획물·교체주기 관리",
+      "label": "급랩 포획물·교체주기 관리",
       "hint": "기록 연계",
       "freq": "M",
       "ampm": false
@@ -65,5 +65,33 @@
       "ampm": false
     }
   ],
-  "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간"
+  "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간",
+  "subtitle": "선행요건 · 매일",
+  "sectionTitle": "● 방충방서 점검 결과 ●",
+  "showMeta": [
+    "shift",
+    "area",
+    "pestVendor"
+  ],
+  "metaFields": [
+    {
+      "key": "shift",
+      "label": "근무조"
+    },
+    {
+      "key": "area",
+      "label": "점검구역"
+    },
+    {
+      "key": "pestVendor",
+      "label": "방제업체"
+    }
+  ],
+  "areaLabels": {
+    "전처리": "전처리실",
+    "소독헹굼": "소독·헹굼실",
+    "포장": "포장실",
+    "냉장": "냉장창고",
+    "전체": "작업장 전체"
+  }
 }

@@ -276,36 +276,15 @@
   function dkjDoPrint() {
     var st = (typeof collect === 'function') ? collect() : (typeof state !== 'undefined' ? state : {});
     if (window.DkjPrint) {
-      var tmpl = {
-        layout: 'ox',
-        columnMode: 'result',
+      DkjPrint.print({
+        layout: 'official-fr015',
         orgName: '동김제농협 가공센터',
-        docNo: FORM_ID,
-        title: document.title.split('|')[0].trim(),
+        docNo: 'FR-015',
+        title: '부적합 원부자재 처리기록',
         rev: '0',
-        enactDate: '2026.07.10',
-        reviseDate: '2026.07.10',
-        rows: (typeof CHECK_ITEMS !== 'undefined' ? CHECK_ITEMS : []).map(function (it) {
-          return { key: it.key, group: it.group || '', label: it.label, freq: 'D', hint: it.hint || '' };
-        }),
-        note: '※ 평가 — 양호: ○ , 부적합: ×   ※ 작성화면과 분리된 정본형 출력'
-      };
-      if (!tmpl.rows.length && st.checks) {
-        tmpl.rows = Object.keys(st.checks).map(function (k) {
-          return { key: k, group: '', label: k, freq: 'D' };
-        });
-      }
-      // CCP: synthesize rows from known fields
-      if (!tmpl.rows.length) {
-        tmpl.rows = [
-          { key: '_judge', group: '판정', label: '종합판정', freq: 'D' },
-          { key: '_corr', group: '조치', label: '즉시조치', freq: 'D' }
-        ];
-        st.checks = st.checks || {};
-        st.checks._judge = st.judge || st.result || '';
-        st.checks._corr = (st.corrective || '').slice(0, 20) ? 'O' : '';
-      }
-      DkjPrint.print(tmpl, st);
+        enactDate: '2024. 02. 13',
+        reviseDate: '-'
+      }, st);
     } else {
       window.print();
     }

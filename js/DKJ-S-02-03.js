@@ -107,14 +107,14 @@
     }
   ],
   "print": {
-    "layout": "ox",
+    "layout": "official-prp-ox",
     "columnMode": "ampm",
     "orgName": "동김제농협 가공센터",
     "docNo": "DKJ-S-02-03",
     "title": "개인위생점검일지",
     "rev": "0",
-    "enactDate": "2026.07.10",
-    "reviseDate": "2026.07.10",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
     "rows": [
       {
         "key": "h01",
@@ -197,7 +197,28 @@
         "ampm": true
       }
     ],
-    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간"
+    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간",
+    "subtitle": "선행요건 · 매일",
+    "sectionTitle": "● 개인위생 점검 결과 ●",
+    "showMeta": [
+      "shift",
+      "team",
+      "headcount"
+    ],
+    "metaFields": [
+      {
+        "key": "shift",
+        "label": "근무조"
+      },
+      {
+        "key": "team",
+        "label": "작업팀"
+      },
+      {
+        "key": "headcount",
+        "label": "점검인원"
+      }
+    ]
   }
 });
 })();

@@ -189,9 +189,11 @@
     "docNo": "DKJ-S-02-01",
     "title": "작업장 위생점검일지",
     "subtitle": "선행요건 · PRP",
+    "sectionTitle": "● 작업장 위생점검 결과 ●",
     "rev": "0",
     "enactDate": "2024. 02. 13",
     "reviseDate": "-",
+    "showMeta": ["shift", "area", "weather"],
     "areaLabels": {
       "전처리": "전처리실",
       "소독헹굼": "소독·헹굼실",
