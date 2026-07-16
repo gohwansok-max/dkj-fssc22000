@@ -1,0 +1,68 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-035",
+  "title": "알레르겐 원료 평가표",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "원료/제품명"
+    },
+    {
+      "key": "allergen",
+      "label": "알레르겐 종류"
+    },
+    {
+      "key": "supplier",
+      "label": "공급처"
+    },
+    {
+      "key": "risk",
+      "label": "교차오염 위험"
+    }
+  ],
+  "rows": [
+    {
+      "key": "al1",
+      "group": "평가",
+      "label": "원료 알레르겐 확인",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "al2",
+      "group": "평가",
+      "label": "교차오염 경로 파악",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "al3",
+      "group": "평가",
+      "label": "보관·동선 분리",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "al4",
+      "group": "평가",
+      "label": "표시 적정",
+      "hint": "",
+      "freq": "D"
+    }
+  ],
+  "sections": [
+    {
+      "id": "control",
+      "label": "관리방법"
+    },
+    {
+      "id": "label",
+      "label": "표시·취급 주의"
+    }
+  ]
+}

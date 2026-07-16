@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-004",
+  "title": "외부문서관리대장",
+  "subtitle": "FSSC22000 · 월간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "외부문서명"
+    },
+    {
+      "key": "issuer",
+      "label": "발행기관"
+    },
+    {
+      "key": "extNo",
+      "label": "문서번호/고시번호"
+    },
+    {
+      "key": "recvDate",
+      "label": "입수일"
+    },
+    {
+      "key": "owner",
+      "label": "관리책임자"
+    },
+    {
+      "key": "location",
+      "label": "보관위치"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "noteDetail",
+      "label": "적용범위·비고"
+    }
+  ]
+}

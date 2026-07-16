@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#008352">
+  <title>FR-020 내부심사 결과보고서 | 동김제농협</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dkj-portal.css">
+  <link rel="stylesheet" href="../css/dkj-form.css">
+  <link rel="stylesheet" href="../css/dkj-print.css">
+</head>
+<body class="dkj-form-page">
+  <div class="screen-only">
+  <header class="dkj-form-header">
+    <div class="container">
+      <div>
+        <h1>FR-020 내부심사 결과보고서</h1>
+        <p>FSSC22000 · 이슈</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;"><a class="pill-btn ghost" href="../records-center.html?cat=audit" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">← 기록목록</a><a class="pill-btn ghost" href="../doc-viewer.html?id=DKJ-P-07" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">DKJ-P-07</a></div>
+    </div>
+  </header>
+  <main class="container dkj-form-body">
+    <div class="dkj-form-toolbar">
+      <div class="dkj-status" id="saveStatus"><span class="dot"></span> 준비</div>
+      <button type="button" class="pill-btn green" id="btnSave">저장</button>
+      <button type="button" class="pill-btn blue" id="btnLock">작성완료</button>
+      <button type="button" class="pill-btn ghost" id="btnNew">새 기록</button>
+      <button type="button" class="pill-btn ghost" id="btnPrint">인쇄(정본)</button>
+    </div>
+    <section class="dkj-panel">
+      <h2>① 기본정보</h2>
+      <div class="dkj-field-grid"><div class="dkj-field"><label for="docDate">작성일자 *</label><input type="date" id="docDate" placeholder=""></div><div class="dkj-field"><label for="subject">심사명 *</label><input type="text" id="subject" placeholder=""></div><div class="dkj-field"><label for="auditDate">심사일</label><input type="date" id="auditDate" placeholder=""></div><div class="dkj-field"><label for="leadAuditor">심사팀장</label><input type="text" id="leadAuditor" placeholder=""></div><div class="dkj-field"><label for="ncCount">부적합건수</label><input type="number" id="ncCount" placeholder=""></div><div class="dkj-field"><label for="writer">작성자 *</label><input type="text" id="writer" placeholder=""></div><div class="dkj-field"><label for="reviewer">검토자</label><input type="text" id="reviewer" placeholder=""></div><div class="dkj-field"><label for="approver">승인자</label><input type="text" id="approver" placeholder=""></div></div>
+    </section>
+    
+    <section class="dkj-panel">
+      <h2>② 상세 내용</h2>
+      <div class="dkj-field-grid"><div class="dkj-field full"><label for="summary">종합 결과</label><textarea id="summary" placeholder=""></textarea></div><div class="dkj-field full"><label for="ncList">부적합·관찰사항</label><textarea id="ncList" placeholder=""></textarea></div><div class="dkj-field full"><label for="conclusion">결론·권고</label><textarea id="conclusion" placeholder=""></textarea></div></div>
+    </section>
+    <section class="dkj-panel">
+      <h2>③ 판정·결재</h2>
+      <div class="dkj-field-grid">
+        <div class="dkj-field full"><label>종합판정</label>
+          <div class="judge-row">
+            <button type="button" class="judge-btn ok" id="judgeOk" data-judge="적합">✓ 적합/승인</button>
+            <button type="button" class="judge-btn ng" id="judgeNg" data-judge="부적합">✕ 부적합/반려</button>
+          </div>
+        </div>
+        <div class="dkj-field full"><label for="corrective">조치·후속</label>
+          <textarea id="corrective" placeholder="필요 시 기재"></textarea></div>
+        <div class="dkj-field full"><label for="remark">비고</label><textarea id="remark"></textarea></div>
+      </div>
+      <div class="dkj-link-bar"><a class="link-chip sm" href="../doc-viewer.html?id=FR-020">문서센터</a><a class="link-chip sm" href="../doc-viewer.html?id=DKJ-P-07">DKJ-P-07</a></div>
+    </section>
+    <section class="dkj-panel history"><h2>④ 최근 저장</h2><div id="historyList"></div></section>
+  </main>
+  </div>
+  <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
+  <script src="../js/dkj-record-store.js"></script>
+  <script src="../js/dkj-print-official.js"></script>
+  <script src="../js/dkj-print-form.js"></script>
+  <script src="../js/dkj-fr-form.js"></script>
+  <script src="../js/FR-020.js"></script>
+</body>
+</html>

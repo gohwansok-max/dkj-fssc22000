@@ -1,0 +1,64 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-033",
+  "title": "식품사기 취약성 평가표",
+  "subtitle": "FSSC22000 · 연간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "평가대상/연도"
+    },
+    {
+      "key": "evalDate",
+      "label": "평가일"
+    },
+    {
+      "key": "team",
+      "label": "평가팀"
+    }
+  ],
+  "rows": [
+    {
+      "key": "f01",
+      "group": "사기",
+      "label": "원료 진위·원산지",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "f02",
+      "group": "사기",
+      "label": "공급망 투명성",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "f03",
+      "group": "사기",
+      "label": "시험·성적서 신뢰",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "f04",
+      "group": "사기",
+      "label": "가격·시장 이상신호",
+      "hint": "",
+      "freq": "D"
+    }
+  ],
+  "sections": [
+    {
+      "id": "vuln",
+      "label": "사기 취약점"
+    },
+    {
+      "id": "mitigation",
+      "label": "완화전략"
+    }
+  ]
+}

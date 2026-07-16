@@ -1,0 +1,39 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-001",
+  "title": "문서 제·개정 요청서",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "문서명"
+    },
+    {
+      "key": "docCode",
+      "label": "문서번호"
+    },
+    {
+      "key": "reqType",
+      "label": "요청구분"
+    },
+    {
+      "key": "reason",
+      "label": "요청사유"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "changeSummary",
+      "label": "변경 내용 요약"
+    },
+    {
+      "id": "impact",
+      "label": "영향 범위"
+    }
+  ]
+}

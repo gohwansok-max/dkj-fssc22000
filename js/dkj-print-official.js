@@ -837,6 +837,82 @@
     );
   }
 
+  /** FR 범용 정본 (필드·섹션·O/X) */
+  function frGeneric(state, tmpl) {
+    state = state || {};
+    tmpl = tmpl || {};
+    var dt = ymdParts(state.docDate || state.checkDate || state.receiveDate || '');
+    var writer = state.writer || state.inspector || '';
+    var fields = tmpl.metaFields || [];
+    var rows = tmpl.rows || [];
+    var sections = tmpl.sections || [];
+    var checks = state.checks || {};
+
+    var metaHtml =
+      '<table class="off-grid off-topmeta">' +
+      '<tr><th class="lab" style="width:12%">작성일자</th><td class="l" style="width:38%">' + dateCell(dt) + '</td>' +
+      '<th class="lab" style="width:12%">작 성 자</th><td class="c">' + esc(writer) + '</td></tr>';
+    if (fields.length) {
+      for (var i = 0; i < fields.length; i += 2) {
+        var a = fields[i];
+        var b = fields[i + 1];
+        metaHtml += '<tr><th class="lab">' + esc(a.label) + '</th><td class="l">' +
+          esc(state[a.key] != null ? state[a.key] : '') + '</td>';
+        if (b) {
+          metaHtml += '<th class="lab">' + esc(b.label) + '</th><td class="l">' +
+            esc(state[b.key] != null ? state[b.key] : '') + '</td></tr>';
+        } else {
+          metaHtml += '<td class="l" colspan="2"></td></tr>';
+        }
+      }
+    }
+    metaHtml += '</table>';
+
+    var oxHtml = '';
+    if (rows.length) {
+      oxHtml = '<div class="off-sec">● 점검·평가 항목 ●</div><table class="off-grid off-mon"><thead><tr>' +
+        '<th style="width:6%">No</th><th style="width:14%">구분</th><th>항목</th>' +
+        '<th style="width:12%">결과(○/×)</th><th style="width:20%">비고</th></tr></thead><tbody>' +
+        rows.map(function (r, idx) {
+          return '<tr><td class="c">' + (idx + 1) + '</td><td class="c">' + esc(r.group || '') +
+            '</td><td class="l">' + esc(r.label) + '</td><td class="c">' + ox(checks[r.key]) +
+            '</td><td class="l">' + esc(r.hint || '') + '</td></tr>';
+        }).join('') + '</tbody></table>';
+    }
+
+    var secHtml = '';
+    if (sections.length) {
+      secHtml = sections.map(function (s) {
+        return '<div class="off-sec">' + esc(s.label) + '</div>' +
+          '<div class="off-box tiny">' + esc(state[s.id] || '') + '</div>';
+      }).join('');
+    }
+
+    return (
+      '<div class="ps-page off-ccp">' +
+      officialHeader({
+        docNo: tmpl.docNo || '',
+        enactDate: tmpl.enactDate || '2024. 02. 13',
+        rev: tmpl.rev || '0',
+        reviseDate: tmpl.reviseDate || '-',
+        title: tmpl.title || '',
+        subtitle: tmpl.subtitle || 'FSSC22000 기록양식',
+        writer: writer,
+        reviewer: state.reviewer || state.confirmer || '',
+        approver: state.approver || ''
+      }) +
+      metaHtml + oxHtml + secHtml +
+      '<table class="off-grid">' +
+      '<tr><th class="lab" style="width:14%">종합판정</th><td class="c" style="width:20%">' +
+      esc(state.judge || '') + '</td>' +
+      '<th class="lab" style="width:14%">검토/승인</th><td class="c">' +
+      esc(state.reviewer || '') + ' / ' + esc(state.approver || '') + '</td></tr>' +
+      '<tr><th class="lab">조치·비고</th><td class="l tiny" colspan="3">' +
+      esc(state.corrective || '') + (state.remark ? ' · ' + esc(state.remark) : '') + '</td></tr></table>' +
+      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || '') + '</div></div>'
+    );
+  }
+
   global.DkjPrintOfficial = {
     ccp2p: ccp2p,
     ccp1bc: ccp1bc,
@@ -844,6 +920,7 @@
     prpMonTh: prpMonTh,
     prpMonLux: prpMonLux,
     fr014: fr014,
-    fr015: fr015
+    fr015: fr015,
+    frGeneric: frGeneric
   };
 })(window);

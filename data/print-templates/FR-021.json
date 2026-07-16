@@ -1,0 +1,51 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-021",
+  "title": "시정조치 요구서(CAR)",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "제목"
+    },
+    {
+      "key": "source",
+      "label": "발생원"
+    },
+    {
+      "key": "dueDate",
+      "label": "조치기한"
+    },
+    {
+      "key": "owner",
+      "label": "조치책임자"
+    },
+    {
+      "key": "status",
+      "label": "상태"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "problem",
+      "label": "문제·부적합 내용"
+    },
+    {
+      "id": "rootCause",
+      "label": "원인분석"
+    },
+    {
+      "id": "correctivePlan",
+      "label": "시정·예방조치"
+    },
+    {
+      "id": "effectiveness",
+      "label": "유효성 확인"
+    }
+  ]
+}

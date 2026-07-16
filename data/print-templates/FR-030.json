@@ -1,0 +1,39 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-030",
+  "title": "의사소통 기록대장",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "주제"
+    },
+    {
+      "key": "channel",
+      "label": "경로"
+    },
+    {
+      "key": "fromTo",
+      "label": "발신/수신"
+    },
+    {
+      "key": "commDate",
+      "label": "일시"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "content",
+      "label": "소통내용"
+    },
+    {
+      "id": "action",
+      "label": "후속조치"
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+/**
+ * FR-029 — generated FR boot
+ */
+(function () {
+  'use strict';
+  DkjFrForm.mount({
+  "code": "FR-029",
+  "title": "변경 영향평가표",
+  "pattern": "fr",
+  "minChecks": 2,
+  "titleKey": "subject",
+  "historyKeys": [
+    "docDate",
+    "subject"
+  ],
+  "fields": [
+    {
+      "id": "docDate",
+      "label": "작성일자 *",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "subject",
+      "label": "변경제목 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "linkedFr028",
+      "label": "FR-028 연계",
+      "type": "text"
+    },
+    {
+      "id": "risk",
+      "label": "리스크등급",
+      "type": "select",
+      "options": [
+        "낮음",
+        "중간",
+        "높음"
+      ],
+      "default": "중간"
+    },
+    {
+      "id": "decision",
+      "label": "판정",
+      "type": "select",
+      "options": [
+        "승인",
+        "조건부",
+        "반려"
+      ],
+      "default": "승인"
+    },
+    {
+      "id": "writer",
+      "label": "작성자 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "reviewer",
+      "label": "검토자",
+      "type": "text"
+    },
+    {
+      "id": "approver",
+      "label": "승인자",
+      "type": "text"
+    }
+  ],
+  "items": [
+    {
+      "key": "i01",
+      "group": "영향",
+      "label": "CCP/한계기준 영향",
+      "hint": ""
+    },
+    {
+      "key": "i02",
+      "group": "영향",
+      "label": "알레르겐 영향",
+      "hint": ""
+    },
+    {
+      "key": "i03",
+      "group": "영향",
+      "label": "교육·문서 개정 필요",
+      "hint": ""
+    },
+    {
+      "key": "i04",
+      "group": "영향",
+      "label": "검증·시험 필요",
+      "hint": ""
+    }
+  ],
+  "sections": [
+    {
+      "id": "impactHaccp",
+      "label": "HACCP·위생 영향",
+      "placeholder": ""
+    },
+    {
+      "id": "impactLegal",
+      "label": "법규·고객 영향",
+      "placeholder": ""
+    },
+    {
+      "id": "mitigation",
+      "label": "완화조치",
+      "placeholder": ""
+    }
+  ],
+  "print": {
+    "layout": "official-fr-generic",
+    "orgName": "동김제농협 가공센터",
+    "docNo": "FR-029",
+    "title": "변경 영향평가표",
+    "subtitle": "FSSC22000 · 이슈",
+    "rev": "0",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "metaFields": [
+      {
+        "key": "subject",
+        "label": "변경제목"
+      },
+      {
+        "key": "linkedFr028",
+        "label": "FR-028 연계"
+      },
+      {
+        "key": "risk",
+        "label": "리스크등급"
+      },
+      {
+        "key": "decision",
+        "label": "판정"
+      }
+    ],
+    "rows": [
+      {
+        "key": "i01",
+        "group": "영향",
+        "label": "CCP/한계기준 영향",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "i02",
+        "group": "영향",
+        "label": "알레르겐 영향",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "i03",
+        "group": "영향",
+        "label": "교육·문서 개정 필요",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "i04",
+        "group": "영향",
+        "label": "검증·시험 필요",
+        "hint": "",
+        "freq": "D"
+      }
+    ],
+    "sections": [
+      {
+        "id": "impactHaccp",
+        "label": "HACCP·위생 영향"
+      },
+      {
+        "id": "impactLegal",
+        "label": "법규·고객 영향"
+      },
+      {
+        "id": "mitigation",
+        "label": "완화조치"
+      }
+    ]
+  }
+});
+})();

@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-038",
+  "title": "환경모니터링 결과 및 Trend표",
+  "subtitle": "FSSC22000 · 주간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "시료/지점"
+    },
+    {
+      "key": "sampleDate",
+      "label": "채취일"
+    },
+    {
+      "key": "zone",
+      "label": "Zone"
+    },
+    {
+      "key": "result",
+      "label": "결과"
+    },
+    {
+      "key": "value",
+      "label": "수치/균종"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "trend",
+      "label": "Trend·해석"
+    },
+    {
+      "id": "action",
+      "label": "양성 시 조치"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+/**
+ * FR-038 — generated FR boot
+ */
+(function () {
+  'use strict';
+  DkjFrForm.mount({
+  "code": "FR-038",
+  "title": "환경모니터링 결과 및 Trend표",
+  "pattern": "fr",
+  "minChecks": 0,
+  "titleKey": "subject",
+  "historyKeys": [
+    "docDate",
+    "subject"
+  ],
+  "fields": [
+    {
+      "id": "docDate",
+      "label": "작성일자 *",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "subject",
+      "label": "시료/지점 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "sampleDate",
+      "label": "채취일",
+      "type": "date"
+    },
+    {
+      "id": "zone",
+      "label": "Zone",
+      "type": "select",
+      "options": [
+        "Zone1",
+        "Zone2",
+        "Zone3",
+        "Zone4"
+      ],
+      "default": "Zone2"
+    },
+    {
+      "id": "result",
+      "label": "결과",
+      "type": "select",
+      "options": [
+        "음성",
+        "양성",
+        "재검"
+      ],
+      "default": "음성"
+    },
+    {
+      "id": "value",
+      "label": "수치/균종",
+      "type": "text"
+    },
+    {
+      "id": "writer",
+      "label": "작성자 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "reviewer",
+      "label": "검토자",
+      "type": "text"
+    },
+    {
+      "id": "approver",
+      "label": "승인자",
+      "type": "text"
+    }
+  ],
+  "items": [],
+  "sections": [
+    {
+      "id": "trend",
+      "label": "Trend·해석",
+      "placeholder": ""
+    },
+    {
+      "id": "action",
+      "label": "양성 시 조치",
+      "placeholder": ""
+    }
+  ],
+  "print": {
+    "layout": "official-fr-generic",
+    "orgName": "동김제농협 가공센터",
+    "docNo": "FR-038",
+    "title": "환경모니터링 결과 및 Trend표",
+    "subtitle": "FSSC22000 · 주간",
+    "rev": "0",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "metaFields": [
+      {
+        "key": "subject",
+        "label": "시료/지점"
+      },
+      {
+        "key": "sampleDate",
+        "label": "채취일"
+      },
+      {
+        "key": "zone",
+        "label": "Zone"
+      },
+      {
+        "key": "result",
+        "label": "결과"
+      },
+      {
+        "key": "value",
+        "label": "수치/균종"
+      }
+    ],
+    "rows": [],
+    "sections": [
+      {
+        "id": "trend",
+        "label": "Trend·해석"
+      },
+      {
+        "id": "action",
+        "label": "양성 시 조치"
+      }
+    ]
+  }
+});
+})();

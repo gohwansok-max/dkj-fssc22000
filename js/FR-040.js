@@ -1,0 +1,170 @@
+/**
+ * FR-040 — generated FR boot
+ */
+(function () {
+  'use strict';
+  DkjFrForm.mount({
+  "code": "FR-040",
+  "title": "추적성 점검 및 모의추적 기록",
+  "pattern": "fr",
+  "minChecks": 2,
+  "titleKey": "subject",
+  "historyKeys": [
+    "docDate",
+    "subject"
+  ],
+  "fields": [
+    {
+      "id": "docDate",
+      "label": "작성일자 *",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "subject",
+      "label": "추적대상 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "lot",
+      "label": "LOT",
+      "type": "text"
+    },
+    {
+      "id": "drillDate",
+      "label": "실시일",
+      "type": "date"
+    },
+    {
+      "id": "direction",
+      "label": "방향",
+      "type": "select",
+      "options": [
+        "전진",
+        "후진",
+        "양방향"
+      ],
+      "default": "양방향"
+    },
+    {
+      "id": "minutes",
+      "label": "소요(분)",
+      "type": "number"
+    },
+    {
+      "id": "writer",
+      "label": "작성자 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "reviewer",
+      "label": "검토자",
+      "type": "text"
+    },
+    {
+      "id": "approver",
+      "label": "승인자",
+      "type": "text"
+    }
+  ],
+  "items": [
+    {
+      "key": "t01",
+      "group": "추적",
+      "label": "원료→완제품 연결",
+      "hint": ""
+    },
+    {
+      "key": "t02",
+      "group": "추적",
+      "label": "입고·출하 기록",
+      "hint": ""
+    },
+    {
+      "key": "t03",
+      "group": "추적",
+      "label": "시간 목표 내 완료",
+      "hint": ""
+    }
+  ],
+  "sections": [
+    {
+      "id": "path",
+      "label": "추적 경로·기록",
+      "placeholder": ""
+    },
+    {
+      "id": "gap",
+      "label": "갭·개선",
+      "placeholder": ""
+    }
+  ],
+  "print": {
+    "layout": "official-fr-generic",
+    "orgName": "동김제농협 가공센터",
+    "docNo": "FR-040",
+    "title": "추적성 점검 및 모의추적 기록",
+    "subtitle": "FSSC22000 · 연간",
+    "rev": "0",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "metaFields": [
+      {
+        "key": "subject",
+        "label": "추적대상"
+      },
+      {
+        "key": "lot",
+        "label": "LOT"
+      },
+      {
+        "key": "drillDate",
+        "label": "실시일"
+      },
+      {
+        "key": "direction",
+        "label": "방향"
+      },
+      {
+        "key": "minutes",
+        "label": "소요(분)"
+      }
+    ],
+    "rows": [
+      {
+        "key": "t01",
+        "group": "추적",
+        "label": "원료→완제품 연결",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "t02",
+        "group": "추적",
+        "label": "입고·출하 기록",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "t03",
+        "group": "추적",
+        "label": "시간 목표 내 완료",
+        "hint": "",
+        "freq": "D"
+      }
+    ],
+    "sections": [
+      {
+        "id": "path",
+        "label": "추적 경로·기록"
+      },
+      {
+        "id": "gap",
+        "label": "갭·개선"
+      }
+    ]
+  }
+});
+})();

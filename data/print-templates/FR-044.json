@@ -1,0 +1,57 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-044",
+  "title": "작업자 위생검사 기록지",
+  "subtitle": "FSSC22000 · 주간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "성명/조"
+    },
+    {
+      "key": "testDate",
+      "label": "검사일"
+    },
+    {
+      "key": "method",
+      "label": "방법"
+    },
+    {
+      "key": "result",
+      "label": "결과"
+    }
+  ],
+  "rows": [
+    {
+      "key": "h01",
+      "group": "위생",
+      "label": "채취 전 손세척",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "h02",
+      "group": "위생",
+      "label": "기준 이내",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "h03",
+      "group": "위생",
+      "label": "부적합 시 재교육",
+      "hint": "",
+      "freq": "D"
+    }
+  ],
+  "sections": [
+    {
+      "id": "noteDetail",
+      "label": "수치·조치"
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "code": "FR-036",
+  "title": "알레르겐 전환 세척 점검기록",
+  "subtitle": "FSSC22000 · 이슈",
+  "pattern": "fr",
+  "frequency": "이슈",
+  "category": "allergen",
+  "relatedProcedures": [],
+  "mdrCode": "DKJ-F-036",
+  "titleKey": "subject",
+  "historyKeys": [
+    "docDate",
+    "subject"
+  ],
+  "minChecks": 3,
+  "headerLinks": [
+    {
+      "label": "← 기록목록",
+      "href": "../records-center.html?cat=allergen"
+    }
+  ],
+  "footerLinks": [
+    {
+      "label": "문서센터",
+      "href": "../doc-viewer.html?id=FR-036"
+    }
+  ],
+  "fields": [
+    {
+      "id": "docDate",
+      "label": "작성일자 *",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "subject",
+      "label": "전환 품목 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "fromTo",
+      "label": "이전→이후 품목",
+      "type": "text"
+    },
+    {
+      "id": "line",
+      "label": "라인/구역",
+      "type": "text"
+    },
+    {
+      "id": "washDate",
+      "label": "세척일",
+      "type": "date"
+    },
+    {
+      "id": "writer",
+      "label": "작성자 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "reviewer",
+      "label": "검토자",
+      "type": "text"
+    },
+    {
+      "id": "approver",
+      "label": "승인자",
+      "type": "text"
+    }
+  ],
+  "sections": [
+    {
+      "id": "method",
+      "label": "세척·검증 방법",
+      "placeholder": ""
+    },
+    {
+      "id": "result",
+      "label": "검증결과",
+      "placeholder": ""
+    }
+  ],
+  "items": [
+    {
+      "key": "w01",
+      "group": "세척",
+      "label": "잔사 제거 육안",
+      "hint": ""
+    },
+    {
+      "key": "w02",
+      "group": "세척",
+      "label": "지정세제·농도",
+      "hint": ""
+    },
+    {
+      "key": "w03",
+      "group": "세척",
+      "label": "헹굼 완료",
+      "hint": ""
+    },
+    {
+      "key": "w04",
+      "group": "검증",
+      "label": "스왑/검증 적합",
+      "hint": ""
+    }
+  ],
+  "relatedSops": [
+    "DKJ-WI-001"
+  ],
+  "print": {
+    "layout": "official-fr-generic",
+    "orgName": "동김제농협 가공센터",
+    "docNo": "FR-036",
+    "title": "알레르겐 전환 세척 점검기록",
+    "subtitle": "FSSC22000 · 이슈",
+    "rev": "0",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "metaFields": [
+      {
+        "key": "subject",
+        "label": "전환 품목"
+      },
+      {
+        "key": "fromTo",
+        "label": "이전→이후 품목"
+      },
+      {
+        "key": "line",
+        "label": "라인/구역"
+      },
+      {
+        "key": "washDate",
+        "label": "세척일"
+      }
+    ],
+    "rows": [
+      {
+        "key": "w01",
+        "group": "세척",
+        "label": "잔사 제거 육안",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "w02",
+        "group": "세척",
+        "label": "지정세제·농도",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "w03",
+        "group": "세척",
+        "label": "헹굼 완료",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "w04",
+        "group": "검증",
+        "label": "스왑/검증 적합",
+        "hint": "",
+        "freq": "D"
+      }
+    ],
+    "sections": [
+      {
+        "id": "method",
+        "label": "세척·검증 방법"
+      },
+      {
+        "id": "result",
+        "label": "검증결과"
+      }
+    ]
+  }
+}

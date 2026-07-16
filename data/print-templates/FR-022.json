@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-022",
+  "title": "시정조치 관리대장",
+  "subtitle": "FSSC22000 · 월간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "CAR번호/제목"
+    },
+    {
+      "key": "openDate",
+      "label": "발행일"
+    },
+    {
+      "key": "owner",
+      "label": "책임자"
+    },
+    {
+      "key": "dueDate",
+      "label": "기한"
+    },
+    {
+      "key": "status",
+      "label": "상태"
+    },
+    {
+      "key": "closeDate",
+      "label": "완료일"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "noteDetail",
+      "label": "진행 현황·비고"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-031",
+  "title": "식품방어 취약성 평가표",
+  "subtitle": "FSSC22000 · 연간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "평가대상/연도"
+    },
+    {
+      "key": "evalDate",
+      "label": "평가일"
+    },
+    {
+      "key": "team",
+      "label": "평가팀"
+    }
+  ],
+  "rows": [
+    {
+      "key": "d01",
+      "group": "방어",
+      "label": "출입통제",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "d02",
+      "group": "방어",
+      "label": "원료·제품 보안",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "d03",
+      "group": "방어",
+      "label": "용수·유틸리티",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "d04",
+      "group": "방어",
+      "label": "IT·기록 보안",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "d05",
+      "group": "방어",
+      "label": "외부인·방문객",
+      "hint": "",
+      "freq": "D"
+    }
+  ],
+  "sections": [
+    {
+      "id": "vuln",
+      "label": "취약점 요약"
+    },
+    {
+      "id": "priority",
+      "label": "우선순위·조치계획"
+    }
+  ]
+}

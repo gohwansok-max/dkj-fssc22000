@@ -220,6 +220,10 @@
       sheet.innerHTML = global.DkjPrintOfficial.fr015(state || {}, t);
       return sheet;
     }
+    if (t.layout === 'official-fr-generic' && global.DkjPrintOfficial) {
+      sheet.innerHTML = global.DkjPrintOfficial.frGeneric(state || {}, t);
+      return sheet;
+    }
     var body;
     if (t.layout === 'ccp-rows') {
       body = renderCcpRows(t, state || {});

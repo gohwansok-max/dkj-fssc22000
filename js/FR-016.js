@@ -1,0 +1,147 @@
+/**
+ * FR-016 — generated FR boot
+ */
+(function () {
+  'use strict';
+  DkjFrForm.mount({
+  "code": "FR-016",
+  "title": "제품회수 보고서 및 기록",
+  "pattern": "fr",
+  "minChecks": 0,
+  "titleKey": "subject",
+  "historyKeys": [
+    "docDate",
+    "subject"
+  ],
+  "fields": [
+    {
+      "id": "docDate",
+      "label": "작성일자 *",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "subject",
+      "label": "제품명 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "lot",
+      "label": "LOT",
+      "type": "text"
+    },
+    {
+      "id": "recallClass",
+      "label": "회수등급",
+      "type": "select",
+      "options": [
+        "1등급",
+        "2등급",
+        "3등급"
+      ],
+      "default": "2등급"
+    },
+    {
+      "id": "startDate",
+      "label": "개시일",
+      "type": "date"
+    },
+    {
+      "id": "qty",
+      "label": "회수대상량",
+      "type": "text"
+    },
+    {
+      "id": "writer",
+      "label": "작성자 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "reviewer",
+      "label": "검토자",
+      "type": "text"
+    },
+    {
+      "id": "approver",
+      "label": "승인자",
+      "type": "text"
+    }
+  ],
+  "items": [],
+  "sections": [
+    {
+      "id": "reason",
+      "label": "회수 사유",
+      "placeholder": ""
+    },
+    {
+      "id": "scope",
+      "label": "유통·회수 범위",
+      "placeholder": ""
+    },
+    {
+      "id": "action",
+      "label": "조치·폐기·재작업",
+      "placeholder": ""
+    },
+    {
+      "id": "result",
+      "label": "결과·종료 확인",
+      "placeholder": ""
+    }
+  ],
+  "print": {
+    "layout": "official-fr-generic",
+    "orgName": "동김제농협 가공센터",
+    "docNo": "FR-016",
+    "title": "제품회수 보고서 및 기록",
+    "subtitle": "FSSC22000 · 이슈",
+    "rev": "0",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "metaFields": [
+      {
+        "key": "subject",
+        "label": "제품명"
+      },
+      {
+        "key": "lot",
+        "label": "LOT"
+      },
+      {
+        "key": "recallClass",
+        "label": "회수등급"
+      },
+      {
+        "key": "startDate",
+        "label": "개시일"
+      },
+      {
+        "key": "qty",
+        "label": "회수대상량"
+      }
+    ],
+    "rows": [],
+    "sections": [
+      {
+        "id": "reason",
+        "label": "회수 사유"
+      },
+      {
+        "id": "scope",
+        "label": "유통·회수 범위"
+      },
+      {
+        "id": "action",
+        "label": "조치·폐기·재작업"
+      },
+      {
+        "id": "result",
+        "label": "결과·종료 확인"
+      }
+    ]
+  }
+});
+})();

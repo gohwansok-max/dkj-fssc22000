@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-020",
+  "title": "내부심사 결과보고서",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "심사명"
+    },
+    {
+      "key": "auditDate",
+      "label": "심사일"
+    },
+    {
+      "key": "leadAuditor",
+      "label": "심사팀장"
+    },
+    {
+      "key": "ncCount",
+      "label": "부적합건수"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "summary",
+      "label": "종합 결과"
+    },
+    {
+      "id": "ncList",
+      "label": "부적합·관찰사항"
+    },
+    {
+      "id": "conclusion",
+      "label": "결론·권고"
+    }
+  ]
+}

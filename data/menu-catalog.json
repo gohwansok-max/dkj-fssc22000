@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-14",
+  "updatedAt": "2026-07-16",
   "site": "동김제농협 가공센터",
   "certification": "FSSC22000 V6",
   "source": "최종본260714",
@@ -134,59 +134,35 @@
             },
             {
               "label": "DKJ-S-02-01 작업장 위생점검일지",
-              "href": "records/DKJ-S-02-01.html"
+              "href": "doc-viewer.html?id=DKJ-S-02-01"
             },
             {
               "label": "DKJ-S-02-02 조도점검일지",
-              "href": "records/DKJ-S-02-02.html"
+              "href": "doc-viewer.html?id=DKJ-S-02-02"
             },
             {
               "label": "DKJ-S-02-03 개인위생점검일지",
-              "href": "records/DKJ-S-02-03.html"
+              "href": "doc-viewer.html?id=DKJ-S-02-03"
             },
             {
               "label": "DKJ-S-02-04 이물관리점검일지",
-              "href": "records/DKJ-S-02-04.html"
+              "href": "doc-viewer.html?id=DKJ-S-02-04"
             },
             {
-              "label": "DKJ-S-02-05 온습도점검일지",
-              "href": "records/DKJ-S-02-05.html"
+              "label": "DKJ-S-02-05 작업장 온도점검일지",
+              "href": "doc-viewer.html?id=DKJ-S-02-05"
             },
             {
               "label": "DKJ-S-02-06 환기 및 급·배기시설점검표",
-              "href": "records/DKJ-S-02-06.html"
+              "href": "doc-viewer.html?id=DKJ-S-02-06"
             },
             {
               "label": "DKJ-S-02-07 방충방서관리점검일지",
-              "href": "records/DKJ-S-02-07.html"
-            },
-            {
-              "label": "DKJ-S-02-12 제조시설·설비점검표",
-              "href": "records/DKJ-S-02-12.html"
-            },
-            {
-              "label": "DKJ-S-02-13 저수조 물탱크 위생점검일지",
-              "href": "records/DKJ-S-02-13.html"
-            },
-            {
-              "label": "DKJ-S-02-18 운송차량 위생점검표",
-              "href": "records/DKJ-S-02-18.html"
-            },
-            {
-              "label": "DKJ-S-02-29 종사자건강상태확인",
-              "href": "records/DKJ-S-02-29.html"
+              "href": "doc-viewer.html?id=DKJ-S-02-07"
             },
             {
               "label": "DKJ-S-02-08 폐기물관리대장",
               "href": "doc-viewer.html?id=DKJ-S-02-08"
-            },
-            {
-              "label": "DKJ-S-02-05 온습도점검",
-              "href": "records/DKJ-S-02-05.html"
-            },
-            {
-              "label": "DKJ-STORE-01 보관·FIFO",
-              "href": "records/DKJ-STORE-01.html"
             }
           ]
         }
@@ -201,11 +177,11 @@
           "links": [
             {
               "label": "DKJ-H-01-01 중요관리점(CCP 1BC) 점검표 소독·헹굼공정",
-              "href": "records/DKJ-H-01-01.html"
+              "href": "doc-viewer.html?id=DKJ-H-01-01"
             },
             {
               "label": "DKJ-H-01-02 중요관리점(CCP 2P) 점검표 금속검출공정",
-              "href": "records/DKJ-H-01-02.html"
+              "href": "doc-viewer.html?id=DKJ-H-01-02"
             },
             {
               "label": "DKJ-H-01-03 업무인수인계서",
@@ -451,52 +427,36 @@
   ],
   "quickLinks": [
     {
-      "label": "조도",
-      "href": "records/DKJ-S-02-02.html"
-    },
-    {
-      "label": "종사자건강",
-      "href": "records/DKJ-S-02-29.html"
-    },
-    {
-      "label": "방충방서",
-      "href": "records/DKJ-S-02-07.html"
-    },
-    {
-      "label": "이물점검",
-      "href": "records/DKJ-S-02-04.html"
-    },
-    {
-      "label": "보관FIFO",
-      "href": "records/DKJ-STORE-01.html"
-    },
-    {
-      "label": "온습도",
-      "href": "records/DKJ-S-02-05.html"
-    },
-    {
-      "label": "개인위생",
-      "href": "records/DKJ-S-02-03.html"
-    },
-    {
-      "label": "위생점검",
-      "href": "records/DKJ-S-02-01.html"
-    },
-    {
-      "label": "CCP-1BC",
-      "href": "records/DKJ-H-01-01.html"
-    },
-    {
-      "label": "CCP-2P",
-      "href": "records/DKJ-H-01-02.html"
-    },
-    {
       "label": "문서센터",
       "href": "docs-center.html"
     },
     {
       "label": "MDR Rev11",
       "href": "mdr-register.html"
+    },
+    {
+      "label": "FR-014 입고",
+      "href": "records/FR-014.html"
+    },
+    {
+      "label": "CCP·HACCP",
+      "href": "docs-center.html?cat=haccp"
+    },
+    {
+      "label": "PRP",
+      "href": "docs-center.html?cat=prp"
+    },
+    {
+      "label": "SOP",
+      "href": "docs-center.html?cat=sop"
+    },
+    {
+      "label": "교육",
+      "href": "docs-center.html?cat=education"
+    },
+    {
+      "label": "내부심사",
+      "href": "docs-center.html?cat=audit"
     }
   ]
 }

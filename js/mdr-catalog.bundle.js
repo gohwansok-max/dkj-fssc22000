@@ -1,16 +1,17 @@
 window.DKJ_MDR_CATALOG={
   "source": "",
   "mdrCode": "MDR-001",
-  "mdrRev": "Rev11",
-  "parsedAt": "2026-07-14",
+  "mdrRev": "Rev13",
+  "parsedAt": "2026-07-16",
   "sheets": [
     "Dashboard",
     "MDR_파일목록",
     "폴더목록",
     "정합성점검",
-    "개정이력"
+    "개정이력",
+    "복구근거"
   ],
-  "entryCount": 186,
+  "entryCount": 202,
   "entries": [
     {
       "mdrRow": 5,
@@ -26,7 +27,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 6,
@@ -42,7 +43,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "4",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 7,
@@ -58,7 +59,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 8,
@@ -74,7 +75,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "3",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 9,
@@ -90,7 +91,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 10,
@@ -106,7 +107,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 11,
@@ -122,7 +123,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 12,
@@ -138,7 +139,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 13,
@@ -154,7 +155,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 14,
@@ -170,7 +171,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 15,
@@ -186,7 +187,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 16,
@@ -202,7 +203,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 17,
@@ -218,7 +219,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 18,
@@ -234,7 +235,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 19,
@@ -250,7 +251,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 20,
@@ -266,7 +267,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 21,
@@ -282,7 +283,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "2",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 22,
@@ -298,7 +299,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 23,
@@ -314,7 +315,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 24,
@@ -330,7 +331,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 25,
@@ -346,15 +347,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 26,
       "id": "번호 미부여",
       "code": "번호 미부여",
-      "title": "1. 선행요건관리기준서 동김제농협 (통합본)",
-      "rev": "RevHWP",
-      "docType": "선행요건 문서/기록",
+      "title": "별첨 8. 완제품 품질 규격 및 출하검사 기준",
+      "rev": "RevDOCX",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -362,7 +363,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 27,
@@ -370,7 +371,7 @@ window.DKJ_MDR_CATALOG={
       "code": "번호 미부여",
       "title": "별첨1. 작업장 위생관리기준 게시물 동김제농협(260211)",
       "rev": "RevPPT",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -378,7 +379,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 28,
@@ -386,7 +387,7 @@ window.DKJ_MDR_CATALOG={
       "code": "번호 미부여",
       "title": "별첨2. 세척소독 관리기준",
       "rev": "RevHWP",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -394,7 +395,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 29,
@@ -402,7 +403,7 @@ window.DKJ_MDR_CATALOG={
       "code": "번호 미부여",
       "title": "별첨3. 위생검사기준표",
       "rev": "RevXLS",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -410,7 +411,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 30,
@@ -418,7 +419,7 @@ window.DKJ_MDR_CATALOG={
       "code": "번호 미부여",
       "title": "1.원부자재 입고검사 규격서(농산)",
       "rev": "RevHWP",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -426,7 +427,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 31,
@@ -434,7 +435,7 @@ window.DKJ_MDR_CATALOG={
       "code": "번호 미부여",
       "title": "2.원부자재 입고검사 규격서(가공품)",
       "rev": "RevHWP",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -442,7 +443,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 32,
@@ -450,7 +451,7 @@ window.DKJ_MDR_CATALOG={
       "code": "번호 미부여",
       "title": "3.원부자재 입고검사 규격서(공통)",
       "rev": "RevHWP",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -458,7 +459,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 33,
@@ -466,7 +467,7 @@ window.DKJ_MDR_CATALOG={
       "code": "번호 미부여",
       "title": "3.원부자재 입고검사 규격서(포장재)",
       "rev": "RevHWP",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -474,7 +475,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 34,
@@ -482,7 +483,7 @@ window.DKJ_MDR_CATALOG={
       "code": "번호 미부여",
       "title": "별첨5. 검교정 관리기준",
       "rev": "RevHWP",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -490,15 +491,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 35,
       "id": "번호 미부여",
       "code": "번호 미부여",
-      "title": "추적성",
+      "title": "별첨6. 제품 추적성 관리흐름도",
       "rev": "RevXLS",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -514,7 +515,7 @@ window.DKJ_MDR_CATALOG={
       "code": "번호 미부여",
       "title": "별첨7. 협력업체관리기준",
       "rev": "RevHWP",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -522,7 +523,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 37,
@@ -538,7 +539,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 38,
@@ -554,7 +555,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 39,
@@ -570,7 +571,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 40,
@@ -586,7 +587,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 41,
@@ -602,7 +603,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 42,
@@ -618,7 +619,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 43,
@@ -634,7 +635,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 44,
@@ -650,7 +651,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 45,
@@ -666,26 +667,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
       "mdrRow": 46,
-      "id": "DKJ-S-02-10",
-      "code": "DKJ-S-02-10",
-      "title": "제조시설·설비관리대장",
-      "rev": "RevXLSX",
-      "docType": "선행요건 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 47,
       "id": "DKJ-S-02-11",
       "code": "DKJ-S-02-11",
       "title": "제조시설·설비이력카드",
@@ -697,11 +682,11 @@ window.DKJ_MDR_CATALOG={
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "1",
-      "revised": "현행"
+      "enacted": "0",
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 48,
+      "mdrRow": 47,
       "id": "DKJ-S-02-12",
       "code": "DKJ-S-02-12",
       "title": "제조시설·설비점검표",
@@ -714,10 +699,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 49,
+      "mdrRow": 48,
       "id": "DKJ-S-02-13",
       "code": "DKJ-S-02-13",
       "title": "저수조 물탱크 위생점검일지",
@@ -730,10 +715,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 50,
+      "mdrRow": 49,
       "id": "DKJ-S-02-14",
       "code": "DKJ-S-02-14",
       "title": "원·부재료입고검사일지",
@@ -746,10 +731,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 51,
+      "mdrRow": 50,
       "id": "DKJ-S-02-15",
       "code": "DKJ-S-02-15",
       "title": "부자재(포장재)입고검사일지",
@@ -762,10 +747,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 52,
+      "mdrRow": 51,
       "id": "DKJ-S-02-16",
       "code": "DKJ-S-02-16",
       "title": "연 협력업체 점검계획서",
@@ -778,10 +763,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 53,
+      "mdrRow": 52,
       "id": "DKJ-S-02-17",
       "code": "DKJ-S-02-17",
       "title": "협력업체 평가표",
@@ -794,10 +779,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 54,
+      "mdrRow": 53,
       "id": "DKJ-S-02-18",
       "code": "DKJ-S-02-18",
       "title": "운송차량 위생점검표",
@@ -810,10 +795,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 55,
+      "mdrRow": 54,
       "id": "DKJ-S-02-19",
       "code": "DKJ-S-02-19",
       "title": "부적합품 처리보고서",
@@ -826,10 +811,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 56,
+      "mdrRow": 55,
       "id": "DKJ-S-02-20",
       "code": "DKJ-S-02-20",
       "title": "고객불만접수 및 처리대장",
@@ -842,10 +827,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 57,
+      "mdrRow": 56,
       "id": "DKJ-S-02-21",
       "code": "DKJ-S-02-21",
       "title": "고객불만처리보고서",
@@ -858,10 +843,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 58,
+      "mdrRow": 57,
       "id": "DKJ-S-02-22",
       "code": "DKJ-S-02-22",
       "title": "연 미생물검사계획서",
@@ -874,10 +859,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 59,
+      "mdrRow": 58,
       "id": "DKJ-S-02-23",
       "code": "DKJ-S-02-23",
       "title": "연간 계측기 검교정계획서",
@@ -890,10 +875,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 60,
+      "mdrRow": 59,
       "id": "DKJ-S-02-24",
       "code": "DKJ-S-02-24",
       "title": "사내검교정일지",
@@ -906,10 +891,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 61,
+      "mdrRow": 60,
       "id": "DKJ-S-02-25",
       "code": "DKJ-S-02-25",
       "title": "회수계획서",
@@ -922,10 +907,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 62,
+      "mdrRow": 61,
       "id": "DKJ-S-02-26",
       "code": "DKJ-S-02-26",
       "title": "긴급회수문",
@@ -938,10 +923,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 63,
+      "mdrRow": 62,
       "id": "DKJ-S-02-27",
       "code": "DKJ-S-02-27",
       "title": "회수결과보고서",
@@ -954,10 +939,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 64,
+      "mdrRow": 63,
       "id": "DKJ-S-02-28",
       "code": "DKJ-S-02-28",
       "title": "압축공기필터관리대장",
@@ -970,10 +955,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 65,
+      "mdrRow": 64,
       "id": "DKJ-S-02-29",
       "code": "DKJ-S-02-29",
       "title": "종사자건강상태확인",
@@ -986,10 +971,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 66,
+      "mdrRow": 65,
       "id": "DKJ-S-02-30",
       "code": "DKJ-S-02-30",
       "title": "외부출입자 안내절차 및 주의사항",
@@ -1002,10 +987,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 67,
+      "mdrRow": 66,
       "id": "DKJ-S-02-31",
       "code": "DKJ-S-02-31",
       "title": "이물 관리 대장",
@@ -1018,15 +1003,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 68,
-      "id": "PP-00",
-      "code": "PP-00",
-      "title": "PRP 체계 인덱스",
+      "mdrRow": 67,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "PP-00 PRP 체계 인덱스",
       "rev": "RevDOCX",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1034,10 +1019,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 69,
+      "mdrRow": 68,
       "id": "PRP-001",
       "code": "PRP-001",
       "title": "영업장관리 기준",
@@ -1050,10 +1035,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "4",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 70,
+      "mdrRow": 69,
       "id": "PRP-002",
       "code": "PRP-002",
       "title": "위생관리 기준",
@@ -1066,15 +1051,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "4",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 71,
+      "mdrRow": 70,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "시설.설비 이력 관리대장",
       "rev": "RevHWP",
-      "docType": "선행요건 문서/기록",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1082,10 +1067,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 72,
+      "mdrRow": 71,
       "id": "PRP-003",
       "code": "PRP-003",
       "title": "제조시설·설비관리 기준",
@@ -1098,10 +1083,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "4",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 73,
+      "mdrRow": 72,
       "id": "PRP-004",
       "code": "PRP-004",
       "title": "냉장·냉동시설·설비관리 기준",
@@ -1114,10 +1099,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "4",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 74,
+      "mdrRow": 73,
       "id": "PRP-005",
       "code": "PRP-005",
       "title": "용수관리 기준",
@@ -1130,10 +1115,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "4",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 75,
+      "mdrRow": 74,
       "id": "PRP-006",
       "code": "PRP-006",
       "title": "보관·운송관리 기준",
@@ -1146,10 +1131,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "4",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 76,
+      "mdrRow": 75,
       "id": "PRP-007",
       "code": "PRP-007",
       "title": "검사관리 기준",
@@ -1162,10 +1147,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "4",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 77,
+      "mdrRow": 76,
       "id": "PRP-008",
       "code": "PRP-008",
       "title": "회수프로그램관리 기준",
@@ -1178,15 +1163,31 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "4",
-      "revised": "현행"
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 77,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-001 원부자재 입고검사 작업표준서",
+      "rev": "RevDOCX",
+      "docType": "기타 운영문서",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "1",
+      "revised": "검토필요"
     },
     {
       "mdrRow": 78,
-      "id": "DKJ-W-001",
-      "code": "DKJ-W-001",
-      "title": "원부자재 입고검사 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-002 원료 보관 및 선입선출 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1194,15 +1195,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 79,
-      "id": "DKJ-W-002",
-      "code": "DKJ-W-002",
-      "title": "원료 보관 및 선입선출 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-003 작업자 위생 및 입실 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1210,15 +1211,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 80,
-      "id": "DKJ-W-003",
-      "code": "DKJ-W-003",
-      "title": "작업자 위생 및 입실 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-004 세척 및 소독 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1226,15 +1227,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 81,
-      "id": "DKJ-W-004",
-      "code": "DKJ-W-004",
-      "title": "세척 및 소독 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-005 전처리 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1242,15 +1243,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 82,
-      "id": "DKJ-W-005",
-      "code": "DKJ-W-005",
-      "title": "전처리 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-006 가열 및 냉각 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1258,15 +1259,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 83,
-      "id": "DKJ-W-006",
-      "code": "DKJ-W-006",
-      "title": "가열 및 냉각 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-007 금속검출기 운영 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1274,15 +1275,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 84,
-      "id": "DKJ-W-007",
-      "code": "DKJ-W-007",
-      "title": "금속검출기 운영 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-008 포장 및 표시확인 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1290,15 +1291,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 85,
-      "id": "DKJ-W-008",
-      "code": "DKJ-W-008",
-      "title": "포장 및 표시확인 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-009 완제품 보관 및 출하 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1306,15 +1307,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 86,
-      "id": "DKJ-W-009",
-      "code": "DKJ-W-009",
-      "title": "완제품 보관 및 출하 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-010 폐기물 및 부산물 관리 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1322,15 +1323,15 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 87,
-      "id": "DKJ-W-010",
-      "code": "DKJ-W-010",
-      "title": "폐기물 및 부산물 관리 작업표준서",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DKJ-W-011 부적합품처리 작업표준서",
       "rev": "RevDOCX",
-      "docType": "작업표준서",
+      "docType": "기타 운영문서",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1338,26 +1339,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 88,
-      "id": "DKJ-W-011",
-      "code": "DKJ-W-011",
-      "title": "부적합품처리 작업표준서",
-      "rev": "RevDOCX",
-      "docType": "작업표준서",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "1",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 89,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "법적서류 생산일지양식 동김제농협 일간",
@@ -1370,10 +1355,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 90,
+      "mdrRow": 89,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "법적서류 원료수불부 일간",
@@ -1386,206 +1371,14 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 91,
-      "id": "DKJ-H-01-01",
-      "code": "DKJ-H-01-01",
-      "title": "중요관리점(CCP-1BC) 점검표 소독·헹굼공정",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 92,
-      "id": "DKJ-H-01-02",
-      "code": "DKJ-H-01-02",
-      "title": "중요관리점(CCP-2P) 점검표 금속검출공정",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 93,
-      "id": "DKJ-H-01-03",
-      "code": "DKJ-H-01-03",
-      "title": "업무인수인계서",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 94,
-      "id": "DKJ-H-01-04",
-      "code": "DKJ-H-01-04",
-      "title": "HACCP팀 회의록",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 95,
-      "id": "DKJ-H-01-05",
-      "code": "DKJ-H-01-05",
-      "title": "중요관리점(CCP)검증점검표(월간)",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 96,
-      "id": "DKJ-H-01-06",
-      "code": "DKJ-H-01-06",
-      "title": "HACCP 연간검증계획서",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 97,
-      "id": "DKJ-H-01-07",
-      "code": "DKJ-H-01-07",
-      "title": "검증결과보고서",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 98,
-      "id": "DKJ-H-01-08",
-      "code": "DKJ-H-01-08",
-      "title": "검증개선조치보고서",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 99,
-      "id": "DKJ-H-01-09",
-      "code": "DKJ-H-01-09",
-      "title": "HACCP 실시상황평가표",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 100,
-      "id": "DKJ-H-01-10",
-      "code": "DKJ-H-01-10",
-      "title": "연간 교육훈련 계획서",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 101,
-      "id": "DKJ-H-01-11",
-      "code": "DKJ-H-01-11",
-      "title": "교육훈련일지",
-      "rev": "RevHWP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 102,
-      "id": "DKJ-H-01-12",
-      "code": "DKJ-H-01-12",
-      "title": "교육평가서",
-      "rev": "RevXLSX",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 103,
+      "mdrRow": 90,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "별첨 1. HACCP팀 조직도",
-      "rev": "Rev_HACCP",
+      "rev": "RevHWP",
       "docType": "HACCP 문서/기록",
       "category": "other",
       "workflowStatus": "완료",
@@ -1594,173 +1387,13 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 104,
+      "mdrRow": 91,
       "id": "번호 미부여",
       "code": "번호 미부여",
-      "title": "별첨 2. HACCP 팀원 이력표",
-      "rev": "Rev_HACCP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 105,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "별첨 3. 업무 인수인계방법",
-      "rev": "Rev_HACCP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 106,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "별첨 4. 제품설명서 목록",
-      "rev": "Rev_HACCP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 107,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "별첨 4. 제품설명서",
-      "rev": "Rev_HACCP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 108,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "별첨 5. 공정흐름도",
-      "rev": "RevXLSX",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 109,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "별첨 6. 제조공정별 가공방법",
-      "rev": "Rev_HACCP",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 110,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "별첨 7. 작업장평면도",
-      "rev": "RevXLS",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 111,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "별첨 8. 위해요소 평가 기준표",
-      "rev": "RevXLSX",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 112,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "별첨 9. 위해요소분석표 원부재료별",
-      "rev": "RevXLS",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 113,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "별첨 9. 위해요소분석표 제조공정별",
-      "rev": "RevXLS",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 114,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "",
+      "title": "별첨 10. 위해요소발생가능성근거자료",
       "rev": "RevXLS",
       "docType": "HACCP 문서/기록",
       "category": "other",
@@ -1773,7 +1406,7 @@ window.DKJ_MDR_CATALOG={
       "revised": "검토필요"
     },
     {
-      "mdrRow": 115,
+      "mdrRow": 92,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "별첨 11. 중요관리점 결정표 원부재료별",
@@ -1786,10 +1419,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 116,
+      "mdrRow": 93,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "별첨 11. 중요관리점 결정표 제조공정별",
@@ -1802,14 +1435,14 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 117,
+      "mdrRow": 94,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "별첨 12. 식품안전관리인증계획서(HACCP PLAN)",
-      "rev": "Rev_HACCP",
+      "rev": "RevHWP",
       "docType": "HACCP 문서/기록",
       "category": "other",
       "workflowStatus": "완료",
@@ -1818,10 +1451,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 118,
+      "mdrRow": 95,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "별첨 13. 한계기준설정자료 소독.헹굼공정(CCP-1BC)",
@@ -1834,10 +1467,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 119,
+      "mdrRow": 96,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "별첨 14. 한계기준설정자료 금속검출공정(CCP-2P)",
@@ -1850,14 +1483,382 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 97,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 2. HACCP 팀원 이력표-수정필요",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 98,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 3. 업무 인수인계방법",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 99,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 4. 제품설명서 목록",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 100,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 4. 제품설명서",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 101,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 5. 공정흐름도",
+      "rev": "RevXLSX",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 102,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 6. 제조공정별 가공방법",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 103,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 7. 작업장평면도",
+      "rev": "RevXLS",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 104,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 8. 위해요소 평가 기준표",
+      "rev": "RevXLSX",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 105,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 9. 위해요소분석표 원부재료별",
+      "rev": "RevXLS",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 106,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "별첨 9. 위해요소분석표 제조공정별",
+      "rev": "RevXLS",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 107,
+      "id": "DKJ-H-01-01",
+      "code": "DKJ-H-01-01",
+      "title": "중요관리점(CCP-1BC) 점검표 소독·헹굼공정",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 108,
+      "id": "DKJ-H-01-02",
+      "code": "DKJ-H-01-02",
+      "title": "중요관리점(CCP-2P) 점검표 금속검출공정",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 109,
+      "id": "DKJ-H-01-03",
+      "code": "DKJ-H-01-03",
+      "title": "업무인수인계서",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 110,
+      "id": "DKJ-H-01-04",
+      "code": "DKJ-H-01-04",
+      "title": "HACCP팀 회의록",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 111,
+      "id": "DKJ-H-01-05",
+      "code": "DKJ-H-01-05",
+      "title": "중요관리점(CCP)검증점검표(월간)",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 112,
+      "id": "DKJ-H-01-06",
+      "code": "DKJ-H-01-06",
+      "title": "HACCP 연간검증계획서",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 113,
+      "id": "DKJ-H-01-07",
+      "code": "DKJ-H-01-07",
+      "title": "검증결과보고서",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 114,
+      "id": "DKJ-H-01-08",
+      "code": "DKJ-H-01-08",
+      "title": "검증개선조치보고서",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 115,
+      "id": "DKJ-H-01-09",
+      "code": "DKJ-H-01-09",
+      "title": "HACCP 실시상황평가표",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 116,
+      "id": "DKJ-H-01-10",
+      "code": "DKJ-H-01-10",
+      "title": "연간 교육훈련 계획서",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 117,
+      "id": "DKJ-H-01-11",
+      "code": "DKJ-H-01-11",
+      "title": "교육훈련일지",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 118,
+      "id": "DKJ-H-01-12",
+      "code": "DKJ-H-01-12",
+      "title": "교육평가서",
+      "rev": "RevXLSX",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "현행후보"
+    },
+    {
+      "mdrRow": 119,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "HACCP 기준서 동김제농협",
+      "rev": "RevHWP",
+      "docType": "HACCP 문서/기록",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
     },
     {
       "mdrRow": 120,
-      "id": "별첨",
-      "code": "별첨",
-      "title": "관리",
-      "rev": "Rev_HACCP",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "HC-00 HACCP 체계 인덱스",
+      "rev": "RevDOCX",
       "docType": "HACCP 문서/기록",
       "category": "other",
       "workflowStatus": "완료",
@@ -1865,14 +1866,14 @@ window.DKJ_MDR_CATALOG={
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "3",
-      "revised": "현행"
+      "enacted": "0",
+      "revised": "검토필요"
     },
     {
       "mdrRow": 121,
-      "id": "HC-00",
-      "code": "HC-00",
-      "title": "HACCP 체계 인덱스",
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "REF-01 담당자 역할매핑 및 교육대상자 구분표",
       "rev": "RevDOCX",
       "docType": "HACCP 문서/기록",
       "category": "other",
@@ -1882,31 +1883,31 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
       "mdrRow": 122,
-      "id": "REF-01",
-      "code": "REF-01",
-      "title": "담당자 역할매핑 및 교육대상자 구분표",
-      "rev": "RevDOCX",
-      "docType": "HACCP 문서/기록",
-      "category": "other",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "0",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 123,
       "id": "FR-001",
       "code": "DKJ-F-001",
       "title": "문서 제개정 요청서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
+      "category": "record",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "1",
+      "revised": "현행"
+    },
+    {
+      "mdrRow": 123,
+      "id": "FR-002",
+      "code": "DKJ-F-002",
+      "title": "문서배포대장",
+      "rev": "RevXLSX",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1918,11 +1919,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 124,
-      "id": "FR-002",
-      "code": "DKJ-F-002",
-      "title": "문서배포대장",
+      "id": "FR-003",
+      "code": "DKJ-F-003",
+      "title": "문서회수대장",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1934,11 +1935,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 125,
-      "id": "FR-003",
-      "code": "DKJ-F-003",
-      "title": "문서회수대장",
+      "id": "FR-004",
+      "code": "DKJ-F-004",
+      "title": "외부문서관리대장",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1950,11 +1951,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 126,
-      "id": "FR-004",
-      "code": "DKJ-F-004",
-      "title": "외부문서관리대장",
+      "id": "FR-005",
+      "code": "DKJ-F-005",
+      "title": "폐기문서관리대장",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1966,11 +1967,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 127,
-      "id": "FR-005",
-      "code": "DKJ-F-005",
-      "title": "폐기문서관리대장",
+      "id": "FR-006",
+      "code": "DKJ-F-006",
+      "title": "기록관리대장",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1982,11 +1983,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 128,
-      "id": "FR-006",
-      "code": "DKJ-F-006",
-      "title": "기록관리대장",
+      "id": "FR-007",
+      "code": "DKJ-F-007",
+      "title": "기록폐기대장",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -1998,11 +1999,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 129,
-      "id": "FR-007",
-      "code": "DKJ-F-007",
-      "title": "기록폐기대장",
+      "id": "FR-008",
+      "code": "DKJ-F-008",
+      "title": "연간 교육훈련 계획서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2014,11 +2015,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 130,
-      "id": "FR-008",
-      "code": "DKJ-F-008",
-      "title": "연간 교육훈련 계획서",
+      "id": "FR-009",
+      "code": "DKJ-F-009",
+      "title": "교육훈련 실시 및 평가 기록",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2030,11 +2031,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 131,
-      "id": "FR-009",
-      "code": "DKJ-F-009",
-      "title": "교육훈련 실시 및 평가 기록",
+      "id": "FR-010",
+      "code": "DKJ-F-010",
+      "title": "개인별 역량평가표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2046,11 +2047,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 132,
-      "id": "FR-010",
-      "code": "DKJ-F-010",
-      "title": "개인별 역량평가표",
+      "id": "FR-011",
+      "code": "DKJ-F-011",
+      "title": "공급업체 승인평가표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2062,11 +2063,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 133,
-      "id": "FR-011",
-      "code": "DKJ-F-011",
-      "title": "공급업체 승인평가표",
+      "id": "FR-012",
+      "code": "DKJ-F-012",
+      "title": "승인공급업체 목록",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2078,11 +2079,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 134,
-      "id": "FR-012",
-      "code": "DKJ-F-012",
-      "title": "승인공급업체 목록",
+      "id": "FR-013",
+      "code": "DKJ-F-013",
+      "title": "구매 발주 및 검토 기록",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2094,11 +2095,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 135,
-      "id": "FR-013",
-      "code": "DKJ-F-013",
-      "title": "구매 발주 및 검토 기록",
+      "id": "FR-015",
+      "code": "DKJ-F-015",
+      "title": "부적합 원부자재 처리기록",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2110,11 +2111,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 136,
-      "id": "FR-015",
-      "code": "DKJ-F-015",
-      "title": "부적합 원부자재 처리기록",
+      "id": "FR-018",
+      "code": "DKJ-F-018",
+      "title": "내부심사 계획서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2126,27 +2127,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 137,
-      "id": "FR-018",
-      "code": "DKJ-F-018",
-      "title": "내부심사 계획서",
-      "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
-      "category": "record",
-      "workflowStatus": "완료",
-      "status": "운영중",
-      "filePath": "",
-      "related": "",
-      "note": "",
-      "enacted": "1",
-      "revised": "현행"
-    },
-    {
-      "mdrRow": 138,
       "id": "FR-019",
       "code": "DKJ-F-019",
       "title": "내부심사 체크리스트",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2157,12 +2142,28 @@ window.DKJ_MDR_CATALOG={
       "revised": "현행"
     },
     {
-      "mdrRow": 139,
+      "mdrRow": 138,
       "id": "FR-020",
       "code": "DKJ-F-020",
       "title": "내부심사 결과보고서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
+      "category": "record",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "1",
+      "revised": "현행"
+    },
+    {
+      "mdrRow": 139,
+      "id": "FR-021",
+      "code": "DKJ-F-021",
+      "title": "시정조치 요구서(CAR)",
+      "rev": "RevXLSX",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2174,11 +2175,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 140,
-      "id": "FR-021",
-      "code": "DKJ-F-021",
-      "title": "시정조치 요구서(CAR)",
+      "id": "FR-022",
+      "code": "DKJ-F-022",
+      "title": "시정조치 관리대장",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2190,11 +2191,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 141,
-      "id": "FR-022",
-      "code": "DKJ-F-022",
-      "title": "시정조치 관리대장",
+      "id": "FR-023",
+      "code": "DKJ-F-023",
+      "title": "경영검토 입력자료",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2206,11 +2207,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 142,
-      "id": "FR-023",
-      "code": "DKJ-F-023",
-      "title": "경영검토 입력자료",
+      "id": "FR-024",
+      "code": "DKJ-F-024",
+      "title": "경영검토 회의록",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2222,11 +2223,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 143,
-      "id": "FR-024",
-      "code": "DKJ-F-024",
-      "title": "경영검토 회의록",
+      "id": "FR-025",
+      "code": "DKJ-F-025",
+      "title": "경영검토 후속조치표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2238,11 +2239,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 144,
-      "id": "FR-025",
-      "code": "DKJ-F-025",
-      "title": "경영검토 후속조치표",
+      "id": "FR-028",
+      "code": "DKJ-F-028",
+      "title": "변경관리 신청서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2254,11 +2255,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 145,
-      "id": "FR-028",
-      "code": "DKJ-F-028",
-      "title": "변경관리 신청서",
+      "id": "FR-029",
+      "code": "DKJ-F-029",
+      "title": "변경 영향평가표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2270,11 +2271,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 146,
-      "id": "FR-029",
-      "code": "DKJ-F-029",
-      "title": "변경 영향평가표",
+      "id": "FR-030",
+      "code": "DKJ-F-030",
+      "title": "의사소통 기록대장",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2286,19 +2287,19 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 147,
-      "id": "FR-030",
-      "code": "DKJ-F-030",
-      "title": "의사소통 기록대장",
+      "id": "FR-031",
+      "code": "DKJ-F-031",
+      "title": "식품방어 취약성 평가표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "1",
-      "revised": "현행"
+      "enacted": "3",
+      "revised": "구본"
     },
     {
       "mdrRow": 148,
@@ -2306,7 +2307,7 @@ window.DKJ_MDR_CATALOG={
       "code": "DKJ-F-031",
       "title": "식품방어 취약성 평가표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2322,7 +2323,7 @@ window.DKJ_MDR_CATALOG={
       "code": "DKJ-F-032",
       "title": "식품방어 실행계획서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2338,23 +2339,23 @@ window.DKJ_MDR_CATALOG={
       "code": "DKJ-F-033",
       "title": "식품사기 취약성 평가표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "6",
-      "revised": "현행"
+      "enacted": "3",
+      "revised": "구본"
     },
     {
       "mdrRow": 151,
-      "id": "FR-034",
-      "code": "DKJ-F-034",
-      "title": "식품사기 예방 실행계획서",
+      "id": "FR-033",
+      "code": "DKJ-F-033",
+      "title": "식품사기 취약성 평가표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2366,27 +2367,27 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 152,
-      "id": "FR-035",
-      "code": "DKJ-F-035",
-      "title": "알레르겐 원료 평가표",
+      "id": "FR-034",
+      "code": "DKJ-F-034",
+      "title": "식품사기 예방 실행계획서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "6",
-      "revised": "현행"
+      "enacted": "3",
+      "revised": "구본"
     },
     {
       "mdrRow": 153,
-      "id": "FR-036",
-      "code": "DKJ-F-036",
-      "title": "알레르겐 전환세척 점검기록",
+      "id": "FR-034",
+      "code": "DKJ-F-034",
+      "title": "식품사기 예방 실행계획서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2398,27 +2399,27 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 154,
-      "id": "FR-037",
-      "code": "DKJ-F-037",
-      "title": "환경모니터링 계획서",
+      "id": "FR-035",
+      "code": "DKJ-F-035",
+      "title": "알레르겐 원료 평가표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "6",
-      "revised": "현행"
+      "enacted": "3",
+      "revised": "구본"
     },
     {
       "mdrRow": 155,
-      "id": "FR-038",
-      "code": "DKJ-F-038",
-      "title": "환경모니터링 결과 및 Trend표",
+      "id": "FR-035",
+      "code": "DKJ-F-035",
+      "title": "알레르겐 원료 평가표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2430,107 +2431,107 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 156,
-      "id": "FR-040",
-      "code": "DKJ-F-040",
-      "title": "추적성 점검 및 모의추적 기록",
+      "id": "FR-036",
+      "code": "DKJ-F-036",
+      "title": "알레르겐 전환세척 점검기록",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "1",
-      "revised": "현행"
+      "enacted": "3",
+      "revised": "구본"
     },
     {
       "mdrRow": 157,
-      "id": "FR-041",
-      "code": "DKJ-F-041",
-      "title": "비상상황 발생보고서",
+      "id": "FR-036",
+      "code": "DKJ-F-036",
+      "title": "알레르겐 전환세척 점검기록",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "1",
+      "enacted": "6",
       "revised": "현행"
     },
     {
       "mdrRow": 158,
-      "id": "FR-043",
-      "code": "DKJ-F-043",
-      "title": "제품 미생물검사 기록지",
+      "id": "FR-037",
+      "code": "DKJ-F-037",
+      "title": "환경모니터링 계획서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "1",
-      "revised": "현행"
+      "enacted": "3",
+      "revised": "구본"
     },
     {
       "mdrRow": 159,
-      "id": "FR-044",
-      "code": "DKJ-F-044",
-      "title": "작업자 위생검사 기록지",
+      "id": "FR-037",
+      "code": "DKJ-F-037",
+      "title": "환경모니터링 계획서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "1",
+      "enacted": "6",
       "revised": "현행"
     },
     {
       "mdrRow": 160,
-      "id": "FR-045",
-      "code": "DKJ-F-045",
-      "title": "Loss &amp; Waste 관리표",
+      "id": "FR-038",
+      "code": "DKJ-F-038",
+      "title": "환경모니터링 결과 및 Trend표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "1",
-      "revised": "현행"
+      "enacted": "3",
+      "revised": "구본"
     },
     {
       "mdrRow": 161,
-      "id": "FR-046",
-      "code": "DKJ-F-046",
-      "title": "설비 예방보전 계획 및 기록",
+      "id": "FR-038",
+      "code": "DKJ-F-038",
+      "title": "환경모니터링 결과 및 Trend표",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "1",
+      "enacted": "6",
       "revised": "현행"
     },
     {
       "mdrRow": 162,
-      "id": "FR-047",
-      "code": "DKJ-F-047",
-      "title": "식품안전문화 평가표",
+      "id": "FR-040",
+      "code": "DKJ-F-040",
+      "title": "추적성 점검 및 모의추적 기록",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2542,11 +2543,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 163,
-      "id": "FR-048",
-      "code": "DKJ-F-048",
-      "title": "자격인정자 관리대장",
+      "id": "FR-041",
+      "code": "DKJ-F-041",
+      "title": "비상상황 발생보고서",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2558,11 +2559,11 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 164,
-      "id": "FR-049",
-      "code": "DKJ-F-049",
-      "title": "직무별 자격기준표",
+      "id": "FR-043",
+      "code": "DKJ-F-043",
+      "title": "제품 미생물검사 기록지",
       "rev": "RevXLSX",
-      "docType": "FSSC 기록양식",
+      "docType": "기록양식",
       "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2574,6 +2575,102 @@ window.DKJ_MDR_CATALOG={
     },
     {
       "mdrRow": 165,
+      "id": "FR-044",
+      "code": "DKJ-F-044",
+      "title": "작업자 위생검사 기록지",
+      "rev": "RevXLSX",
+      "docType": "기록양식",
+      "category": "record",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "1",
+      "revised": "현행"
+    },
+    {
+      "mdrRow": 166,
+      "id": "FR-045",
+      "code": "DKJ-F-045",
+      "title": "Loss &amp; Waste 관리표",
+      "rev": "RevXLSX",
+      "docType": "기록양식",
+      "category": "record",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "1",
+      "revised": "현행"
+    },
+    {
+      "mdrRow": 167,
+      "id": "FR-046",
+      "code": "DKJ-F-046",
+      "title": "설비 예방보전 계획 및 기록",
+      "rev": "RevXLSX",
+      "docType": "기록양식",
+      "category": "record",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "1",
+      "revised": "현행"
+    },
+    {
+      "mdrRow": 168,
+      "id": "FR-047",
+      "code": "DKJ-F-047",
+      "title": "식품안전문화 평가표",
+      "rev": "RevXLSX",
+      "docType": "기록양식",
+      "category": "record",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "1",
+      "revised": "현행"
+    },
+    {
+      "mdrRow": 169,
+      "id": "FR-048",
+      "code": "DKJ-F-048",
+      "title": "자격인정자 관리대장",
+      "rev": "RevXLSX",
+      "docType": "기록양식",
+      "category": "record",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "1",
+      "revised": "현행"
+    },
+    {
+      "mdrRow": 170,
+      "id": "FR-049",
+      "code": "DKJ-F-049",
+      "title": "직무별 자격기준표",
+      "rev": "RevXLSX",
+      "docType": "기록양식",
+      "category": "record",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "1",
+      "revised": "현행"
+    },
+    {
+      "mdrRow": 171,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "00 Training Materials TOC DongGimje FSSC22000 V6",
@@ -2586,10 +2683,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "참고"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 166,
+      "mdrRow": 172,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "동김제농협 FSSC 22000 V6 교육자료",
@@ -2602,10 +2699,26 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 167,
+      "mdrRow": 173,
+      "id": "EDU-001",
+      "code": "EDU-001",
+      "title": "CCP 담당자 교육",
+      "rev": "RevPPTX",
+      "docType": "교육자료",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "낮은 Rev"
+    },
+    {
+      "mdrRow": 174,
       "id": "EDU-001",
       "code": "EDU-001",
       "title": "CCP담당자 교육",
@@ -2618,10 +2731,26 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 168,
+      "mdrRow": 175,
+      "id": "EDU-002",
+      "code": "EDU-002",
+      "title": "일반작업자 교육",
+      "rev": "RevPPTX",
+      "docType": "교육자료",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "낮은 Rev"
+    },
+    {
+      "mdrRow": 176,
       "id": "EDU-002",
       "code": "EDU-002",
       "title": "일반작업자 교육",
@@ -2634,10 +2763,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 169,
+      "mdrRow": 177,
       "id": "EDU-003",
       "code": "EDU-003",
       "title": "내부심사원 교육",
@@ -2650,10 +2779,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 170,
+      "mdrRow": 178,
       "id": "EDU-003-1",
       "code": "EDU-003-1",
       "title": "내부심사 기본과 윤리 강사용 풀버전",
@@ -2666,10 +2795,26 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 171,
+      "mdrRow": 179,
+      "id": "EDU-003-1",
+      "code": "EDU-003-1",
+      "title": "내부심사 기본과 윤리",
+      "rev": "RevPPTX",
+      "docType": "교육자료",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "낮은 Rev"
+    },
+    {
+      "mdrRow": 180,
       "id": "EDU-003-2",
       "code": "EDU-003-2",
       "title": "ISO22000 2018 요구사항 심사실무 강사용 풀버전",
@@ -2682,10 +2827,26 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 172,
+      "mdrRow": 181,
+      "id": "EDU-003-2",
+      "code": "EDU-003-2",
+      "title": "ISO22000 2018 요구사항 심사실무",
+      "rev": "RevPPTX",
+      "docType": "교육자료",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "낮은 Rev"
+    },
+    {
+      "mdrRow": 182,
       "id": "EDU-003-3",
       "code": "EDU-003-3",
       "title": "PRP FSSC V6 HACCP 통합심사 강사용 풀버전",
@@ -2698,10 +2859,26 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 173,
+      "mdrRow": 183,
+      "id": "EDU-003-3",
+      "code": "EDU-003-3",
+      "title": "PRP FSSC V6 HACCP 통합심사",
+      "rev": "RevPPTX",
+      "docType": "교육자료",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "낮은 Rev"
+    },
+    {
+      "mdrRow": 184,
       "id": "EDU-003-4",
       "code": "EDU-003-4",
       "title": "부적합 CAR 작성실습 강사용 풀버전",
@@ -2714,10 +2891,42 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 174,
+      "mdrRow": 185,
+      "id": "EDU-003-4",
+      "code": "EDU-003-4",
+      "title": "부적합 CAR 작성실습",
+      "rev": "RevPPTX",
+      "docType": "교육자료",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "낮은 Rev"
+    },
+    {
+      "mdrRow": 186,
+      "id": "EDU-004",
+      "code": "EDU-004",
+      "title": "검사관리 실무교육",
+      "rev": "RevPPTX",
+      "docType": "교육자료",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "낮은 Rev"
+    },
+    {
+      "mdrRow": 187,
       "id": "EDU-004",
       "code": "EDU-004",
       "title": "검사관리 실무교육",
@@ -2730,10 +2939,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 175,
+      "mdrRow": 188,
       "id": "EDU-005",
       "code": "EDU-005",
       "title": "위생교육",
@@ -2746,10 +2955,26 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "1",
-      "revised": "현행"
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 176,
+      "mdrRow": 189,
+      "id": "EDU-005",
+      "code": "EDU-005",
+      "title": "위생교육",
+      "rev": "RevPPTX",
+      "docType": "교육자료",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "0",
+      "revised": "낮은 Rev"
+    },
+    {
+      "mdrRow": 190,
       "id": "EDU-006",
       "code": "EDU-006",
       "title": "현장 OX 체크 및 원포인트레슨",
@@ -2762,10 +2987,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 177,
+      "mdrRow": 191,
       "id": "EDU-007",
       "code": "EDU-007",
       "title": "식품방어·식품사기 예방교육",
@@ -2778,31 +3003,31 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 178,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "01 DKJ-F-018 내부심사 세부계획서",
+      "mdrRow": 192,
+      "id": "FR-018",
+      "code": "DKJ-F-018",
+      "title": "내부심사 세부계획서",
       "rev": "RevXLSX",
-      "docType": "내부심사 문서/기록",
-      "category": "other",
+      "docType": "기록양식",
+      "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "",
-      "revised": "현행"
+      "enacted": "2",
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 179,
+      "mdrRow": 193,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "02 내부심사원 자격인정자료 최민재 이다은 권화선 IA-2026-01",
       "rev": "RevXLSX",
-      "docType": "내부심사 문서/기록",
+      "docType": "내부심사",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2810,95 +3035,95 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 180,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "03 DKJ-F-019",
+      "mdrRow": 194,
+      "id": "FR-019",
+      "code": "DKJ-F-019",
+      "title": "FSSC22000 V6 통합 내부심사 체크리스트",
       "rev": "RevXLSX",
-      "docType": "내부심사 문서/기록",
-      "category": "other",
+      "docType": "기록양식",
+      "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "",
-      "revised": "현행"
+      "enacted": "3",
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 181,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "04 DKJ-F-020 내부심사 결과보고서",
+      "mdrRow": 195,
+      "id": "FR-020",
+      "code": "DKJ-F-020",
+      "title": "내부심사 결과보고서",
       "rev": "RevXLSX",
-      "docType": "내부심사 문서/기록",
-      "category": "other",
+      "docType": "기록양식",
+      "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "",
-      "revised": "현행"
+      "enacted": "2",
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 182,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "05 DKJ-F-021 내부심사 CAR 개선계획서",
+      "mdrRow": 196,
+      "id": "FR-021",
+      "code": "DKJ-F-021",
+      "title": "내부심사 CAR 개선계획서",
       "rev": "RevXLSX",
-      "docType": "내부심사 문서/기록",
-      "category": "other",
+      "docType": "기록양식",
+      "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "",
-      "revised": "현행"
+      "enacted": "2",
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 183,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "06 DKJ-F-021연계 CAR 개선조치 및 효과확인보고서 개별양식 IA-2026-01",
+      "mdrRow": 197,
+      "id": "FR-021",
+      "code": "DKJ-F-021",
+      "title": "연계 CAR 개선조치 및 효과확인보고서 개별양식 IA-2026-01",
       "rev": "RevXLSX",
-      "docType": "내부심사 문서/기록",
-      "category": "other",
+      "docType": "기록양식",
+      "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "낮은 Rev"
     },
     {
-      "mdrRow": 184,
-      "id": "번호 미부여",
-      "code": "번호 미부여",
-      "title": "07 DKJ-F-022 내부심사 CAR 개선조치 현황",
+      "mdrRow": 198,
+      "id": "FR-022",
+      "code": "DKJ-F-022",
+      "title": "내부심사 CAR 개선조치 현황",
       "rev": "RevXLSX",
-      "docType": "내부심사 문서/기록",
-      "category": "other",
+      "docType": "기록양식",
+      "category": "record",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
-      "enacted": "",
-      "revised": "현행"
+      "enacted": "2",
+      "revised": "중복검토"
     },
     {
-      "mdrRow": 185,
+      "mdrRow": 199,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "동김제농협 2026년 연간 경영검토 경영진보고자료 사전검토안",
       "rev": "RevPPTX",
-      "docType": "경영검토 문서/기록",
+      "docType": "경영검토",
       "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2906,13 +3131,29 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 186,
-      "id": "FSC-01",
-      "code": "FSC-01",
-      "title": "식품안전문화 실행계획서",
+      "mdrRow": 200,
+      "id": "FR-024",
+      "code": "DKJ-F-024",
+      "title": "경영검토 회의록 양식 동김제농협 FSSC22000",
+      "rev": "RevDOCX",
+      "docType": "기록양식",
+      "category": "record",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "낮은 Rev"
+    },
+    {
+      "mdrRow": 201,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "FSC-01 식품안전문화 실행계획서",
       "rev": "RevDOCX",
       "docType": "경영검토",
       "category": "other",
@@ -2922,10 +3163,10 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 187,
+      "mdrRow": 202,
       "id": "번호 미부여",
       "code": "번호 미부여",
       "title": "동김제농협 영업등록증 및 사업자등록증",
@@ -2938,15 +3179,31 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "",
-      "revised": "참고"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 188,
+      "mdrRow": 203,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "동김제농협 산지유통센터 LOGO",
+      "rev": "RevPNG",
+      "docType": "참고자료",
+      "category": "other",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "",
+      "related": "",
+      "note": "",
+      "enacted": "",
+      "revised": "검토필요"
+    },
+    {
+      "mdrRow": 204,
       "id": "MDR-001",
       "code": "MDR-001",
       "title": "Master Document Register",
       "rev": "RevXLSX",
-      "docType": "MDR",
+      "docType": "문서관리",
       "category": "mdr",
       "workflowStatus": "완료",
       "status": "운영중",
@@ -2954,26 +3211,26 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "11",
-      "revised": "현행"
+      "revised": "현행후보"
     },
     {
-      "mdrRow": 189,
-      "id": "DOC-001",
-      "code": "DOC-001",
-      "title": "문서번호체계",
+      "mdrRow": 205,
+      "id": "번호 미부여",
+      "code": "번호 미부여",
+      "title": "DOC-001 문서번호체계",
       "rev": "RevXLSX",
-      "docType": "DOC",
-      "category": "mdr",
+      "docType": "문서관리",
+      "category": "other",
       "workflowStatus": "완료",
       "status": "운영중",
       "filePath": "",
       "related": "",
       "note": "",
       "enacted": "3",
-      "revised": "현행"
+      "revised": "검토필요"
     },
     {
-      "mdrRow": 190,
+      "mdrRow": 206,
       "id": "DT-001",
       "code": "DT-001",
       "title": "문서표준템플릿",
@@ -2986,7 +3243,7 @@ window.DKJ_MDR_CATALOG={
       "related": "",
       "note": "",
       "enacted": "0",
-      "revised": "현행"
+      "revised": "현행후보"
     }
   ]
 };

@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-026",
+  "title": "계측기 관리대장",
+  "subtitle": "FSSC22000 · 월간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "계측기명"
+    },
+    {
+      "key": "assetNo",
+      "label": "관리번호"
+    },
+    {
+      "key": "location",
+      "label": "설치위치"
+    },
+    {
+      "key": "range",
+      "label": "측정범위"
+    },
+    {
+      "key": "calCycle",
+      "label": "교정주기"
+    },
+    {
+      "key": "nextCal",
+      "label": "차기교정일"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "noteDetail",
+      "label": "상태·비고"
+    }
+  ]
+}

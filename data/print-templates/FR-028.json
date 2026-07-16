@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-028",
+  "title": "변경관리 신청서",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "변경제목"
+    },
+    {
+      "key": "changeType",
+      "label": "변경유형"
+    },
+    {
+      "key": "requestor",
+      "label": "신청자"
+    },
+    {
+      "key": "targetDate",
+      "label": "희망시행일"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "current",
+      "label": "현황"
+    },
+    {
+      "id": "proposed",
+      "label": "변경안"
+    },
+    {
+      "id": "reason",
+      "label": "사유"
+    }
+  ]
+}
