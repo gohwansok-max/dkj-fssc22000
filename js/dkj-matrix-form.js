@@ -94,6 +94,7 @@
     var FORM_ID = spec.code;
     var N = spec.days || 6;
     var ROWS = flatten(spec);
+    var CYCLE_S = spec.cycle || CYCLE;
     var state = emptyState(spec);
     var editingId = null;
     var draftTimer = null;
@@ -116,9 +117,24 @@
     /* ---------- 매트릭스 ---------- */
 
     var LV = spec.divLevels === 1 ? 1 : 2;
-    var HAS_FREQ = spec.showFreq !== false;
-    var HAS_NOTE = spec.showNote !== false;
+    var LEAD = spec.leadColumns || null;                  // 연간계획서 등 자유 앞열
+    var HAS_FREQ = LEAD ? false : spec.showFreq !== false;
+    var HAS_NOTE = LEAD ? spec.showNote === true : spec.showNote !== false;
     var WEEK_MODE = spec.dayMode === 'week';
+    var LABEL_MODE = spec.dayMode === 'label';
+    var MARKS = spec.markMap || null;                     // 예: {P:'○', D:'●'}
+
+    function cellText(v) {
+      if (!v) return '';
+      if (MARKS && MARKS[v] != null) return MARKS[v];
+      return v === 'O' ? '○' : v === 'X' ? '×' : v === '-' ? '—' : v;
+    }
+
+    function cellClass(v) {
+      if (!v) return 've';
+      if (MARKS) return 'vo';
+      return v === 'O' ? 'vo' : v === 'X' ? 'vx' : 'vn';
+    }
 
     function dayHeadCells() {
       var out = '';
@@ -126,8 +142,8 @@
         var d = state.days[i] || '';
         var md = d ? (Number(d.slice(5, 7)) + '/' + Number(d.slice(8, 10))) : '-';
         var lab = (spec.dayLabels && spec.dayLabels[i]) || '';
-        var main = WEEK_MODE ? (lab || (i + 1) + '주') : md;
-        var sub = WEEK_MODE ? md : lab;
+        var main = LABEL_MODE ? lab : (WEEK_MODE ? (lab || (i + 1) + '주') : md);
+        var sub = LABEL_MODE ? '' : (WEEK_MODE ? md : lab);
         out += '<th class="mxf-day"><span>' + esc(main) + '</span><small>' + esc(sub) + '</small></th>';
       }
       return out;
@@ -147,31 +163,47 @@
       if (!host) return;
       var head =
         '<tr>' +
-        '<th class="mxf-div" colspan="' + LV + '">구 분</th>' +
-        '<th class="mxf-item">' + esc(spec.itemHeader || '점 검 사 항') + '</th>' +
-        (HAS_FREQ ? '<th class="mxf-freq">주기</th>' : '') +
+        (LEAD
+          ? LEAD.map(function (c, i) {
+              if (!c.label) return '';
+              var span = 1;
+              while (i + span < LEAD.length && !LEAD[i + span].label) span++;
+              return '<th class="mxf-lead"' + (span > 1 ? ' colspan="' + span + '"' : '') +
+                '>' + esc(c.label) + '</th>';
+            }).join('')
+          : '<th class="mxf-div" colspan="' + LV + '">구 분</th>' +
+            '<th class="mxf-item">' + esc(spec.itemHeader || '점 검 사 항') + '</th>' +
+            (HAS_FREQ ? '<th class="mxf-freq">주기</th>' : '')) +
         dayHeadCells() +
         (HAS_NOTE ? '<th class="mxf-note">비 고</th>' : '') +
         '</tr>';
 
       var body = ROWS.map(function (r, i) {
         var tr = '';
-        var ms = spanOf(ROWS, 'major', i);
-        if (ms) tr += '<td class="mxf-major" rowspan="' + ms + '">' + esc(r.major) + '</td>';
-        if (LV === 2) {
-          var ns = spanOf(ROWS, 'minor', i);
-          if (ns) tr += '<td class="mxf-minor" rowspan="' + ns + '">' + esc(r.minor) + '</td>';
+        if (LEAD) {
+          tr += LEAD.map(function (c) {
+            if (c.merge) {
+              var sp = spanOf(ROWS, c.key, i);
+              return sp ? '<td class="mxf-major" rowspan="' + sp + '">' + esc(r[c.key] || '') + '</td>' : '';
+            }
+            return '<td class="mxf-label">' + esc(r[c.key] || '') + '</td>';
+          }).join('');
+        } else {
+          var ms = spanOf(ROWS, 'major', i);
+          if (ms) tr += '<td class="mxf-major" rowspan="' + ms + '">' + esc(r.major) + '</td>';
+          if (LV === 2) {
+            var ns = spanOf(ROWS, 'minor', i);
+            if (ns) tr += '<td class="mxf-minor" rowspan="' + ns + '">' + esc(r.minor) + '</td>';
+          }
+          tr += '<td class="mxf-label">' + esc(r.label) + '</td>';
+          if (HAS_FREQ) tr += '<td class="mxf-freq">' + esc(r.freq) + '</td>';
         }
-        tr += '<td class="mxf-label">' + esc(r.label) + '</td>';
-        if (HAS_FREQ) tr += '<td class="mxf-freq">' + esc(r.freq) + '</td>';
         var vals = state.checks[r.key] || [];
         for (var d = 0; d < N; d++) {
           var v = vals[d] || '';
-          tr += '<td class="mxf-cellwrap"><button type="button" class="mxf-cell v' +
-            (v === 'O' ? 'o' : v === 'X' ? 'x' : v === '-' ? 'n' : 'e') +
-            '" data-k="' + r.key + '" data-d="' + d + '">' +
-            (v === 'O' ? '○' : v === 'X' ? '×' : v === '-' ? '—' : '') +
-            '</button></td>';
+          tr += '<td class="mxf-cellwrap"><button type="button" class="mxf-cell ' +
+            cellClass(v) + '" data-k="' + r.key + '" data-d="' + d + '">' +
+            esc(cellText(v)) + '</button></td>';
         }
         if (HAS_NOTE) {
           tr += '<td class="mxf-notewrap"><input type="text" class="mxf-note-in" data-note="' +
@@ -186,7 +218,7 @@
           s + '" value="' + esc(state.signs[s] || '') + '"></td>';
       }
       var foot =
-        '<tr class="mxf-signrow"><th colspan="' + (LV + 1 + (HAS_FREQ ? 1 : 0)) + '">' +
+        '<tr class="mxf-signrow"><th colspan="' + (LEAD ? LEAD.length : LV + 1 + (HAS_FREQ ? 1 : 0)) + '">' +
         esc(spec.signRowLabel || '작 성') + '</th>' +
         signCells + (HAS_NOTE ? '<td></td>' : '') + '</tr>';
 
@@ -199,7 +231,7 @@
           var k = b.getAttribute('data-k');
           var d = Number(b.getAttribute('data-d'));
           var cur = (state.checks[k] || [])[d] || '';
-          var next = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
+          var next = CYCLE_S[(CYCLE_S.indexOf(cur) + 1) % CYCLE_S.length];
           if (!state.checks[k]) state.checks[k] = new Array(N).fill('');
           state.checks[k][d] = next;
           renderMatrix();
@@ -252,10 +284,10 @@
       ROWS.forEach(function (r) {
         var v = state.checks[r.key] || [];
         for (var d = 0; d < N; d++) {
-          if (v[d] === 'O') o++;
+          if (!v[d]) blank++;
           else if (v[d] === 'X') x++;
           else if (v[d] === '-') n++;
-          else blank++;
+          else o++;
         }
       });
       return { o: o, x: x, n: n, blank: blank, total: ROWS.length * N };
