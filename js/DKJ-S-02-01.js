@@ -1,287 +1,326 @@
 /**
- * DKJ-S-02-01 — generated boot
+ * DKJ-S-02-01 - matrix boot (SSOT: data/matrix-form-specs/DKJ-S-02-01.json)
+ * paper original: 선행_1.작업장위생점검일지.hwp (35 items / 6 days / 2 pages)
  */
 (function () {
   'use strict';
-  DkjOxForm.mount({
+  DkjMatrixForm.mount({
   "code": "DKJ-S-02-01",
-  "title": "작업장 위생점검일지",
-  "pattern": "ox",
-  "minChecks": 5,
-  "titleKey": "area",
-  "historyKeys": [
-    "checkDate",
-    "area"
+  "title": "작업장 위생점검 일지",
+  "subtitle": "선행요건 · 매일 점검 · 주 단위 결재 · PRP-001/002 연계",
+  "pattern": "matrix",
+  "period": "week",
+  "days": 6,
+  "dayLabels": [
+    "월",
+    "화",
+    "수",
+    "목",
+    "금",
+    "토"
   ],
-  "fields": [
-    {
-      "id": "checkDate",
-      "label": "점검일자 *",
-      "type": "date",
-      "required": true
-    },
-    {
-      "id": "shift",
-      "label": "근무조",
-      "type": "select",
-      "options": [
-        "주간",
-        "야간",
-        "기타"
-      ],
-      "default": "주간"
-    },
-    {
-      "id": "area",
-      "label": "점검구역",
-      "type": "select",
-      "options": [
-        "전처리",
-        "소독헹굼",
-        "포장",
-        "냉장",
-        "전체"
-      ],
-      "optionLabels": {
-        "전처리": "전처리실",
-        "소독헹굼": "소독·헹굼실",
-        "포장": "포장실",
-        "냉장": "냉장창고",
-        "전체": "작업장 전체"
-      },
-      "default": "전체"
-    },
-    {
-      "id": "weather",
-      "label": "날씨·특이사항",
-      "type": "text",
-      "placeholder": "맑음 / 특이사항 없으면 공란"
-    }
+  "docNo": "DKJ-S-02-01",
+  "rev": "0",
+  "enactDate": "2026. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "pageBreakAfter": [
+    20
   ],
-  "items": [
-    {
-      "key": "f01",
-      "group": "바닥",
-      "label": "바닥 파손·고인물",
-      "hint": "파손·물고임 없음"
-    },
-    {
-      "key": "f02",
-      "group": "바닥",
-      "label": "바닥 청결",
-      "hint": "잔사·흙·이물 없음"
-    },
-    {
-      "key": "w01",
-      "group": "벽",
-      "label": "벽면 상태",
-      "hint": "구멍·균열·곰팡이 없음"
-    },
-    {
-      "key": "c01",
-      "group": "천장",
-      "label": "천장·덕트",
-      "hint": "파손·결로·거미줄 없음"
-    },
-    {
-      "key": "d01",
-      "group": "배수",
-      "label": "배수로 역류·악취",
-      "hint": "역류·악취 없음"
-    },
-    {
-      "key": "d02",
-      "group": "배수",
-      "label": "배수로 청결",
-      "hint": "퇴적물 제거·커버 정상"
-    },
-    {
-      "key": "e01",
-      "group": "출입",
-      "label": "출입구·방충",
-      "hint": "문닫힘·방충망 파손 없음"
-    },
-    {
-      "key": "e02",
-      "group": "창·조명",
-      "label": "창·조명커버",
-      "hint": "비산방지·파손 없음"
-    },
-    {
-      "key": "v01",
-      "group": "환기",
-      "label": "환기·급배기",
-      "hint": "필터·덕트 잔사 없음"
-    },
-    {
-      "key": "eq1",
-      "group": "설비",
-      "label": "작업대·컨베이어",
-      "hint": "청소상태·이물 없음"
-    },
-    {
-      "key": "eq2",
-      "group": "설비",
-      "label": "칼·도마·용기",
-      "hint": "세척·소독 후 보관상태"
-    },
-    {
-      "key": "eq3",
-      "group": "세척",
-      "label": "세척소독대·호스",
-      "hint": "정리·교차오염 방지"
-    },
-    {
-      "key": "wst",
-      "group": "폐기물",
-      "label": "폐기물통",
-      "hint": "뚜껑·분리수거·넘침 없음"
-    },
-    {
-      "key": "pst",
-      "group": "해충",
-      "label": "해충·쥐 흔적",
-      "hint": "사체·배설물·유입 흔적 없음"
-    },
-    {
-      "key": "chm",
-      "group": "약품",
-      "label": "세척·소독제 관리",
-      "hint": "지정장소·라벨·희석 표기"
-    }
-  ],
-  "print": {
-    "layout": "ox",
-    "columnMode": "result",
-    "orgName": "동김제농협 가공센터",
-    "docNo": "DKJ-S-02-01",
-    "title": "작업장 위생점검일지",
-    "rev": "0",
-    "enactDate": "2026.07.10",
-    "reviseDate": "2026.07.10",
-    "rows": [
+  "legend": "* 평가 - 양호 : ○, 부적합(시정조치 필요) : ×    * 주기 (D) : 매일    * 상단의 결재는 주 단위로 실시한다.",
+  "signRowLabel": "작 성",
+  "incident": {
+    "label": "이상 발생 내역",
+    "rows": 5,
+    "columns": [
       {
-        "key": "f01",
-        "group": "바닥",
-        "label": "바닥 파손·고인물",
-        "hint": "파손·물고임 없음",
-        "freq": "D",
-        "ampm": false
+        "key": "occurredAt",
+        "label": "발생일시",
+        "width": "13%"
       },
       {
-        "key": "f02",
-        "group": "바닥",
-        "label": "바닥 청결",
-        "hint": "잔사·흙·이물 없음",
-        "freq": "D",
-        "ampm": false
+        "key": "place",
+        "label": "발생장소",
+        "width": "12%"
       },
       {
-        "key": "w01",
-        "group": "벽",
-        "label": "벽면 상태",
-        "hint": "구멍·균열·곰팡이 없음",
-        "freq": "D",
-        "ampm": false
+        "key": "detail",
+        "label": "이상발생내역",
+        "width": "23%"
       },
       {
-        "key": "c01",
-        "group": "천장",
-        "label": "천장·덕트",
-        "hint": "소독·결로·거미줄 없음",
-        "freq": "D",
-        "ampm": false
+        "key": "action",
+        "label": "조치내역 및 결과",
+        "width": "23%"
       },
       {
-        "key": "d01",
-        "group": "배수",
-        "label": "배수로 역류·악취",
-        "hint": "역류·악취 없음",
-        "freq": "D",
-        "ampm": false
+        "key": "doneAt",
+        "label": "완료일시",
+        "width": "13%"
       },
       {
-        "key": "d02",
-        "group": "배수",
-        "label": "배수로 청결",
-        "hint": "퇴적물 제거·커버 정상",
-        "freq": "D",
-        "ampm": false
+        "key": "actor",
+        "label": "조치자",
+        "width": "8%"
       },
       {
-        "key": "e01",
-        "group": "출입",
-        "label": "출입구·방충",
-        "hint": "문닫힘·방충망 파손 없음",
-        "freq": "D",
-        "ampm": false
-      },
-      {
-        "key": "e02",
-        "group": "창·조명",
-        "label": "창·조명커버",
-        "hint": "비산방지·파손 없음",
-        "freq": "D",
-        "ampm": false
-      },
-      {
-        "key": "v01",
-        "group": "환기",
-        "label": "환기·급배기",
-        "hint": "필터·덕트 잔사 없음",
-        "freq": "D",
-        "ampm": false
-      },
-      {
-        "key": "eq1",
-        "group": "설비",
-        "label": "작업대·컨베이어",
-        "hint": "청소상태·이물 없음",
-        "freq": "D",
-        "ampm": false
-      },
-      {
-        "key": "eq2",
-        "group": "설비",
-        "label": "칼·도마·용기",
-        "hint": "세척·소독 후 보관상태",
-        "freq": "D",
-        "ampm": false
-      },
-      {
-        "key": "eq3",
-        "group": "세척",
-        "label": "세척소독대·호스",
-        "hint": "정리·교차오염 방지",
-        "freq": "D",
-        "ampm": false
-      },
-      {
-        "key": "wst",
-        "group": "폐기물",
-        "label": "폐기물통",
-        "hint": "뚜껑·분리수거·넘침 없음",
-        "freq": "D",
-        "ampm": false
-      },
-      {
-        "key": "pst",
-        "group": "해충",
-        "label": "해충·쥐 흔적",
-        "hint": "사체·배설물·유입 흔적 없음",
-        "freq": "D",
-        "ampm": false
-      },
-      {
-        "key": "chm",
-        "group": "약품",
-        "label": "세척·소독제 관리",
-        "hint": "지정장소·라벨·희석 표기",
-        "freq": "D",
-        "ampm": false
+        "key": "confirmer",
+        "label": "확인자",
+        "width": "8%"
       }
-    ],
-    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간"
-  }
+    ]
+  },
+  "relatedProcedures": [
+    "DKJ-P-02",
+    "PRP-001",
+    "PRP-002"
+  ],
+  "groups": [
+    {
+      "major": "작업장",
+      "minors": [
+        {
+          "name": "바닥",
+          "items": [
+            {
+              "key": "i01",
+              "label": "바닥이 파손되거나 고인 물은 없는가",
+              "freq": "D"
+            },
+            {
+              "key": "i02",
+              "label": "청소상태는 양호한가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "내벽",
+          "items": [
+            {
+              "key": "i03",
+              "label": "내벽이 파손되거나 구멍 및 갈라진 틈은 없는가",
+              "freq": "D"
+            },
+            {
+              "key": "i04",
+              "label": "청소상태는 양호한가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "천장",
+          "items": [
+            {
+              "key": "i05",
+              "label": "천장이 파손되거나 구멍, 갈라진 틈은 없으며 청결한가",
+              "freq": "D"
+            },
+            {
+              "key": "i06",
+              "label": "응결수가 제품에 떨어지거나 곰팡이 등 오염은 없는가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "배수로",
+          "items": [
+            {
+              "key": "i07",
+              "label": "배수로에 폐수가 역류되거나 악취발생은 없는가",
+              "freq": "D"
+            },
+            {
+              "key": "i08",
+              "label": "퇴적된 부분은 없으며 청결하게 관리되고 있는가",
+              "freq": "D"
+            },
+            {
+              "key": "i09",
+              "label": "걸름망의 고정상태 및 파손은 없는가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "배관",
+          "items": [
+            {
+              "key": "i10",
+              "label": "응결수가 발생되거나 누수되는 곳은 없는가",
+              "freq": "D"
+            },
+            {
+              "key": "i11",
+              "label": "청소상태는 양호한가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "출입구",
+          "items": [
+            {
+              "key": "i12",
+              "label": "출입문은 항상 닫아서 틈이 없으며 청결한가",
+              "freq": "D"
+            },
+            {
+              "key": "i13",
+              "label": "출입문의 작동상태는 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i14",
+              "label": "위생설비 작동상태 및 청소상태는 양호한가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "조명",
+          "items": [
+            {
+              "key": "i15",
+              "label": "조명시설 및 조명보호커버의 파손 부분은 없는가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "전체",
+          "items": [
+            {
+              "key": "i16",
+              "label": "작업장 내부는 청결하게 관리되고 있는가",
+              "freq": "D"
+            },
+            {
+              "key": "i17",
+              "label": "작업도구 등은 청결하며 정해진 위치에 보관하고 있는가",
+              "freq": "D"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "major": "부대시설",
+      "minors": [
+        {
+          "name": "위생 전실",
+          "items": [
+            {
+              "key": "i18",
+              "label": "바닥, 내벽, 천장, 문, 조명시설 등은 파손된 부분이 없이 청소상태가 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i19",
+              "label": "손세척제, 손소독제는 부족함없이 채워져있는가",
+              "freq": "D"
+            },
+            {
+              "key": "i20",
+              "label": "손세척대, 손건조기, 손소독기의 작동상태 및 청결상태는 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i21",
+              "label": "이물제거롤러는 사용한 끈끈이가 제거되어있으며 청결하게 관리되고 있는가",
+              "freq": "D"
+            },
+            {
+              "key": "i22",
+              "label": "휴지통은 넘치지 않도록 비워져있으며 청결상태가 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i23",
+              "label": "자외선소독기 내부 청소상태는 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i24",
+              "label": "보관중인 앞치마, 위생화 등의 청결상태는 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i25",
+              "label": "발판소독조의 청결 상태는 양호하며 소독액은 부족함없이 채워져있는가",
+              "freq": "D"
+            },
+            {
+              "key": "i26",
+              "label": "거울은 파손없이 청결한가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "방풍실",
+          "items": [
+            {
+              "key": "i27",
+              "label": "출입문은 항상 닫아서 틈이 없으며 청결한가",
+              "freq": "D"
+            },
+            {
+              "key": "i28",
+              "label": "신발장 청소상태는 양호한가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "화장실",
+          "items": [
+            {
+              "key": "i29",
+              "label": "바닥, 내벽, 천장, 문, 조명시설 등은 파손된 부분이 없이 청소상태가 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i30",
+              "label": "손세척제, 손소독제는 부족함없이 채워져있는가",
+              "freq": "D"
+            },
+            {
+              "key": "i31",
+              "label": "손세척대, 손건조기의 작동상태 및 청결상태는 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i32",
+              "label": "변기, 휴지통, 거울 등의 청결상태는 양호한가",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "탈의실",
+          "items": [
+            {
+              "key": "i33",
+              "label": "바닥, 내벽, 천장, 문, 조명시설 등은 파손된 부분이 없이 청소상태가 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i34",
+              "label": "옷장 상단 및 내부 청소상태는 양호한가",
+              "freq": "D"
+            },
+            {
+              "key": "i35",
+              "label": "외출복과 위생복은 보관 기준에 맞게 구분 보관하고 있는가",
+              "freq": "D"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 });
 })();

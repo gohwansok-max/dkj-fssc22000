@@ -1,203 +1,261 @@
 /**
- * DKJ-S-02-03 — generated boot
+ * DKJ-S-02-03 - matrix boot (SSOT: data/matrix-form-specs/DKJ-S-02-03.json)
  */
 (function () {
   'use strict';
-  DkjOxForm.mount({
+  DkjMatrixForm.mount({
   "code": "DKJ-S-02-03",
-  "title": "개인위생점검일지",
-  "pattern": "ox",
-  "minChecks": 5,
-  "titleKey": "team",
-  "historyKeys": [
-    "checkDate",
-    "team"
+  "title": "개인위생 점검일지",
+  "subtitle": "선행요건 · 매일 점검 · 주 단위 결재 · 31항목 × 6일",
+  "pattern": "matrix",
+  "period": "week",
+  "days": 6,
+  "divLevels": 1,
+  "dayLabels": [
+    "월",
+    "화",
+    "수",
+    "목",
+    "금",
+    "토"
   ],
-  "fields": [
-    {
-      "id": "checkDate",
-      "label": "점검일자 *",
-      "type": "date",
-      "required": true
-    },
-    {
-      "id": "shift",
-      "label": "근무조",
-      "type": "select",
-      "options": [
-        "주간",
-        "야간",
-        "기타"
-      ],
-      "default": "주간"
-    },
-    {
-      "id": "team",
-      "label": "작업팀/라인",
-      "type": "text",
-      "placeholder": "예: 전처리·포장"
-    },
-    {
-      "id": "headcount",
-      "label": "점검 인원(명)",
-      "type": "number",
-      "default": 1
-    }
+  "docNo": "DKJ-S-02-03",
+  "rev": "0",
+  "enactDate": "2026. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "pageBreakAfter": [
+    16
   ],
-  "items": [
-    {
-      "key": "h01",
-      "group": "건강",
-      "label": "상처·화농·설사·복통 없음",
-      "hint": "유증상자 작업 배제"
-    },
-    {
-      "key": "h02",
-      "group": "건강",
-      "label": "피부질환·전염성질환 이상 없음",
-      "hint": "건강진단·보고 기준"
-    },
-    {
-      "key": "b01",
-      "group": "복장",
-      "label": "위생복·모·화 착용기준 준수",
-      "hint": "작업 전"
-    },
-    {
-      "key": "b02",
-      "group": "복장",
-      "label": "위생복장 청결",
-      "hint": "오염·파손 없음"
-    },
-    {
-      "key": "b03",
-      "group": "복장",
-      "label": "장신구 미착용",
-      "hint": "반지·시계·팔찌 등"
-    },
-    {
-      "key": "b04",
-      "group": "위생",
-      "label": "손톱·수염·화장 기준 준수",
-      "hint": "손·머리 위생"
-    },
-    {
-      "key": "w01",
-      "group": "작업중",
-      "label": "손·장갑 세척소독·교체",
-      "hint": "수시 실시"
-    },
-    {
-      "key": "w02",
-      "group": "작업중",
-      "label": "비위생 행위 없음",
-      "hint": "껌·흡연·음식물 금지"
-    },
-    {
-      "key": "w03",
-      "group": "작업중",
-      "label": "교차오염 방지 행동",
-      "hint": "구역·동선 준수"
-    },
-    {
-      "key": "a01",
-      "group": "작업후",
-      "label": "보호구 지정장소 보관",
-      "hint": "앞치마·토시 등"
-    }
-  ],
-  "print": {
-    "layout": "ox",
-    "columnMode": "ampm",
-    "orgName": "동김제농협 가공센터",
-    "docNo": "DKJ-S-02-03",
-    "title": "개인위생점검일지",
-    "rev": "0",
-    "enactDate": "2026.07.10",
-    "reviseDate": "2026.07.10",
-    "rows": [
+  "legend": "* 평가 - 양호 : ○, 부적합(시정조치 필요) : ×    * 주기 - D : 매일    * 상단의 결재는 주 단위로 실시한다.",
+  "signRowLabel": "작 성",
+  "incident": {
+    "label": "이상 발생 내역",
+    "rows": 5,
+    "columns": [
       {
-        "key": "h01",
-        "group": "건강",
-        "label": "상처·화농·설사·복통 없음",
-        "hint": "유증상자 작업 배제",
-        "freq": "D",
-        "ampm": true
+        "key": "occurredAt",
+        "label": "발생일시",
+        "width": "13%"
       },
       {
-        "key": "h02",
-        "group": "건강",
-        "label": "피부질환·전염성질환 이상 없음",
-        "hint": "건강진단·보고 기준",
-        "freq": "D",
-        "ampm": true
+        "key": "place",
+        "label": "발생장소",
+        "width": "12%"
       },
       {
-        "key": "b01",
-        "group": "복장",
-        "label": "위생복·모·화 착용기준 준수",
-        "hint": "작업 전",
-        "freq": "D",
-        "ampm": true
+        "key": "detail",
+        "label": "이상발생내역",
+        "width": "23%"
       },
       {
-        "key": "b02",
-        "group": "복장",
-        "label": "위생복장 청결",
-        "hint": "오염·파손 없음",
-        "freq": "D",
-        "ampm": true
+        "key": "action",
+        "label": "조치내역 및 결과",
+        "width": "23%"
       },
       {
-        "key": "b03",
-        "group": "복장",
-        "label": "장신구 미착용",
-        "hint": "반지·시계·팔찌 등",
-        "freq": "D",
-        "ampm": true
+        "key": "doneAt",
+        "label": "완료일시",
+        "width": "13%"
       },
       {
-        "key": "b04",
-        "group": "위생",
-        "label": "손톱·수염·화장 기준 준수",
-        "hint": "손·머리 위생",
-        "freq": "D",
-        "ampm": true
+        "key": "actor",
+        "label": "조치자",
+        "width": "8%"
       },
       {
-        "key": "w01",
-        "group": "작업중",
-        "label": "손·장갑 세척소독·교체",
-        "hint": "수시 실시",
-        "freq": "D",
-        "ampm": true
-      },
-      {
-        "key": "w02",
-        "group": "작업중",
-        "label": "비위생 행위 없음",
-        "hint": "껌·흡연·음식물 금지",
-        "freq": "D",
-        "ampm": true
-      },
-      {
-        "key": "w03",
-        "group": "작업중",
-        "label": "교차오염 방지 행동",
-        "hint": "구역·동선 준수",
-        "freq": "D",
-        "ampm": true
-      },
-      {
-        "key": "a01",
-        "group": "작업후",
-        "label": "보호구 지정장소 보관",
-        "hint": "앞치마·토시 등",
-        "freq": "D",
-        "ampm": true
+        "key": "confirmer",
+        "label": "확인자",
+        "width": "8%"
       }
-    ],
-    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간"
-  }
+    ]
+  },
+  "groups": [
+    {
+      "major": "작 업 전",
+      "minors": [
+        {
+          "name": "",
+          "items": [
+            {
+              "key": "i01",
+              "label": "종업원의 위생복, 위생모 위생화, 앞치마, 토시 장갑 등 청결 착용 관리 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i02",
+              "label": "종업원의 두발, 수염, 손톱 등 개인위생 준수 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i03",
+              "label": "종업원의 시계, 반지, 목걸이, 귀고리, 머리핀 등 장신구 착용 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i04",
+              "label": "종업원에 대하여 피부병 등 전염성 질병 감염 또는 식품 안전성에 영향을 미칠 수 있는 심한 상처 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i05",
+              "label": "손세척, 건조 및 소독설비 정상 작동 및 청결 상태, 용수, 소독조 등의 적정량 소독약 투입 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i06",
+              "label": "식품과 접촉되는 장비(설비), 컨베이어벨트 및 도구 (작업대, 도마, 칼, 칼갈이 등)의 청결 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i07",
+              "label": "냉장 및 냉동 창고, 부자재 창고 등 온도관리 및 청결 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i08",
+              "label": "출입문 개폐관리 및 방충 방서 설비 적정 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i09",
+              "label": "원·부재료, 부자재(포장재), 제품 적정 보관(이격 등) 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i10",
+              "label": "원·부재료, 제품의 소비기한 경과 제품 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i11",
+              "label": "원·부재료, 부자재 등 이물 점검 관리 계획표에 따른 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i12",
+              "label": "환기, 온도, 조명(조도 및 보호망) 적절 상태 및 응축수 제거 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i13",
+              "label": "위생실, 화장실, 탈의실 등의 청결 유지 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i14",
+              "label": "바닥, 배수구, 벽면 및 천장 청결 상태 관리 여부",
+              "freq": "D"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "major": "작 업 중",
+      "minors": [
+        {
+          "name": "",
+          "items": [
+            {
+              "key": "i15",
+              "label": "작업 중 종업원의 흡연, 음식물 섭취, 껌 씹는 행위 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i16",
+              "label": "종업원의 화장실 출입 시 또는 작업실 이탈 시 앞치마 및 장갑 등 착용여부",
+              "freq": "D"
+            },
+            {
+              "key": "i17",
+              "label": "작업 중 칼, 도마 등 작업 장비 및 기구 수시 소독 실시 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i18",
+              "label": "식품을 오염되지 않도록 위생적으로 운반, 처리 또는 포장 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i19",
+              "label": "바닥 이물질 및 배수 배출 상태 및 폐수 역류 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i20",
+              "label": "환기, 온도, 조명 적설 상태 및 응축수 제거 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i21",
+              "label": "원료 입고 시 상온 노출 시간 준수 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i22",
+              "label": "완제품 출하 시 상온 노출 시간 준수 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i23",
+              "label": "운송차량 청소·소독 상태 및 온도 확인 여부",
+              "freq": "D"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "major": "작 업 후",
+      "minors": [
+        {
+          "name": "",
+          "items": [
+            {
+              "key": "i24",
+              "label": "식품과 접촉되는 장비(설비), 컨베이어벨트 및 도구 (작업대, 도마, 칼, 칼갈이 등)의 청결 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i25",
+              "label": "냉장 및 냉동창고, 부자재 창고 온도관리 및 청결 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i26",
+              "label": "출입문 개폐 관리 및 방충 방서 설비 적정 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i27",
+              "label": "원·부재료, 부자재(포장재), 완제품 적정 보관(이격 등) 상태 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i28",
+              "label": "환기, 온도, 조명(조도 및 보호망) 적절 상태 및 응축수 제거 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i29",
+              "label": "위생실, 화장실, 탈의실 등의 청결 유지 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i30",
+              "label": "바닥, 배수구, 벽면 및 천장 청결 상태 관리 여부",
+              "freq": "D"
+            },
+            {
+              "key": "i31",
+              "label": "폐기물 처리 상태 확인",
+              "freq": "D"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 });
 })();

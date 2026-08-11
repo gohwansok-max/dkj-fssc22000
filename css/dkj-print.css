@@ -345,4 +345,186 @@
     font-size: 7.5pt;
     padding: 4pt 2pt !important;
   }
+
+  /* ===== 유형 A: 항목 × 날짜 매트릭스 정본 ===== */
+  /* 종이 정본은 A4 1쪽을 가득 채운다. 쪽을 flex 컬럼으로 두고
+     본문 표가 남는 높이를 흡수하도록 해 원본과 같은 밀도를 만든다. */
+  .off-matrix .mx-page {
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    min-height: 262mm;
+  }
+
+  .off-matrix .mx-grid {
+    flex: 1 1 auto;
+    height: 100%;
+  }
+
+  .off-matrix .mx-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .mx-head {
+    table-layout: fixed;
+    margin-bottom: 3pt;
+  }
+
+  .mx-mlab {
+    width: 11%;
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .mx-mval {
+    width: 14%;
+    font-size: 7.5pt;
+    text-align: center;
+  }
+
+  .mx-title-cell {
+    width: 43%;
+    text-align: center;
+  }
+
+  .mx-apv-lab {
+    width: 4%;
+    text-align: center;
+    font-weight: 700;
+    font-size: 7.5pt;
+    line-height: 1.1;
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .mx-apv {
+    width: 9.3%;
+    text-align: center;
+    font-size: 7.5pt;
+    font-weight: 700;
+    background: #e8e8e8 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .mx-sign {
+    height: 34pt;
+    text-align: center;
+    font-size: 9pt;
+  }
+
+  .mx-head .off-title,
+  .off-matrix .off-title {
+    font-size: 16pt;
+    letter-spacing: -0.02em;
+  }
+
+  .mx-mlab,
+  .mx-mval {
+    height: 15pt;
+  }
+
+  .mx-grid {
+    table-layout: fixed;
+    margin-bottom: 4pt;
+  }
+
+  .mx-grid tbody td,
+  .mx-grid tbody th {
+    height: 26pt;                 /* 원본 종이와 동일한 행 밀도 */
+  }
+
+  .mx-grid thead th {
+    height: 15pt;
+  }
+
+  /* 11열 합계 100% : 구분 5.8×2 + 점검사항 42 + 주기 4 + 날짜 5.4×6 + 비고 10 */
+  .mx-grid .mx-div { width: 5.8%; }
+  .mx-grid .mx-item { width: 42%; }
+  .mx-grid .mx-freq { width: 4%; text-align: center; }
+  .mx-grid .mx-day { width: 5.4%; font-size: 7.5pt; line-height: 1.15; }
+  .mx-grid .mx-note { width: 10%; }
+
+  .mx-dow {
+    font-size: 6.5pt;
+    font-weight: 500;
+  }
+
+  .mx-major,
+  .mx-minor {
+    text-align: center;
+    font-weight: 700;
+    font-size: 8.5pt;
+    line-height: 1.2;
+    background: #fff !important;
+  }
+
+  .mx-major {
+    letter-spacing: 0.4em;        /* 원본과 같이 대분류는 세로쓰기 */
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    padding: 2pt 0 !important;
+  }
+
+  .mx-minor { font-weight: 500; }
+
+  .mx-label {
+    font-size: 8.5pt;
+    line-height: 1.3;
+    padding-left: 4pt !important;
+  }
+
+  .mx-cell {
+    font-size: 11pt;
+    text-align: center;
+  }
+
+  .mx-grid .mx-note {
+    font-size: 7.5pt;
+    text-align: left;
+  }
+
+  .mx-signrow th {
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    text-align: center;
+    font-size: 7.5pt;
+    font-weight: 700;
+  }
+
+  .mx-legendrow td {
+    text-align: left;
+    font-size: 6.5pt !important;
+    padding: 3pt 4pt !important;
+    line-height: 1.4;
+  }
+
+  .mx-inc {
+    table-layout: fixed;
+    margin-top: 3pt;
+  }
+
+  .mx-inc th,
+  .mx-inc td {
+    font-size: 8pt;
+    height: 24pt;
+  }
+
+  .mx-inc-lab {
+    width: 9%;
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.25;
+  }
 }
