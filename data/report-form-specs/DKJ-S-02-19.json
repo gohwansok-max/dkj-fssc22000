@@ -1,0 +1,93 @@
+{
+  "code": "DKJ-S-02-19",
+  "title": "부적합품 처리 보고서",
+  "subtitle": "선행요건 · 부적합 발생 시 · 건별 보고",
+  "pattern": "report",
+  "docNo": "DKJ-S-02-19",
+  "rev": "0",
+  "enactDate": "2026. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "titleField": "itemName",
+  "blocks": [
+    {
+      "type": "pairs",
+      "label": "기본정보",
+      "perRow": 2,
+      "fields": [
+        {
+          "id": "writeDate",
+          "label": "작성일자",
+          "type": "date",
+          "required": true
+        },
+        {
+          "id": "writer2",
+          "label": "작성자",
+          "required": true
+        },
+        {
+          "id": "itemName",
+          "label": "원·부자재명/제품명",
+          "required": true
+        },
+        {
+          "id": "lot",
+          "label": "로트번호 (소비기한, 제조일)"
+        },
+        {
+          "id": "inQty",
+          "label": "입고량/생산량"
+        },
+        {
+          "id": "badQty",
+          "label": "부적합 수량"
+        },
+        {
+          "id": "vendor",
+          "label": "협력업체명"
+        },
+        {
+          "id": "inspectDate",
+          "label": "검수일자",
+          "type": "date"
+        },
+        {
+          "id": "inDate",
+          "label": "입고일자/생산일자",
+          "type": "date"
+        },
+        {
+          "id": "testDate",
+          "label": "검사일자",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "detail",
+      "label": "부 적 합 발생내용",
+      "height": 70,
+      "uiRows": 4,
+      "required": true
+    },
+    {
+      "type": "text",
+      "id": "cause",
+      "label": "원인분석 및 대책 수립",
+      "height": 70,
+      "uiRows": 4,
+      "required": true
+    },
+    {
+      "type": "text",
+      "id": "action",
+      "label": "대책실시 (조치사항)",
+      "height": 70,
+      "uiRows": 4,
+      "required": true
+    }
+  ],
+  "legend": "※ 부적합품은 식별·격리 후 처리 결과를 기록하고 재발방지 대책을 수립한다."
+}

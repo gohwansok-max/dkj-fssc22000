@@ -252,3 +252,48 @@
   font-size: 12px;
   cursor: pointer;
 }
+
+/* ===== 유형 F(보고서) 화면 입력 ===== */
+.rpf-block { margin-bottom: 18px; }
+
+.rpf-block h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f4634;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rpf-block textarea {
+  width: 100%;
+  border: 1px solid #d8ded9;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.rpf-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.rpf-chk {
+  border: 1px solid #d8ded9;
+  background: #fff;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #35503f;
+}
+
+.rpf-chk.on {
+  background: #e3f4e9;
+  border-color: #0d6b39;
+  color: #0d6b39;
+  font-weight: 700;
+}
+
+.rpf-add { font-size: 12px; padding: 3px 10px; }

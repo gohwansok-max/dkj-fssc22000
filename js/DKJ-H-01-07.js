@@ -1,0 +1,84 @@
+/**
+ * DKJ-H-01-07 - report boot (SSOT: data/report-form-specs/DKJ-H-01-07.json)
+ */
+(function () {
+  'use strict';
+  DkjReportForm.mount({
+  "code": "DKJ-H-01-07",
+  "title": "검증 결과 보고서",
+  "subtitle": "HACCP · 검증 실시 후 · 결과 보고",
+  "pattern": "report",
+  "docNo": "DKJ-H-01-07",
+  "rev": "0",
+  "enactDate": "2026. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "titleField": "verifyDate",
+  "blocks": [
+    {
+      "type": "pairs",
+      "label": "기본정보",
+      "perRow": 2,
+      "fields": [
+        {
+          "id": "writeDate",
+          "label": "작성일자",
+          "type": "date",
+          "required": true
+        },
+        {
+          "id": "writer2",
+          "label": "작 성 자",
+          "required": true
+        },
+        {
+          "id": "verifyDate",
+          "label": "검증일자",
+          "type": "date",
+          "required": true
+        },
+        {
+          "id": "verifier",
+          "label": "검 증 원",
+          "required": true
+        }
+      ]
+    },
+    {
+      "type": "check",
+      "id": "kind",
+      "label": "검증 종류",
+      "required": true,
+      "options": [
+        "정기 검증",
+        "일상 검증",
+        "특별 검증"
+      ]
+    },
+    {
+      "type": "table",
+      "id": "findings",
+      "label": "검증 확인내용 및 결과",
+      "rows": 14,
+      "columns": [
+        {
+          "key": "target",
+          "label": "확인내용",
+          "width": "38%"
+        },
+        {
+          "key": "result",
+          "label": "검증결과 및 결론",
+          "width": "48%"
+        },
+        {
+          "key": "remark",
+          "label": "비고",
+          "width": "14%"
+        }
+      ]
+    }
+  ],
+  "legend": "※ 부적합 사항은 검증 개선조치보고서(DKJ-H-01-08)로 이관해 개선 완료를 확인한다."
+});
+})();

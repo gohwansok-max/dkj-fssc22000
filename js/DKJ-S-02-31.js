@@ -1,0 +1,98 @@
+/**
+ * DKJ-S-02-31 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-31.json)
+ */
+(function () {
+  'use strict';
+  DkjLedgerForm.mount({
+  "code": "DKJ-S-02-31",
+  "title": "이물 관리 대장",
+  "subtitle": "선행요건 · 작업실별 이물 유발 물품 관리 · 건별 기록",
+  "pattern": "ledger",
+  "docNo": "DKJ-S-02-31",
+  "rev": "0",
+  "enactDate": "2026.04.21",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "rows": 28,
+  "infoFields": [
+    {
+      "id": "checkDate",
+      "label": "점검일자",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "writer2",
+      "label": "작성자",
+      "type": "text",
+      "required": true,
+      "span": 3
+    }
+  ],
+  "columns": [
+    {
+      "key": "room",
+      "label": "작업실",
+      "width": "13%",
+      "align": "left",
+      "required": true
+    },
+    {
+      "key": "item",
+      "label": "품목",
+      "width": "20%",
+      "align": "left",
+      "required": true
+    },
+    {
+      "key": "kind",
+      "label": "이물 유형",
+      "width": "13%",
+      "align": "left"
+    },
+    {
+      "key": "qty",
+      "label": "수량 (개)",
+      "width": "8%",
+      "type": "num"
+    },
+    {
+      "key": "broken",
+      "label": "파손여부",
+      "width": "10%",
+      "type": "choice",
+      "choices": [
+        "O",
+        "X"
+      ]
+    },
+    {
+      "key": "clean",
+      "label": "청결상태",
+      "width": "10%",
+      "type": "choice",
+      "choices": [
+        "O",
+        "X"
+      ]
+    },
+    {
+      "key": "replaced",
+      "label": "교체여부",
+      "width": "10%",
+      "type": "choice",
+      "choices": [
+        "O",
+        "X"
+      ]
+    },
+    {
+      "key": "remark",
+      "label": "비고",
+      "width": "16%",
+      "align": "left"
+    }
+  ],
+  "legend": "※ 평가 - 양호 : O, 불량 : X    ※ 이물 유발 가능 물품은 작업실별로 수량을 파악해 관리한다."
+});
+})();

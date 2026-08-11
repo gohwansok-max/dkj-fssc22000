@@ -576,3 +576,75 @@
     font-size: 7pt;
   }
 }
+
+@media print {
+  /* ===== 유형 F(보고서) 정본 ===== */
+  .off-report .rp-page { min-height: auto; display: block; }
+
+  .off-report .rp-pairs,
+  .off-report .rp-text,
+  .off-report .rp-table {
+    table-layout: fixed;
+    margin-bottom: 3pt;
+  }
+
+  .off-report .rp-lab {
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 8pt;
+    font-weight: 700;
+    text-align: center;
+    width: 15%;
+    height: 18pt;
+  }
+
+  .off-report .rp-val {
+    font-size: 8.5pt;
+    text-align: center;
+    height: 18pt;
+  }
+
+  .off-report .rp-sign {
+    font-size: 8.5pt;
+    text-align: center;
+    height: 26pt;
+  }
+
+  .off-report .rp-checks { text-align: left; padding-left: 4pt !important; }
+
+  .off-report .rp-opt {
+    font-size: 8pt;
+    margin-right: 10pt;
+    color: #333;
+  }
+
+  .off-report .rp-tlab {
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-align: center;
+    height: 16pt;
+  }
+
+  .off-report .rp-tbody {
+    font-size: 8.5pt;
+    text-align: left;
+    vertical-align: top;
+    padding: 4pt 5pt !important;
+    line-height: 1.5;
+  }
+
+  .off-report .rp-table thead th {
+    font-size: 7.5pt;
+    height: 16pt;
+  }
+
+  .off-report .rp-cell {
+    font-size: 8pt;
+    height: 22pt;
+    line-height: 1.35;
+  }
+}

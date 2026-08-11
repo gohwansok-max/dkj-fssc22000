@@ -1,0 +1,138 @@
+/**
+ * DKJ-S-02-20 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-20.json)
+ */
+(function () {
+  'use strict';
+  DkjLedgerForm.mount({
+  "code": "DKJ-S-02-20",
+  "title": "고객불만접수 및 처리대장",
+  "subtitle": "선행요건 · 접수 시마다 · 건별 기록",
+  "pattern": "ledger",
+  "docNo": "DKJ-S-02-20",
+  "rev": "0",
+  "enactDate": "2026. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "rows": 9,
+  "infoFields": [
+    {
+      "id": "period",
+      "label": "작성기간",
+      "type": "text",
+      "placeholder": "2026 . . ~ . .",
+      "required": true
+    },
+    {
+      "id": "writer2",
+      "label": "작성자",
+      "type": "text",
+      "required": true,
+      "span": 3
+    }
+  ],
+  "columns": [
+    {
+      "key": "no",
+      "label": "No",
+      "width": "4%",
+      "group": "불만 고객 발생 내역"
+    },
+    {
+      "key": "occurDate",
+      "label": "발생일자",
+      "width": "7%",
+      "type": "date",
+      "group": "불만 고객 발생 내역",
+      "required": true
+    },
+    {
+      "key": "customer",
+      "label": "성 명 (고객명)",
+      "width": "11%",
+      "align": "left",
+      "group": "불만 고객 발생 내역",
+      "required": true
+    },
+    {
+      "key": "addr",
+      "label": "주 소",
+      "width": "14%",
+      "align": "left",
+      "group": "불만 고객 발생 내역"
+    },
+    {
+      "key": "tel",
+      "label": "전화번호",
+      "width": "8%",
+      "group": "불만 고객 발생 내역"
+    },
+    {
+      "key": "product",
+      "label": "제품명 및 수량 (LOT번호)",
+      "width": "11%",
+      "align": "left",
+      "group": "불만 고객 발생 내역"
+    },
+    {
+      "key": "claim",
+      "label": "불만 내용",
+      "width": "14%",
+      "align": "left",
+      "group": "불만 고객 발생 내역",
+      "required": true
+    },
+    {
+      "key": "reportTarget",
+      "label": "이물신고 대상유무",
+      "width": "7%",
+      "type": "choice",
+      "choices": [
+        "대상",
+        "비대상"
+      ],
+      "group": "불만 고객 발생 내역"
+    },
+    {
+      "key": "doneDate",
+      "label": "처리 일자",
+      "width": "7%",
+      "type": "date",
+      "group": "처리 결과"
+    },
+    {
+      "key": "action",
+      "label": "불만 처리 및 개선조치사항",
+      "width": "14%",
+      "align": "left",
+      "group": "처리 결과",
+      "required": true
+    },
+    {
+      "key": "status",
+      "label": "완료여부",
+      "width": "7%",
+      "type": "choice",
+      "choices": [
+        "완료",
+        "진행중",
+        "보류"
+      ],
+      "group": "처리 결과",
+      "required": true
+    },
+    {
+      "key": "by",
+      "label": "작성",
+      "width": "5%",
+      "group": "처리 결과"
+    },
+    {
+      "key": "confirm",
+      "label": "확인",
+      "width": "5%",
+      "group": "처리 결과"
+    }
+  ],
+  "legend": "※ 이물 신고 대상 건은 관할 기관 신고 절차를 따르고, 개선조치 완료 여부를 반드시 확인한다."
+});
+})();

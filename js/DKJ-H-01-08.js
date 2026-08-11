@@ -1,0 +1,143 @@
+/**
+ * DKJ-H-01-08 - report boot (SSOT: data/report-form-specs/DKJ-H-01-08.json)
+ */
+(function () {
+  'use strict';
+  DkjReportForm.mount({
+  "code": "DKJ-H-01-08",
+  "title": "검증 개선조치보고서",
+  "subtitle": "HACCP · 검증 부적합 발생 시 · 건별 보고",
+  "pattern": "report",
+  "docNo": "DKJ-H-01-08",
+  "rev": "0",
+  "enactDate": "2026. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "titleField": "writeDate",
+  "blocks": [
+    {
+      "type": "pairs",
+      "label": "기본정보",
+      "perRow": 2,
+      "fields": [
+        {
+          "id": "writeDate",
+          "label": "작성일자",
+          "type": "date",
+          "required": true
+        },
+        {
+          "id": "writer2",
+          "label": "작 성 자",
+          "required": true
+        }
+      ]
+    },
+    {
+      "type": "check",
+      "id": "kind",
+      "label": "검증 종류",
+      "required": true,
+      "options": [
+        "정기 검증",
+        "일상 검증",
+        "특별 검증"
+      ]
+    },
+    {
+      "type": "signs",
+      "label": "검 증 팀",
+      "perRow": 2,
+      "fields": [
+        {
+          "id": "leader",
+          "label": "검증팀장"
+        },
+        {
+          "id": "member1",
+          "label": "검증원1"
+        },
+        {
+          "id": "member2",
+          "label": "검증원2"
+        },
+        {
+          "id": "member3",
+          "label": "검증원3"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "id": "items",
+      "label": "부적합 내용",
+      "rows": 4,
+      "columns": [
+        {
+          "key": "kind",
+          "label": "구 분",
+          "width": "16%"
+        },
+        {
+          "key": "target",
+          "label": "검증 항목",
+          "width": "24%"
+        },
+        {
+          "key": "detail",
+          "label": "부적합내용",
+          "width": "60%"
+        }
+      ]
+    },
+    {
+      "type": "pairs",
+      "label": "개선조치 내역",
+      "perRow": 2,
+      "fields": [
+        {
+          "id": "team",
+          "label": "피검증팀명"
+        },
+        {
+          "id": "doneDate",
+          "label": "완료일",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "action",
+      "label": "개선조치 내역",
+      "height": 80,
+      "uiRows": 5,
+      "required": true
+    },
+    {
+      "type": "signs",
+      "label": "개선완료 확인",
+      "perRow": 2,
+      "fields": [
+        {
+          "id": "cLeader",
+          "label": "검증팀장"
+        },
+        {
+          "id": "cTeam",
+          "label": "피검증팀장"
+        },
+        {
+          "id": "cM1",
+          "label": "검증원1"
+        },
+        {
+          "id": "cM2",
+          "label": "검증원2"
+        }
+      ]
+    }
+  ],
+  "legend": "※ 개선조치 완료 후 검증팀장과 피검증팀장이 확인 서명한다."
+});
+})();
