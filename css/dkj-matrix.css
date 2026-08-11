@@ -204,3 +204,51 @@
   .mxf-item { min-width: 220px; }
   .mxf-table { font-size: 12px; }
 }
+
+/* ===== 유형 E(대장) 화면 입력 ===== */
+.lgf-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #fff;
+}
+
+.lgf-table th,
+.lgf-table td {
+  border: 1px solid #e2e7e4;
+  padding: 3px 4px;
+  vertical-align: middle;
+}
+
+.lgf-table thead th {
+  background: #eef3f0;
+  color: #1f4634;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.lgf-table td input,
+.lgf-table td select {
+  width: 100%;
+  height: 32px;
+  border: 1px solid #e2e7e4;
+  border-radius: 6px;
+  padding: 0 6px;
+  font-size: 12.5px;
+}
+
+.lgf-act { width: 54px; text-align: center; }
+
+.lgf-del {
+  border: 1px solid #f0d2d0;
+  background: #fdf3f3;
+  color: #b3261e;
+  border-radius: 6px;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 12px;
+  cursor: pointer;
+}

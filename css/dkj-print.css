@@ -528,3 +528,51 @@
     line-height: 1.25;
   }
 }
+
+@media print {
+  /* ===== 유형 E(대장) 정본 ===== */
+  .off-ledger .lg-info {
+    table-layout: fixed;
+    margin-bottom: 3pt;
+  }
+
+  .off-ledger .lg-ilab {
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 8pt;
+    font-weight: 700;
+    text-align: center;
+    width: 12%;
+  }
+
+  .off-ledger .lg-ival {
+    font-size: 8pt;
+    text-align: center;
+  }
+
+  .off-ledger .lg-grid {
+    table-layout: fixed;
+  }
+
+  .off-ledger .lg-grid thead th {
+    font-size: 7pt;
+    line-height: 1.15;
+    height: 14pt;
+  }
+
+  .off-ledger .lg-cell {
+    font-size: 8pt;
+    height: 22pt;
+  }
+
+  .off-ledger .lg-opt {
+    color: #888;
+    font-size: 6.5pt;
+  }
+
+  .off-ledger .lg-legend {
+    margin-top: 4pt;
+    font-size: 7pt;
+  }
+}
