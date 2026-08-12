@@ -1,0 +1,138 @@
+/**
+ * FR-042 — generated FR boot
+ */
+(function () {
+  'use strict';
+  DkjFrForm.mount({
+  "code": "FR-042",
+  "title": "고객불만 접수 및 처리기록",
+  "pattern": "fr",
+  "minChecks": 0,
+  "titleKey": "subject",
+  "historyKeys": [
+    "docDate",
+    "subject"
+  ],
+  "fields": [
+    {
+      "id": "docDate",
+      "label": "작성일자 *",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "subject",
+      "label": "불만요지 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "customer",
+      "label": "고객/거래처",
+      "type": "text"
+    },
+    {
+      "id": "product",
+      "label": "관련제품·LOT",
+      "type": "text"
+    },
+    {
+      "id": "recvDate",
+      "label": "접수일",
+      "type": "date"
+    },
+    {
+      "id": "status",
+      "label": "처리상태",
+      "type": "select",
+      "options": [
+        "접수",
+        "조사중",
+        "완료"
+      ],
+      "default": "접수"
+    },
+    {
+      "id": "writer",
+      "label": "작성자 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "reviewer",
+      "label": "검토자",
+      "type": "text"
+    },
+    {
+      "id": "approver",
+      "label": "승인자",
+      "type": "text"
+    }
+  ],
+  "items": [],
+  "sections": [
+    {
+      "id": "detail",
+      "label": "불만내용",
+      "placeholder": ""
+    },
+    {
+      "id": "investigation",
+      "label": "조사결과",
+      "placeholder": ""
+    },
+    {
+      "id": "reply",
+      "label": "회신·보상·시정",
+      "placeholder": ""
+    }
+  ],
+  "print": {
+    "layout": "official-fr-generic",
+    "orgName": "동김제농협 가공센터",
+    "docNo": "FR-042",
+    "title": "고객불만 접수 및 처리기록",
+    "subtitle": "FSSC22000 · 이슈",
+    "rev": "0",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "metaFields": [
+      {
+        "key": "subject",
+        "label": "불만요지"
+      },
+      {
+        "key": "customer",
+        "label": "고객/거래처"
+      },
+      {
+        "key": "product",
+        "label": "관련제품·LOT"
+      },
+      {
+        "key": "recvDate",
+        "label": "접수일"
+      },
+      {
+        "key": "status",
+        "label": "처리상태"
+      }
+    ],
+    "rows": [],
+    "sections": [
+      {
+        "id": "detail",
+        "label": "불만내용"
+      },
+      {
+        "id": "investigation",
+        "label": "조사결과"
+      },
+      {
+        "id": "reply",
+        "label": "회신·보상·시정"
+      }
+    ]
+  }
+});
+})();

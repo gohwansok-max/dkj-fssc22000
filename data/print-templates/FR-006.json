@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-006",
+  "title": "기록관리대장",
+  "subtitle": "FSSC22000 · 월간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "기록명"
+    },
+    {
+      "key": "formCode",
+      "label": "양식번호"
+    },
+    {
+      "key": "period",
+      "label": "기록기간"
+    },
+    {
+      "key": "keeper",
+      "label": "보관부서"
+    },
+    {
+      "key": "retention",
+      "label": "보존기간"
+    },
+    {
+      "key": "location",
+      "label": "보관위치"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "noteDetail",
+      "label": "이관·폐기 계획"
+    }
+  ]
+}

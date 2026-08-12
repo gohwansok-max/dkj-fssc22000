@@ -1,0 +1,80 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-009",
+  "title": "교육훈련 실시 및 평가 기록",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "교육주제"
+    },
+    {
+      "key": "eduDate",
+      "label": "교육일"
+    },
+    {
+      "key": "hours",
+      "label": "교육시간(h)"
+    },
+    {
+      "key": "trainer",
+      "label": "강사"
+    },
+    {
+      "key": "attendees",
+      "label": "참석인원"
+    },
+    {
+      "key": "place",
+      "label": "장소"
+    }
+  ],
+  "rows": [
+    {
+      "key": "e01",
+      "group": "출석",
+      "label": "출석 확인 완료",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "e02",
+      "group": "자료",
+      "label": "교육자료 배포",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "e03",
+      "group": "평가",
+      "label": "평가 실시",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "e04",
+      "group": "기록",
+      "label": "기록 보관",
+      "hint": "",
+      "freq": "D"
+    }
+  ],
+  "sections": [
+    {
+      "id": "content",
+      "label": "교육내용"
+    },
+    {
+      "id": "evaluation",
+      "label": "평가결과·이해도"
+    },
+    {
+      "id": "followup",
+      "label": "추가교육·개선사항"
+    }
+  ]
+}

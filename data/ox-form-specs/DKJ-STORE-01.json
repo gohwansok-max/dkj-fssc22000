@@ -157,14 +157,14 @@
     }
   ],
   "print": {
-    "layout": "ox",
+    "layout": "official-prp-ox",
     "columnMode": "result",
     "orgName": "동김제농협 가공센터",
     "docNo": "DKJ-STORE-01",
     "title": "원료보관·선입선출 점검",
     "rev": "0",
-    "enactDate": "2026.07.10",
-    "reviseDate": "2026.07.10",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
     "rows": [
       {
         "key": "c01",
@@ -215,6 +215,49 @@
         "ampm": false
       }
     ],
-    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간"
+    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간",
+    "subtitle": "입고 적합 후 · FIFO",
+    "sectionTitle": "● 원료보관·선입선출 점검 결과 ●",
+    "dateKey": "storeDate",
+    "dateLabel": "보관일자",
+    "showMeta": [
+      "itemName",
+      "lot",
+      "supplier",
+      "location",
+      "qty",
+      "storeTemp",
+      "expiry"
+    ],
+    "metaFields": [
+      {
+        "key": "itemName",
+        "label": "품명"
+      },
+      {
+        "key": "lot",
+        "label": "LOT"
+      },
+      {
+        "key": "supplier",
+        "label": "공급처"
+      },
+      {
+        "key": "location",
+        "label": "보관장소"
+      },
+      {
+        "key": "qty",
+        "label": "수량"
+      },
+      {
+        "key": "storeTemp",
+        "label": "보관온도"
+      },
+      {
+        "key": "expiry",
+        "label": "유통기한"
+      }
+    ]
   }
 }

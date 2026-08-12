@@ -1,0 +1,123 @@
+/**
+ * FR-024 — generated FR boot
+ */
+(function () {
+  'use strict';
+  DkjFrForm.mount({
+  "code": "FR-024",
+  "title": "경영검토 회의록",
+  "pattern": "fr",
+  "minChecks": 0,
+  "titleKey": "subject",
+  "historyKeys": [
+    "docDate",
+    "subject"
+  ],
+  "fields": [
+    {
+      "id": "docDate",
+      "label": "작성일자 *",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "subject",
+      "label": "회의명 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "meetDate",
+      "label": "회의일",
+      "type": "date"
+    },
+    {
+      "id": "chair",
+      "label": "주재자",
+      "type": "text"
+    },
+    {
+      "id": "attendees",
+      "label": "참석자",
+      "type": "text"
+    },
+    {
+      "id": "writer",
+      "label": "작성자 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "reviewer",
+      "label": "검토자",
+      "type": "text"
+    },
+    {
+      "id": "approver",
+      "label": "승인자",
+      "type": "text"
+    }
+  ],
+  "items": [],
+  "sections": [
+    {
+      "id": "agenda",
+      "label": "안건",
+      "placeholder": ""
+    },
+    {
+      "id": "discussion",
+      "label": "논의내용",
+      "placeholder": ""
+    },
+    {
+      "id": "decision",
+      "label": "결정·지시사항",
+      "placeholder": ""
+    }
+  ],
+  "print": {
+    "layout": "official-fr-generic",
+    "orgName": "동김제농협 가공센터",
+    "docNo": "FR-024",
+    "title": "경영검토 회의록",
+    "subtitle": "FSSC22000 · 연간",
+    "rev": "0",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "metaFields": [
+      {
+        "key": "subject",
+        "label": "회의명"
+      },
+      {
+        "key": "meetDate",
+        "label": "회의일"
+      },
+      {
+        "key": "chair",
+        "label": "주재자"
+      },
+      {
+        "key": "attendees",
+        "label": "참석자"
+      }
+    ],
+    "rows": [],
+    "sections": [
+      {
+        "id": "agenda",
+        "label": "안건"
+      },
+      {
+        "id": "discussion",
+        "label": "논의내용"
+      },
+      {
+        "id": "decision",
+        "label": "결정·지시사항"
+      }
+    ]
+  }
+});
+})();

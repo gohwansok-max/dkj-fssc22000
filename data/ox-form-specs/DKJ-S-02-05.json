@@ -99,14 +99,16 @@
     }
   ],
   "print": {
-    "layout": "mon-th",
+    "layout": "official-prp-mon-th",
     "monMode": "th",
     "orgName": "동김제농협 가공센터",
     "docNo": "DKJ-S-02-05",
     "title": "온습도점검일지",
+    "subtitle": "작업장·냉장 · 매일",
     "rev": "0",
-    "enactDate": "2026.07.10",
-    "reviseDate": "2026.07.10",
-    "note": "※ 관리기준 이탈 시 즉시조치란에 기재한다. (현장 확정 CL 적용)"
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "stdNote": "※ 관리기준 — 작업실 온도 15~25℃ · 습도 40~70% · 냉장창고 0~5℃ (현장 확정 CL 적용)",
+    "note": "※ 관리기준 이탈 시 즉시조치란에 기재한다."
   }
 }

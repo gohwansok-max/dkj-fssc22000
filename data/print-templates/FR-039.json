@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-039",
+  "title": "부적합품관리 기록양식 세트",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "품명"
+    },
+    {
+      "key": "lot",
+      "label": "LOT"
+    },
+    {
+      "key": "qty",
+      "label": "수량"
+    },
+    {
+      "key": "ncType",
+      "label": "부적합유형"
+    },
+    {
+      "key": "disposition",
+      "label": "처리"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "detail",
+      "label": "발생내용"
+    },
+    {
+      "id": "dispose",
+      "label": "처리결과·확인"
+    }
+  ]
+}

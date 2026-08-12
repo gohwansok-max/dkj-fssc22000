@@ -1,0 +1,121 @@
+/**
+ * FR-001 — generated FR boot
+ */
+(function () {
+  'use strict';
+  DkjFrForm.mount({
+  "code": "FR-001",
+  "title": "문서 제·개정 요청서",
+  "pattern": "fr",
+  "minChecks": 0,
+  "titleKey": "subject",
+  "historyKeys": [
+    "docDate",
+    "subject"
+  ],
+  "fields": [
+    {
+      "id": "docDate",
+      "label": "작성일자 *",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "subject",
+      "label": "문서명 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "docCode",
+      "label": "문서번호",
+      "type": "text"
+    },
+    {
+      "id": "reqType",
+      "label": "요청구분",
+      "type": "select",
+      "options": [
+        "제정",
+        "개정",
+        "폐지"
+      ],
+      "default": "개정"
+    },
+    {
+      "id": "reason",
+      "label": "요청사유",
+      "type": "text",
+      "placeholder": "개정 사유 요약"
+    },
+    {
+      "id": "writer",
+      "label": "작성자 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "reviewer",
+      "label": "검토자",
+      "type": "text"
+    },
+    {
+      "id": "approver",
+      "label": "승인자",
+      "type": "text"
+    }
+  ],
+  "items": [],
+  "sections": [
+    {
+      "id": "changeSummary",
+      "label": "변경 내용 요약",
+      "placeholder": "주요 변경점"
+    },
+    {
+      "id": "impact",
+      "label": "영향 범위",
+      "placeholder": "관련 절차·양식·교육"
+    }
+  ],
+  "print": {
+    "layout": "official-fr-generic",
+    "orgName": "동김제농협 가공센터",
+    "docNo": "FR-001",
+    "title": "문서 제·개정 요청서",
+    "subtitle": "FSSC22000 · 이슈",
+    "rev": "0",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "metaFields": [
+      {
+        "key": "subject",
+        "label": "문서명"
+      },
+      {
+        "key": "docCode",
+        "label": "문서번호"
+      },
+      {
+        "key": "reqType",
+        "label": "요청구분"
+      },
+      {
+        "key": "reason",
+        "label": "요청사유"
+      }
+    ],
+    "rows": [],
+    "sections": [
+      {
+        "id": "changeSummary",
+        "label": "변경 내용 요약"
+      },
+      {
+        "id": "impact",
+        "label": "영향 범위"
+      }
+    ]
+  }
+});
+})();

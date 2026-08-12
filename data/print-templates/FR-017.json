@@ -1,0 +1,72 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-017",
+  "title": "모의회수 훈련 결과보고서",
+  "subtitle": "FSSC22000 · 연간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "훈련명"
+    },
+    {
+      "key": "drillDate",
+      "label": "실시일"
+    },
+    {
+      "key": "scenario",
+      "label": "시나리오"
+    },
+    {
+      "key": "participants",
+      "label": "참석인원"
+    }
+  ],
+  "rows": [
+    {
+      "key": "d01",
+      "group": "훈련",
+      "label": "연락체계 작동",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "d02",
+      "group": "훈련",
+      "label": "추적성 확인",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "d03",
+      "group": "훈련",
+      "label": "회수결정·기록",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "d04",
+      "group": "훈련",
+      "label": "소요시간 목표 내",
+      "hint": "",
+      "freq": "D"
+    }
+  ],
+  "sections": [
+    {
+      "id": "process",
+      "label": "훈련 진행 내용"
+    },
+    {
+      "id": "findings",
+      "label": "발견사항·개선점"
+    },
+    {
+      "id": "followup",
+      "label": "후속조치"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-023",
+  "title": "경영검토 입력자료",
+  "subtitle": "FSSC22000 · 연간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "검토연도/회차"
+    },
+    {
+      "key": "period",
+      "label": "대상기간"
+    },
+    {
+      "key": "preparedBy",
+      "label": "자료작성"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "kpi",
+      "label": "목표·KPI·부적합 현황"
+    },
+    {
+      "id": "audit",
+      "label": "내·외부심사·고객피드백"
+    },
+    {
+      "id": "resource",
+      "label": "자원·변경·개선 필요"
+    }
+  ]
+}

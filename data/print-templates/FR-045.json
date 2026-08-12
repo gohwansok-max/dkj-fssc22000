@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-045",
+  "title": "Loss & Waste 관리표",
+  "subtitle": "FSSC22000 · 월간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "품목/공정"
+    },
+    {
+      "key": "period",
+      "label": "대상기간"
+    },
+    {
+      "key": "lossQty",
+      "label": "Loss량"
+    },
+    {
+      "key": "wasteQty",
+      "label": "Waste량"
+    },
+    {
+      "key": "unit",
+      "label": "단위"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "cause",
+      "label": "원인분석"
+    },
+    {
+      "id": "improve",
+      "label": "개선대책"
+    }
+  ]
+}

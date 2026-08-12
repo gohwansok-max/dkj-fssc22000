@@ -1,5 +1,5 @@
 window.DKJ_DOC_CATALOG={
-  "updatedAt": "2026-07-14",
+  "updatedAt": "2026-07-16",
   "site": "동김제농협 가공센터",
   "certification": "FSSC22000 V6",
   "sourceLabel": "최종본260714",
@@ -93,7 +93,7 @@ window.DKJ_DOC_CATALOG={
       "description": "내부심사 계획·체크리스트·결과·CAR 패키지",
       "menuGroup": "교육·심사",
       "workflowStatus": "완료",
-      "count": 7
+      "count": 1
     },
     {
       "id": "mgmt_review",
@@ -110,7 +110,7 @@ window.DKJ_DOC_CATALOG={
       "label": "MDR·문서관리",
       "code": "MDR",
       "icon": "📑",
-      "description": "MDR-001 Rev11 정본 · 186건 등록",
+      "description": "MDR-001 Rev13 정본 · 202건 등록",
       "menuGroup": "문서체계",
       "workflowStatus": "완료",
       "count": 3
@@ -142,7 +142,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -166,7 +166,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -186,7 +186,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -209,7 +209,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -230,7 +230,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -252,7 +252,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -273,7 +273,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -295,7 +295,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -315,7 +315,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -336,7 +336,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -358,7 +358,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -376,7 +376,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -395,7 +395,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -414,7 +414,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -433,7 +433,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -452,7 +452,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -473,7 +473,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -492,7 +492,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -513,7 +513,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -532,7 +532,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "docx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -1831,7 +1831,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -1851,7 +1851,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -1871,7 +1871,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -1891,7 +1891,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -1911,7 +1911,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -1931,7 +1931,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -1951,7 +1951,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -1971,7 +1971,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -1991,7 +1991,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2011,7 +2011,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2031,7 +2031,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2051,7 +2051,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2071,7 +2071,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2091,7 +2091,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2107,11 +2107,11 @@ window.DKJ_DOC_CATALOG={
       "id": "DKJ-F-018",
       "category": "form",
       "code": "DKJ-F-018",
-      "title": "내부심사 계획서",
+      "title": "내부심사 세부계획서",
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2127,11 +2127,11 @@ window.DKJ_DOC_CATALOG={
       "id": "DKJ-F-019",
       "category": "form",
       "code": "DKJ-F-019",
-      "title": "내부심사 체크리스트",
+      "title": "DKJ-F-019",
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2151,7 +2151,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2167,11 +2167,11 @@ window.DKJ_DOC_CATALOG={
       "id": "DKJ-F-021",
       "category": "form",
       "code": "DKJ-F-021",
-      "title": "시정조치 요구서(CAR)",
+      "title": "내부심사 CAR 개선계획서",
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2187,11 +2187,11 @@ window.DKJ_DOC_CATALOG={
       "id": "DKJ-F-022",
       "category": "form",
       "code": "DKJ-F-022",
-      "title": "시정조치 관리대장",
+      "title": "내부심사 CAR 개선조치 현황",
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2211,7 +2211,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2228,10 +2228,10 @@ window.DKJ_DOC_CATALOG={
       "category": "form",
       "code": "DKJ-F-024",
       "title": "경영검토 회의록",
-      "rev": "RevXLSX",
+      "rev": "RevDOCX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2251,7 +2251,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2271,7 +2271,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2291,7 +2291,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2311,7 +2311,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2331,7 +2331,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2351,7 +2351,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2371,7 +2371,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2391,7 +2391,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2411,7 +2411,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2431,7 +2431,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2451,7 +2451,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2471,7 +2471,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2491,7 +2491,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2511,7 +2511,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2531,7 +2531,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2551,7 +2551,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2571,7 +2571,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2591,7 +2591,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2611,7 +2611,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2631,7 +2631,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2651,7 +2651,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -2884,125 +2884,11 @@ window.DKJ_DOC_CATALOG={
       ]
     },
     {
-      "id": "01_DKJ-F-018_내부심사_세부계획서_REV2안_IA-2026-01",
-      "category": "audit",
-      "code": "01_DKJ-F-018_내부심사_세부계획서_REV2안_IA-2026-01",
-      "title": "01_DKJ-F-018_내부심사_세부계획서_REV2안_IA-2026-01",
-      "rev": "Rev2",
-      "workflowStatus": "완료",
-      "fileType": "xlsx",
-      "mdrRev": "Rev11",
-      "mdrStatus": "운영중",
-      "sourcePath": "",
-      "tags": [
-        "내부심사"
-      ],
-      "highlights": [
-        "최종본 260714 정본",
-        "FSSC22000 V6"
-      ]
-    },
-    {
       "id": "02_내부심사원_자격인정자료_최민재_이다은_권화선_IA-2026-01",
       "category": "audit",
       "code": "02_내부심사원_자격인정자료_최민재_이다은_권화선_IA-2026-01",
       "title": "02_내부심사원_자격인정자료_최민재_이다은_권화선_IA-2026-01",
       "rev": "Rev0",
-      "workflowStatus": "완료",
-      "fileType": "xlsx",
-      "mdrRev": "Rev11",
-      "mdrStatus": "운영중",
-      "sourcePath": "",
-      "tags": [
-        "내부심사"
-      ],
-      "highlights": [
-        "최종본 260714 정본",
-        "FSSC22000 V6"
-      ]
-    },
-    {
-      "id": "03_DKJ-F-019_FSSC22000_V6_통합_내부심사_체크리스트_",
-      "category": "audit",
-      "code": "03_DKJ-F-019_FSSC22000_V6_통합_내부심사_체크리스트_",
-      "title": "03_DKJ-F-019_FSSC22000_V6_통합_내부심사_체크리스트_",
-      "rev": "Rev3",
-      "workflowStatus": "완료",
-      "fileType": "xlsx",
-      "mdrRev": "Rev11",
-      "mdrStatus": "운영중",
-      "sourcePath": "",
-      "tags": [
-        "내부심사"
-      ],
-      "highlights": [
-        "최종본 260714 정본",
-        "FSSC22000 V6"
-      ]
-    },
-    {
-      "id": "04_DKJ-F-020_내부심사_결과보고서_REV2안_IA-2026-01",
-      "category": "audit",
-      "code": "04_DKJ-F-020_내부심사_결과보고서_REV2안_IA-2026-01",
-      "title": "04_DKJ-F-020_내부심사_결과보고서_REV2안_IA-2026-01",
-      "rev": "Rev2",
-      "workflowStatus": "완료",
-      "fileType": "xlsx",
-      "mdrRev": "Rev11",
-      "mdrStatus": "운영중",
-      "sourcePath": "",
-      "tags": [
-        "내부심사"
-      ],
-      "highlights": [
-        "최종본 260714 정본",
-        "FSSC22000 V6"
-      ]
-    },
-    {
-      "id": "05_DKJ-F-021_내부심사_CAR_개선계획서_REV2안_IA-202",
-      "category": "audit",
-      "code": "05_DKJ-F-021_내부심사_CAR_개선계획서_REV2안_IA-202",
-      "title": "6 01",
-      "rev": "Rev2",
-      "workflowStatus": "완료",
-      "fileType": "xlsx",
-      "mdrRev": "Rev11",
-      "mdrStatus": "운영중",
-      "sourcePath": "",
-      "tags": [
-        "내부심사"
-      ],
-      "highlights": [
-        "최종본 260714 정본",
-        "FSSC22000 V6"
-      ]
-    },
-    {
-      "id": "06_DKJ-F-021연계_CAR_개선조치_및_효과확인보고서_개별양식_I",
-      "category": "audit",
-      "code": "06_DKJ-F-021연계_CAR_개선조치_및_효과확인보고서_개별양식_I",
-      "title": "A 2026 01",
-      "rev": "Rev0",
-      "workflowStatus": "완료",
-      "fileType": "xlsx",
-      "mdrRev": "Rev11",
-      "mdrStatus": "운영중",
-      "sourcePath": "",
-      "tags": [
-        "내부심사"
-      ],
-      "highlights": [
-        "최종본 260714 정본",
-        "FSSC22000 V6"
-      ]
-    },
-    {
-      "id": "07_DKJ-F-022_내부심사_CAR_개선조치_현황_REV2안_IA-2",
-      "category": "audit",
-      "code": "07_DKJ-F-022_내부심사_CAR_개선조치_현황_REV2안_IA-2",
-      "title": "026 01",
-      "rev": "Rev2",
       "workflowStatus": "완료",
       "fileType": "xlsx",
       "mdrRev": "Rev11",
@@ -3040,7 +2926,7 @@ window.DKJ_DOC_CATALOG={
       "category": "mdr",
       "code": "DOC-001",
       "title": "문서번호 체계",
-      "rev": "RevXLSX",
+      "rev": "Rev3",
       "workflowStatus": "완료",
       "fileType": "xlsx",
       "mdrRev": "Rev11",
@@ -3084,7 +2970,7 @@ window.DKJ_DOC_CATALOG={
       "rev": "RevXLSX",
       "workflowStatus": "완료",
       "fileType": "xlsx",
-      "mdrRev": "Rev11",
+      "mdrRev": "Rev13",
       "mdrStatus": "운영중",
       "sourcePath": "",
       "tags": [
@@ -3099,8 +2985,8 @@ window.DKJ_DOC_CATALOG={
   ],
   "mdrSource": {
     "file": "",
-    "rev": "Rev11",
-    "entryCount": 186,
-    "syncedAt": "2026-07-14"
+    "rev": "Rev13",
+    "entryCount": 202,
+    "syncedAt": "2026-07-16"
   }
 };

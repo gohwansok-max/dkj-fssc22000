@@ -1,0 +1,181 @@
+/**
+ * FR-019 — generated FR boot
+ */
+(function () {
+  'use strict';
+  DkjFrForm.mount({
+  "code": "FR-019",
+  "title": "내부심사 체크리스트",
+  "pattern": "fr",
+  "minChecks": 3,
+  "titleKey": "subject",
+  "historyKeys": [
+    "docDate",
+    "subject"
+  ],
+  "fields": [
+    {
+      "id": "docDate",
+      "label": "작성일자 *",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "subject",
+      "label": "심사대상 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "auditDate",
+      "label": "심사일",
+      "type": "date"
+    },
+    {
+      "id": "auditor",
+      "label": "심사원",
+      "type": "text"
+    },
+    {
+      "id": "clause",
+      "label": "조항/영역",
+      "type": "text"
+    },
+    {
+      "id": "writer",
+      "label": "작성자 *",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "reviewer",
+      "label": "검토자",
+      "type": "text"
+    },
+    {
+      "id": "approver",
+      "label": "승인자",
+      "type": "text"
+    }
+  ],
+  "items": [
+    {
+      "key": "a01",
+      "group": "문서",
+      "label": "문서·기록 적절",
+      "hint": ""
+    },
+    {
+      "key": "a02",
+      "group": "실행",
+      "label": "현장 실행 일치",
+      "hint": ""
+    },
+    {
+      "key": "a03",
+      "group": "인력",
+      "label": "교육·역량",
+      "hint": ""
+    },
+    {
+      "key": "a04",
+      "group": "HACCP",
+      "label": "CCP/PRP 운영",
+      "hint": ""
+    },
+    {
+      "key": "a05",
+      "group": "개선",
+      "label": "시정조치 유효",
+      "hint": ""
+    }
+  ],
+  "sections": [
+    {
+      "id": "finding",
+      "label": "관찰·부적합 요약",
+      "placeholder": ""
+    },
+    {
+      "id": "evidence",
+      "label": "증빙·면담",
+      "placeholder": ""
+    }
+  ],
+  "print": {
+    "layout": "official-fr-generic",
+    "orgName": "동김제농협 가공센터",
+    "docNo": "FR-019",
+    "title": "내부심사 체크리스트",
+    "subtitle": "FSSC22000 · 이슈",
+    "rev": "0",
+    "enactDate": "2024. 02. 13",
+    "reviseDate": "-",
+    "metaFields": [
+      {
+        "key": "subject",
+        "label": "심사대상"
+      },
+      {
+        "key": "auditDate",
+        "label": "심사일"
+      },
+      {
+        "key": "auditor",
+        "label": "심사원"
+      },
+      {
+        "key": "clause",
+        "label": "조항/영역"
+      }
+    ],
+    "rows": [
+      {
+        "key": "a01",
+        "group": "문서",
+        "label": "문서·기록 적절",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "a02",
+        "group": "실행",
+        "label": "현장 실행 일치",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "a03",
+        "group": "인력",
+        "label": "교육·역량",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "a04",
+        "group": "HACCP",
+        "label": "CCP/PRP 운영",
+        "hint": "",
+        "freq": "D"
+      },
+      {
+        "key": "a05",
+        "group": "개선",
+        "label": "시정조치 유효",
+        "hint": "",
+        "freq": "D"
+      }
+    ],
+    "sections": [
+      {
+        "id": "finding",
+        "label": "관찰·부적합 요약"
+      },
+      {
+        "id": "evidence",
+        "label": "증빙·면담"
+      }
+    ]
+  }
+});
+})();

@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-007",
+  "title": "기록폐기대장",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "기록명"
+    },
+    {
+      "key": "formCode",
+      "label": "양식번호"
+    },
+    {
+      "key": "period",
+      "label": "해당기간"
+    },
+    {
+      "key": "disposeDate",
+      "label": "폐기일"
+    },
+    {
+      "key": "method",
+      "label": "폐기방법"
+    },
+    {
+      "key": "witness",
+      "label": "입회자"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "noteDetail",
+      "label": "폐기 사유·확인"
+    }
+  ]
+}

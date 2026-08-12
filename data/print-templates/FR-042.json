@@ -1,0 +1,47 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-042",
+  "title": "고객불만 접수 및 처리기록",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "불만요지"
+    },
+    {
+      "key": "customer",
+      "label": "고객/거래처"
+    },
+    {
+      "key": "product",
+      "label": "관련제품·LOT"
+    },
+    {
+      "key": "recvDate",
+      "label": "접수일"
+    },
+    {
+      "key": "status",
+      "label": "처리상태"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "detail",
+      "label": "불만내용"
+    },
+    {
+      "id": "investigation",
+      "label": "조사결과"
+    },
+    {
+      "id": "reply",
+      "label": "회신·보상·시정"
+    }
+  ]
+}

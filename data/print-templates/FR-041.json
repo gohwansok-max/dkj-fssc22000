@@ -1,0 +1,43 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-041",
+  "title": "비상상황 발생보고서",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "비상유형"
+    },
+    {
+      "key": "occurDate",
+      "label": "발생일시"
+    },
+    {
+      "key": "location",
+      "label": "장소"
+    },
+    {
+      "key": "severity",
+      "label": "심각도"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "situation",
+      "label": "상황 설명"
+    },
+    {
+      "id": "response",
+      "label": "초기대응"
+    },
+    {
+      "id": "recovery",
+      "label": "복구·재발방지"
+    }
+  ]
+}

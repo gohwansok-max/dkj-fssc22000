@@ -17,13 +17,18 @@ if ($pdf) { Copy-Item $pdf.FullName (Join-Path $targetDir "latest.pdf") -Force }
 if ($docx) { Copy-Item $docx.FullName (Join-Path $targetDir "latest.docx") -Force }
 
 if (Test-Path $dataPath) {
-  $raw = Get-Content $dataPath -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
+  $rawObj = Get-Content $dataPath -Raw -Encoding UTF8 | ConvertFrom-Json
   $map = @{
     updatedAt = (Get-Date -Format "yyyy-MM-dd")
     map = @{}
   }
-  if ($raw.map) {
-    foreach ($k in $raw.map.Keys) { $map.map[$k] = $raw.map[$k] }
+  if ($rawObj.map) {
+    $rawObj.map.PSObject.Properties | ForEach-Object {
+      $map.map[$_.Name] = @{
+        pdf = $_.Value.pdf
+        source = $_.Value.source
+      }
+    }
   }
 }
 else {

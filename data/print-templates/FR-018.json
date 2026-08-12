@@ -1,0 +1,39 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-018",
+  "title": "내부심사 실시계획서",
+  "subtitle": "FSSC22000 · 연간",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "심사명/연도"
+    },
+    {
+      "key": "period",
+      "label": "계획기간"
+    },
+    {
+      "key": "leadAuditor",
+      "label": "심사팀장"
+    },
+    {
+      "key": "scope",
+      "label": "심사범위"
+    }
+  ],
+  "rows": [],
+  "sections": [
+    {
+      "id": "schedule",
+      "label": "일정·부서별 계획"
+    },
+    {
+      "id": "criteria",
+      "label": "심사기준·체크리스트"
+    }
+  ]
+}

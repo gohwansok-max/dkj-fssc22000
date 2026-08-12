@@ -200,6 +200,30 @@
       sheet.innerHTML = global.DkjPrintOfficial.ccp1bc(state || {});
       return sheet;
     }
+    if (t.layout === 'official-prp-ox' && global.DkjPrintOfficial) {
+      sheet.innerHTML = global.DkjPrintOfficial.prpOx(state || {}, t);
+      return sheet;
+    }
+    if (t.layout === 'official-prp-mon-th' && global.DkjPrintOfficial) {
+      sheet.innerHTML = global.DkjPrintOfficial.prpMonTh(state || {}, t);
+      return sheet;
+    }
+    if (t.layout === 'official-prp-mon-lux' && global.DkjPrintOfficial) {
+      sheet.innerHTML = global.DkjPrintOfficial.prpMonLux(state || {}, t);
+      return sheet;
+    }
+    if (t.layout === 'official-fr014' && global.DkjPrintOfficial) {
+      sheet.innerHTML = global.DkjPrintOfficial.fr014(state || {}, t);
+      return sheet;
+    }
+    if (t.layout === 'official-fr015' && global.DkjPrintOfficial) {
+      sheet.innerHTML = global.DkjPrintOfficial.fr015(state || {}, t);
+      return sheet;
+    }
+    if (t.layout === 'official-fr-generic' && global.DkjPrintOfficial) {
+      sheet.innerHTML = global.DkjPrintOfficial.frGeneric(state || {}, t);
+      return sheet;
+    }
     var body;
     if (t.layout === 'ccp-rows') {
       body = renderCcpRows(t, state || {});

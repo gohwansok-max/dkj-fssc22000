@@ -12,7 +12,9 @@ const dkjRoot = path.resolve(__dirname, '..');
 const sources = JSON.parse(fs.readFileSync(path.join(dkjRoot, 'data/asset-sources.json'), 'utf8'));
 const maxLines = Number(process.argv.find((a) => a.startsWith('--max-lines='))?.split('=')[1] || 120);
 
-const extractDir = path.join(sources.fsscRoot, sources.paths.benchmarkExtracts);
+const extractDir = sources.paths.benchmarkExtracts
+  ? path.join(sources.fsscRoot, sources.paths.benchmarkExtracts)
+  : path.join(sources.fsscRoot, sources.paths.procedures || '02_절차서');
 const outDir = path.join(dkjRoot, sources.webAssets.excerpts);
 
 const map = {

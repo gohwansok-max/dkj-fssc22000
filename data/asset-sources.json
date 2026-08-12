@@ -1,7 +1,7 @@
 {
   "fsscRoot": "",
   "mdrOfficial": "",
-  "mdrRev": "Rev11",
+  "mdrRev": "Rev13",
   "paths": {
     "manual": "01_통합매뉴얼(Manual)",
     "procedures": "02_절차서",
@@ -13,7 +13,8 @@
     "audit": "08_내부심사",
     "mgmtReview": "09_경영검토",
     "mdr": "",
-    "docNumber": ""
+    "docNumber": "",
+    "benchmarkExtracts": "02_절차서"
   },
   "webAssets": {
     "pdf": "assets/pdf",

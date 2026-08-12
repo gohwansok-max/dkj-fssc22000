@@ -1,0 +1,65 @@
+{
+  "layout": "official-fr-generic",
+  "orgName": "동김제농협 가공센터",
+  "docNo": "FR-027",
+  "title": "검교정 계획 및 결과표",
+  "subtitle": "FSSC22000 · 이슈",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "metaFields": [
+    {
+      "key": "subject",
+      "label": "계측기명"
+    },
+    {
+      "key": "assetNo",
+      "label": "관리번호"
+    },
+    {
+      "key": "calDate",
+      "label": "교정일"
+    },
+    {
+      "key": "agency",
+      "label": "교정기관"
+    },
+    {
+      "key": "result",
+      "label": "결과"
+    },
+    {
+      "key": "certNo",
+      "label": "성적서번호"
+    }
+  ],
+  "rows": [
+    {
+      "key": "k01",
+      "group": "결과",
+      "label": "교정성적서 수령",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "k02",
+      "group": "결과",
+      "label": "라벨 부착",
+      "hint": "",
+      "freq": "D"
+    },
+    {
+      "key": "k03",
+      "group": "결과",
+      "label": "대장 반영",
+      "hint": "",
+      "freq": "D"
+    }
+  ],
+  "sections": [
+    {
+      "id": "noteDetail",
+      "label": "불확도·조치"
+    }
+  ]
+}
