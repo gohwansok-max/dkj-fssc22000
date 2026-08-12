@@ -1,0 +1,144 @@
+/* ============================================================
+   동김제농협 스마트 HACCP — 디자인 토큰 + 공통 부품
+   콘솔(index-v2)과 서식 화면(records/*)이 같은 언어를 쓰도록
+   팔레트·버튼·뱃지를 여기 한 곳에서 정의한다.
+   ============================================================ */
+
+:root {
+  /* 농협 브랜드 — 심볼 노랑 + 워드마크 녹색 */
+  --nh-green: #009a44;
+  --nh-green-dark: #00722F;
+  --nh-green-ink: #05431F;
+  --nh-green-50: #eaf6ee;
+  --nh-yellow: #ffc72c;
+  --nh-yellow-50: #fff6dd;
+
+  /* 상태 — 노랑(심볼색)=해야 할 일, 녹색(워드마크색)=완료 */
+  --st-todo: #b8860b;
+  --st-todo-bg: #fff6dd;
+  --st-todo-line: #f0c65a;
+  --st-done: #0f7b3e;
+  --st-done-bg: #eaf6ee;
+  --st-done-line: #a9d9bd;
+  --st-ng: #c62828;
+  --st-ng-bg: #fdecea;
+  --st-ng-line: #f0b4ae;
+  --st-off: #6b7a72;
+  --st-off-bg: #f2f4f3;
+
+  --ink: #16231d;
+  --ink-2: #43544b;
+  --ink-3: #7d8b84;
+  --line: #dfe5e1;
+  --bg: #f4f7f5;
+  --card: #ffffff;
+
+  --r-l: 16px;
+  --r-m: 12px;
+  --r-s: 8px;
+  --shadow: 0 1px 2px rgba(5, 67, 31, .06), 0 6px 16px rgba(5, 67, 31, .06);
+
+  /* 장갑 낀 손 기준 최소 터치 타깃 */
+  --tap: 56px;
+  --wrap: 1320px;
+
+  /* ── 구버전 별칭 (기존 규칙이 깨지지 않도록 유지) ── */
+  --dkj-green: var(--nh-green);
+  --dkj-green-dark: var(--nh-green-dark);
+  --dkj-green-light: var(--nh-green-50);
+  --dkj-yellow: var(--nh-yellow);
+  --dkj-text: var(--ink);
+  --dkj-text-muted: var(--ink-3);
+  --dkj-border: var(--line);
+  --dkj-white: #fff;
+  --dkj-radius: var(--r-m);
+  --dkj-shadow: var(--shadow);
+  --dkj-max: var(--wrap);
+}
+
+/* ---------- 공통 부품 ---------- */
+
+.container {
+  width: 100%;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: var(--r-m);
+  font-size: 14.5px;
+  font-weight: 700;
+  font-family: inherit;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter .12s ease, border-color .12s ease;
+}
+
+.pill-btn:active { transform: translateY(1px); }
+.pill-btn:disabled { opacity: .5; cursor: default; }
+
+.pill-btn.green {
+  background: var(--nh-green);
+  color: #fff;
+}
+
+.pill-btn.green:hover { filter: brightness(1.06); }
+
+.pill-btn.blue {
+  background: var(--nh-green-ink);
+  color: #fff;
+}
+
+.pill-btn.blue:hover { filter: brightness(1.3); }
+
+.pill-btn.ghost {
+  background: #fff;
+  color: var(--ink-2);
+  border-color: var(--line);
+}
+
+.pill-btn.ghost:hover {
+  border-color: var(--nh-green);
+  color: var(--nh-green-dark);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--st-off-bg);
+  color: var(--st-off);
+}
+
+.badge.done { background: var(--st-done-bg); color: var(--st-done); }
+.badge.wip { background: var(--st-todo-bg); color: var(--st-todo); }
+.badge.ng { background: var(--st-ng-bg); color: var(--st-ng); }
+
+.link-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link-chip:hover { border-color: var(--nh-green); color: var(--nh-green-dark); }
+.link-chip.sm { min-height: 34px; font-size: 12.5px; padding: 0 12px; }

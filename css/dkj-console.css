@@ -4,44 +4,7 @@
    기준 해상도: 12인치 태블릿 가로 1280x800 (장갑 터치 고려)
    ============================================================ */
 
-:root {
-  /* 농협 브랜드 — 심볼 노랑 + 워드마크 녹색 */
-  --nh-green: #009a44;
-  --nh-green-dark: #00722F;
-  --nh-green-ink: #05431F;
-  --nh-green-50: #eaf6ee;
-  --nh-yellow: #ffc72c;
-  --nh-yellow-50: #fff6dd;
-
-  /* 상태 — 브랜드와 의미가 겹치도록 설계했다.
-     노랑(심볼색) = 해야 할 일 / 녹색(워드마크색) = 완료 */
-  --st-todo: #b8860b;
-  --st-todo-bg: #fff6dd;
-  --st-todo-line: #f0c65a;
-  --st-done: #0f7b3e;
-  --st-done-bg: #eaf6ee;
-  --st-done-line: #a9d9bd;
-  --st-ng: #c62828;
-  --st-ng-bg: #fdecea;
-  --st-ng-line: #f0b4ae;
-  --st-off: #6b7a72;
-  --st-off-bg: #f2f4f3;
-
-  --ink: #16231d;
-  --ink-2: #43544b;
-  --ink-3: #7d8b84;
-  --line: #dfe5e1;
-  --bg: #f4f7f5;
-  --card: #ffffff;
-
-  --r-l: 16px;
-  --r-m: 12px;
-  --r-s: 8px;
-  --shadow: 0 1px 2px rgba(5, 67, 31, .06), 0 6px 16px rgba(5, 67, 31, .06);
-
-  /* 장갑 터치 최소 타깃 */
-  --tap: 56px;
-}
+/* 팔레트·간격 토큰은 dkj-tokens.css 에 있다. 이 파일은 콘솔 전용 컴포넌트만 담는다. */
 
 .console-page {
   margin: 0;
