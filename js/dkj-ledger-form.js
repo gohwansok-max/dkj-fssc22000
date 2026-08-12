@@ -23,7 +23,14 @@
 
   function emptyState(spec) {
     var rows = [];
-    for (var i = 0; i < (spec.rows || 12); i++) rows.push(emptyRow(spec));
+    if (spec.defaultRows && spec.defaultRows.length) {
+      // 측정위치·설비명·일자처럼 서식에 인쇄되어 있는 행을 그대로 채운다
+      spec.defaultRows.forEach(function (d) {
+        rows.push(Object.assign(emptyRow(spec), d));
+      });
+    } else {
+      for (var i = 0; i < (spec.rows || 12); i++) rows.push(emptyRow(spec));
+    }
     var info = {};
     (spec.infoFields || []).forEach(function (f) {
       info[f.id] = f.type === 'date' ? today() : (f.default || '');
@@ -80,6 +87,9 @@
     }
 
     function cellInput(c, ri, v) {
+      if (c.readonly) {
+        return '<span class="lgf-fixed">' + esc(v) + '</span>';
+      }
       if (c.type === 'choice') {
         return '<select data-r="' + ri + '" data-c="' + c.key + '">' +
           '<option value=""></option>' +
@@ -96,13 +106,16 @@
       var host = $('ledgerGrid');
       if (!host) return;
       var thead = global.DkjLedgerPrint
-        ? global.DkjLedgerPrint.theadHtml(COLS.concat([{ key: '__act', label: '' }]))
+        ? global.DkjLedgerPrint.theadHtml(
+            spec.defaultRows ? COLS : COLS.concat([{ key: '__act', label: '' }]))
         : '';
       var body = state.rows.map(function (r, ri) {
         return '<tr>' + COLS.map(function (c) {
           return '<td>' + cellInput(c, ri, r[c.key] || '') + '</td>';
         }).join('') +
-          '<td class="lgf-act"><button type="button" class="lgf-del" data-del="' + ri + '">삭제</button></td></tr>';
+          (spec.defaultRows ? '' :
+            '<td class="lgf-act"><button type="button" class="lgf-del" data-del="' + ri +
+            '">삭제</button></td>') + '</tr>';
       }).join('');
       host.innerHTML = '<table class="lgf-table"><thead>' + thead + '</thead><tbody>' + body + '</tbody></table>';
 

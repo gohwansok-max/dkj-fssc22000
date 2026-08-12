@@ -1,0 +1,249 @@
+/**
+ * DKJ-S-02-09 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-09.json)
+ */
+(function () {
+  'use strict';
+  DkjLedgerForm.mount({
+  "rev": "0",
+  "enactDate": "2026. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "pattern": "ledger",
+  "code": "DKJ-S-02-09",
+  "title": "세척 소독제 관리대장",
+  "subtitle": "선행요건 · 일자별 재고 관리 · 월 단위 시트",
+  "docNo": "DKJ-S-02-9",
+  "infoFields": [
+    {
+      "id": "month",
+      "label": "점검 월",
+      "type": "text",
+      "placeholder": "2026 . 08",
+      "required": true
+    },
+    {
+      "id": "inspector",
+      "label": "작성자",
+      "type": "text",
+      "required": true,
+      "span": 3
+    }
+  ],
+  "columns": [
+    {
+      "key": "day",
+      "label": "일자",
+      "width": "8%",
+      "readonly": true
+    },
+    {
+      "key": "p1_prev",
+      "label": "전일재고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "바이오크린콜 (알콜75%)"
+    },
+    {
+      "key": "p1_in",
+      "label": "금일 입고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "바이오크린콜 (알콜75%)"
+    },
+    {
+      "key": "p1_use",
+      "label": "금일사용",
+      "width": "5.75%",
+      "type": "num",
+      "group": "바이오크린콜 (알콜75%)"
+    },
+    {
+      "key": "p1_now",
+      "label": "현재 재고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "바이오크린콜 (알콜75%)"
+    },
+    {
+      "key": "p2_prev",
+      "label": "전일재고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "하이락스 (차아염소산나트륨4%)"
+    },
+    {
+      "key": "p2_in",
+      "label": "금일 입고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "하이락스 (차아염소산나트륨4%)"
+    },
+    {
+      "key": "p2_use",
+      "label": "금일사용",
+      "width": "5.75%",
+      "type": "num",
+      "group": "하이락스 (차아염소산나트륨4%)"
+    },
+    {
+      "key": "p2_now",
+      "label": "현재 재고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "하이락스 (차아염소산나트륨4%)"
+    },
+    {
+      "key": "p3_prev",
+      "label": "전일재고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "퐁퐁"
+    },
+    {
+      "key": "p3_in",
+      "label": "금일 입고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "퐁퐁"
+    },
+    {
+      "key": "p3_use",
+      "label": "금일사용",
+      "width": "5.75%",
+      "type": "num",
+      "group": "퐁퐁"
+    },
+    {
+      "key": "p3_now",
+      "label": "현재 재고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "퐁퐁"
+    },
+    {
+      "key": "p4_prev",
+      "label": "전일재고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "HDC-1 손세정제"
+    },
+    {
+      "key": "p4_in",
+      "label": "금일 입고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "HDC-1 손세정제"
+    },
+    {
+      "key": "p4_use",
+      "label": "금일사용",
+      "width": "5.75%",
+      "type": "num",
+      "group": "HDC-1 손세정제"
+    },
+    {
+      "key": "p4_now",
+      "label": "현재 재고",
+      "width": "5.75%",
+      "type": "num",
+      "group": "HDC-1 손세정제"
+    }
+  ],
+  "defaultRows": [
+    {
+      "day": "1일"
+    },
+    {
+      "day": "2일"
+    },
+    {
+      "day": "3일"
+    },
+    {
+      "day": "4일"
+    },
+    {
+      "day": "5일"
+    },
+    {
+      "day": "6일"
+    },
+    {
+      "day": "7일"
+    },
+    {
+      "day": "8일"
+    },
+    {
+      "day": "9일"
+    },
+    {
+      "day": "10일"
+    },
+    {
+      "day": "11일"
+    },
+    {
+      "day": "12일"
+    },
+    {
+      "day": "13일"
+    },
+    {
+      "day": "14일"
+    },
+    {
+      "day": "15일"
+    },
+    {
+      "day": "16일"
+    },
+    {
+      "day": "17일"
+    },
+    {
+      "day": "18일"
+    },
+    {
+      "day": "19일"
+    },
+    {
+      "day": "20일"
+    },
+    {
+      "day": "21일"
+    },
+    {
+      "day": "22일"
+    },
+    {
+      "day": "23일"
+    },
+    {
+      "day": "24일"
+    },
+    {
+      "day": "25일"
+    },
+    {
+      "day": "26일"
+    },
+    {
+      "day": "27일"
+    },
+    {
+      "day": "28일"
+    },
+    {
+      "day": "29일"
+    },
+    {
+      "day": "30일"
+    },
+    {
+      "day": "31일"
+    }
+  ],
+  "legend": "※ 현재 재고 = 전일재고 + 금일 입고 - 금일 사용.  잔량 부족 시 즉시 발주한다."
+});
+})();

@@ -91,7 +91,7 @@
   function gridHtml(spec, state) {
     var cols = spec.columns || [];
     var rows = state.rows || [];
-    var min = spec.rows || 12;
+    var min = spec.defaultRows ? spec.defaultRows.length : (spec.rows || 12);
     var n = Math.max(min, rows.length);
     var body = '';
     for (var i = 0; i < n; i++) {
@@ -112,6 +112,7 @@
       headHtml(spec, st) +
       infoHtml(spec, st) +
       gridHtml(spec, st) +
+      (spec.infoNote ? '<div class="off-box tiny lg-note">' + esc(spec.infoNote) + '</div>' : '') +
       (spec.legend ? '<div class="off-box tiny lg-legend">' + esc(spec.legend) + '</div>' : '') +
       '<div class="off-foot">' + esc(spec.orgName || '동김제농협 가공센터') +
       ' · ' + esc(spec.docNo || '') + '</div>' +

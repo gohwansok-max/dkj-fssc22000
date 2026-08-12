@@ -1,175 +1,288 @@
 /**
- * DKJ-S-02-07 — generated boot
+ * DKJ-S-02-07 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-07.json)
  */
 (function () {
   'use strict';
-  DkjOxForm.mount({
+  DkjLedgerForm.mount({
+  "rev": "1",
+  "enactDate": "2026. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "pattern": "ledger",
   "code": "DKJ-S-02-07",
-  "title": "방충방서관리점검일지",
-  "pattern": "ox",
-  "minChecks": 5,
-  "titleKey": "area",
-  "historyKeys": [
-    "checkDate",
-    "area"
-  ],
-  "fields": [
+  "title": "방충방서 점검일지",
+  "subtitle": "선행요건 · 설비별 포집 수량 계수",
+  "docNo": "DKJ-S-02-07",
+  "infoFields": [
     {
       "id": "checkDate",
-      "label": "점검일자 *",
+      "label": "작성일자",
       "type": "date",
       "required": true
     },
     {
-      "id": "shift",
-      "label": "근무조",
-      "type": "select",
-      "options": [
-        "주간",
-        "야간",
-        "기타"
-      ],
-      "default": "주간"
-    },
-    {
-      "id": "area",
-      "label": "점검구역",
-      "type": "select",
-      "options": [
-        "전처리",
-        "소독헹굼",
-        "포장",
-        "냉장",
-        "전체"
-      ],
-      "optionLabels": {
-        "전처리": "전처리실",
-        "소독헹굼": "소독·헹굼실",
-        "포장": "포장실",
-        "냉장": "냉장창고",
-        "전체": "작업장 전체"
-      },
-      "default": "전체"
-    },
-    {
-      "id": "pestVendor",
-      "label": "방제업체/담당",
+      "id": "inspector",
+      "label": "점검자",
       "type": "text",
-      "placeholder": "해당시"
+      "required": true,
+      "span": 3
     }
   ],
-  "items": [
+  "columns": [
     {
-      "key": "p01",
-      "group": "차단",
-      "label": "출입문·방충망·에어커튼 정상",
-      "hint": "밀착·파손 없음"
+      "key": "device",
+      "label": "설비명",
+      "width": "11%",
+      "readonly": true,
+      "align": "left"
     },
     {
-      "key": "p02",
-      "group": "트랩",
-      "label": "포충등·끈끈이트랩 정상 작동",
-      "hint": "부착면·전원"
+      "key": "zone",
+      "label": "청정도 구분",
+      "width": "8%",
+      "readonly": true
     },
     {
-      "key": "p03",
-      "group": "트랩",
-      "label": "트랩 포획물·교체주기 관리",
-      "hint": "기록 연계"
+      "key": "place",
+      "label": "설치위치",
+      "width": "11%",
+      "readonly": true,
+      "align": "left"
     },
     {
-      "key": "p04",
-      "group": "발생",
-      "label": "파리·바퀴·쥐 흔적 없음",
-      "hint": "배설물·사체"
+      "key": "fly",
+      "label": "파리",
+      "width": "5%",
+      "type": "num",
+      "group": "비래 해충"
     },
     {
-      "key": "p05",
-      "group": "외부",
-      "label": "외부 쓰레기·고인물 관리",
-      "hint": "유인원 제거"
+      "key": "moth",
+      "label": "나 방",
+      "width": "5%",
+      "type": "num",
+      "group": "비래 해충"
     },
     {
-      "key": "p06",
-      "group": "약품",
-      "label": "살충·살서제 지정장소 보관",
-      "hint": "표시·격리"
+      "key": "mosq",
+      "label": "모기",
+      "width": "5%",
+      "type": "num",
+      "group": "비래 해충"
     },
     {
-      "key": "p07",
-      "group": "보고",
-      "label": "이상 발견 시 즉시 보고·조치",
-      "hint": "해당시"
+      "key": "fruitfly",
+      "label": "날파리",
+      "width": "5%",
+      "type": "num",
+      "group": "비래 해충"
+    },
+    {
+      "key": "drain",
+      "label": "나방파리",
+      "width": "5%",
+      "type": "num",
+      "group": "비래 해충"
+    },
+    {
+      "key": "etc1",
+      "label": "기타",
+      "width": "5%",
+      "type": "num",
+      "group": "비래 해충"
+    },
+    {
+      "key": "sum1",
+      "label": "합계",
+      "width": "5%",
+      "type": "num",
+      "group": "비래 해충"
+    },
+    {
+      "key": "roach",
+      "label": "바퀴",
+      "width": "5%",
+      "type": "num",
+      "group": "보행해충"
+    },
+    {
+      "key": "spider",
+      "label": "거미",
+      "width": "5%",
+      "type": "num",
+      "group": "보행해충"
+    },
+    {
+      "key": "ant",
+      "label": "개미",
+      "width": "5%",
+      "type": "num",
+      "group": "보행해충"
+    },
+    {
+      "key": "etc2",
+      "label": "기타",
+      "width": "5%",
+      "type": "num",
+      "group": "보행해충"
+    },
+    {
+      "key": "sum2",
+      "label": "합계",
+      "width": "5%",
+      "type": "num",
+      "group": "보행해충"
+    },
+    {
+      "key": "rat",
+      "label": "쥐",
+      "width": "5%",
+      "type": "num",
+      "group": "설치류"
+    },
+    {
+      "key": "etc3",
+      "label": "기타",
+      "width": "5%",
+      "type": "num",
+      "group": "설치류"
+    },
+    {
+      "key": "sum3",
+      "label": "합계",
+      "width": "5%",
+      "type": "num",
+      "group": "설치류"
     }
   ],
-  "print": {
-    "layout": "ox",
-    "columnMode": "result",
-    "orgName": "동김제농협 가공센터",
-    "docNo": "DKJ-S-02-07",
-    "title": "방충방서관리점검일지",
-    "rev": "0",
-    "enactDate": "2026.07.10",
-    "reviseDate": "2026.07.10",
-    "rows": [
-      {
-        "key": "p01",
-        "group": "차단",
-        "label": "출입문·방충망·에어커튼 정상",
-        "hint": "밀착·파손 없음",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "p02",
-        "group": "금속",
-        "label": "포충등·끈끈이트랩 정상 작동",
-        "hint": "부착면·전원",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "p03",
-        "group": "트랩",
-        "label": "트랩 포획물·교체주기 관리",
-        "hint": "기록 연계",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "p04",
-        "group": "발생",
-        "label": "파리·바퀴·쥐 흔적 없음",
-        "hint": "배설물·사체",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "p05",
-        "group": "외부",
-        "label": "외부 쓰레기·고인물 관리",
-        "hint": "유인원 제거",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "p06",
-        "group": "약품",
-        "label": "살충·살서제 지정장소 보관",
-        "hint": "표시·격리",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "p07",
-        "group": "보고",
-        "label": "이상 발견 시 즉시 보고·조치",
-        "hint": "해당시",
-        "freq": "M",
-        "ampm": false
-      }
-    ],
-    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간"
-  }
+  "defaultRows": [
+    {
+      "device": "포충등 1 (6)",
+      "zone": "부대시설",
+      "place": "위생전실"
+    },
+    {
+      "device": "포충등 2 (7)",
+      "zone": "일반구역",
+      "place": "전처리실(1)"
+    },
+    {
+      "device": "포충등 3 (8)",
+      "zone": "일반구역",
+      "place": "전처리실(2)"
+    },
+    {
+      "device": "포충등 4 (9)",
+      "zone": "일반구역",
+      "place": "전처리실(3)"
+    },
+    {
+      "device": "포충등 5 (10)",
+      "zone": "청결구역",
+      "place": "소독/헹굼실"
+    },
+    {
+      "device": "포충등 6 (11)",
+      "zone": "청결구역",
+      "place": "내포장실"
+    },
+    {
+      "device": "포충등 7 (12)",
+      "zone": "일반구역",
+      "place": "외포장실"
+    },
+    {
+      "device": "포충등 8 (13)",
+      "zone": "부대시설",
+      "place": "입.출고전실"
+    },
+    {
+      "device": "바퀴트랩 1 (3)",
+      "zone": "부대시설",
+      "place": "복도(1)"
+    },
+    {
+      "device": "바퀴트랩 2 (4)",
+      "zone": "부대시설",
+      "place": "복도(2)"
+    },
+    {
+      "device": "바퀴트랩 3 (5)",
+      "zone": "부대시설",
+      "place": "위생전실"
+    },
+    {
+      "device": "바퀴트랩 4 (6)",
+      "zone": "일반구역",
+      "place": "전처리실(1)"
+    },
+    {
+      "device": "바퀴트랩 5 (7)",
+      "zone": "일반구역",
+      "place": "전처리실(2)"
+    },
+    {
+      "device": "바퀴트랩 6 (8)",
+      "zone": "청결구역",
+      "place": "내포장실"
+    },
+    {
+      "device": "바퀴트랩 7 (9)",
+      "zone": "일반구역",
+      "place": "전실"
+    },
+    {
+      "device": "바퀴트랩 8 (10)",
+      "zone": "일반구역",
+      "place": "외포장실"
+    },
+    {
+      "device": "쥐트랩 1",
+      "zone": "",
+      "place": "1층 탈의실 앞"
+    },
+    {
+      "device": "쥐트랩 2",
+      "zone": "",
+      "place": "1층 계단 앞"
+    },
+    {
+      "device": "쥐트랩 3",
+      "zone": "",
+      "place": "1층 화장실 앞"
+    },
+    {
+      "device": "쥐트랩 4",
+      "zone": "",
+      "place": "입.출고전실 앞"
+    },
+    {
+      "device": "쥐트랩 5",
+      "zone": "",
+      "place": "기계실 앞"
+    },
+    {
+      "device": "쥐트랩 6",
+      "zone": "",
+      "place": "1층 소분작업장 앞"
+    },
+    {
+      "device": "쥐트랩 7",
+      "zone": "",
+      "place": "1층 외포장실 앞 1"
+    },
+    {
+      "device": "쥐트랩 8",
+      "zone": "",
+      "place": "1층 외포장실 앞 2"
+    },
+    {
+      "device": "쥐트랩 9",
+      "zone": "",
+      "place": "1층 소독/헹굼실 앞"
+    }
+  ],
+  "infoNote": "[방충방서 모니터링 주기] *하계(하절기) : 5월~10월 – 1회/주 (월 4회 이상) *동계(동절기) : 11월~4월 – 1회/2주 (월 2회 이상)   [방충방서 관리 계절구분] 하계(하절기) / 동계(동절기) 구분에 따라 점검 주기를 달리한다. ※ 작업장 특성 및 보행해충 트랩 유입경로를 고려해 설치위치를 조정한다.",
+  "legend": "※ 포집 수량이 관리기준을 초과하면 방제업체에 연락하고 개선조치 내역을 기록한다."
 });
 })();
