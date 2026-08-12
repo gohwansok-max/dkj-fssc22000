@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#009a44">
   <title>동김제농협 가공센터 | 스마트 HACCP 업무 콘솔</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dkj-console.css?v=1">
+  <link rel="stylesheet" href="css/dkj-console.css?v=2">
 </head>
 <body class="console-page">
 
@@ -71,7 +71,39 @@
       </div>
     </section>
 
-    <!-- 3. 주간·월간 -->
+    <!-- 3. 월 기록 캘린더 -->
+    <section class="ck-sec">
+      <div class="ck-sec-head">
+        <h2>월 기록 현황</h2>
+        <p>날짜를 누르면 그날 작성 상태를 볼 수 있습니다</p>
+      </div>
+      <div class="ck-cal-wrap">
+
+        <div class="ck-card">
+          <div class="ck-cal-head">
+            <h3 id="ckCalTitle">—</h3>
+            <div class="ck-cal-nav">
+              <button type="button" id="ckCalPrev">◀</button>
+              <button type="button" id="ckCalToday">이번 달</button>
+              <button type="button" id="ckCalNext">▶</button>
+            </div>
+          </div>
+          <div id="ckCalGrid"></div>
+          <div class="ck-cal-summary" id="ckCalSummary"></div>
+          <p class="ck-cal-note">
+            매일 작성 서식 기준입니다. 생산이 없던 날은 기록이 없는 것이 정상이므로,
+            <strong>기록 없음</strong>은 생산일 여부와 함께 확인하세요.
+          </p>
+        </div>
+
+        <div class="ck-card">
+          <div id="ckCalDetail"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. 주간·월간 -->
     <section class="ck-sec">
       <div class="ck-sec-head">
         <h2>주간 · 월간 점검</h2>
@@ -101,6 +133,7 @@
 
   </main>
 
-  <script src="js/dkj-console.js?v=2"></script>
+  <script src="js/dkj-calendar.js?v=1"></script>
+  <script src="js/dkj-console.js?v=3"></script>
 </body>
 </html>

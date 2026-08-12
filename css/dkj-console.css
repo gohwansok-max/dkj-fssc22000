@@ -414,3 +414,164 @@
   .console-page { background: #fff; }
   .ck-header, .ck-quick { display: none !important; }
 }
+
+/* ---------- 월 기록 캘린더 ---------- */
+.ck-cal-wrap {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 14px;
+}
+
+.ck-cal-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ck-cal-head h3 { margin: 0; font-size: 16px; font-weight: 800; color: var(--nh-green-ink); }
+
+.ck-cal-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.ck-cal-nav button {
+  min-width: 44px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.ck-cal-nav button:hover { border-color: var(--nh-green); color: var(--nh-green-dark); }
+
+.ck-cal-dow,
+.ck-cal-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.ck-cal-dow {
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.ck-cal-dow .sun { color: #c62828; }
+.ck-cal-dow .sat { color: #1565c0; }
+
+.ck-cal-cell {
+  min-height: 62px;
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 6px 2px;
+}
+
+.ck-cal-cell.empty { border: 0; background: transparent; cursor: default; }
+
+.ck-cal-num { font-size: 14px; font-weight: 700; color: var(--ink); }
+.ck-cal-num.sun { color: #c62828; }
+.ck-cal-num.sat { color: #1565c0; }
+
+.ck-cal-count {
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .05);
+  color: var(--ink-2);
+}
+
+.ck-cal-cell.k-full { background: var(--st-done-bg); border-color: var(--st-done-line); }
+.ck-cal-cell.k-full .ck-cal-count { background: #fff; color: var(--st-done); }
+
+.ck-cal-cell.k-part { background: var(--st-todo-bg); border-color: var(--st-todo-line); }
+.ck-cal-cell.k-part .ck-cal-count { background: #fff; color: var(--st-todo); }
+
+.ck-cal-cell.k-ng { background: var(--st-ng-bg); border-color: var(--st-ng-line); }
+.ck-cal-cell.k-ng .ck-cal-count { background: #fff; color: var(--st-ng); }
+
+.ck-cal-cell.k-miss { background: #fff; border-style: dashed; }
+.ck-cal-cell.k-miss .ck-cal-num { color: var(--ink-3); }
+
+.ck-cal-cell.k-future { background: #fafbfa; cursor: default; }
+.ck-cal-cell.k-future .ck-cal-num { color: #c3ccc7; }
+
+.ck-cal-cell.is-today { outline: 2px solid var(--nh-green); outline-offset: 1px; }
+.ck-cal-cell.is-sel { box-shadow: inset 0 0 0 2px var(--nh-green-dark); }
+
+.ck-cal-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.ck-cal-lg {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--line);
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.ck-cal-lg:first-child { margin-left: 0; }
+.ck-cal-lg.k-full { background: var(--st-done-bg); border-color: var(--st-done-line); }
+.ck-cal-lg.k-ng { background: var(--st-ng-bg); border-color: var(--st-ng-line); }
+.ck-cal-lg.k-miss { background: #fff; border-style: dashed; }
+
+.ck-cal-dhead {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--nh-green-ink);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 2px solid var(--nh-green-50);
+}
+
+.ck-sdot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 10px;
+  background: var(--st-off);
+}
+
+.ck-sdot.s-done { background: var(--st-done); }
+.ck-sdot.s-ng { background: var(--st-ng); }
+.ck-sdot.s-part { background: var(--nh-yellow); }
+.ck-sdot.s-todo { background: #cfd8d3; }
+
+.ck-cal-note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+@media (max-width: 1180px) {
+  .ck-cal-wrap { grid-template-columns: 1fr; }
+}

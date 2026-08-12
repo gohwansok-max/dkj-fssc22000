@@ -21,18 +21,33 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  /* 한 달치 판정은 31일 x 서식수 만큼 호출된다. 매번 파싱하지 않도록 캐시한다. */
+  var _cache = {};
+
+  function clearCache() { _cache = {}; }
+
   function readList(code) {
+    var k = 'L' + code;
+    if (k in _cache) return _cache[k];
+    var v = [];
     try {
       var raw = localStorage.getItem('dkj:records:' + code + ':list:v1');
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) { return []; }
+      v = raw ? JSON.parse(raw) : [];
+    } catch (e) { v = []; }
+    _cache[k] = v;
+    return v;
   }
 
   function readDraft(code) {
+    var k = 'D' + code;
+    if (k in _cache) return _cache[k];
+    var v = null;
     try {
       var raw = localStorage.getItem('dkj:records:' + code + ':draft:v1');
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) { return null; }
+      v = raw ? JSON.parse(raw) : null;
+    } catch (e) { v = null; }
+    _cache[k] = v;
+    return v;
   }
 
   function mondayOf(d) {
@@ -207,6 +222,7 @@
   }
 
   function render(cfg) {
+    clearCache();
     var today = new Date();
     var groups = cfg.groups || [];
     var daily = (groups.find(function (g) { return g.id === 'daily'; }) || {}).forms || [];
@@ -322,7 +338,11 @@
   function init() {
     fetch('data/console-forms.json')
       .then(function (r) { return r.json(); })
-      .then(render)
+      .then(function (cfg) {
+        global.DkjConsole.config = cfg;
+        render(cfg);
+        if (global.DkjCalendar) global.DkjCalendar.mount(cfg);
+      })
       .catch(function (e) {
         var el = document.getElementById('ckToday');
         if (el) el.innerHTML = '<div class="ck-empty">서식 목록을 불러오지 못했습니다: ' + esc(e.message) + '</div>';
@@ -332,5 +352,12 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  global.DkjConsole = { evaluate: evaluate, render: render };
+  global.DkjConsole = {
+    evaluate: evaluate,
+    render: render,
+    clearCache: clearCache,
+    iso: iso,
+    DOW: DOW,
+    config: null
+  };
 })(window);
