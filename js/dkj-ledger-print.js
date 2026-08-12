@@ -88,13 +88,14 @@
     return '';
   }
 
-  function gridHtml(spec, state) {
-    var cols = spec.columns || [];
+  function gridHtml(spec, state, cols, from, to) {
     var rows = state.rows || [];
     var min = spec.defaultRows ? spec.defaultRows.length : (spec.rows || 12);
     var n = Math.max(min, rows.length);
+    var a = from == null ? 0 : from;
+    var b = to == null ? n : Math.min(to, n);
     var body = '';
-    for (var i = 0; i < n; i++) {
+    for (var i = a; i < b; i++) {
       var r = rows[i] || {};
       body += '<tr>' + cols.map(function (c) {
         return '<td class="' + (c.align === 'left' ? 'l' : 'c') + ' lg-cell">' +
@@ -105,18 +106,81 @@
       body + '</tbody></table>';
   }
 
+  /** 하단 이상 발생 내역표 */
+  function incidentHtml(spec, state) {
+    var cfg = spec.incident;
+    if (!cfg) return '';
+    var cols = cfg.columns || [];
+    var rows = state.incidents || [];
+    var count = cfg.rows || 4;
+    var head = '<tr class="off-nest-hd"><th class="vert mx-inc-lab">구 분</th>' +
+      cols.map(function (c) {
+        return '<th' + (c.width ? ' style="width:' + c.width + '"' : '') + '>' + esc(c.label) + '</th>';
+      }).join('') + '</tr>';
+    var body = '';
+    for (var i = 0; i < count; i++) {
+      var r = rows[i] || {};
+      var cells = cols.map(function (c) {
+        return '<td class="l">' + esc(r[c.key] || '') + '</td>';
+      }).join('');
+      body += i === 0
+        ? '<tr><th class="vert mx-inc-lab" rowspan="' + count + '">' +
+          esc(cfg.label || '이상 발생 내역') + '</th>' + cells + '</tr>'
+        : '<tr>' + cells + '</tr>';
+    }
+    return '<table class="off-correct mx-inc">' + head + body + '</table>';
+  }
+
+  /** 인쇄할 (열 묶음 x 행 구간) 쪽 목록 */
+  function pagePlan(spec, state) {
+    var cols = spec.columns || [];
+    var rows = state.rows || [];
+    var total = Math.max(spec.defaultRows ? spec.defaultRows.length : (spec.rows || 12), rows.length);
+
+    var colGroups = [cols];
+    if (spec.columnPages && spec.columnPages.length) {
+      var fixed = cols.filter(function (c) { return c.repeatOnPages; });
+      colGroups = spec.columnPages.map(function (keys) {
+        return fixed.concat(cols.filter(function (c) {
+          return !c.repeatOnPages && keys.indexOf(c.key) !== -1;
+        }));
+      });
+    }
+
+    var rowRanges = [[0, total]];
+    if (spec.rowPageBreak && spec.rowPageBreak.length) {
+      rowRanges = [];
+      var start = 0;
+      spec.rowPageBreak.forEach(function (c) {
+        if (c > start && c < total) { rowRanges.push([start, c]); start = c; }
+      });
+      rowRanges.push([start, total]);
+    }
+
+    var out = [];
+    colGroups.forEach(function (cg) {
+      rowRanges.forEach(function (rr) { out.push({ cols: cg, from: rr[0], to: rr[1] }); });
+    });
+    return out;
+  }
+
   function render(spec, state) {
     var st = state || {};
-    return '<div class="off-ccp off-matrix off-ledger">' +
-      '<section class="mx-page">' +
-      headHtml(spec, st) +
-      infoHtml(spec, st) +
-      gridHtml(spec, st) +
-      (spec.infoNote ? '<div class="off-box tiny lg-note">' + esc(spec.infoNote) + '</div>' : '') +
-      (spec.legend ? '<div class="off-box tiny lg-legend">' + esc(spec.legend) + '</div>' : '') +
-      '<div class="off-foot">' + esc(spec.orgName || '동김제농협 가공센터') +
-      ' · ' + esc(spec.docNo || '') + '</div>' +
-      '</section></div>';
+    var plan = pagePlan(spec, st);
+    var html = plan.map(function (pg, i) {
+      var last = i === plan.length - 1;
+      return '<section class="mx-page">' +
+        headHtml(spec, st) +
+        infoHtml(spec, st) +
+        gridHtml(spec, st, pg.cols, pg.from, pg.to) +
+        (last ? incidentHtml(spec, st) : '') +
+        (last && spec.infoNote ? '<div class="off-box tiny lg-note">' + esc(spec.infoNote) + '</div>' : '') +
+        (last && spec.legend ? '<div class="off-box tiny lg-legend">' + esc(spec.legend) + '</div>' : '') +
+        '<div class="off-foot">' + esc(spec.orgName || '동김제농협 가공센터') +
+        ' · ' + esc(spec.docNo || '') + ' · ' + (i + 1) + ' / ' + plan.length + '</div>' +
+        '</section>';
+    }).join('');
+    return '<div class="off-ccp off-matrix off-ledger">' + html + '</div>';
   }
 
   global.DkjLedgerPrint = { render: render, theadHtml: theadHtml };

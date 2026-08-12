@@ -35,9 +35,18 @@
     (spec.infoFields || []).forEach(function (f) {
       info[f.id] = f.type === 'date' ? today() : (f.default || '');
     });
+    var incidents = [];
+    if (spec.incident) {
+      for (var k = 0; k < (spec.incident.rows || 4); k++) {
+        var ir = {};
+        (spec.incident.columns || []).forEach(function (c) { ir[c.key] = ''; });
+        incidents.push(ir);
+      }
+    }
     return {
       info: info,
       rows: rows,
+      incidents: incidents,
       approvals: { writer: '', reviewer: '', approver: '' },
       remark: '',
       locked: false
@@ -67,6 +76,22 @@
       }, 400);
     }
 
+    /** 점검 월(YYYY-MM 또는 '2026 . 08')이 바뀌면 요일 열을 다시 계산한다 */
+    function applyAutoWeekday() {
+      var cfg = spec.autoWeekday;
+      if (!cfg) return;
+      var raw = String(state.info[cfg.monthField] || '');
+      var m = raw.match(/(\d{4})\D+(\d{1,2})/);
+      if (!m) return;
+      var y = Number(m[1]), mo = Number(m[2]);
+      var names = ['일', '월', '화', '수', '목', '금', '토'];
+      state.rows.forEach(function (r, i) {
+        var dnum = Number(String(r[cfg.dayKey] || '').replace(/\D/g, '')) || (i + 1);
+        var d = new Date(y, mo - 1, dnum);
+        r[cfg.weekdayKey] = (d.getMonth() === mo - 1) ? names[d.getDay()] : '';
+      });
+    }
+
     function renderInfo() {
       var host = $('infoFields');
       if (!host) return;
@@ -81,6 +106,10 @@
       host.querySelectorAll('[data-info]').forEach(function (el) {
         el.addEventListener('input', function () {
           state.info[el.getAttribute('data-info')] = el.value;
+          if (spec.autoWeekday && el.getAttribute('data-info') === spec.autoWeekday.monthField) {
+            applyAutoWeekday();
+            renderGrid();
+          }
           scheduleDraft();
         });
       });
@@ -138,11 +167,34 @@
       applyLock();
     }
 
+    function renderIncidents() {
+      var host = $('incidentGrid');
+      if (!host || !spec.incident) return;
+      var cols = spec.incident.columns || [];
+      var head = '<tr>' + cols.map(function (c) {
+        return '<th' + (c.width ? ' style="width:' + c.width + '"' : '') + '>' + esc(c.label) + '</th>';
+      }).join('') + '</tr>';
+      var body = state.incidents.map(function (r, i) {
+        return '<tr>' + cols.map(function (c) {
+          return '<td><input type="text" data-inc="' + i + '" data-ck="' + c.key +
+            '" value="' + esc(r[c.key] || '') + '"></td>';
+        }).join('') + '</tr>';
+      }).join('');
+      host.innerHTML = '<table class="mxf-inc"><thead>' + head + '</thead><tbody>' + body + '</tbody></table>';
+      host.querySelectorAll('[data-inc]').forEach(function (el) {
+        el.addEventListener('input', function () {
+          state.incidents[Number(el.getAttribute('data-inc'))][el.getAttribute('data-ck')] = el.value;
+          scheduleDraft();
+        });
+      });
+    }
+
     function applyLock() {
       var host = document.querySelector('.dkj-form-body');
       if (!host) return;
       host.classList.toggle('is-locked', !!state.locked);
-      host.querySelectorAll('#ledgerGrid input, #ledgerGrid select, #ledgerGrid button, #infoFields input')
+      host.querySelectorAll('#ledgerGrid input, #ledgerGrid select, #ledgerGrid button, '
+        + '#infoFields input, #incidentGrid input')
         .forEach(function (el) { el.disabled = !!state.locked; });
     }
 
@@ -224,7 +276,9 @@
       });
       if ($('remark')) $('remark').value = state.remark || '';
       renderInfo();
+      applyAutoWeekday();
       renderGrid();
+      renderIncidents();
     }
 
     function doPrint() {

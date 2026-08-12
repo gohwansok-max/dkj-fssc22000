@@ -1,85 +1,488 @@
 /**
- * DKJ-S-02-05 — generated boot
+ * DKJ-S-02-05 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-05.json)
  */
 (function () {
   'use strict';
-  DkjMonForm.mount({
+  DkjLedgerForm.mount({
+  "rev": "0",
+  "enactDate": "2026. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 가공센터",
+  "pattern": "ledger",
   "code": "DKJ-S-02-05",
-  "title": "온습도점검일지",
-  "pattern": "mon",
-  "monMode": "th",
-  "fields": [
+  "title": "작업장 온도 점검일지",
+  "subtitle": "선행요건 · 일자별 오전·오후 온도 · 월 단위 시트",
+  "docNo": "DKJ-S-02-05",
+  "infoFields": [
     {
-      "id": "checkDate",
-      "label": "점검일자 *",
-      "type": "date"
+      "id": "month",
+      "label": "점검 월",
+      "type": "text",
+      "placeholder": "2026년 8월",
+      "required": true
     },
     {
       "id": "inspector",
-      "label": "점검자 *",
-      "type": "text"
+      "label": "점검자",
+      "type": "text",
+      "required": true,
+      "span": 3
+    }
+  ],
+  "columns": [
+    {
+      "key": "day",
+      "label": "점검 일자",
+      "width": "6%",
+      "readonly": true,
+      "repeatOnPages": true
     },
     {
-      "id": "confirmer",
-      "label": "확인자",
-      "type": "text"
+      "key": "dow",
+      "label": "점검 요일",
+      "width": "6%",
+      "readonly": true,
+      "repeatOnPages": true
     },
     {
-      "id": "season",
-      "label": "계절구분",
-      "type": "select",
-      "options": [
-        "하절기",
-        "동절기",
-        "환절기"
+      "key": "z1_am",
+      "label": "오전",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "전처리실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z1_amj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
       ],
-      "default": "하절기"
+      "group": "전처리실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z1_pm",
+      "label": "오후",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "전처리실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z1_pmj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "전처리실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z2_am",
+      "label": "오전",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "소독/헹굼실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z2_amj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "소독/헹굼실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z2_pm",
+      "label": "오후",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "소독/헹굼실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z2_pmj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "소독/헹굼실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z3_am",
+      "label": "오전",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "내포장실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z3_amj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "내포장실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z3_pm",
+      "label": "오후",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "내포장실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z3_pmj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "내포장실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z4_am",
+      "label": "오전",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "외포장실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z4_amj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "외포장실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z4_pm",
+      "label": "오후",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "외포장실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z4_pmj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "외포장실 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z5_am",
+      "label": "오전",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "소분작업장 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z5_amj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "소분작업장 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z5_pm",
+      "label": "오후",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "소분작업장 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z5_pmj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "소분작업장 ( 10 ~ 20℃ )"
+    },
+    {
+      "key": "z6_am",
+      "label": "오전",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "원재료 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z6_amj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "원재료 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z6_pm",
+      "label": "오후",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "원재료 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z6_pmj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "원재료 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z7_am",
+      "label": "오전",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "완제품 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z7_amj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "완제품 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z7_pm",
+      "label": "오후",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "완제품 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z7_pmj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "완제품 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "remark",
+      "label": "비고",
+      "width": "10%",
+      "align": "left"
     }
   ],
-  "zones": [
+  "columnPages": [
+    [
+      "z1_am",
+      "z1_amj",
+      "z1_pm",
+      "z1_pmj",
+      "z2_am",
+      "z2_amj",
+      "z2_pm",
+      "z2_pmj",
+      "z3_am",
+      "z3_amj",
+      "z3_pm",
+      "z3_pmj",
+      "z4_am",
+      "z4_amj",
+      "z4_pm",
+      "z4_pmj"
+    ],
+    [
+      "z5_am",
+      "z5_amj",
+      "z5_pm",
+      "z5_pmj",
+      "z6_am",
+      "z6_amj",
+      "z6_pm",
+      "z6_pmj",
+      "z7_am",
+      "z7_amj",
+      "z7_pm",
+      "z7_pmj",
+      "remark"
+    ]
+  ],
+  "defaultRows": [
     {
-      "id": "prep",
-      "name": "전처리실",
-      "tMin": 15,
-      "tMax": 25,
-      "hMin": 40,
-      "hMax": 70
+      "day": "1",
+      "dow": ""
     },
     {
-      "id": "wash",
-      "name": "소독·헹굼실",
-      "tMin": 15,
-      "tMax": 25,
-      "hMin": 40,
-      "hMax": 70
+      "day": "2",
+      "dow": ""
     },
     {
-      "id": "pack",
-      "name": "포장실",
-      "tMin": 15,
-      "tMax": 25,
-      "hMin": 40,
-      "hMax": 70
+      "day": "3",
+      "dow": ""
     },
     {
-      "id": "cold",
-      "name": "냉장창고",
-      "tMin": 0,
-      "tMax": 5,
-      "hMin": null,
-      "hMax": null
+      "day": "4",
+      "dow": ""
+    },
+    {
+      "day": "5",
+      "dow": ""
+    },
+    {
+      "day": "6",
+      "dow": ""
+    },
+    {
+      "day": "7",
+      "dow": ""
+    },
+    {
+      "day": "8",
+      "dow": ""
+    },
+    {
+      "day": "9",
+      "dow": ""
+    },
+    {
+      "day": "10",
+      "dow": ""
+    },
+    {
+      "day": "11",
+      "dow": ""
+    },
+    {
+      "day": "12",
+      "dow": ""
+    },
+    {
+      "day": "13",
+      "dow": ""
+    },
+    {
+      "day": "14",
+      "dow": ""
+    },
+    {
+      "day": "15",
+      "dow": ""
+    },
+    {
+      "day": "16",
+      "dow": ""
+    },
+    {
+      "day": "17",
+      "dow": ""
+    },
+    {
+      "day": "18",
+      "dow": ""
+    },
+    {
+      "day": "19",
+      "dow": ""
+    },
+    {
+      "day": "20",
+      "dow": ""
+    },
+    {
+      "day": "21",
+      "dow": ""
+    },
+    {
+      "day": "22",
+      "dow": ""
+    },
+    {
+      "day": "23",
+      "dow": ""
+    },
+    {
+      "day": "24",
+      "dow": ""
+    },
+    {
+      "day": "25",
+      "dow": ""
+    },
+    {
+      "day": "26",
+      "dow": ""
+    },
+    {
+      "day": "27",
+      "dow": ""
+    },
+    {
+      "day": "28",
+      "dow": ""
+    },
+    {
+      "day": "29",
+      "dow": ""
+    },
+    {
+      "day": "30",
+      "dow": ""
+    },
+    {
+      "day": "31",
+      "dow": ""
     }
   ],
-  "print": {
-    "layout": "mon-th",
-    "monMode": "th",
-    "orgName": "동김제농협 가공센터",
-    "docNo": "DKJ-S-02-05",
-    "title": "온습도점검일지",
-    "rev": "0",
-    "enactDate": "2026.07.10",
-    "reviseDate": "2026.07.10",
-    "note": "※ 관리기준 이탈 시 즉시조치란에 기재한다. (현장 확정 CL 적용)"
-  }
+  "autoWeekday": {
+    "monthField": "month",
+    "dayKey": "day",
+    "weekdayKey": "dow"
+  },
+  "legend": "※ 관리기준 이탈 시 즉시 조치하고 비고란에 기록한다.  적합 : 적 / 부적합 : 부"
 });
 })();
