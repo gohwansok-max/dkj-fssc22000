@@ -640,3 +640,104 @@
 @media print {
   #dkjNav { display: none !important; }
 }
+
+/* ---------- 전자결재 · 감사이력 ---------- */
+.apv-stages {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.apv-stage {
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: #fff;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 118px;
+}
+
+.apv-stage.done {
+  border-color: var(--st-done-line);
+  background: var(--st-done-bg);
+}
+
+.apv-lab { font-size: 12.5px; font-weight: 800; color: var(--ink-3); }
+.apv-name { font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+.apv-at { font-size: 12.5px; color: var(--ink-3); margin-bottom: auto; }
+
+.apv-mark {
+  align-self: flex-start;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--st-done);
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.apv-btn { align-self: flex-start; min-height: 42px; }
+
+.apv-verify {
+  border-radius: var(--r-s);
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.apv-verify.ok { background: var(--st-done-bg); color: var(--st-done); }
+.apv-verify.ng { background: var(--st-ng-bg); color: var(--st-ng); }
+
+.apv-log summary {
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  padding: 8px 0;
+}
+
+.apv-log-list {
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  overflow: hidden;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.apv-log-row {
+  display: grid;
+  grid-template-columns: 116px 58px 90px 1fr 72px;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+}
+
+.apv-log-row:last-child { border-bottom: 0; }
+.apv-log-at { color: var(--ink-3); }
+
+.apv-log-act {
+  font-weight: 800;
+  color: var(--nh-green-dark);
+  font-size: 11.5px;
+}
+
+.apv-log-by { font-weight: 700; }
+.apv-log-dt { color: var(--ink-2); }
+
+.apv-log-h {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .apv-stages { grid-template-columns: 1fr; }
+  .apv-log-row { grid-template-columns: 1fr 1fr; }
+}

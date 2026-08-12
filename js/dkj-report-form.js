@@ -54,6 +54,22 @@
     var editingId = null;
     var draftTimer = null;
 
+
+    /* 전자결재 패널 — 모듈이 없으면 그냥 건너뛴다 */
+    var apvUi = null;
+
+    function mountApproval() {
+      if (!global.DkjApproval || apvUi) return;
+      apvUi = global.DkjApproval.mount({
+        getState: function () { return state; },
+        onChange: function () { scheduleDraft(); }
+      });
+    }
+
+    function refreshApproval() {
+      if (apvUi) apvUi.render();
+    }
+
     function setStatus(msg, saved) {
       var el = $('saveStatus');
       if (!el) return;
@@ -229,6 +245,7 @@
       editingId = rec.id;
       setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
       applyLock();
+      refreshApproval();
       renderHistory();
     }
 
@@ -271,6 +288,7 @@
         if ($(k)) $(k).value = state.approvals[k] || '';
       });
       renderBlocks();
+      refreshApproval();
     }
 
     function doPrint() {
@@ -298,6 +316,7 @@
       writeForm();
       bind();
       renderHistory();
+      mountApproval();
       setStatus('준비', false);
     }
 

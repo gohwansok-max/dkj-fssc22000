@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#009a44">
   <title>DKJ-S-02-20 고객불만접수 및 처리대장 | 동김제농협</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/dkj-tokens.css?v=11">
-  <link rel="stylesheet" href="../css/dkj-form.css?v=11">
-  <link rel="stylesheet" href="../css/dkj-matrix.css?v=11">
-  <link rel="stylesheet" href="../css/dkj-print.css?v=11">
+  <link rel="stylesheet" href="../css/dkj-tokens.css?v=12">
+  <link rel="stylesheet" href="../css/dkj-form.css?v=12">
+  <link rel="stylesheet" href="../css/dkj-matrix.css?v=12">
+  <link rel="stylesheet" href="../css/dkj-print.css?v=12">
 </head>
 <body class="dkj-form-page">
   <div class="screen-only">
@@ -47,14 +47,19 @@
       <div class="mxf-scroll" id="ledgerGrid"></div>
       <div class="dkj-field full" style="margin-top:12px;"><label for="remark">비고</label><textarea id="remark"></textarea></div>
     </section>
+    <section class="dkj-panel">
+      <h2>전자결재 · 감사이력</h2>
+      <div id="approvalPanel"></div>
+    </section>
     <section class="dkj-panel history"><h2>③ 최근 저장</h2><div id="historyList"></div></section>
   </main>
   </div>
   <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
-  <script src="../js/dkj-nav-bar.js?v=11"></script>
-  <script src="../js/dkj-record-store.js?v=11"></script>
-  <script src="../js/dkj-ledger-print.js?v=11"></script>
-  <script src="../js/dkj-ledger-form.js?v=11"></script>
-  <script src="../js/DKJ-S-02-20.js?v=11"></script>
+  <script src="../js/dkj-nav-bar.js?v=12"></script>
+  <script src="../js/dkj-record-store.js?v=12"></script>
+  <script src="../js/dkj-approval.js?v=12"></script>
+  <script src="../js/dkj-ledger-print.js?v=12"></script>
+  <script src="../js/dkj-ledger-form.js?v=12"></script>
+  <script src="../js/DKJ-S-02-20.js?v=12"></script>
 </body>
 </html>
