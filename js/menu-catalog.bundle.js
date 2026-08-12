@@ -426,14 +426,14 @@ window.DKJ_MENU_CATALOG={
           ]
         },
         {
-          "title": "내부심사·경䘁검토",
+          "title": "내부심사·경영검토",
           "links": [
             {
               "label": "내부심사 패키지",
               "href": "docs-center.html?cat=audit"
             },
             {
-              "label": "경䘁검토",
+              "label": "경영검토",
               "href": "docs-center.html?cat=mgmt_review"
             },
             {
@@ -441,7 +441,7 @@ window.DKJ_MENU_CATALOG={
               "href": "records-center.html?cat=audit"
             },
             {
-              "label": "기록양식-경䘁검토",
+              "label": "기록양식-경영검토",
               "href": "records-center.html?cat=mgmt"
             }
           ]

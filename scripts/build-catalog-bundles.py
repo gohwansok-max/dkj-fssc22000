@@ -13,6 +13,11 @@ BUNDLES = [
     ("doc-catalog.json", "doc-catalog.bundle.js", "DKJ_DOC_CATALOG"),
     ("menu-catalog.json", "menu-catalog.bundle.js", "DKJ_MENU_CATALOG"),
     ("record-catalog.json", "record-catalog.bundle.js", "DKJ_RECORD_CATALOG"),
+    # 콘솔 홈과 서식 공통 네비가 함께 읽는다 — 이게 없으면 file:// 에서 콘솔이 빈 화면이 된다
+    ("console-forms.json", "console-forms.bundle.js", "DKJ_CONSOLE_FORMS"),
+    # 마스터 데이터 (js/dkj-master-data.js)
+    ("products.json", "products.bundle.js", "DKJ_PRODUCTS"),
+    ("process-line.json", "process-line.bundle.js", "DKJ_PROCESS_LINE"),
 ]
 
 

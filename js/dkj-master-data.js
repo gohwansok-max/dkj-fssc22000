@@ -1,20 +1,51 @@
 /**
  * 동김제 마스터 데이터 — 제품 8종·공정흐름·LOT
+ * file:// 에서도 동작: JSON fetch 실패 시 *.bundle.js 폴백
+ * (번들은 `python scripts/build-catalog-bundles.py` 로 만든다)
  */
 (function (global) {
   'use strict';
 
   var cache = { products: null, process: null };
 
-  function dataPath(file) {
+  function base() {
     var path = location.pathname || '';
     var inRecords = path.indexOf('/records/') !== -1 || path.indexOf('\\records\\') !== -1;
-    return (inRecords ? '../data/' : 'data/') + file;
+    return inRecords ? '../' : '';
+  }
+
+  function dataPath(file) {
+    return base() + 'data/' + file;
+  }
+
+  function loadScriptBundle(name, globalKey) {
+    if (global[globalKey]) return Promise.resolve(global[globalKey]);
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = base() + 'js/' + name;
+      s.onload = function () {
+        global[globalKey] ? resolve(global[globalKey]) : reject(new Error(name));
+      };
+      s.onerror = function () { reject(new Error(name)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function loadJson(file, bundleName, globalKey) {
+    if (global[globalKey]) return Promise.resolve(global[globalKey]);
+    return fetch(dataPath(file))
+      .then(function (r) {
+        if (!r.ok) throw new Error(file);
+        return r.json();
+      })
+      .catch(function () {
+        return loadScriptBundle(bundleName, globalKey);
+      });
   }
 
   function loadProducts() {
     if (cache.products) return Promise.resolve(cache.products);
-    return fetch(dataPath('products.json')).then(function (r) { return r.json(); }).then(function (d) {
+    return loadJson('products.json', 'products.bundle.js', 'DKJ_PRODUCTS').then(function (d) {
       cache.products = d;
       return d;
     });
@@ -22,7 +53,7 @@
 
   function loadProcess() {
     if (cache.process) return Promise.resolve(cache.process);
-    return fetch(dataPath('process-line.json')).then(function (r) { return r.json(); }).then(function (d) {
+    return loadJson('process-line.json', 'process-line.bundle.js', 'DKJ_PROCESS_LINE').then(function (d) {
       cache.process = d;
       return d;
     });

@@ -88,10 +88,23 @@
 
   function init() {
     if (!document.getElementById('dkjNav')) return;
+    if (global.DKJ_CONSOLE_FORMS) { render(global.DKJ_CONSOLE_FORMS); return; }
     fetch(base() + 'data/console-forms.json')
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) throw new Error('console-forms');
+        return r.json();
+      })
       .then(render)
-      .catch(function () { /* 네비게이션은 보조 기능이므로 실패해도 서식은 동작한다 */ });
+      .catch(function () {
+        // file:// 에서는 fetch 가 막힌다 — 번들로 떨어진다(dkj-console.js 와 같은 규약).
+        var s = document.createElement('script');
+        s.src = base() + 'js/console-forms.bundle.js';
+        s.onload = function () {
+          if (global.DKJ_CONSOLE_FORMS) render(global.DKJ_CONSOLE_FORMS);
+        };
+        // 네비게이션은 보조 기능이므로 끝내 실패해도 서식 자체는 동작한다
+        document.head.appendChild(s);
+      });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

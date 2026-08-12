@@ -45,7 +45,18 @@ records/*.html  서식 29종
  ├ 서식 본문          matrix / ledger / report 엔진이 렌더
  ├ 전자결재·감사이력
  └ 최근 저장
+
+허브 5종  "그 문서가 어디 있나"에 답하는 화면
+ ├ docs-center.html    문서센터 — 카테고리 사이드바 + 검색/상태 필터
+ ├ records-center.html 기록양식 FR 목록 — 분류 + 주기 필터
+ ├ mdr-register.html   MDR-001 등록대장 186건
+ ├ doc-viewer.html     문서 열람 (요약 / PDF 정본 / 관련 FR 탭)
+ └ record-viewer.html  FR 상세 · 연결 절차서
 ```
+
+콘솔이 "오늘 뭘 써야 하나"라면 허브는 "그 문서가 어디 있나"에 답한다.
+질문이 다르므로 화면 구성은 다르되, 같은 사람이 같은 태블릿에서 쓰므로
+팔레트·터치 타깃·카드 형태는 공유한다.
 
 ## 태블릿 기준
 
@@ -105,23 +116,65 @@ records/*.html  서식 29종
 
 | 파일 | 역할 |
 |---|---|
-| `css/dkj-tokens.css` | 팔레트·버튼·뱃지 (콘솔+서식 공용) |
-| `css/dkj-console.css` | 콘솔 전용 컴포넌트 |
+| `css/dkj-tokens.css` | 팔레트·버튼·뱃지 + **페이지 셸**(헤더·`ck-main`·`ck-sec`·`ck-card`) — 전 화면 공용 |
+| `css/dkj-console.css` | 콘솔 전용 (타일·KPI·캘린더) |
+| `css/dkj-hub.css` | 허브 전용 (메가메뉴·사이드바·목록 행·열람 화면) |
 | `css/dkj-form.css` | 서식 화면 + 네비 + 결재 패널 |
 | `css/dkj-matrix.css` | 매트릭스/대장 입력 표 |
 | `css/dkj-print.css` | 정본 인쇄 (A4) |
 | `js/dkj-console.js` | 콘솔 상태 계산 |
 | `js/dkj-calendar.js` | 월 캘린더 |
 | `js/dkj-nav-bar.js` | 서식 공통 네비 |
+| `js/dkj-nav.js` | 허브 메가메뉴 (`data/menu-catalog.json`) |
 | `js/dkj-approval.js` | 결재 + 감사이력 |
 
-`css/dkj-portal.css` 는 허브 페이지(기록목록·문서센터)만 쓴다.
-서식 29종에서는 제거했고, 색만 새 브랜드로 맞춰뒀다.
+### 허브 재설계 때 지킨 것 (2026-08-12)
+
+- **헤더는 콘솔과 완전히 같은 것**을 쓴다. 그래서 `.ck-header` 를 콘솔 파일이 아니라
+  `dkj-tokens.css` 로 올렸다. 두 벌로 복사하면 반드시 갈라진다.
+- **목록 DOM은 JS가 문자열로 만든다**(`docs-center.js` 등). 그 JS는 건드리지 않고
+  내보내는 클래스명(`.doc-row`, `.cat-status`, `.status-pill`…)에 스타일만 새로 붙였다.
+  선택자 이름을 바꾸면 스타일이 끊기므로 `dkj-hub.css` 머리말에 경고를 달아뒀다.
+- **그라데이션 배너(`docs-hero`)를 걷어냈다.** 파란 배너는 방문자용 장식이었다.
+  대신 제목 + 숫자 현황칩만 남겼다.
+- **메가메뉴는 살렸다.** `menu-catalog.json` 16KB에 절차서 딥링크가 들어 있어
+  버리면 이동 경로가 사라진다. 홈페이지형 GNB 대신 녹색 헤더 안 드롭다운으로 옮겼다.
+  1280×800에서 실측해 오른쪽 끝 메뉴는 우측 기준으로 뒤집고, 긴 메뉴는 스크롤시켰다.
+- **`css/dkj-portal.css`(1214줄) 삭제.** hero·통계·공지·회사소개 등 구 홈페이지 전용
+  규칙이었고 참조가 0이 됐다. 이력에는 남아 있다.
+
+## file:// 로 열어도 동작해야 한다
+
+현장에서는 서버 없이 HTML을 더블클릭해 여는 경우가 있다. 그런데 `fetch()` 는
+`file://` 에서 CORS 로 막히므로, JSON을 읽는 코드는 **반드시 `*.bundle.js` 폴백**을 둔다.
+
+```
+fetch('data/X.json')  →  실패하면  <script src="js/X.bundle.js">  →  window.DKJ_X
+```
+
+번들은 JSON을 그대로 전역에 감싼 파일이고 `python scripts/build-catalog-bundles.py` 로 만든다.
+**`data/*.json` 을 고쳤으면 이 스크립트를 다시 돌려야 한다** — 안 돌리면 서버로 열 때는
+멀쩡한데 `file://` 로 열 때만 옛날 데이터가 나오는 고약한 상태가 된다.
+
+| 데이터 | 번들 전역 | 쓰는 곳 |
+|---|---|---|
+| `console-forms.json` | `DKJ_CONSOLE_FORMS` | 콘솔 홈, 서식 공통 네비 |
+| `doc-catalog.json` | `DKJ_DOC_CATALOG` | 문서센터, 열람 |
+| `record-catalog.json` | `DKJ_RECORD_CATALOG` | 기록양식 목록 |
+| `menu-catalog.json` | `DKJ_MENU_CATALOG` | 허브 메가메뉴 |
+| `mdr-catalog.json` | `DKJ_MDR_CATALOG` | MDR 등록대장 |
+| `products.json` / `process-line.json` | `DKJ_PRODUCTS` / `DKJ_PROCESS_LINE` | FR-014·015·STORE-01 |
+
+서식 엔진(matrix/ledger/report)은 스펙을 부트 JS에 넣어두므로 fetch를 쓰지 않는다 —
+그래서 서식 화면 자체는 `file://` 에서도 원래 잘 떴다.
+`doc-viewer` 의 요약문(`data/excerpts/*.txt`)만은 번들이 없어 `file://` 에서 핵심 포인트로
+대체된다(의도된 degrade).
 
 ## 남은 것
 
 - **로고 파일** — `assets/brand/nh-symbol.png` 에 넣으면 자동 적용.
-  없으면 `NH` 텍스트 마크로 대체되어 깨지지 않는다.
-- **허브 페이지 재설계** — 기록목록·문서센터는 색만 맞춘 상태. 구조는 구형.
+  없으면 `NH` 텍스트 마크로 대체되어 깨지지 않는다. (현재 이 파일만 404가 난다)
 - **센서 연동 자리** — 온습도·CCP 실시간 값이 들어올 카드 자리를 콘솔에 마련할 것.
   단, 센서가 없는 상태에서 게이지를 흉내내면 가짜 계기판이 되므로 넣지 않았다.
+- **비정형 서식 14종** — 회수계획서·회의록·협력업체평가표 등.
+  자세한 목록은 `FORM_LAYOUT_INVENTORY.md`.

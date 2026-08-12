@@ -76,7 +76,7 @@ window.DKJ_RECORD_CATALOG={
     },
     {
       "id": "mgmt",
-      "label": "경䘁검토",
+      "label": "경영검토",
       "icon": "📊",
       "codes": [
         "FR-023",
@@ -634,7 +634,7 @@ window.DKJ_RECORD_CATALOG={
     {
       "id": "FR-025",
       "code": "FR-025",
-      "title": "경䘁검토 후속조치표",
+      "title": "경영검토 후속조치표",
       "rev": "RevXLSX",
       "fileType": "xlsx",
       "frequency": "이슈",

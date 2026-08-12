@@ -335,9 +335,35 @@
     }
   }
 
+  /**
+   * 서식 목록 로드.
+   * file:// 로 열면 fetch 가 CORS 로 막혀 콘솔이 통째로 비어 버린다.
+   * 카탈로그 번들(js/console-forms.bundle.js)로 떨어지는 건 이 저장소의 기존 규약이다
+   * (doc-catalog / record-catalog 도 같은 방식). 번들은
+   * `python scripts/build-catalog-bundles.py` 로 만든다.
+   */
+  function loadForms() {
+    if (global.DKJ_CONSOLE_FORMS) return Promise.resolve(global.DKJ_CONSOLE_FORMS);
+    return fetch('data/console-forms.json')
+      .then(function (r) {
+        if (!r.ok) throw new Error('console-forms');
+        return r.json();
+      })
+      .catch(function () {
+        return new Promise(function (resolve, reject) {
+          var s = document.createElement('script');
+          s.src = 'js/console-forms.bundle.js';
+          s.onload = function () {
+            global.DKJ_CONSOLE_FORMS ? resolve(global.DKJ_CONSOLE_FORMS) : reject(new Error('bundle empty'));
+          };
+          s.onerror = function () { reject(new Error('bundle fail')); };
+          document.head.appendChild(s);
+        });
+      });
+  }
+
   function init() {
-    fetch('data/console-forms.json')
-      .then(function (r) { return r.json(); })
+    loadForms()
       .then(function (cfg) {
         global.DkjConsole.config = cfg;
         render(cfg);
