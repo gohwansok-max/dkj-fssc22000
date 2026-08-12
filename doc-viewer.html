@@ -3,35 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#008352">
+  <meta name="theme-color" content="#009a44">
   <title>문서 열람 | 동김제농협</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dkj-portal.css?v=10">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=13">
+  <link rel="stylesheet" href="css/dkj-hub.css?v=13">
 </head>
-<body class="viewer-page">
-  <header class="viewer-top">
+<body class="hub-page">
+
+  <header class="ck-header">
+    <a class="ck-brand" href="index.html" aria-label="업무 콘솔로">
+      <img class="ck-symbol" src="assets/brand/nh-symbol.png" alt="농협"
+           onerror="this.outerHTML='&lt;div class=\'ck-symbol-fallback\'&gt;NH&lt;/div&gt;'">
+      <div class="ck-title">
+        <strong>동김제농협 가공센터</strong>
+        <span>스마트 HACCP · FSSC22000 V6</span>
+      </div>
+    </a>
+
+    <nav class="gnb" id="gnb" data-dkj-nav data-active="docs" data-base="" aria-label="주요 메뉴"></nav>
+
+    <div class="ck-header-right">
+      <a class="ck-hbtn" href="index.html">업무 콘솔</a>
+      <a class="ck-hbtn" href="docs-center.html">문서센터</a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="gnb">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="viewer-top">
     <div class="container">
       <div class="viewer-meta" id="viewerMeta">
         <h1>문서 불러오는 중…</h1>
       </div>
       <div class="viewer-actions">
         <a class="pill-btn ghost" href="docs-center.html">← 목록</a>
-        <a class="pill-btn blue" href="records-center.html" id="btnRecords">기록양식</a>
+        <a class="pill-btn ghost" href="records-center.html" id="btnRecords">기록양식</a>
         <button type="button" class="pill-btn green" id="btnPrintPdf" hidden>정본 PDF 인쇄</button>
-        <a class="pill-btn green" href="index.html">포털 홈</a>
       </div>
     </div>
-  </header>
+  </section>
 
   <main class="container viewer-body" id="viewerBody">
-    <p style="color:#666;">카탈로그에서 문서 정보를 읽는 중입니다.</p>
+    <p style="color:var(--ink-3);">카탈로그에서 문서 정보를 읽는 중입니다.</p>
   </main>
 
   <script src="js/doc-assets.bundle.js"></script>
   <script src="js/doc-catalog.bundle.js"></script>
-  <script src="js/dkj-links.js?v=20260714-3"></script>
+  <script src="js/dkj-links.js?v=13-3"></script>
   <script src="js/menu-catalog.bundle.js"></script>
   <script src="js/dkj-nav.js"></script>
   <script>
@@ -78,9 +100,9 @@
 
         var notice = doc.workflowStatus === '수정필요'
           ? '<div class="viewer-notice">⚠️ 개정 작업 중 — 참고용 요약입니다.</div>'
-          : '<div class="viewer-notice" style="background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;">✓ MDR-001 <strong>' + (doc.mdrRev || 'Rev4') + '</strong> · ' + (doc.mdrStatus || '운영중') + '</div>';
+          : '<div class="viewer-notice ok">✓ MDR-001 <strong>' + (doc.mdrRev || 'Rev4') + '</strong> · ' + (doc.mdrStatus || '운영중') + '</div>';
         if (doc.sourcePath) {
-          notice += '<p style="font-size:12px;color:#666;margin-top:8px;word-break:break-all;">정본: ' + doc.sourcePath + '</p>';
+          notice += '<p style="font-size:12px;color:var(--ink-3);margin-top:8px;word-break:break-all;">정본: ' + doc.sourcePath + '</p>';
         }
         if (doc.code === 'MDR-001') {
           notice += '<p style="margin-top:10px;"><a class="pill-btn green" href="mdr-register.html">MDR Rev4 전체 등록대장 →</a></p>';
@@ -127,7 +149,7 @@
           var btnPrint = document.getElementById('btnPrintPdf');
           if (pdf) {
             panel.innerHTML =
-              '<div class="viewer-notice" style="background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;margin-bottom:12px;">' +
+              '<div class="viewer-notice ok" style="margin:0 0 12px;">' +
               '✓ <strong>인쇄는 PDF 정본만 사용</strong>합니다. 요약 탭 HTML은 참고용이며 출력물로 쓰지 마세요.' +
               '</div>' +
               '<div class="pdf-toolbar">' +

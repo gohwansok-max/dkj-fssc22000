@@ -3,26 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#1565c0">
+  <meta name="theme-color" content="#009a44">
   <title>기록양식 상세 | 동김제농협</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dkj-portal.css?v=10">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=13">
+  <link rel="stylesheet" href="css/dkj-hub.css?v=13">
 </head>
-<body class="viewer-page">
-  <header class="viewer-top">
-    <div class="container">
-      <div class="viewer-meta" id="viewerMeta"><h1>불러오는 중…</h1></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a class="pill-btn ghost" href="records-center.html">← FR 목록</a>
-        <a class="pill-btn blue" href="docs-center.html">문서센터</a>
+<body class="hub-page">
+
+  <header class="ck-header">
+    <a class="ck-brand" href="index.html" aria-label="업무 콘솔로">
+      <img class="ck-symbol" src="assets/brand/nh-symbol.png" alt="농협"
+           onerror="this.outerHTML='&lt;div class=\'ck-symbol-fallback\'&gt;NH&lt;/div&gt;'">
+      <div class="ck-title">
+        <strong>동김제농협 가공센터</strong>
+        <span>스마트 HACCP · FSSC22000 V6</span>
       </div>
+    </a>
+    <div class="ck-header-right">
+      <a class="ck-hbtn" href="index.html">업무 콘솔</a>
+      <a class="ck-hbtn" href="records-center.html">기록 목록</a>
+      <a class="ck-hbtn" href="docs-center.html">문서센터</a>
     </div>
   </header>
+
+  <section class="viewer-top">
+    <div class="container">
+      <div class="viewer-meta" id="viewerMeta"><h1>불러오는 중…</h1></div>
+      <div class="viewer-actions">
+        <a class="pill-btn ghost" href="records-center.html">← FR 목록</a>
+        <a class="pill-btn ghost" href="docs-center.html">문서센터</a>
+      </div>
+    </div>
+  </section>
   <main class="container viewer-body" id="viewerBody"></main>
 
   <script src="js/record-catalog.bundle.js"></script>
-  <script src="js/dkj-links.js?v=20260714-3"></script>
+  <script src="js/dkj-links.js?v=13-3"></script>
   <script>
     (function () {
       var id = new URLSearchParams(location.search).get('id');
@@ -42,7 +60,7 @@
           return;
         }
         document.title = rec.code + ' ' + rec.title;
-        meta.innerHTML = '<h1><span class="doc-code" style="background:#e3f2fd;color:#1565c0">' + rec.code + '</span> ' + rec.title + '</h1>' +
+        meta.innerHTML = '<h1><span class="doc-code">' + rec.code + '</span> ' + rec.title + '</h1>' +
           '<p>' + rec.rev + ' · ' + rec.frequency + ' · ' + rec.fileType.toUpperCase() + '</p>';
 
         return Promise.all([
@@ -62,13 +80,13 @@
             '<section class="viewer-panel"><h2>연결 절차서</h2><div class="link-chip-row">' + procLinks + '</div></section>' +
             (sops.length ? '<section class="viewer-panel"><h2>연결 SOP</h2><div class="link-chip-row">' + sopLinks + '</div></section>' : '') +
             (rec.htmlReady
-              ? '<section class="viewer-panel" style="background:var(--dkj-green-light);border-color:#b8dcc8;">' +
+              ? '<section class="viewer-panel" style="background:var(--st-done-bg);border-color:var(--st-done-line);">' +
                 '<h2>태블릿 작성 (HTML)</h2>' +
                 '<p style="margin:0 0 12px;line-height:1.6;">이 양식은 <strong>HTML 기록</strong>으로 작성할 수 있습니다.</p>' +
                 '<a class="pill-btn green" href="' + rec.htmlPath + '">지금 작성하기 →</a>' +
                 '</section>'
               : '<section class="viewer-panel"><h2>작성 안내</h2>' +
-              '<p style="line-height:1.7;color:#444;">현재 <strong>xlsx</strong> 양식(Rev1 초보자 O/X)으로 운영 중입니다. HTML 전환 예정.</p>' +
+              '<p style="line-height:1.7;color:var(--ink-2);">현재 <strong>xlsx</strong> 양식(Rev1 초보자 O/X)으로 운영 중입니다. HTML 전환 예정.</p>' +
               '<div class="viewer-notice" style="margin-top:12px;">정본: FSSC 기록양식(Form)</div></section>') +
             '<section class="viewer-panel"><h2>같은 절차서의 다른 양식</h2><div id="siblingForms">…</div></section>';
 

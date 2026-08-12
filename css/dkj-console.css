@@ -4,129 +4,8 @@
    기준 해상도: 12인치 태블릿 가로 1280x800 (장갑 터치 고려)
    ============================================================ */
 
-/* 팔레트·간격 토큰은 dkj-tokens.css 에 있다. 이 파일은 콘솔 전용 컴포넌트만 담는다. */
-
-.console-page {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: "Noto Sans KR", "맑은 고딕", "Malgun Gothic", sans-serif;
-  -webkit-text-size-adjust: 100%;
-}
-
-.console-page * { box-sizing: border-box; }
-
-/* ---------- 헤더 ---------- */
-.ck-header {
-  background: var(--nh-green);
-  color: #fff;
-  padding: 0 24px;
-  height: 72px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-}
-
-.ck-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-
-.ck-symbol {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  object-fit: contain;
-  background: #fff;
-  border-radius: 10px;
-  padding: 5px;
-}
-
-/* 로고 파일이 없을 때 쓰는 대체 마크 */
-.ck-symbol-fallback {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  border-radius: 10px;
-  background: var(--nh-yellow);
-  color: var(--nh-green-ink);
-  font-weight: 800;
-  font-size: 17px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  letter-spacing: -.04em;
-}
-
-.ck-title { line-height: 1.2; }
-.ck-title strong { display: block; font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
-.ck-title span { display: block; font-size: 12px; opacity: .85; margin-top: 2px; }
-
-.ck-header-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ck-today {
-  background: rgba(255, 255, 255, .16);
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 13.5px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.ck-hbtn {
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, .35);
-  background: rgba(255, 255, 255, .1);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-}
-
-.ck-hbtn:hover { background: rgba(255, 255, 255, .2); }
-
-/* ---------- 레이아웃 ---------- */
-.ck-main {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 20px 24px 48px;
-}
-
-.ck-sec { margin-bottom: 26px; }
-
-.ck-sec-head {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin: 0 0 12px;
-}
-
-.ck-sec-head h2 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -.02em;
-  color: var(--nh-green-ink);
-}
-
-.ck-sec-head p { margin: 0; font-size: 13px; color: var(--ink-3); }
-
-.ck-sec-head .ck-count {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink-2);
-}
+/* 팔레트·간격 토큰과 **페이지 셸(헤더·ck-main·ck-sec·ck-card)** 은 dkj-tokens.css 에 있다.
+   허브 화면도 같은 헤더를 쓰므로 그쪽으로 옮겼다. 이 파일은 콘솔 전용 컴포넌트만 담는다. */
 
 /* ---------- 오늘 할 일 타일 ---------- */
 .ck-tiles {
@@ -230,22 +109,7 @@
   gap: 14px;
 }
 
-.ck-card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--r-l);
-  padding: 16px 18px;
-  box-shadow: var(--shadow);
-}
-
-.ck-card h3 {
-  margin: 0 0 4px;
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--nh-green-ink);
-}
-
-.ck-card .ck-sub { margin: 0 0 12px; font-size: 12px; color: var(--ink-3); }
+/* .ck-card / h3 / .ck-sub 는 dkj-tokens.css 의 공용 셸에 있다. */
 
 .ck-kpi {
   display: flex;
@@ -369,13 +233,11 @@
   .ck-tiles { grid-template-columns: 1fr; }
   .ck-cards { grid-template-columns: 1fr; }
   .ck-quick { grid-template-columns: repeat(2, 1fr); }
-  .ck-header { padding: 0 14px; }
-  .ck-main { padding: 16px 14px 40px; }
 }
 
 @media print {
-  .console-page { background: #fff; }
-  .ck-header, .ck-quick { display: none !important; }
+  /* 헤더 숨김·배경 리셋은 공용 셸(dkj-tokens.css)에서 처리한다 */
+  .ck-quick { display: none !important; }
 }
 
 /* ---------- 월 기록 캘린더 ---------- */

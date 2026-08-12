@@ -3,64 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#008352">
+  <meta name="theme-color" content="#009a44">
   <title>기록양식 | 동김제농협 가공센터</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dkj-portal.css?v=10">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=13">
+  <link rel="stylesheet" href="css/dkj-hub.css?v=13">
 </head>
-<body class="docs-page">
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="index.html">
-        <div class="brand-mark">DKJ</div>
-        <div class="brand-text"><strong>동김제농협</strong><span>가공센터 · FSSC22000 V6</span></div>
-      </a>
-      <nav class="gnb" id="gnb" data-dkj-nav data-active="records" data-base="" aria-label="주요 메뉴"></nav>
-      <div class="header-utils">
-        <a class="pill-btn blue" href="docs-center.html">문서센터</a>
-        <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴"><span></span><span></span><span></span></button>
+<body class="hub-page">
+
+  <header class="ck-header">
+    <a class="ck-brand" href="index.html" aria-label="업무 콘솔로">
+      <img class="ck-symbol" src="assets/brand/nh-symbol.png" alt="농협"
+           onerror="this.outerHTML='&lt;div class=\'ck-symbol-fallback\'&gt;NH&lt;/div&gt;'">
+      <div class="ck-title">
+        <strong>동김제농협 가공센터</strong>
+        <span>스마트 HACCP · FSSC22000 V6</span>
       </div>
+    </a>
+
+    <nav class="gnb" id="gnb" data-dkj-nav data-active="records" data-base="" aria-label="주요 메뉴"></nav>
+
+    <div class="ck-header-right">
+      <a class="ck-hbtn" href="index.html">업무 콘솔</a>
+      <a class="ck-hbtn on" href="records-center.html" aria-current="page">기록 목록</a>
+      <a class="ck-hbtn" href="docs-center.html">문서센터</a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="gnb">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
 
-  <section class="docs-hero" style="background:linear-gradient(135deg,#1565c0,#0d47a1);">
-    <div class="container">
-      <h1>📝 기록양식 FR</h1>
-      <p id="recordsHeroNote">FR-001~047 · 절차서와 연결 · 태블릿 HTML 전환 예정 (현재 xlsx 메타)</p>
+  <main class="ck-main">
+
+    <div class="hub-head">
+      <div class="hub-head-main">
+        <h1>기록양식 FR</h1>
+        <p id="recordsHeroNote">FR-001~047 · 절차서와 연결 · 태블릿 HTML 전환 예정 (현재 xlsx 메타)</p>
+      </div>
       <div class="docs-status-row">
         <span class="status-pill done">47종 Rev1 초보자 O/X</span>
         <span class="status-pill wip">HTML 작성 — 단계적 전환</span>
       </div>
     </div>
-  </section>
 
-  <main class="container docs-layout">
-    <aside class="docs-sidebar" id="recordsSidebar"></aside>
-    <section class="docs-main">
-      <div id="categoryHead"></div>
-      <div class="docs-toolbar">
-        <input type="search" class="docs-search" id="recordSearch" placeholder="FR번호·제목 검색…">
-        <select class="docs-filter" id="recordFreqFilter">
-          <option value="all">전체 주기</option>
-          <option value="매일">매일</option>
-          <option value="주간">주간</option>
-          <option value="월간">월간</option>
-          <option value="연간">연간</option>
-          <option value="이슈">이슈 발생 시</option>
-        </select>
-      </div>
-      <p class="docs-count" id="recordCount">불러오는 중…</p>
-      <div class="doc-list" id="recordList"></div>
-    </section>
-  </main>
+    <div class="hub-layout">
+      <aside class="docs-sidebar" id="recordsSidebar" aria-label="양식 분류"></aside>
 
-  <footer class="site-footer">
-    <div class="container" style="padding:24px 0;">
-      <a href="docs-center.html" style="color:var(--dkj-green);font-weight:700;">← 문서센터</a>
+      <section class="docs-main">
+        <div id="categoryHead"></div>
+
+        <div class="docs-toolbar">
+          <input type="search" class="docs-search" id="recordSearch" placeholder="FR번호·제목 검색…" aria-label="양식 검색">
+          <select class="docs-filter" id="recordFreqFilter" aria-label="작성 주기 필터">
+            <option value="all">전체 주기</option>
+            <option value="매일">매일</option>
+            <option value="주간">주간</option>
+            <option value="월간">월간</option>
+            <option value="연간">연간</option>
+            <option value="이슈">이슈 발생 시</option>
+          </select>
+        </div>
+
+        <p class="docs-count" id="recordCount">불러오는 중…</p>
+        <div class="doc-list" id="recordList"></div>
+      </section>
     </div>
-  </footer>
+
+  </main>
 
   <script src="js/record-catalog.bundle.js"></script>
   <script src="js/menu-catalog.bundle.js"></script>
