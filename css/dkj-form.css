@@ -498,3 +498,145 @@
     display: none !important;
   }
 }
+
+/* ---------- 공통 네비게이션 (주기별 서식 이동) ---------- */
+#dkjNav {
+  position: sticky;
+  top: 0;
+  z-index: 120;
+  background: var(--nh-green-dark);
+}
+
+.nv-bar {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+}
+
+.nv-home {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--r-s);
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  flex: 0 0 auto;
+}
+
+.nv-home:hover { background: rgba(255, 255, 255, .28); }
+
+.nv-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.nv-tab {
+  flex: 0 0 auto;
+  height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--r-s);
+  background: transparent;
+  color: rgba(255, 255, 255, .82);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.nv-tab:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+.nv-tab.on { background: #fff; color: var(--nh-green-dark); }
+
+.nv-toggle {
+  flex: 0 0 auto;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, .4);
+  border-radius: var(--r-s);
+  background: transparent;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nv-drop {
+  display: none;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 8px 20px rgba(5, 67, 31, .1);
+}
+
+.nv-drop.open { display: block; }
+
+.nv-panel {
+  display: none;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 14px 24px 18px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nv-panel.on { display: flex; }
+
+.nv-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: var(--r-m);
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nv-link:hover { border-color: var(--nh-green); color: var(--nh-green-dark); }
+
+.nv-link.here {
+  background: var(--nh-green-50);
+  border-color: var(--nh-green);
+  color: var(--nh-green-ink);
+  font-weight: 800;
+}
+
+.nv-ccp {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--st-ng);
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+
+/* 네비가 생겼으므로 폼 헤더/툴바 고정 위치를 내린다 */
+.dkj-form-header { top: 52px; }
+.dkj-form-toolbar { top: 124px; }
+
+@media (max-width: 900px) {
+  .nv-bar { padding: 0 14px; }
+  .nv-panel { padding: 12px 14px 16px; }
+  .dkj-form-toolbar { top: 52px; }
+}
+
+@media print {
+  #dkjNav { display: none !important; }
+}
