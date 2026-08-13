@@ -31,6 +31,13 @@
       writer: '',
       reviewer: '',
       approver: '',
+      // 결재 패널은 approvals(이름) / signoff(확정 서명)를 본다.
+      // FR 서식은 writer·reviewer·approver 를 평면 필드로 갖고 있어 readForm 에서 미러링한다.
+      approvals: { writer: '', reviewer: '', approver: '' },
+      signoff: {},
+      // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
+      // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
+      audit: [],
       remark: '',
       locked: false
     };
@@ -66,6 +73,33 @@
       if (!el) return;
       el.innerHTML = '<span class="dot"></span> ' + msg;
       el.className = 'dkj-status' + (saved ? ' saved' : '');
+    }
+
+    /* 전자결재 패널 — 모듈이 없으면 그냥 건너뛴다 */
+    var apvUi = null;
+
+    /** 평면 필드(writer/reviewer/approver) → 결재 패널이 읽는 approvals 로 맞춘다 */
+    function syncApprovals() {
+      if (!global.DkjApproval) return;
+      global.DkjApproval.bindFlat(state, {
+        writer: ['writer', 'inspector'],
+        reviewer: 'reviewer',
+        approver: ['approver', 'confirmer']
+      });
+    }
+
+    function mountApproval() {
+      if (!global.DkjApproval || apvUi) return;
+      apvUi = global.DkjApproval.mount({
+        // 이름을 입력한 직후(임시저장 디바운스 400ms 전) 확정을 눌러도
+        // 빈 이름으로 반려되지 않도록 화면 값을 먼저 읽는다
+        getState: function () { readForm(); return state; },
+        onChange: function () { scheduleDraft(); }
+      });
+    }
+
+    function refreshApproval() {
+      if (apvUi) apvUi.render();
     }
 
     function renderOxGrid() {
@@ -118,9 +152,16 @@
         state[id] = el.type === 'number' ? (el.value === '' ? '' : Number(el.value)) : el.value;
       });
       if ($('inspector') && !state.writer) state.writer = state.inspector || '';
+      syncApprovals();
     }
 
     function writeForm() {
+      // 다른 경로(기록보관함 딥링크 등)로 들어온 기록이 approvals 만 갖고 있으면 평면 필드로 되돌린다
+      if (state.approvals) {
+        if (!state.writer) state.writer = state.approvals.writer || '';
+        if (!state.reviewer) state.reviewer = state.approvals.reviewer || '';
+        if (!state.approver) state.approver = state.approvals.approver || '';
+      }
       ids.forEach(function (id) {
         var el = $(id);
         if (!el) return;
@@ -132,6 +173,8 @@
       if (dateEl && !dateEl.value) dateEl.value = today();
       renderOxGrid();
       renderJudge();
+      syncApprovals();
+      refreshApproval();
     }
 
     function scheduleDraft() {
@@ -171,6 +214,7 @@
       }));
       editingId = rec.id;
       setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
+      refreshApproval();
       renderHistory();
     }
 
@@ -267,6 +311,8 @@
       writeForm();
       bind();
       renderHistory();
+      mountApproval();
+      refreshApproval();
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {

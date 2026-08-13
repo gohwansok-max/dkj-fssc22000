@@ -26,6 +26,12 @@
       corrective: '',
       inspector: '',
       confirmer: '',
+      // O/X 일보는 점검자·확인자 2단이다. 결재 패널이 읽는 approvals 로 readForm 에서 미러링한다.
+      approvals: { writer: '', reviewer: '', approver: '' },
+      signoff: {},
+      // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
+      // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
+      audit: [],
       remark: '',
       locked: false
     };
@@ -58,6 +64,32 @@
       if (!el) return;
       el.innerHTML = '<span class="dot"></span> ' + msg;
       el.className = 'dkj-status' + (saved ? ' saved' : '');
+    }
+
+    /* 전자결재 패널 — 모듈이 없으면 그냥 건너뛴다 */
+    var apvUi = null;
+
+    /** 점검자·확인자 → 결재 패널이 읽는 approvals 로 맞춘다 */
+    function syncApprovals() {
+      if (!global.DkjApproval) return;
+      global.DkjApproval.bindFlat(state, { writer: 'inspector', approver: 'confirmer' });
+    }
+
+    function mountApproval() {
+      if (!global.DkjApproval || apvUi) return;
+      apvUi = global.DkjApproval.mount({
+        // 종이 원본이 점검자·확인자 2단이므로 검토 단계는 쓰지 않는다
+        stages: ['writer', 'approver'],
+        labels: { writer: '점검', approver: '확인' },
+        // 이름을 입력한 직후(임시저장 디바운스 400ms 전) 확정을 눌러도
+        // 빈 이름으로 반려되지 않도록 화면 값을 먼저 읽는다
+        getState: function () { readForm(); return state; },
+        onChange: function () { scheduleDraft(); }
+      });
+    }
+
+    function refreshApproval() {
+      if (apvUi) apvUi.render();
     }
 
     function renderOxGrid() {
@@ -107,6 +139,7 @@
         var el = $(id);
         if (el) state[id] = el.type === 'number' ? (el.value === '' ? '' : Number(el.value)) : el.value;
       });
+      syncApprovals();
     }
 
     function writeForm() {
@@ -121,6 +154,8 @@
       if (dateEl && !dateEl.value) dateEl.value = today();
       renderOxGrid();
       renderJudge();
+      syncApprovals();
+      refreshApproval();
     }
 
     function scheduleDraft() {
@@ -166,6 +201,7 @@
       }));
       editingId = rec.id;
       setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
+      refreshApproval();
       renderHistory();
     }
 
@@ -276,6 +312,8 @@
         });
       }
       renderHistory();
+      mountApproval();
+      refreshApproval();
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {

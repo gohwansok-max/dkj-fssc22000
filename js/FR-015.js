@@ -43,8 +43,37 @@
       handler: '',
       approver: '',
       remark: '',
-      carRequired: '아니오'
+      carRequired: '아니오',
+      // 전자결재 — 처리담당자·승인자 2단
+      approvals: { writer: '', reviewer: '', approver: '' },
+      signoff: {},
+      audit: []
     };
+  }
+
+  /* 전자결재 패널 — 모듈이 없으면 그냥 건너뛴다 */
+  var apvUi = null;
+
+  function syncApprovals() {
+    // 예전에 저장된 기록에는 결재 필드가 없다 — 여기서 기본값을 채운다
+    if (!state.signoff) state.signoff = {};
+    if (!Array.isArray(state.audit)) state.audit = [];
+    if (!window.DkjApproval) return;
+    DkjApproval.bindFlat(state, { writer: 'handler', approver: 'approver' });
+  }
+
+  function mountApproval() {
+    if (!window.DkjApproval || apvUi) return;
+    apvUi = DkjApproval.mount({
+      stages: ['writer', 'approver'],
+      labels: { writer: '처리', approver: '승인' },
+      getState: function () { syncApprovals(); return state; },
+      onChange: function () { scheduleDraft(); }
+    });
+  }
+
+  function refreshApproval() {
+    if (apvUi) apvUi.render();
   }
 
   function today() {
@@ -141,6 +170,8 @@
     $('approver').value = state.approver || '';
     $('remark').value = state.remark || '';
     $('carRequired').value = state.carRequired || '아니오';
+    syncApprovals();
+    refreshApproval();
     if ($('linkedFr014')) $('linkedFr014').value = state.linkedFr014 || '';
     DkjMaster.renderProductChips('linkedProductChips', function (code) {
       state.linkedProduct = code;
@@ -169,7 +200,12 @@
   }
 
   function collect() {
-    return JSON.parse(JSON.stringify(state));
+    var out = JSON.parse(JSON.stringify(state));
+    // 감사이력은 살아있는 배열을 그대로 넘긴다. 깊은 복사본을 넘기면 저장 훅이
+    // 복사본에만 append 해서 다음 저장 때 이력이 사라진다.
+    out.audit = state.audit;
+    out.signoff = state.signoff;
+    return out;
   }
 
   function validate(data) {
@@ -202,6 +238,7 @@
     var saved = DkjRecordStore.save(FORM_ID, data);
     editingId = saved.id;
     setStatus(lock ? '작성완료' : '저장 완료', true);
+    refreshApproval();
     renderHistory();
     if (lock && data.carRequired === '예') {
       $('carBanner').hidden = false;
@@ -250,6 +287,7 @@
     fillDiscoverSteps();
     fillFr014Select();
     bindFields();
+    mountApproval();
 
     var draft = DkjRecordStore.loadDraft(FORM_ID);
     if (draft && !draft.id) state = draft;

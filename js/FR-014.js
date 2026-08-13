@@ -39,8 +39,37 @@
       action: '입고',
       inspector: '',
       confirmer: '',
-      remark: ''
+      remark: '',
+      // 전자결재 — 검사자·확인자 2단
+      approvals: { writer: '', reviewer: '', approver: '' },
+      signoff: {},
+      audit: []
     };
+  }
+
+  /* 전자결재 패널 — 모듈이 없으면 그냥 건너뛴다 */
+  var apvUi = null;
+
+  function syncApprovals() {
+    // 예전에 저장된 기록에는 결재 필드가 없다 — 여기서 기본값을 채운다
+    if (!state.signoff) state.signoff = {};
+    if (!Array.isArray(state.audit)) state.audit = [];
+    if (!window.DkjApproval) return;
+    DkjApproval.bindFlat(state, { writer: 'inspector', approver: 'confirmer' });
+  }
+
+  function mountApproval() {
+    if (!window.DkjApproval || apvUi) return;
+    apvUi = DkjApproval.mount({
+      stages: ['writer', 'approver'],
+      labels: { writer: '검사', approver: '확인' },
+      getState: function () { syncApprovals(); return state; },
+      onChange: function () { scheduleDraft(); }
+    });
+  }
+
+  function refreshApproval() {
+    if (apvUi) apvUi.render();
   }
 
   function today() {
@@ -139,6 +168,9 @@
     if (!state.checks) {
       state.checks = emptyState().checks;
     }
+    if (!state.approvals) state.approvals = { writer: '', reviewer: '', approver: '' };
+    if (!state.signoff) state.signoff = {};
+    if (!Array.isArray(state.audit)) state.audit = [];
     $('receiveDate').value = state.receiveDate || today();
     $('materialType').value = state.materialType || '원료';
     $('supplier').value = state.supplier || '';
@@ -153,6 +185,8 @@
     $('remark').value = state.remark || '';
     renderOxGrid();
     renderJudge();
+    syncApprovals();
+    refreshApproval();
     if (state.linkedProduct) {
       DkjMaster.renderProductChips('linkedProductChips', function (code) {
         state.linkedProduct = code;
@@ -162,7 +196,12 @@
   }
 
   function collect() {
-    return JSON.parse(JSON.stringify(state));
+    var out = JSON.parse(JSON.stringify(state));
+    // 감사이력은 살아있는 배열을 그대로 넘긴다. 깊은 복사본을 넘기면 저장 훅이
+    // 복사본에만 append 해서 다음 저장 때 이력이 사라진다.
+    out.audit = state.audit;
+    out.signoff = state.signoff;
+    return out;
   }
 
   function validate(data) {
@@ -199,6 +238,7 @@
     var saved = DkjRecordStore.save(FORM_ID, data);
     editingId = saved.id;
     setStatus(lock ? '작성완료 저장됨' : '저장 완료', true);
+    refreshApproval();
     renderHistory();
     if (data.judge === '부적합') {
       showFr015Banner(true, saved.id);
@@ -326,6 +366,7 @@
     renderOxGrid();
     renderJudge();
     bindFields();
+    mountApproval();
 
     var draft = DkjRecordStore.loadDraft(FORM_ID);
     if (draft && !draft.id) fillForm(draft);

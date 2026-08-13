@@ -29,9 +29,36 @@
       corrective: '',
       confirmer: '',
       remark: '',
+      // 전자결재 — 모니터링 담당자·확인자 2단. audit 는 여기서 만들어 둬야
+      // 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
+      approvals: { writer: '', reviewer: '', approver: '' },
+      signoff: {},
+      audit: [],
       locked: false,
       hasDeviation: false
     };
+  }
+
+  /* 전자결재 패널 — 모듈이 없으면 그냥 건너뛴다 */
+  var apvUi = null;
+
+  function syncApprovals() {
+    if (!window.DkjApproval) return;
+    DkjApproval.bindFlat(state, { writer: 'monitorName', approver: 'confirmer' });
+  }
+
+  function mountApproval() {
+    if (!window.DkjApproval || apvUi) return;
+    apvUi = DkjApproval.mount({
+      stages: ['writer', 'approver'],
+      labels: { writer: '모니터링', approver: '확인' },
+      getState: function () { readForm(); return state; },
+      onChange: function () { scheduleDraft(); }
+    });
+  }
+
+  function refreshApproval() {
+    if (apvUi) apvUi.render();
   }
 
   function today() {
@@ -133,6 +160,7 @@
     state.corrective = $('corrective').value;
     state.confirmer = $('confirmer').value;
     state.remark = $('remark').value;
+    syncApprovals();
   }
 
   function writeForm() {
@@ -150,6 +178,8 @@
     $('remark').value = state.remark || '';
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
     renderRows();
+    syncApprovals();
+    refreshApproval();
   }
 
   function scheduleDraft() {
@@ -195,6 +225,7 @@
     }));
     editingId = rec.id;
     setStatus(lock ? '작성완료 저장됨' : '저장됨 ' + new Date().toLocaleTimeString(), true);
+    refreshApproval();
     renderHistory();
   }
 
@@ -281,6 +312,8 @@
     writeForm();
     bind();
     renderHistory();
+    mountApproval();
+    refreshApproval();
     setStatus('준비', false);
   }
 

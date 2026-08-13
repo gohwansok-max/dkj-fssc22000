@@ -84,6 +84,27 @@
     return { ok: true, brokenAt: 0, total: list.length };
   }
 
+  /* ---------- 평면 필드 어댑터 ----------
+     결재 패널은 state.approvals.{writer,reviewer,approver} 를 읽지만,
+     서식마다 이름 칸이 다르다(점검자/확인자, 모니터링 담당자/확인자, 처리자/승인자 …).
+     각 서식이 자기 필드명을 map 으로 넘기면 여기서 approvals 로 맞춘다.
+
+       DkjApproval.bindFlat(state, { writer: ['writer', 'inspector'], approver: 'confirmer' })
+
+     값은 앞에 적은 필드부터 찾아 처음 채워진 것을 쓴다. */
+  function bindFlat(state, map) {
+    if (!state) return state;
+    if (!state.approvals) state.approvals = {};
+    Object.keys(map).forEach(function (stageKey) {
+      var names = map[stageKey];
+      if (!Array.isArray(names)) names = [names];
+      var v = '';
+      for (var i = 0; i < names.length && !v; i++) v = state[names[i]] || '';
+      state.approvals[stageKey] = v;
+    });
+    return state;
+  }
+
   /* ---------- 저장 훅 ----------
      세 엔진(matrix/ledger/report)이 모두 DkjRecordStore.save 를 쓴다.
      엔진을 각각 고치는 대신 저장 지점 한 곳에서 이력을 남긴다. */
@@ -111,6 +132,24 @@
     var getState = opts.getState;
     var onChange = opts.onChange || function () {};
 
+    /* 서식에 따라 결재 단계가 다르다.
+       O/X 점검일보처럼 점검자·확인자 2단인 서식은 stages: ['writer','approver'] 로 줄이고,
+       종이 원본의 호칭이 다르면 labels 로 바꾼다. 기본은 3단(작성·검토·승인). */
+    var stages = STAGES;
+    if (opts.stages && opts.stages.length) {
+      stages = STAGES.filter(function (s) { return opts.stages.indexOf(s.key) !== -1; });
+    }
+    if (opts.labels) {
+      stages = stages.map(function (s) {
+        var lab = opts.labels[s.key];
+        return lab ? { key: s.key, label: lab, role: lab + '자' } : s;
+      });
+    }
+
+    function stageOf(key) {
+      return stages.filter(function (x) { return x.key === key; })[0] || { label: key, role: key };
+    }
+
     function stageHtml(st, s) {
       var sign = (s.signoff && s.signoff[st.key]) || null;
       var name = (s.approvals && s.approvals[st.key]) || '';
@@ -133,7 +172,7 @@
 
       host.innerHTML =
         '<div class="apv-stages">' +
-        STAGES.map(function (st) { return stageHtml(st, s); }).join('') +
+        stages.map(function (st) { return stageHtml(st, s); }).join('') +
         '</div>' +
         '<div class="apv-verify ' + (v.ok ? 'ok' : 'ng') + '">' +
         (v.ok
@@ -160,18 +199,14 @@
           var st = getState();
           var name = (st.approvals && st.approvals[key]) || '';
           if (!name) {
-            alert(STAGES.filter(function (x) { return x.key === key; })[0].role +
-                  ' 이름을 먼저 입력하세요.');
+            alert(stageOf(key).role + ' 이름을 먼저 입력하세요.');
             return;
           }
-          if (!confirm(name + ' 님으로 ' +
-              STAGES.filter(function (x) { return x.key === key; })[0].label +
+          if (!confirm(name + ' 님으로 ' + stageOf(key).label +
               ' 결재를 확정합니다.\n확정 후에는 취소할 수 없습니다.')) return;
           if (!st.signoff) st.signoff = {};
           st.signoff[key] = { name: name, at: nowIso() };
-          append(st, 'SIGN', name, STAGES.filter(function (x) {
-            return x.key === key;
-          })[0].label + ' 결재');
+          append(st, 'SIGN', name, stageOf(key).label + ' 결재');
           onChange(st);
           render();
         });
@@ -189,6 +224,7 @@
 
   global.DkjApproval = {
     mount: mount,
+    bindFlat: bindFlat,
     append: append,
     verify: verify,
     hash: hash,
