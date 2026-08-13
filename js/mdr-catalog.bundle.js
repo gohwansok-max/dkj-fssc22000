@@ -1,5 +1,4 @@
 window.DKJ_MDR_CATALOG={
-  "source": "",
   "mdrCode": "MDR-001",
   "mdrRev": "Rev13",
   "parsedAt": "2026-07-16",

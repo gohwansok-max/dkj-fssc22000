@@ -3,7 +3,6 @@ window.DKJ_DOC_CATALOG={
   "site": "동김제농협 가공센터",
   "certification": "FSSC22000 V6",
   "sourceLabel": "최종본260714",
-  "fsscRootNote": "",
   "categories": [
     {
       "id": "manual",
