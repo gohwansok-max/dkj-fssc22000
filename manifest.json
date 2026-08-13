@@ -1,0 +1,46 @@
+{
+  "name": "동김제농협 가공센터 스마트 HACCP",
+  "short_name": "동김제 HACCP",
+  "description": "동김제농협 가공센터 FSSC22000 기록 서식·문서센터. 작업장에서 네트워크가 끊겨도 서식을 열고 기록할 수 있습니다.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#009a44",
+  "categories": ["productivity", "business"],
+  "icons": [
+    {
+      "src": "assets/brand/dkj-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/brand/dkj-icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "기록 목록",
+      "short_name": "기록",
+      "url": "./records-center.html"
+    },
+    {
+      "name": "기록보관함",
+      "short_name": "보관함",
+      "url": "./records-archive.html"
+    },
+    {
+      "name": "문서센터",
+      "short_name": "문서",
+      "url": "./docs-center.html"
+    }
+  ]
+}

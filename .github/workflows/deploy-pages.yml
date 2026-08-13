@@ -26,6 +26,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      # 프리캐시 목록을 배포 때마다 다시 만든다. 커밋된 sw-precache.js 가 옛것이면
+      # 태블릿이 바뀐 파일을 안 받아간다 — 사람이 스크립트 돌리는 걸 잊어도 되게 한다.
+      - name: 서비스워커 프리캐시 목록 생성
+        run: python3 scripts/build-sw-precache.py
       # 사내 도구/문서는 공개 사이트에 올리지 않는다 — 사이트가 fetch 하는 것은
       # data/*.json, css, js, assets, records 뿐이고 scripts/ 는 참조하지 않는다
       - name: Stage site (내부 파일 제외)

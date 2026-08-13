@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="동김제농협 스마트 HACCP">
+  <!-- 임시 앱 아이콘. 농협 공식 심볼이 준비되면 교체한다(assets/brand/README.txt 참고). -->
+  <rect width="512" height="512" rx="96" fill="#009a44"/>
+  <text x="256" y="286" text-anchor="middle"
+        font-family="'Noto Sans KR', 'Malgun Gothic', sans-serif"
+        font-size="150" font-weight="800" fill="#ffffff" letter-spacing="4">DKJ</text>
+  <text x="256" y="368" text-anchor="middle"
+        font-family="'Noto Sans KR', 'Malgun Gothic', sans-serif"
+        font-size="64" font-weight="600" fill="#ffffff" opacity="0.9" letter-spacing="6">HACCP</text>
+</svg>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#009a44">
+  <title>오프라인 | 동김제농협 스마트 HACCP</title>
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=13">
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: #f5f6f7; color: #222;
+      padding: 24px;
+    }
+    .off-card {
+      background: #fff; border-radius: 16px; padding: 32px 28px; max-width: 460px; width: 100%;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, .08); text-align: center;
+    }
+    .off-mark {
+      width: 64px; height: 64px; border-radius: 18px; background: #009a44; color: #fff;
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;
+      font-weight: 800; font-size: 22px; letter-spacing: 1px;
+    }
+    h1 { font-size: 20px; margin: 0 0 10px; }
+    p { font-size: 14px; line-height: 1.7; color: #555; margin: 0 0 8px; }
+    .off-note { font-size: 13px; color: #777; margin-top: 18px; }
+    .off-btn {
+      display: inline-block; margin-top: 20px; padding: 11px 22px; border: 0; border-radius: 999px;
+      background: #009a44; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="off-card">
+    <div class="off-mark">DKJ</div>
+    <h1>아직 받아두지 않은 화면입니다</h1>
+    <p>네트워크가 끊겨 있고, 이 페이지는 태블릿에 저장돼 있지 않습니다.</p>
+    <p>한 번이라도 열어본 서식은 오프라인에서도 그대로 열립니다.
+       와이파이가 되는 곳에서 홈 화면을 한 번 열어두면 서식 전체가 저장됩니다.</p>
+    <button type="button" class="off-btn" onclick="location.reload()">다시 시도</button>
+    <p class="off-note">작성 중이던 기록은 태블릿에 남아 있습니다. 연결되면 자동으로 동기화됩니다.</p>
+  </div>
+</body>
+</html>

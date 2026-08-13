@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="동김제농협 스마트 HACCP">
+  <!-- maskable — 안드로이드가 원형·둥근사각으로 잘라내므로 가운데 80% 안에만 그린다. -->
+  <rect width="512" height="512" fill="#009a44"/>
+  <text x="256" y="272" text-anchor="middle"
+        font-family="'Noto Sans KR', 'Malgun Gothic', sans-serif"
+        font-size="118" font-weight="800" fill="#ffffff" letter-spacing="3">DKJ</text>
+  <text x="256" y="338" text-anchor="middle"
+        font-family="'Noto Sans KR', 'Malgun Gothic', sans-serif"
+        font-size="52" font-weight="600" fill="#ffffff" opacity="0.9" letter-spacing="5">HACCP</text>
+</svg>
