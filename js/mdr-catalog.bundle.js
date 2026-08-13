@@ -3024,7 +3024,7 @@ window.DKJ_MDR_CATALOG={
       "mdrRow": 193,
       "id": "번호 미부여",
       "code": "번호 미부여",
-      "title": "02 내부심사원 자격인정자료 최민재 이다은 권화선 IA-2026-01",
+      "title": "내부심사원 자격인정자료 (IA-2026-01)",
       "rev": "RevXLSX",
       "docType": "내부심사",
       "category": "other",
