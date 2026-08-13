@@ -26,10 +26,25 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      # 사내 도구/문서는 공개 사이트에 올리지 않는다 — 사이트가 fetch 하는 것은
+      # data/*.json, css, js, assets, records 뿐이고 scripts/ 는 참조하지 않는다
+      - name: Stage site (내부 파일 제외)
+        run: |
+          rsync -a --delete \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '.gitignore' \
+            --exclude '_site' \
+            --exclude 'scripts' \
+            --exclude '*.md' \
+            --exclude '*.local.json' \
+            ./ _site/
+          echo "--- staged ---"
+          ls -A _site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: '_site'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
