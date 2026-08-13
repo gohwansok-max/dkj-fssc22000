@@ -41,11 +41,21 @@
     save: function (formId, record) {
       var list = this.list(formId);
       var now = new Date().toISOString();
+      // 누가 썼는지가 남아야 HACCP 기록으로 쓸 수 있다(로그인 세션에서 가져온다)
+      var who = (global.DkjAuth && global.DkjAuth.user()) || null;
       if (!record.id) {
         record.id = uid();
         record.createdAt = now;
+        if (who) {
+          record.createdBy = who.name;
+          record.createdByEmpId = who.empId;
+        }
       }
       record.updatedAt = now;
+      if (who) {
+        record.updatedBy = who.name;
+        record.updatedByEmpId = who.empId;
+      }
       record.formId = formId;
       var idx = list.findIndex(function (r) { return r.id === record.id; });
       if (idx >= 0) list[idx] = record;
