@@ -982,7 +982,6 @@ def upsert_catalog(spec: dict) -> None:
                 "htmlReady": True,
                 "htmlPath": f"records/{code}.html",
                 "mdrCode": spec.get("mdrCode", code),
-                "sourcePath": "",
             }
         )
     CATALOG.write_text(json.dumps(cat, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

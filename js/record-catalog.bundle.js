@@ -208,8 +208,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-01.html",
-      "mdrCode": "DKJ-S-02-01",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-01"
     },
     {
       "id": "DKJ-S-02-03",
@@ -223,8 +222,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-03.html",
-      "mdrCode": "DKJ-S-02-03",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-03"
     },
     {
       "id": "DKJ-S-02-05",
@@ -239,8 +237,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-05.html",
-      "mdrCode": "DKJ-S-02-05",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-05"
     },
     {
       "id": "DKJ-STORE-01",
@@ -255,8 +252,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-STORE-01.html",
-      "mdrCode": "DKJ-STORE-01",
-      "sourcePath": ""
+      "mdrCode": "DKJ-STORE-01"
     },
     {
       "id": "DKJ-H-01-01",
@@ -270,8 +266,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-01.html",
-      "mdrCode": "DKJ-H-01-01",
-      "sourcePath": ""
+      "mdrCode": "DKJ-H-01-01"
     },
     {
       "id": "DKJ-H-01-02",
@@ -285,8 +280,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-02.html",
-      "mdrCode": "DKJ-H-01-02",
-      "sourcePath": ""
+      "mdrCode": "DKJ-H-01-02"
     },
     {
       "id": "FR-001",
@@ -300,7 +294,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-001",
-      "sourcePath": "",
       "htmlPath": "records/FR-001.html"
     },
     {
@@ -315,7 +308,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-002",
-      "sourcePath": "",
       "htmlPath": "records/FR-002.html"
     },
     {
@@ -330,7 +322,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-003",
-      "sourcePath": "",
       "htmlPath": "records/FR-003.html"
     },
     {
@@ -345,7 +336,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-004",
-      "sourcePath": "",
       "htmlPath": "records/FR-004.html"
     },
     {
@@ -360,7 +350,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-005",
-      "sourcePath": "",
       "htmlPath": "records/FR-005.html"
     },
     {
@@ -376,7 +365,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-006",
-      "sourcePath": "",
       "htmlPath": "records/FR-006.html"
     },
     {
@@ -391,7 +379,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-007",
-      "sourcePath": "",
       "htmlPath": "records/FR-007.html"
     },
     {
@@ -406,7 +393,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-008",
-      "sourcePath": "",
       "htmlPath": "records/FR-008.html"
     },
     {
@@ -421,7 +407,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-009",
-      "sourcePath": "",
       "htmlPath": "records/FR-009.html"
     },
     {
@@ -436,7 +421,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-010",
-      "sourcePath": "",
       "htmlPath": "records/FR-010.html"
     },
     {
@@ -451,7 +435,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-011",
-      "sourcePath": "",
       "htmlPath": "records/FR-011.html"
     },
     {
@@ -466,7 +449,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-012",
-      "sourcePath": "",
       "htmlPath": "records/FR-012.html"
     },
     {
@@ -481,7 +463,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-013",
-      "sourcePath": "",
       "htmlPath": "records/FR-013.html"
     },
     {
@@ -499,8 +480,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/FR-014.html",
-      "mdrCode": "DKJ-F-014",
-      "sourcePath": ""
+      "mdrCode": "DKJ-F-014"
     },
     {
       "id": "FR-015",
@@ -515,8 +495,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/FR-015.html",
-      "mdrCode": "DKJ-F-015",
-      "sourcePath": ""
+      "mdrCode": "DKJ-F-015"
     },
     {
       "id": "FR-016",
@@ -530,7 +509,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-016",
-      "sourcePath": "",
       "htmlPath": "records/FR-016.html"
     },
     {
@@ -545,7 +523,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-017",
-      "sourcePath": "",
       "htmlPath": "records/FR-017.html"
     },
     {
@@ -560,7 +537,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-018",
-      "sourcePath": "",
       "htmlPath": "records/FR-018.html"
     },
     {
@@ -575,7 +551,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-019",
-      "sourcePath": "",
       "htmlPath": "records/FR-019.html"
     },
     {
@@ -590,7 +565,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-020",
-      "sourcePath": "",
       "htmlPath": "records/FR-020.html"
     },
     {
@@ -605,7 +579,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-021",
-      "sourcePath": "",
       "htmlPath": "records/FR-021.html"
     },
     {
@@ -620,7 +593,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-022",
-      "sourcePath": "",
       "htmlPath": "records/FR-022.html"
     },
     {
@@ -635,7 +607,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-023",
-      "sourcePath": "",
       "htmlPath": "records/FR-023.html"
     },
     {
@@ -650,7 +621,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-024",
-      "sourcePath": "",
       "htmlPath": "records/FR-024.html"
     },
     {
@@ -665,7 +635,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-025",
-      "sourcePath": "",
       "htmlPath": "records/FR-025.html"
     },
     {
@@ -680,7 +649,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-026",
-      "sourcePath": "",
       "htmlPath": "records/FR-026.html"
     },
     {
@@ -695,7 +663,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-027",
-      "sourcePath": "",
       "htmlPath": "records/FR-027.html"
     },
     {
@@ -710,7 +677,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-028",
-      "sourcePath": "",
       "htmlPath": "records/FR-028.html"
     },
     {
@@ -725,7 +691,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-029",
-      "sourcePath": "",
       "htmlPath": "records/FR-029.html"
     },
     {
@@ -740,7 +705,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-030",
-      "sourcePath": "",
       "htmlPath": "records/FR-030.html"
     },
     {
@@ -753,7 +717,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-031",
-      "sourcePath": "",
       "htmlPath": "records/FR-031.html"
     },
     {
@@ -766,7 +729,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-032",
-      "sourcePath": "",
       "htmlPath": "records/FR-032.html"
     },
     {
@@ -779,7 +741,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-033",
-      "sourcePath": "",
       "htmlPath": "records/FR-033.html"
     },
     {
@@ -792,7 +753,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-034",
-      "sourcePath": "",
       "htmlPath": "records/FR-034.html"
     },
     {
@@ -805,7 +765,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-035",
-      "sourcePath": "",
       "htmlPath": "records/FR-035.html"
     },
     {
@@ -821,7 +780,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-036",
-      "sourcePath": "",
       "htmlPath": "records/FR-036.html"
     },
     {
@@ -836,7 +794,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-037",
-      "sourcePath": "",
       "htmlPath": "records/FR-037.html"
     },
     {
@@ -851,7 +808,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-038",
-      "sourcePath": "",
       "htmlPath": "records/FR-038.html"
     },
     {
@@ -869,7 +825,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-039",
-      "sourcePath": "",
       "htmlPath": "records/FR-039.html"
     },
     {
@@ -887,7 +842,6 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-040",
-      "sourcePath": "",
       "htmlPath": "records/FR-040.html"
     },
     {
@@ -900,7 +854,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-041",
-      "sourcePath": "",
       "htmlPath": "records/FR-041.html"
     },
     {
@@ -913,7 +866,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-042",
-      "sourcePath": "",
       "htmlPath": "records/FR-042.html"
     },
     {
@@ -926,7 +878,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-043",
-      "sourcePath": "",
       "htmlPath": "records/FR-043.html"
     },
     {
@@ -939,7 +890,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-044",
-      "sourcePath": "",
       "htmlPath": "records/FR-044.html"
     },
     {
@@ -952,7 +902,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-045",
-      "sourcePath": "",
       "htmlPath": "records/FR-045.html"
     },
     {
@@ -965,7 +914,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-046",
-      "sourcePath": "",
       "htmlPath": "records/FR-046.html"
     },
     {
@@ -978,7 +926,6 @@ window.DKJ_RECORD_CATALOG={
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-047",
-      "sourcePath": "",
       "htmlPath": "records/FR-047.html"
     },
     {
@@ -993,8 +940,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-02.html",
-      "mdrCode": "DKJ-S-02-02",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-02"
     },
     {
       "id": "DKJ-S-02-04",
@@ -1009,8 +955,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-04.html",
-      "mdrCode": "DKJ-S-02-04",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-04"
     },
     {
       "id": "DKJ-S-02-06",
@@ -1024,8 +969,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-06.html",
-      "mdrCode": "DKJ-S-02-06",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-06"
     },
     {
       "id": "DKJ-S-02-07",
@@ -1039,8 +983,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-07.html",
-      "mdrCode": "DKJ-S-02-07",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-07"
     },
     {
       "id": "DKJ-S-02-12",
@@ -1055,8 +998,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-12.html",
-      "mdrCode": "DKJ-S-02-12",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-12"
     },
     {
       "id": "DKJ-S-02-13",
@@ -1070,8 +1012,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-13.html",
-      "mdrCode": "DKJ-S-02-13",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-13"
     },
     {
       "id": "DKJ-S-02-18",
@@ -1085,8 +1026,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-18.html",
-      "mdrCode": "DKJ-S-02-18",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-18"
     },
     {
       "id": "DKJ-S-02-29",
@@ -1100,8 +1040,7 @@ window.DKJ_RECORD_CATALOG={
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-29.html",
-      "mdrCode": "DKJ-S-02-29",
-      "sourcePath": ""
+      "mdrCode": "DKJ-S-02-29"
     }
   ],
   "mdrRev": "Rev11"

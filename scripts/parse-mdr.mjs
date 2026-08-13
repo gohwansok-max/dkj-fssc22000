@@ -4,7 +4,20 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const MDR_PATH = process.argv[2] || String.raw`[REDACTED]`;
+// 원본 xlsx 경로는 공개 배포되지 않도록 data/asset-sources.local.json(gitignore)에서 읽는다
+function defaultMdrPath() {
+  const local = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../data/asset-sources.local.json');
+  if (!fs.existsSync(local)) return '';
+  const cfg = JSON.parse(fs.readFileSync(local, 'utf8'));
+  return cfg.fsscRoot && cfg.mdrOfficial ? path.join(cfg.fsscRoot, cfg.mdrOfficial) : '';
+}
+
+const MDR_PATH = process.argv[2] || defaultMdrPath();
+
+if (!MDR_PATH) {
+  console.error('MDR xlsx 경로를 인자로 주거나 data/asset-sources.local.json 을 두세요.');
+  process.exit(1);
+}
 
 if (!fs.existsSync(MDR_PATH)) {
   console.error('NOT_FOUND', MDR_PATH);

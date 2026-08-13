@@ -1,0 +1,8 @@
+# 로컬 전용 — 컨설팅 원본 폴더 경로. 공개 배포(GitHub Pages)에 올라가면 안 된다.
+data/asset-sources.local.json
+
+# 에디터/OS
+.claude/
+desktop.ini
+Thumbs.db
+.DS_Store

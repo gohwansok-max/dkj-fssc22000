@@ -9,7 +9,17 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dkjRoot = path.resolve(__dirname, '..');
-const sources = JSON.parse(fs.readFileSync(path.join(dkjRoot, 'data/asset-sources.json'), 'utf8'));
+// 컨설팅 원본 폴더 경로(fsscRoot/paths)는 공개 배포되지 않도록
+// data/asset-sources.local.json (gitignore) 으로 분리돼 있다
+const localPath = path.join(dkjRoot, 'data/asset-sources.local.json');
+if (!fs.existsSync(localPath)) {
+  console.error('data/asset-sources.local.json 이 없습니다 — 원본 폴더 경로(fsscRoot/paths)를 담은 로컬 설정이 필요합니다.');
+  process.exit(1);
+}
+const sources = {
+  ...JSON.parse(fs.readFileSync(path.join(dkjRoot, 'data/asset-sources.json'), 'utf8')),
+  ...JSON.parse(fs.readFileSync(localPath, 'utf8')),
+};
 const maxLines = Number(process.argv.find((a) => a.startsWith('--max-lines='))?.split('=')[1] || 120);
 
 const extractDir = sources.paths.benchmarkExtracts

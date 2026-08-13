@@ -1,23 +1,8 @@
 {
-  "mdrOfficial": "",
   "mdrRev": "Rev13",
-  "paths": {
-    "manual": "01_통합매뉴얼(Manual)",
-    "procedures": "02_절차서",
-    "prp": "03_PRP(선행요건관리)",
-    "sop": "04_작업표준서(SOP)",
-    "haccp": "05_HACCP",
-    "forms": "06_기록양식(Form)",
-    "education": "07_교육자료",
-    "audit": "08_내부심사",
-    "mgmtReview": "09_경영검토",
-    "mdr": "",
-    "docNumber": "",
-    "benchmarkExtracts": "02_절차서"
-  },
   "webAssets": {
     "pdf": "assets/pdf",
     "excerpts": "data/excerpts"
   },
-  "note": "FSSC22000 V6 최종본260714 정본. GitHub Pages 배포 시 assets/pdf 만 동기화됩니다."
+  "note": "FSSC22000 V6 최종본260714 정본. GitHub Pages 배포 시 assets/pdf 만 동기화됩니다. 컨설팅 원본 폴더 경로(fsscRoot/paths/mdrOfficial)는 공개 배포 대상에서 제외되어 data/asset-sources.local.json 으로 분리했습니다 - scripts/sync-*.{py,mjs} 는 두 파일을 병합해 읽습니다."
 }

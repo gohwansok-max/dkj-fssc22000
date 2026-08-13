@@ -115,13 +115,20 @@ for (const cat of doc.categories || []) {
 
 doc.updatedAt = mdr.parsedAt;
 doc.mdrSource = {
-  file: path.basename(mdr.source || ''),
   rev: mdr.mdrRev,
   entryCount: mdr.entryCount,
   syncedAt: new Date().toISOString().slice(0, 10),
 };
 
-fs.writeFileSync(docPath, JSON.stringify(doc, null, 2) + '\n', 'utf8');
+// 컨설팅 원본 폴더 경로/원본 파일명은 공개 배포 대상에서 제외한다 —
+// sourcePath 는 위 병합 로직의 판정 키라 메모리에는 두고 저장 직전에만 뺀다
+const publicDoc = {
+  ...doc,
+  documents: (doc.documents || []).map(({ sourcePath, ...rest }) => rest),
+};
+delete publicDoc.fsscRootNote;
+
+fs.writeFileSync(docPath, JSON.stringify(publicDoc, null, 2) + '\n', 'utf8');
 
 const recPath = path.join(dkjRoot, 'data/record-catalog.json');
 if (fs.existsSync(recPath)) {
@@ -136,12 +143,12 @@ if (fs.existsSync(recPath)) {
     if (hit) {
       r.rev = hit.rev;
       r.mdrCode = hit.code;
-      r.sourcePath = hit.filePath;
       n++;
     }
   }
   rec.mdrRev = mdr.mdrRev;
   rec.updatedAt = mdr.parsedAt;
+  rec.records = (rec.records || []).map(({ sourcePath, ...rest }) => rest);
   fs.writeFileSync(recPath, JSON.stringify(rec, null, 2) + '\n', 'utf8');
   console.log('Updated', n, 'record revs from MDR');
 }

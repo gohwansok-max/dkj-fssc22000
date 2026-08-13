@@ -7,6 +7,7 @@ Usage (from tenants/dkj):
 """
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
@@ -16,6 +17,7 @@ from pathlib import Path
 
 DKJ_ROOT = Path(__file__).resolve().parents[1]
 SOURCES = DKJ_ROOT / "data" / "asset-sources.json"
+SOURCES_LOCAL = DKJ_ROOT / "data" / "asset-sources.local.json"
 OUT_DOC = DKJ_ROOT / "data" / "doc-catalog.json"
 OUT_MENU = DKJ_ROOT / "data" / "menu-catalog.json"
 OLD_DOC = DKJ_ROOT / "data" / "doc-catalog.json"
@@ -167,8 +169,29 @@ TITLE_MAP = {
 }
 
 
+def write_doc_catalog(catalog: dict) -> None:
+    """doc-catalog.json 을 쓴다 — 컨설팅 원본 폴더 경로/원본 파일명은 제거하고 쓴다.
+
+    sourcePath 는 생성 과정에서 중복 판정 키로 쓰이므로 메모리에는 남기고,
+    공개 배포되는 파일에만 빠지도록 여기서 걸러낸다.
+    """
+    pub = copy.deepcopy(catalog)
+    pub.pop("fsscRootNote", None)
+    for doc in pub.get("documents", []):
+        doc.pop("sourcePath", None)
+    if isinstance(pub.get("mdrSource"), dict):
+        pub["mdrSource"].pop("file", None)
+    OUT_DOC.write_text(json.dumps(pub, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def load_fssc_root() -> Path:
+    # 컨설팅 원본 폴더 경로는 공개 배포되지 않도록 SOURCES_LOCAL(gitignore)에 있다
+    if not SOURCES_LOCAL.is_file():
+        raise SystemExit(
+            f"{SOURCES_LOCAL.name} 이 없습니다 — 원본 폴더 경로(fsscRoot)를 담은 로컬 설정이 필요합니다."
+        )
     data = json.loads(SOURCES.read_text(encoding="utf-8"))
+    data.update(json.loads(SOURCES_LOCAL.read_text(encoding="utf-8")))
     root = Path(data["fsscRoot"])
     if not root.is_dir():
         raise SystemExit(f"FSSC root not found: {root}")
@@ -505,7 +528,7 @@ def main():
 
     menu = build_menu(docs)
 
-    OUT_DOC.write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    write_doc_catalog(catalog)
     OUT_MENU.write_text(json.dumps(menu, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     print(f"OK docs={len(docs)} categories={len(cats)}")
@@ -598,12 +621,11 @@ def merge_mdr_inplace(catalog: dict) -> None:
             cat["workflowStatus"] = "완료"
 
     catalog["mdrSource"] = {
-        "file": os.path.basename(mdr.get("source") or ""),
         "rev": mdr.get("mdrRev"),
         "entryCount": mdr.get("entryCount"),
         "syncedAt": date.today().isoformat(),
     }
-    OUT_DOC.write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    write_doc_catalog(catalog)
     print(f"MDR merge updated={updated} added={added} total={len(catalog['documents'])}")
 
 

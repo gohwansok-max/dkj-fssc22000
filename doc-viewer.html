@@ -101,9 +101,6 @@
         var notice = doc.workflowStatus === '수정필요'
           ? '<div class="viewer-notice">⚠️ 개정 작업 중 — 참고용 요약입니다.</div>'
           : '<div class="viewer-notice ok">✓ MDR-001 <strong>' + (doc.mdrRev || 'Rev4') + '</strong> · ' + (doc.mdrStatus || '운영중') + '</div>';
-        if (doc.sourcePath) {
-          notice += '<p style="font-size:12px;color:var(--ink-3);margin-top:8px;word-break:break-all;">정본: ' + doc.sourcePath + '</p>';
-        }
         if (doc.code === 'MDR-001') {
           notice += '<p style="margin-top:10px;"><a class="pill-btn green" href="mdr-register.html">MDR Rev4 전체 등록대장 →</a></p>';
         }

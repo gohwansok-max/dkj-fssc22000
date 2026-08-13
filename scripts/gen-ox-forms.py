@@ -60,7 +60,6 @@ SPECS: list[dict] = [
         "historyKeys": ["checkDate", "area"],
         "relatedProcedures": ["DKJ-P-02", "PRP-001", "PRP-002"],
         "mdrCode": "DKJ-S-02-01",
-        "sourcePath": "",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
             link("PRP-001", "../doc-viewer.html?id=PRP-001"),
@@ -103,7 +102,6 @@ SPECS: list[dict] = [
         "frequency": "월간",
         "relatedProcedures": ["PRP-001"],
         "mdrCode": "DKJ-S-02-02",
-        "sourcePath": "",
         "notice": "관리기준(임시) — 작업구역 일반조명 ≥200 lx · 검사·정밀작업 ≥500 lx (현장기준서로 확정)",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
@@ -144,7 +142,6 @@ SPECS: list[dict] = [
         "historyKeys": ["checkDate", "team"],
         "relatedProcedures": ["PRP-002"],
         "mdrCode": "DKJ-S-02-03",
-        "sourcePath": "",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
             link("작업장 위생", "DKJ-S-02-01.html"),
@@ -185,7 +182,6 @@ SPECS: list[dict] = [
         "historyKeys": ["checkDate", "area"],
         "relatedProcedures": ["PRP-001", "PRP-003"],
         "mdrCode": "DKJ-S-02-04",
-        "sourcePath": "",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
             link("이물대장", "../doc-viewer.html?id=DKJ-S-02-31"),
@@ -216,7 +212,6 @@ SPECS: list[dict] = [
         "frequency": "매일",
         "relatedProcedures": ["PRP-001", "PRP-004"],
         "mdrCode": "DKJ-S-02-05",
-        "sourcePath": "",
         "notice": "관리기준(임시) — 작업실 온도 15~25℃ · 습도 40~70% · 냉장창고 0~5℃",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
@@ -258,7 +253,6 @@ SPECS: list[dict] = [
         "historyKeys": ["checkDate", "area"],
         "relatedProcedures": ["PRP-001"],
         "mdrCode": "DKJ-S-02-06",
-        "sourcePath": "",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
             link("온습도", "DKJ-S-02-05.html"),
@@ -289,7 +283,6 @@ SPECS: list[dict] = [
         "historyKeys": ["checkDate", "area"],
         "relatedProcedures": ["PRP-001"],
         "mdrCode": "DKJ-S-02-07",
-        "sourcePath": "",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
             link("작업장 위생", "DKJ-S-02-01.html"),
@@ -325,7 +318,6 @@ SPECS: list[dict] = [
         "historyKeys": ["checkDate", "area"],
         "relatedProcedures": ["DKJ-P-02", "PRP-001"],
         "mdrCode": "DKJ-S-02-12",
-        "sourcePath": "",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
             link("설비이력", "../doc-viewer.html?id=DKJ-S-02-11"),
@@ -357,7 +349,6 @@ SPECS: list[dict] = [
         "historyKeys": ["checkDate"],
         "relatedProcedures": ["PRP-005"],
         "mdrCode": "DKJ-S-02-13",
-        "sourcePath": "",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
             link("PRP-005", "../doc-viewer.html?id=PRP-005"),
@@ -391,7 +382,6 @@ SPECS: list[dict] = [
         "historyKeys": ["checkDate", "vehicleNo"],
         "relatedProcedures": ["PRP-006"],
         "mdrCode": "DKJ-S-02-18",
-        "sourcePath": "",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
             link("PRP-006", "../doc-viewer.html?id=PRP-006"),
@@ -434,7 +424,6 @@ SPECS: list[dict] = [
         "historyKeys": ["checkDate", "team"],
         "relatedProcedures": ["PRP-002"],
         "mdrCode": "DKJ-S-02-29",
-        "sourcePath": "",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=daily"),
             link("개인위생", "DKJ-S-02-03.html"),
@@ -471,7 +460,6 @@ SPECS: list[dict] = [
         "historyKeys": ["itemName", "storeDate", "lot"],
         "relatedProcedures": ["DKJ-P-05", "DKJ-W-002"],
         "mdrCode": "DKJ-STORE-01",
-        "sourcePath": "",
         "customBoot": "store",
         "headerLinks": [
             link("← 기록목록", "../records-center.html?cat=inbound"),
@@ -926,7 +914,6 @@ def upsert_record_catalog(specs: list[dict]) -> None:
             "htmlReady": True,
             "htmlPath": html_path,
             "mdrCode": spec.get("mdrCode", code),
-            "sourcePath": spec.get("sourcePath", ""),
         }
         if code in by_code:
             by_code[code].update(entry)

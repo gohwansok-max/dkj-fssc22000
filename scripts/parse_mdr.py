@@ -3,10 +3,24 @@
 import zipfile, re, json, sys, os
 from datetime import date
 
-DEFAULT = r"[REDACTED]"
 OUT = os.path.join(os.path.dirname(__file__), "..", "data", "mdr-catalog.json")
+# 원본 xlsx 경로는 공개 배포되지 않도록 data/asset-sources.local.json(gitignore)에서 읽는다
+LOCAL = os.path.join(os.path.dirname(__file__), "..", "data", "asset-sources.local.json")
 
-path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT
+
+def default_path() -> str:
+    if not os.path.isfile(LOCAL):
+        return ""
+    with open(LOCAL, encoding="utf-8") as fh:
+        cfg = json.load(fh)
+    root, rel = cfg.get("fsscRoot", ""), cfg.get("mdrOfficial", "")
+    return os.path.join(root, rel) if root and rel else ""
+
+
+path = sys.argv[1] if len(sys.argv) > 1 else default_path()
+if not path:
+    print("MDR xlsx 경로를 인자로 주거나 data/asset-sources.local.json 을 두세요.")
+    sys.exit(1)
 if not os.path.exists(path):
     print(json.dumps({"error": "not found", "path": path}, ensure_ascii=False))
     sys.exit(1)
