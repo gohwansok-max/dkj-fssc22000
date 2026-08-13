@@ -1,8 +1,8 @@
 # 종이 정본 41종 — 인쇄 레이아웃 유형 조사
 
 원본 위치(읽기 전용):
-- `[REDACTED]`
-- `[REDACTED]`
+- `(사내 원본 폴더 — data/asset-sources.local.json 참조)`
+- `(사내 원본 폴더 — data/asset-sources.local.json 참조)`
 
 **현재 실제로 작성 중인 일지들이므로, 전산 서식은 항목 누락 없이 종이 정본과 동일하게 인쇄되어야 한다.**
 

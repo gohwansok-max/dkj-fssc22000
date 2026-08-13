@@ -1,9 +1,19 @@
 ﻿param(
-  [string]$ManualDir = "[REDACTED]"
+  # 원본 폴더 경로는 공개 배포되지 않도록 data/asset-sources.local.json(gitignore)에서 읽는다
+  [string]$ManualDir = ""
 )
 
 $ErrorActionPreference = "Stop"
 $dkjRoot = Split-Path $PSScriptRoot -Parent
+
+if (-not $ManualDir) {
+  $localCfg = Join-Path $dkjRoot "data\asset-sources.local.json"
+  if (-not (Test-Path $localCfg)) {
+    throw "통합매뉴얼 폴더를 -ManualDir 로 주거나 data\asset-sources.local.json 을 두세요."
+  }
+  $cfg = Get-Content $localCfg -Raw -Encoding UTF8 | ConvertFrom-Json
+  $ManualDir = Join-Path $cfg.fsscRoot $cfg.paths.manual
+}
 $targetDir = Join-Path $dkjRoot "assets\docs\DKJ-M-01"
 $dataPath = Join-Path $dkjRoot "data\doc-assets.json"
 $bundlePath = Join-Path $dkjRoot "js\doc-assets.bundle.js"
