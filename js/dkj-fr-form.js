@@ -268,6 +268,15 @@
       bind();
       renderHistory();
       setStatus('준비', false);
+      // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
+      if (global.DkjDeepLink) {
+        var opened = DkjDeepLink.apply(FORM_ID, function (rec) {
+          editingId = rec.id;
+          state = Object.assign(emptyState(spec), rec);
+          writeForm();
+        });
+        if (opened) setStatus('기록 불러옴', true);
+      }
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

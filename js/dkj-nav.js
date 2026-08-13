@@ -168,6 +168,7 @@
     });
 
     parts.push('<a class="gnb-static" data-nav="records" href="' + esc(href(base, 'records-center.html')) + '">기록센터</a>');
+    parts.push('<a class="gnb-static" data-nav="archive" href="' + esc(href(base, 'records-archive.html')) + '">기록보관함</a>');
     parts.push('<a class="gnb-static" data-nav="mdr" href="' + esc(href(base, 'mdr-register.html')) + '">MDR</a>');
 
     root.innerHTML = parts.join('');
