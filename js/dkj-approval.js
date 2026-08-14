@@ -52,6 +52,26 @@
     { key: 'approver', label: '승인', role: '승인자' }
   ];
 
+  /* ---------- 서명 주체 ----------
+     결재 서명은 '지금 로그인한 사람'으로 남긴다. 폼의 결재자 이름 칸은 누구나 아무 이름이나
+     타이핑할 수 있어서, 그 값으로 서명하면 남의 이름을 빌린 결재를 막을 수 없다.
+     로그인 세션(DkjAuth)이 있으면 그 이름·사번이 서명 주체이고, 폼에 적힌 이름은
+     claimed 로 함께 남겨 둔다(둘이 다르면 심사에서 확인할 수 있게).
+
+     클라우드 미설정 상태(파일럿 준비 중)에서는 로그인 자체가 없으므로 종전처럼
+     폼에 적힌 이름으로 서명한다 — 그때는 signer.source 가 'form' 으로 남는다. */
+  function me() {
+    try {
+      return (global.DkjAuth && global.DkjAuth.user()) || null;
+    } catch (e) { return null; }
+  }
+
+  /** 감사이력·서명에 쓸 표기 — '홍길동(1234)' */
+  function whoLabel(u) {
+    if (!u) return '';
+    return u.empId ? u.name + '(' + u.empId + ')' : u.name;
+  }
+
   /* ---------- 감사이력 ---------- */
 
   /** 기록에 항목을 덧붙인다. 기존 항목은 절대 수정하지 않는다. */
@@ -113,8 +133,11 @@
     var orig = global.DkjRecordStore.save;
     global.DkjRecordStore.save = function (formId, record) {
       try {
-        var by = (record.approvals && record.approvals.writer) || record.inspector ||
-                 (record.info && record.info.inspector) || '';
+        // 저장한 사람도 로그인 세션을 우선한다 — 폼에 적힌 이름은 누구나 바꿀 수 있다.
+        var u = me();
+        var by = u ? whoLabel(u)
+                   : ((record.approvals && record.approvals.writer) || record.inspector ||
+                      (record.info && record.info.inspector) || '');
         append(record, record.locked ? 'LOCK' : 'SAVE',
                by, record.locked ? '작성완료(잠금)' : '저장');
       } catch (e) { /* 이력 실패가 저장을 막지 않는다 */ }
@@ -154,9 +177,13 @@
       var sign = (s.signoff && s.signoff[st.key]) || null;
       var name = (s.approvals && s.approvals[st.key]) || '';
       var done = !!(sign && sign.at);
+      // 로그인 서명이면 사번을 함께 보여 준다. 폼에 적힌 이름과 다르면 그 사실도 드러낸다.
+      var shown = done ? (sign.empId ? sign.name + ' (' + sign.empId + ')' : sign.name) : (name || '—');
+      var mismatch = done && sign.claimed
+        ? '<div class="apv-claimed">기재명 ' + esc(sign.claimed) + '</div>' : '';
       return '<div class="apv-stage' + (done ? ' done' : '') + '">' +
         '<div class="apv-lab">' + esc(st.label) + '</div>' +
-        '<div class="apv-name">' + esc(done ? sign.name : (name || '—')) + '</div>' +
+        '<div class="apv-name">' + esc(shown) + '</div>' + mismatch +
         '<div class="apv-at">' + (done ? esc(fmt(sign.at)) : '미결재') + '</div>' +
         (done
           ? '<span class="apv-mark">서명됨</span>'
@@ -197,16 +224,36 @@
         b.addEventListener('click', function () {
           var key = b.getAttribute('data-stage');
           var st = getState();
-          var name = (st.approvals && st.approvals[key]) || '';
-          if (!name) {
+          var claimed = (st.approvals && st.approvals[key]) || '';
+          var u = me();
+
+          if (!u && !claimed) {
             alert(stageOf(key).role + ' 이름을 먼저 입력하세요.');
             return;
           }
-          if (!confirm(name + ' 님으로 ' + stageOf(key).label +
-              ' 결재를 확정합니다.\n확정 후에는 취소할 수 없습니다.')) return;
+
+          // 서명자 = 로그인한 사람. 로그인이 없으면(미설정 파일럿) 폼에 적힌 이름.
+          var signer = u
+            ? { name: u.name, empId: u.empId, source: 'login' }
+            : { name: claimed, empId: '', source: 'form' };
+
+          var msg = signer.name + ' 님으로 ' + stageOf(key).label +
+                    ' 결재를 확정합니다.\n확정 후에는 취소할 수 없습니다.';
+          if (u && claimed && claimed !== u.name) {
+            msg = '결재란에 적힌 이름은 「' + claimed + '」 이지만, 지금 로그인한 사람은 「' +
+                  u.name + '」 입니다.\n\n서명은 로그인한 ' + u.name + ' 님으로 남습니다.\n' + msg;
+          }
+          if (!confirm(msg)) return;
+
           if (!st.signoff) st.signoff = {};
-          st.signoff[key] = { name: name, at: nowIso() };
-          append(st, 'SIGN', name, stageOf(key).label + ' 결재');
+          st.signoff[key] = {
+            name: signer.name,
+            empId: signer.empId,
+            source: signer.source,
+            claimed: claimed && claimed !== signer.name ? claimed : undefined,
+            at: nowIso()
+          };
+          append(st, 'SIGN', u ? whoLabel(u) : signer.name, stageOf(key).label + ' 결재');
           onChange(st);
           render();
         });
