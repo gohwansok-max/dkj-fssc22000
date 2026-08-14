@@ -235,6 +235,10 @@
     }
     if (editingId) data.id = editingId;
     data.locked = !!lock;
+    // 기록보관함·엑셀의 '기록제목' 칸에 쓰인다. 없으면 목록에서 어느 입고 건인지 구분이 안 된다.
+    data.title = '원부자재 입고검사' +
+      (data.itemName ? ' · ' + data.itemName : '') +
+      (data.lot ? ' ' + data.lot : '');
     var saved = DkjRecordStore.save(FORM_ID, data);
     editingId = saved.id;
     setStatus(lock ? '작성완료 저장됨' : '저장 완료', true);
