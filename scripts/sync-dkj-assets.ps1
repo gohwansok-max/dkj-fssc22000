@@ -1,5 +1,5 @@
 # DKJ document center asset sync (excerpts + PDF via Word)
-# Run from tenants/dkj:
+# Run from the repo root:
 #   powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -ExcerptsOnly
 #   powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly
 

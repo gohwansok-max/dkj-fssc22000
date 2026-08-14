@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""MDR-001 Rev4 xlsx -> tenants/dkj/data/mdr-catalog.json"""
+"""MDR-001 Rev4 xlsx -> data/mdr-catalog.json (저장소 루트에서 실행)"""
 import zipfile, re, json, sys, os
 from datetime import date
 

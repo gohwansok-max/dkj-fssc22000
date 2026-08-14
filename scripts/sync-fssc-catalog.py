@@ -2,7 +2,7 @@
 """
 동김제 FSSC22000 V6 최종본 → doc-catalog.json / menu-catalog.json 동기화
 
-Usage (from tenants/dkj):
+Usage (저장소 루트에서 실행):
   python scripts/sync-fssc-catalog.py
 """
 from __future__ import annotations
