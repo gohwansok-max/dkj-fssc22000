@@ -183,35 +183,43 @@
   text-decoration: none;
 }
 
-.ck-symbol {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  object-fit: contain;
+/* 워드마크 — 녹색 심볼 + 사업장명을 흰 타일에 얹은 락업.
+   헤더 바탕이 녹색(--nh-green)이라 녹색 로고를 그대로 올릴 수 없어 흰 타일을 깐다.
+   글자는 이미지가 아니라 실제 텍스트다 — <img> 로 불러오는 SVG 는 페이지의 웹폰트
+   (Noto Sans KR)를 물려받지 못해 기기마다 다른 글꼴로 튀기 때문이다. 텍스트로 두면
+   어느 기기에서나 같은 글꼴로 나오고, 확대·복사·스크린리더에도 그대로 걸린다. */
+.ck-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex: 0 0 auto;
   background: #fff;
   border-radius: 10px;
-  padding: 5px;
+  padding: 6px 13px 6px 9px;
 }
 
-/* 로고 파일이 없을 때 쓰는 대체 마크 */
-.ck-symbol-fallback {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  border-radius: 10px;
-  background: var(--nh-yellow);
-  color: var(--nh-green-ink);
-  font-weight: 800;
-  font-size: 17px;
+.ck-wordmark-symbol {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  object-fit: contain;
+}
+
+.ck-wordmark-name {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  letter-spacing: -.04em;
+  flex-direction: column;
+  line-height: 1.12;
+  white-space: nowrap;
 }
 
-.ck-title { line-height: 1.2; }
-.ck-title strong { display: block; font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
-.ck-title span { display: block; font-size: 12px; opacity: .85; margin-top: 2px; }
+.ck-wordmark-name b {
+  color: var(--nh-green);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.ck-tagline { font-size: 12px; opacity: .85; white-space: nowrap; }
 
 .ck-header-right {
   margin-left: auto;
@@ -307,6 +315,8 @@
 @media (max-width: 820px) {
   .ck-header { padding: 0 14px; }
   .ck-main { padding: 16px 14px 40px; }
+  /* 태블릿 가로폭에서는 워드마크와 메뉴가 먼저다 — 부제는 접는다 */
+  .ck-tagline { display: none; }
 }
 
 @media print {

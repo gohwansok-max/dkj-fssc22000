@@ -11,7 +11,7 @@
   전체 좌표계는 1265×1600, viewBox 는 정사각형이 되도록 좌우에 167.5씩 여백을 준다.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-167.5 0 1600 1600" role="img" aria-label="농협 심볼">
-  <path fill="#FFC629" fill-rule="evenodd" d="
+  <path fill="#FFC72C" fill-rule="evenodd" d="
     M 632.5 657.5
     L 355 0
     L 0 78
