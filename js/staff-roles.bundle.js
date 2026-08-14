@@ -45,6 +45,22 @@ window.DKJ_STAFF_ROLES={
         "reviewer"
       ]
     },
+    "0004": {
+      "name": "임석용",
+      "stages": [
+        "writer",
+        "reviewer",
+        "approver"
+      ]
+    },
+    "0005": {
+      "name": "최재원",
+      "stages": [
+        "writer",
+        "reviewer",
+        "approver"
+      ]
+    },
     "4343": {
       "name": "고환석",
       "stages": [
