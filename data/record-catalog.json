@@ -23,7 +23,9 @@
       "codes": [
         "FR-008",
         "FR-009",
-        "FR-010"
+        "FR-010",
+        "DKJ-H-01-10",
+        "DKJ-H-01-11"
       ]
     },
     {
@@ -33,7 +35,8 @@
       "codes": [
         "FR-011",
         "FR-012",
-        "FR-013"
+        "FR-013",
+        "DKJ-S-02-16"
       ]
     },
     {
@@ -43,7 +46,9 @@
       "codes": [
         "FR-014",
         "FR-015",
-        "DKJ-STORE-01"
+        "DKJ-STORE-01",
+        "DKJ-S-02-14",
+        "DKJ-S-02-15"
       ]
     },
     {
@@ -144,7 +149,8 @@
       "label": "부적합품",
       "icon": "⛔",
       "codes": [
-        "FR-039"
+        "FR-039",
+        "DKJ-S-02-19"
       ]
     },
     {
@@ -180,7 +186,11 @@
         "FR-044",
         "FR-045",
         "FR-046",
-        "FR-047"
+        "FR-047",
+        "DKJ-S-02-08",
+        "DKJ-S-02-09",
+        "DKJ-S-02-20",
+        "DKJ-S-02-31"
       ]
     },
     {
@@ -191,69 +201,19 @@
         "DKJ-H-01-01",
         "DKJ-H-01-02"
       ]
+    },
+    {
+      "id": "verification",
+      "label": "HACCP 검증",
+      "icon": "🔬",
+      "codes": [
+        "DKJ-H-01-06",
+        "DKJ-H-01-07",
+        "DKJ-H-01-08"
+      ]
     }
   ],
   "records": [
-    {
-      "id": "DKJ-S-02-01",
-      "code": "DKJ-S-02-01",
-      "title": "작업장 위생점검일지",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "매일",
-      "relatedProcedures": [
-        "DKJ-P-02",
-        "PRP-001",
-        "PRP-002"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-01.html",
-      "mdrCode": "DKJ-S-02-01"
-    },
-    {
-      "id": "DKJ-S-02-03",
-      "code": "DKJ-S-02-03",
-      "title": "개인위생점검일지",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "매일",
-      "relatedProcedures": [
-        "PRP-002"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-03.html",
-      "mdrCode": "DKJ-S-02-03"
-    },
-    {
-      "id": "DKJ-S-02-05",
-      "code": "DKJ-S-02-05",
-      "title": "온습도점검일지",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "매일",
-      "relatedProcedures": [
-        "PRP-001",
-        "PRP-004"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-05.html",
-      "mdrCode": "DKJ-S-02-05"
-    },
-    {
-      "id": "DKJ-STORE-01",
-      "code": "DKJ-STORE-01",
-      "title": "원료보관·선입선출 점검",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "매일",
-      "relatedProcedures": [
-        "DKJ-P-05",
-        "DKJ-W-002"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-STORE-01.html",
-      "mdrCode": "DKJ-STORE-01"
-    },
     {
       "id": "DKJ-H-01-01",
       "code": "DKJ-H-01-01",
@@ -281,6 +241,336 @@
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-02.html",
       "mdrCode": "DKJ-H-01-02"
+    },
+    {
+      "id": "DKJ-H-01-06",
+      "code": "DKJ-H-01-06",
+      "title": "HACCP 연간검증계획서",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "연간",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-H-01-06.html",
+      "mdrCode": "DKJ-H-01-06"
+    },
+    {
+      "id": "DKJ-H-01-07",
+      "code": "DKJ-H-01-07",
+      "title": "검증결과보고서",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "이슈",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-H-01-07.html",
+      "mdrCode": "DKJ-H-01-07"
+    },
+    {
+      "id": "DKJ-H-01-08",
+      "code": "DKJ-H-01-08",
+      "title": "검증개선조치보고서",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "이슈",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-H-01-08.html",
+      "mdrCode": "DKJ-H-01-08"
+    },
+    {
+      "id": "DKJ-H-01-10",
+      "code": "DKJ-H-01-10",
+      "title": "연간 교육훈련 계획서",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "연간",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-H-01-10.html",
+      "mdrCode": "DKJ-H-01-10"
+    },
+    {
+      "id": "DKJ-H-01-11",
+      "code": "DKJ-H-01-11",
+      "title": "교육훈련일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "이슈",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-H-01-11.html",
+      "mdrCode": "DKJ-H-01-11"
+    },
+    {
+      "id": "DKJ-S-02-01",
+      "code": "DKJ-S-02-01",
+      "title": "작업장 위생점검일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "매일",
+      "relatedProcedures": [
+        "DKJ-P-02",
+        "PRP-001",
+        "PRP-002"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-01.html",
+      "mdrCode": "DKJ-S-02-01"
+    },
+    {
+      "id": "DKJ-S-02-02",
+      "code": "DKJ-S-02-02",
+      "title": "조도점검일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "월간",
+      "relatedProcedures": [
+        "PRP-001"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-02.html",
+      "mdrCode": "DKJ-S-02-02"
+    },
+    {
+      "id": "DKJ-S-02-03",
+      "code": "DKJ-S-02-03",
+      "title": "개인위생점검일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "매일",
+      "relatedProcedures": [
+        "PRP-002"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-03.html",
+      "mdrCode": "DKJ-S-02-03"
+    },
+    {
+      "id": "DKJ-S-02-04",
+      "code": "DKJ-S-02-04",
+      "title": "이물관리점검일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "매일",
+      "relatedProcedures": [
+        "PRP-001",
+        "PRP-003"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-04.html",
+      "mdrCode": "DKJ-S-02-04"
+    },
+    {
+      "id": "DKJ-S-02-05",
+      "code": "DKJ-S-02-05",
+      "title": "온습도점검일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "매일",
+      "relatedProcedures": [
+        "PRP-001",
+        "PRP-004"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-05.html",
+      "mdrCode": "DKJ-S-02-05"
+    },
+    {
+      "id": "DKJ-S-02-06",
+      "code": "DKJ-S-02-06",
+      "title": "환기 및 급·배기시설점검표",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "월간",
+      "relatedProcedures": [
+        "PRP-001"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-06.html",
+      "mdrCode": "DKJ-S-02-06"
+    },
+    {
+      "id": "DKJ-S-02-07",
+      "code": "DKJ-S-02-07",
+      "title": "방충방서관리점검일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "월간",
+      "relatedProcedures": [
+        "PRP-001"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-07.html",
+      "mdrCode": "DKJ-S-02-07"
+    },
+    {
+      "id": "DKJ-S-02-08",
+      "code": "DKJ-S-02-08",
+      "title": "폐기물관리대장",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "이슈",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-08.html",
+      "mdrCode": "DKJ-S-02-08"
+    },
+    {
+      "id": "DKJ-S-02-09",
+      "code": "DKJ-S-02-09",
+      "title": "세척·소독제관리대장",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "월간",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-09.html",
+      "mdrCode": "DKJ-S-02-09"
+    },
+    {
+      "id": "DKJ-S-02-12",
+      "code": "DKJ-S-02-12",
+      "title": "제조시설·설비점검표",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "월간",
+      "relatedProcedures": [
+        "DKJ-P-02",
+        "PRP-001"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-12.html",
+      "mdrCode": "DKJ-S-02-12"
+    },
+    {
+      "id": "DKJ-S-02-13",
+      "code": "DKJ-S-02-13",
+      "title": "저수조 물탱크 위생점검일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "월간",
+      "relatedProcedures": [
+        "PRP-005"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-13.html",
+      "mdrCode": "DKJ-S-02-13"
+    },
+    {
+      "id": "DKJ-S-02-14",
+      "code": "DKJ-S-02-14",
+      "title": "원·부재료입고검사일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "이슈",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-14.html",
+      "mdrCode": "DKJ-S-02-14"
+    },
+    {
+      "id": "DKJ-S-02-15",
+      "code": "DKJ-S-02-15",
+      "title": "부자재(포장재)입고검사일지",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "이슈",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-15.html",
+      "mdrCode": "DKJ-S-02-15"
+    },
+    {
+      "id": "DKJ-S-02-16",
+      "code": "DKJ-S-02-16",
+      "title": "연 협력업체 점검계획서",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "연간",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-16.html",
+      "mdrCode": "DKJ-S-02-16"
+    },
+    {
+      "id": "DKJ-S-02-18",
+      "code": "DKJ-S-02-18",
+      "title": "운송차량 위생점검표",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "발생시",
+      "relatedProcedures": [
+        "PRP-006"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-18.html",
+      "mdrCode": "DKJ-S-02-18"
+    },
+    {
+      "id": "DKJ-S-02-19",
+      "code": "DKJ-S-02-19",
+      "title": "부적합품 처리보고서",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "이슈",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-19.html",
+      "mdrCode": "DKJ-S-02-19"
+    },
+    {
+      "id": "DKJ-S-02-20",
+      "code": "DKJ-S-02-20",
+      "title": "고객불만접수 및 처리대장",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "이슈",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-20.html",
+      "mdrCode": "DKJ-S-02-20"
+    },
+    {
+      "id": "DKJ-S-02-29",
+      "code": "DKJ-S-02-29",
+      "title": "종사자건강상태확인",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "매일",
+      "relatedProcedures": [
+        "PRP-002"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-29.html",
+      "mdrCode": "DKJ-S-02-29"
+    },
+    {
+      "id": "DKJ-S-02-31",
+      "code": "DKJ-S-02-31",
+      "title": "이물 관리 대장",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "이슈",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-S-02-31.html",
+      "mdrCode": "DKJ-S-02-31"
+    },
+    {
+      "id": "DKJ-STORE-01",
+      "code": "DKJ-STORE-01",
+      "title": "원료보관·선입선출 점검",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "매일",
+      "relatedProcedures": [
+        "DKJ-P-05",
+        "DKJ-W-002"
+      ],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-STORE-01.html",
+      "mdrCode": "DKJ-STORE-01"
     },
     {
       "id": "FR-001",
@@ -927,120 +1217,6 @@
       "htmlReady": true,
       "mdrCode": "DKJ-F-047",
       "htmlPath": "records/FR-047.html"
-    },
-    {
-      "id": "DKJ-S-02-02",
-      "code": "DKJ-S-02-02",
-      "title": "조도점검일지",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "월간",
-      "relatedProcedures": [
-        "PRP-001"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-02.html",
-      "mdrCode": "DKJ-S-02-02"
-    },
-    {
-      "id": "DKJ-S-02-04",
-      "code": "DKJ-S-02-04",
-      "title": "이물관리점검일지",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "매일",
-      "relatedProcedures": [
-        "PRP-001",
-        "PRP-003"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-04.html",
-      "mdrCode": "DKJ-S-02-04"
-    },
-    {
-      "id": "DKJ-S-02-06",
-      "code": "DKJ-S-02-06",
-      "title": "환기 및 급·배기시설점검표",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "월간",
-      "relatedProcedures": [
-        "PRP-001"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-06.html",
-      "mdrCode": "DKJ-S-02-06"
-    },
-    {
-      "id": "DKJ-S-02-07",
-      "code": "DKJ-S-02-07",
-      "title": "방충방서관리점검일지",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "월간",
-      "relatedProcedures": [
-        "PRP-001"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-07.html",
-      "mdrCode": "DKJ-S-02-07"
-    },
-    {
-      "id": "DKJ-S-02-12",
-      "code": "DKJ-S-02-12",
-      "title": "제조시설·설비점검표",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "월간",
-      "relatedProcedures": [
-        "DKJ-P-02",
-        "PRP-001"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-12.html",
-      "mdrCode": "DKJ-S-02-12"
-    },
-    {
-      "id": "DKJ-S-02-13",
-      "code": "DKJ-S-02-13",
-      "title": "저수조 물탱크 위생점검일지",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "월간",
-      "relatedProcedures": [
-        "PRP-005"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-13.html",
-      "mdrCode": "DKJ-S-02-13"
-    },
-    {
-      "id": "DKJ-S-02-18",
-      "code": "DKJ-S-02-18",
-      "title": "운송차량 위생점검표",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "발생시",
-      "relatedProcedures": [
-        "PRP-006"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-18.html",
-      "mdrCode": "DKJ-S-02-18"
-    },
-    {
-      "id": "DKJ-S-02-29",
-      "code": "DKJ-S-02-29",
-      "title": "종사자건강상태확인",
-      "rev": "Rev0",
-      "fileType": "html",
-      "frequency": "매일",
-      "relatedProcedures": [
-        "PRP-002"
-      ],
-      "htmlReady": true,
-      "htmlPath": "records/DKJ-S-02-29.html",
-      "mdrCode": "DKJ-S-02-29"
     }
   ],
   "mdrRev": "Rev11"

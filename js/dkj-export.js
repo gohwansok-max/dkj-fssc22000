@@ -151,8 +151,23 @@
     ['createdAt', '최초저장'], ['updatedAt', '최종수정']
   ];
 
-  /** 한 서식 묶음을 표(헤더 + 행들)로 만든다. 서식별 추가 컬럼은 등장 순서대로 뒤에 붙는다. */
-  function toTable(rows) {
+  /**
+   * 한 서식 묶음을 표(헤더 + 행들)로 만든다. 서식별 추가 컬럼은 등장 순서대로 뒤에 붙는다.
+   *
+   * commonOnly 를 주면 공통 13컬럼만 낸다. 서로 다른 서식을 한 표에 합치면 각 서식의
+   * 고유 필드가 전부 옆으로 붙어 서식이 늘수록 컬럼이 수백 개로 불어나고, 대부분의 칸이
+   * 빈 채로 남아 사람이 읽을 수 없게 된다 — 여러 서식이 섞인 표는 '언제·누가·무엇을·
+   * 결과가 어땠는가'만 보이고, 세부 점검항목은 서식별 시트에서 본다.
+   */
+  function toTable(rows, commonOnly) {
+    if (commonOnly) {
+      return {
+        header: BASE_COLS.map(function (c) { return c[1]; }),
+        body: rows.map(function (r) {
+          return BASE_COLS.map(function (c) { return r[c[0]] || ''; });
+        })
+      };
+    }
     var extraKeys = [];
     var flats = rows.map(function (r) {
       var f = flatten(r.raw);
@@ -186,9 +201,20 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
-  /** CSV — 엑셀이 한글을 깨뜨리지 않도록 BOM 을 붙인다. */
+  /** 이 묶음에 서식이 몇 종 섞여 있는지 */
+  function formCount(rows) {
+    var seen = {};
+    rows.forEach(function (r) { seen[r.formId] = 1; });
+    return Object.keys(seen).length;
+  }
+
+  /**
+   * CSV — 엑셀이 한글을 깨뜨리지 않도록 BOM 을 붙인다.
+   * 시트를 나눌 수 없는 단일 표라, 한 서식만 뽑았을 때는 세부 항목까지 전부 내고
+   * 여러 서식이 섞였을 때는 공통 컬럼만 낸다(안 그러면 컬럼이 수백 개가 된다).
+   */
   function toCsv(rows, filename) {
-    var t = toTable(rows);
+    var t = toTable(rows, formCount(rows) > 1);
     function cell(v) {
       var s = String(v == null ? '' : v);
       return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
@@ -230,6 +256,9 @@
   /**
    * XLSX — '전체' 시트 하나 + 서식별 시트. 심사에서 특정 서식만 뽑아 보는 일이 잦아서
    * 서식별로 나눠 둔다.
+   *
+   * '전체' 시트는 공통 13컬럼만 쓴다(색인 역할). 세부 점검항목까지 필요하면 그 아래
+   * 서식별 시트를 본다 — 서식마다 필드가 달라 한 표에 다 넣으면 컬럼이 수백 개가 된다.
    */
   function toXlsx(rows, filename, meta) {
     return loadExcelJs().then(function (ExcelJS) {
@@ -237,8 +266,8 @@
       wb.creator = '동김제농협 가공센터 스마트 HACCP';
       wb.created = new Date();
 
-      function addSheet(name, list) {
-        var t = toTable(list);
+      function addSheet(name, list, commonOnly) {
+        var t = toTable(list, commonOnly);
         var sheet = wb.addWorksheet(safeSheetName(name));
         sheet.addRow(t.header);
         t.body.forEach(function (r) { sheet.addRow(r); });
@@ -249,7 +278,7 @@
         return sheet;
       }
 
-      addSheet('전체', rows);
+      addSheet('전체', rows, true);
 
       var byForm = {};
       rows.forEach(function (r) {
