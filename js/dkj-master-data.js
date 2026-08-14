@@ -60,7 +60,8 @@
   }
 
   function suggestLot(dateStr) {
-    var d = dateStr || new Date().toISOString().slice(0, 10);
+    var now = new Date();
+    var d = dateStr || (now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0'));
     var compact = d.replace(/-/g, '');
     var seq = String(Math.floor(Math.random() * 900) + 100);
     return compact + '-' + seq;

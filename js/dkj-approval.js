@@ -126,7 +126,7 @@
   }
 
   /* ---------- 저장 훅 ----------
-     세 엔진(matrix/ledger/report)이 모두 DkjRecordStore.save 를 쓴다.
+     모든 엔진·서식별 스크립트가 DkjRecordStore.save 를 쓴다.
      엔진을 각각 고치는 대신 저장 지점 한 곳에서 이력을 남긴다. */
   function installHook() {
     if (!global.DkjRecordStore || global.DkjRecordStore.__auditHooked) return;
