@@ -99,8 +99,17 @@
     return ((u && (u.name || u.empId)) || '') + ' 님에게는 이 단계 권한이 없습니다.';
   }
 
+  /**
+   * 사번 정규화 — 계정 체계가 4자리(emp0001·emp4343)라서, 현장에서 '1' 만 눌러도
+   * emp0001 로 붙도록 앞을 0 으로 채운다. 4자리 이상이면 손대지 않는다.
+   */
+  function normId(empId) {
+    var v = String(empId == null ? '' : empId).trim();
+    return /^[0-9]{1,3}$/.test(v) ? ('000' + v).slice(-4) : v;
+  }
+
   function email(empId) {
-    return 'emp' + String(empId).trim() + (CFG.emailDomain || '@dkj-fssc.internal');
+    return 'emp' + normId(empId) + (CFG.emailDomain || '@dkj-fssc.internal');
   }
 
   function readJson(store, key, fallback) {
@@ -143,8 +152,19 @@
 
   async function login(empId, password) {
     if (!configured()) throw new Error('NOT_CONFIGURED');
-    var d = await signIn(empId, password);
-    persist(empId, d.displayName || String(empId), d.idToken, d.refreshToken, d.localId);
+    var id = normId(empId);
+    var d = await signIn(id, password);
+    var name = d.displayName || '';
+    if (!name) {
+      // Firebase 콘솔에서 추가한 계정에는 표시이름(displayName)이 없다. 그대로 두면
+      // 기록의 작성자·결재자가 '4343' 같은 사번으로 남아 HACCP 기록으로 읽기 어렵다.
+      // 그래서 역할표(data/staff-roles.json)의 실명을 가져다 쓴다.
+      try {
+        var st = await loadStaff();
+        if (st && st[id] && st[id].name) name = st[id].name;
+      } catch (e) { /* 역할표를 못 읽으면 사번으로 남는다 — 로그인은 막지 않는다 */ }
+    }
+    persist(id, name || id, d.idToken, d.refreshToken, d.localId);
     if (global.DkjCloudSync) global.DkjCloudSync.start();
     return { empId: state.empId, name: state.name };
   }

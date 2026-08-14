@@ -23,5 +23,36 @@ window.DKJ_STAFF_ROLES={
     "  \"1003\": { \"name\": \"박승인\", \"stages\": [\"reviewer\", \"approver\"], \"admin\": true }"
   ],
   "updatedAt": "2026-08-14",
-  "staff": {}
+  "staff": {
+    "0001": {
+      "name": "이다은",
+      "stages": [
+        "writer"
+      ]
+    },
+    "0002": {
+      "name": "최민재",
+      "stages": [
+        "writer",
+        "reviewer",
+        "approver"
+      ]
+    },
+    "0003": {
+      "name": "권화선",
+      "stages": [
+        "writer",
+        "reviewer"
+      ]
+    },
+    "4343": {
+      "name": "고환석",
+      "stages": [
+        "writer",
+        "reviewer",
+        "approver"
+      ],
+      "admin": true
+    }
+  }
 };

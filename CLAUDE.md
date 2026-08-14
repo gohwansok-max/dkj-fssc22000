@@ -67,18 +67,29 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 - **정본(SSOT)은 브라우저 `localStorage`** 이고, Firebase RTDB(`js/dkj-cloud-sync.js`)가
   기기 간 동기화 사본입니다. 서버 DB 는 없습니다.
 
-> **현재 클라우드는 꺼져 있습니다 (2026-08-14 확인).**
-> `js/dkj-firebase-config.js` 의 `apiKey`·`databaseURL`·`projectId` 가 전부 빈 문자열이라
-> `DkjAuth.configured()` 가 `false` 입니다. 그래서 지금 실제 동작은 이렇습니다.
-> - 기록은 **그 태블릿에만** 저장됩니다. 기기 간 공유·백업이 안 됩니다.
-> - **직원별 로그인이 뜨지 않습니다.** 코드는 준비돼 있지만 설정 전에는 화면을 막지
->   않도록 통과시킵니다(파일럿 중 현장이 멈추지 않게 한 의도적 동작).
-> - 그래서 결재 서명이 로그인 사용자가 아니라 **폼에 적힌 이름**으로 남습니다
->   (`signoff.source === 'form'`). 서명 주체 검증은 클라우드를 켜야 발현됩니다.
-> - 헤더의 '기기 저장 — 백업을 권합니다' 표시는 이 상태를 정확히 말한 것입니다.
+> **클라우드 켜짐 (2026-08-14 설정 완료).**
+> `js/dkj-firebase-config.js` 에 Firebase 프로젝트 `dkj-fssc22000` 값이 들어가 있어
+> `DkjAuth.configured()` 가 `true` 입니다. 그래서 지금 동작은 이렇습니다.
+> - `records/` 아래 서식을 열면 **사번·비밀번호 로그인 화면**이 먼저 뜹니다.
+> - 저장된 기록(`dkj:records:*:list:v1`)은 30초 주기로 RTDB 와 양방향 병합됩니다.
+>   같은 id 는 `updatedAt` 이 최신인 쪽이 남습니다(통째 덮어쓰기 아님).
+> - 결재 서명이 **로그인한 사람** 기준으로 남고, `data/staff-roles.json` 의 단계 권한이
+>   실제로 걸립니다. 표에 없는 사번은 결재를 확정할 수 없습니다.
 >
-> 켜는 절차는 `js/dkj-firebase-config.js` 파일 맨 위 주석에 단계별로 적혀 있습니다
-> (프로젝트 생성 → 이메일/비밀번호 로그인 켜기 → 가입 차단 → DB 규칙 → 값 채우기).
+> 계정 체계 — 이메일은 `emp<사번>@dkj-fssc.internal`(실제 메일 주소 아님), 콘솔에서
+> 관리자가 직접 추가합니다(공개 가입·삭제는 콘솔에서 차단해 뒀습니다). 사번은 4자리이고
+> 로그인 화면에서 `1` 만 입력해도 `0001` 로 채워집니다(`normId()`).
+>
+> 표시이름 — 콘솔에서 만든 계정에는 `displayName` 이 없어서, 로그인 시
+> `data/staff-roles.json` 의 실명을 가져와 작성자·결재자 이름으로 씁니다. **직원이 늘면
+> 이 표에 사번·이름을 추가하고 `build-catalog-bundles.py` 를 돌려야** 기록에 사번 대신
+> 이름이 남습니다.
+>
+> 주의 — GitHub Pages 사이트는 저장소가 비공개여도 **누구나 열람 가능**합니다.
+> `data/staff-roles.json` 의 실명도 공개 주소에서 읽힙니다. 노출이 부담되면 이름을
+> 축약(`이 사원`)하거나 비우면 됩니다(그 경우 기록에는 사번이 남습니다).
+> 실제 기록 내용은 로그인 + RTDB 규칙(`auth != null`)으로 보호되므로 공개되지 않습니다.
+
 - 기록 저장은 반드시 **`js/dkj-record-store.js`** 를 거칩니다. 키 규칙:
   - `dkj:records:<서식코드>:list:v1` — 저장된 기록 배열 (기록보관함이 읽는 유일한 곳)
   - `dkj:records:<서식코드>:draft:v1` — 작성 중 임시본
