@@ -1,11 +1,11 @@
 {
   "tenantId": "dkj",
-  "displayName": "동김제농협 가공센터",
+  "displayName": "동김제농협 산지유통센터",
   "certification": "FSSC22000_V6",
   "theme": "nonghyup-corporate",
   "organization": {
     "shortName": "동김제농협",
-    "fullName": "동김제농협 가공센터",
+    "fullName": "동김제농협 산지유통센터",
     "roles": ["조합장", "센터장", "HACCP팀장", "생산팀장", "품질담당"]
   },
   "portal": {

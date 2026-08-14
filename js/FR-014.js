@@ -384,7 +384,7 @@
     if (window.DkjPrint) {
       DkjPrint.print({
         layout: 'official-fr014',
-        orgName: '동김제농협 가공센터',
+        orgName: '동김제농협 산지유통센터',
         docNo: 'FR-014',
         title: '원부자재 입고검사 기록',
         rev: '0',

@@ -90,7 +90,7 @@
   "print": {
     "layout": "official-prp-ox",
     "columnMode": "ampm",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "DKJ-S-02-29",
     "title": "종사자건강상태확인",
     "rev": "0",

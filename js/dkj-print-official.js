@@ -247,7 +247,7 @@
       '<th style="width:12%">조치자</th><th style="width:12%">확인자</th>' +
       '</tr></thead><tbody>' + devBody + '</tbody></table>' +
 
-      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · DKJ-H-01-02</div>' +
+      '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · DKJ-H-01-02</div>' +
       '</div>'
     );
   }
@@ -406,7 +406,7 @@
       '<th style="width:12%">조치자</th><th style="width:12%">확인자</th>' +
       '</tr></thead><tbody>' + devBody + '</tbody></table>' +
 
-      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · DKJ-H-01-01</div>' +
+      '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · DKJ-H-01-01</div>' +
       '</div>'
     );
   }
@@ -556,7 +556,7 @@
       '<tr><th class="lab">비고</th>' +
       '<td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
       '<div class="off-note tiny">' + esc(note) + '</div>' +
-      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || '') + '</div>' +
+      '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · ' + esc(tmpl.docNo || '') + '</div>' +
       '</div>'
     );
   }
@@ -640,7 +640,7 @@
       '<td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
 
       '<div class="off-note tiny">' + esc(note) + '</div>' +
-      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || 'DKJ-S-02-05') + '</div>' +
+      '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · ' + esc(tmpl.docNo || 'DKJ-S-02-05') + '</div>' +
       '</div>'
     );
   }
@@ -707,7 +707,7 @@
       '<tr><th class="lab">비고</th>' +
       '<td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
       '<div class="off-note tiny">' + esc(note) + '</div>' +
-      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || 'DKJ-S-02-02') + '</div>' +
+      '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · ' + esc(tmpl.docNo || 'DKJ-S-02-02') + '</div>' +
       '</div>'
     );
   }
@@ -767,7 +767,7 @@
       '<th class="lab">확인자</th><td class="c">' + esc(state.confirmer || '') + '</td></tr>' +
       '<tr><th class="lab">비고</th><td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
       '<div class="off-note tiny">※ 평가 — 양호: ○ , 부적합: × , 해당없음: — · 부적합 시 FR-015 연계</div>' +
-      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · FR-014</div></div>'
+      '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · FR-014</div></div>'
     );
   }
 
@@ -833,7 +833,7 @@
       '<th class="lab">승인자</th><td class="c">' + esc(state.approver || '') + '</td></tr>' +
       '<tr><th class="lab">비고</th><td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
       '<div class="off-note tiny">※ 부적합품은 식별·격리 후 처리판정·재검사·시정조치를 기록한다.</div>' +
-      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · FR-015</div></div>'
+      '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · FR-015</div></div>'
     );
   }
 
@@ -909,7 +909,7 @@
       esc(state.reviewer || '') + ' / ' + esc(state.approver || '') + '</td></tr>' +
       '<tr><th class="lab">조치·비고</th><td class="l tiny" colspan="3">' +
       esc(state.corrective || '') + (state.remark ? ' · ' + esc(state.remark) : '') + '</td></tr></table>' +
-      '<div class="off-foot">동김제농협 가공센터 · FSSC22000 · ' + esc(tmpl.docNo || '') + '</div></div>'
+      '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · ' + esc(tmpl.docNo || '') + '</div></div>'
     );
   }
 

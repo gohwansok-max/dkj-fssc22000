@@ -133,7 +133,7 @@ LUX_FORM = {
 def upgrade_print_block(old: dict, overrides: dict, title: str, code: str) -> dict:
     out = dict(old) if old else {}
     out.update(overrides)
-    out["orgName"] = "동김제농협 가공센터"
+    out["orgName"] = "동김제농협 산지유통센터"
     out["docNo"] = code
     out["title"] = title
     out["rev"] = out.get("rev") or "0"
@@ -249,7 +249,7 @@ def patch_fr014() -> None:
     ]
     tmpl = {
         "layout": "official-fr014",
-        "orgName": "동김제농협 가공센터",
+        "orgName": "동김제농협 산지유통센터",
         "docNo": "FR-014",
         "title": "원부자재 입고검사 기록",
         "rev": "0",
@@ -268,7 +268,7 @@ def patch_fr014() -> None:
     if (window.DkjPrint) {
       DkjPrint.print({
         layout: 'official-fr014',
-        orgName: '동김제농협 가공센터',
+        orgName: '동김제농협 산지유통센터',
         docNo: 'FR-014',
         title: '원부자재 입고검사 기록',
         rev: '0',
@@ -298,7 +298,7 @@ def patch_fr014() -> None:
 def patch_fr015() -> None:
     tmpl = {
         "layout": "official-fr015",
-        "orgName": "동김제농협 가공센터",
+        "orgName": "동김제농협 산지유통센터",
         "docNo": "FR-015",
         "title": "부적합 원부자재 처리기록",
         "rev": "0",
@@ -316,7 +316,7 @@ def patch_fr015() -> None:
     if (window.DkjPrint) {
       DkjPrint.print({
         layout: 'official-fr015',
-        orgName: '동김제농협 가공센터',
+        orgName: '동김제농협 산지유통센터',
         docNo: 'FR-015',
         title: '부적합 원부자재 처리기록',
         rev: '0',

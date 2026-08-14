@@ -263,7 +263,7 @@
   function toXlsx(rows, filename, meta) {
     return loadExcelJs().then(function (ExcelJS) {
       var wb = new ExcelJS.Workbook();
-      wb.creator = '동김제농협 가공센터 스마트 HACCP';
+      wb.creator = '동김제농협 산지유통센터 스마트 HACCP';
       wb.created = new Date();
 
       function addSheet(name, list, commonOnly) {
@@ -292,7 +292,7 @@
       var info = wb.addWorksheet('내보내기 정보');
       info.columns = [{ width: 18 }, { width: 60 }];
       [
-        ['사업장', '동김제농협 가공센터'],
+        ['사업장', '동김제농협 산지유통센터'],
         ['내보낸 시각', new Date().toLocaleString('ko-KR')],
         ['기간', ((meta && meta.from) || '전체') + ' ~ ' + ((meta && meta.to) || '전체')],
         ['서식', (meta && meta.formId) || '전체'],
@@ -316,7 +316,7 @@
 
   /** 전체 기록 원본 백업 — 복원 가능한 형태(JSON). */
   function toJsonBackup(filename) {
-    var dump = { site: '동김제농협 가공센터', exportedAt: new Date().toISOString(), records: {} };
+    var dump = { site: '동김제농협 산지유통센터', exportedAt: new Date().toISOString(), records: {} };
     for (var i = 0; i < localStorage.length; i++) {
       var key = localStorage.key(i);
       if (key && LIST_RE.test(key)) {

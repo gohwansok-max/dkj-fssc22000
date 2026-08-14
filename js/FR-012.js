@@ -85,7 +85,7 @@
   ],
   "print": {
     "layout": "official-fr-generic",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "FR-012",
     "title": "승인공급업체 목록",
     "subtitle": "FSSC22000 · 월간",

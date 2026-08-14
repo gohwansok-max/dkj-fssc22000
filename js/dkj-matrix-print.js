@@ -291,7 +291,7 @@
         headHtml(spec, st) +
         gridHtml(spec, st, pageRows, isLast) +
         (isLast ? incidentHtml(spec, st) : '') +
-        '<div class="off-foot">' + esc(spec.orgName || '동김제농협 가공센터') +
+        '<div class="off-foot">' + esc(spec.orgName || '동김제농협 산지유통센터') +
         ' · ' + esc(spec.docNo || '') + ' · ' + (pi + 1) + ' / ' + pages.length + '</div>'
       );
     }).join('');

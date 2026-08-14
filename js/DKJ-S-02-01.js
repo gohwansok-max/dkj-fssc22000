@@ -23,7 +23,7 @@
   "rev": "0",
   "enactDate": "2026. 02. 13",
   "reviseDate": "-",
-  "orgName": "동김제농협 가공센터",
+  "orgName": "동김제농협 산지유통센터",
   "pageBreakAfter": [
     20
   ],

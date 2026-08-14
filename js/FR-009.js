@@ -114,7 +114,7 @@
   ],
   "print": {
     "layout": "official-fr-generic",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "FR-009",
     "title": "교육훈련 실시 및 평가 기록",
     "subtitle": "FSSC22000 · 이슈",

@@ -1,6 +1,6 @@
 window.DKJ_RECORD_CATALOG={
   "updatedAt": "2026-07-14",
-  "site": "동김제농협 가공센터",
+  "site": "동김제농협 산지유통센터",
   "categories": [
     {
       "id": "document",

@@ -57,7 +57,7 @@ PRINT_SNIPPET = """
       var tmpl = {
         layout: 'ox',
         columnMode: 'result',
-        orgName: '동김제농협 가공센터',
+        orgName: '동김제농협 산지유통센터',
         docNo: FORM_ID,
         title: document.title.split('|')[0].trim(),
         rev: '0',

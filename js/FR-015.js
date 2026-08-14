@@ -316,7 +316,7 @@
     if (window.DkjPrint) {
       DkjPrint.print({
         layout: 'official-fr015',
-        orgName: '동김제농협 가공센터',
+        orgName: '동김제농협 산지유통센터',
         docNo: 'FR-015',
         title: '부적합 원부자재 처리기록',
         rev: '0',

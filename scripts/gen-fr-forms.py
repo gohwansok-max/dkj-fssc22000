@@ -816,7 +816,7 @@ def build_print(spec: dict) -> dict:
     sections = [{"id": s["id"], "label": s["label"]} for s in spec.get("sections", [])]
     return {
         "layout": "official-fr-generic",
-        "orgName": "동김제농협 가공센터",
+        "orgName": "동김제농협 산지유통센터",
         "docNo": spec["code"],
         "title": spec["title"],
         "subtitle": spec.get("subtitle", "FSSC22000 기록양식"),

@@ -104,7 +104,7 @@
   ],
   "print": {
     "layout": "official-fr-generic",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "FR-010",
     "title": "개인별 역량평가표",
     "subtitle": "FSSC22000 · 연간",
