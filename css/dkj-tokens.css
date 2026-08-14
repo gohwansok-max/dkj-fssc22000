@@ -193,7 +193,11 @@
   align-items: center;
   gap: 9px;
   flex: 0 0 auto;
-  background: #fff;
+  /* 순백 대신 살짝 가라앉힌 톤 — 노랑 심볼의 가장자리가 타일에 묻히지 않게 한다.
+     주의: 노랑(#FFC72C)은 그 자체가 밝은 색이라 타일을 '조금' 어둡게 해서는 명도 대비가
+     오히려 떨어진다(흰 바탕 1.56:1 → 이 톤 1.41:1). 실제로 또렷하게 하려면 타일을
+     --nh-green-dark 수준으로 낮추고 글자를 흰색으로 바꿔야 한다(그때 3.9:1). */
+  background: var(--nh-green-50);
   border-radius: 10px;
   padding: 6px 13px 6px 9px;
 }
