@@ -26,6 +26,79 @@
     return !!(CFG.apiKey && CFG.databaseURL);
   }
 
+  /* ---------- 직원별 결재 권한 ----------
+     역할표는 data/staff-roles.json 에 있다. localStorage 가 아니라 배포 파일인 이유는
+     역할표가 모든 태블릿에서 같아야 하는데 dkj-cloud-sync 는 기록 키만 동기화하기
+     때문이다(localStorage 에 두면 기기마다 달라진다).
+
+     표가 비어 있으면 아무도 막지 않는다 — 지금까지 동작 그대로다. 실제 사번을 채우는
+     순간부터 제한이 걸린다. 로그인 자체가 없는 상태(클라우드 미설정)에서도 막지 않는다.
+     누구인지 모르는데 권한을 따질 수 없기 때문이다. */
+  var staffCache = null;      // null = 아직 안 읽음, {} = 표가 빔
+
+  /** 이 스크립트(js/dkj-auth.js) 위치에서 사이트 루트를 되짚는다 — records/ 하위에서도 맞게 */
+  function scriptRoot() {
+    var all = document.getElementsByTagName('script');
+    for (var i = all.length - 1; i >= 0; i--) {
+      var src = all[i].src || '';
+      if (src.indexOf('dkj-auth.js') !== -1) {
+        return src.split('?')[0].replace(/js\/dkj-auth\.js$/, '');
+      }
+    }
+    return '';
+  }
+
+  function loadStaff() {
+    if (staffCache) return Promise.resolve(staffCache);
+    if (global.DKJ_STAFF_ROLES) {
+      staffCache = global.DKJ_STAFF_ROLES.staff || {};
+      return Promise.resolve(staffCache);
+    }
+    var root = scriptRoot();
+    return fetch(root + 'data/staff-roles.json')
+      .then(function (r) { if (!r.ok) throw new Error('staff-roles'); return r.json(); })
+      ['catch'](function () {
+        // file:// 이거나 파일이 없으면 번들로 — 카탈로그들과 같은 방식
+        return new Promise(function (resolve) {
+          var s = document.createElement('script');
+          s.src = root + 'js/staff-roles.bundle.js';
+          s.onload = function () { resolve(global.DKJ_STAFF_ROLES || { staff: {} }); };
+          s.onerror = function () { resolve({ staff: {} }); };
+          document.head.appendChild(s);
+        });
+      })
+      .then(function (d) {
+        staffCache = (d && d.staff) || {};
+        try {
+          document.dispatchEvent(new CustomEvent('dkj:staff-loaded'));
+        } catch (e) { /* 구형 브라우저 — 이벤트 없이도 다음 렌더에 반영된다 */ }
+        return staffCache;
+      });
+  }
+
+  /**
+   * 이 사람이 해당 결재 단계를 확정할 수 있나.
+   * @param who 생략하면 지금 로그인한 사람. 검증·시뮬레이션 때 { empId, name } 을 넘길 수 있다.
+   */
+  function can(stageKey, who) {
+    var u = who === undefined ? (state.empId ? state : null) : who;
+    if (!u || !u.empId) return true;    // 로그인 없음 = 예전처럼 동작
+    if (!staffCache) return true;       // 표를 아직 못 읽었으면 막지 않는다
+    if (!Object.keys(staffCache).length) return true;   // 표가 비어 있음
+    var row = staffCache[u.empId];
+    if (!row) return false;             // 표에 없는 사번은 결재 불가
+    return (row.stages || []).indexOf(stageKey) !== -1;
+  }
+
+  /** 권한이 없을 때 화면에 보여 줄 사유 */
+  function denyReason(stageKey, who) {
+    var u = who === undefined ? (state.empId ? state : null) : who;
+    if (can(stageKey, u)) return '';
+    var row = staffCache && u && staffCache[u.empId];
+    if (!row) return '결재 권한표에 등록되지 않은 사번입니다 (' + (u && u.empId) + ').';
+    return ((u && (u.name || u.empId)) || '') + ' 님에게는 이 단계 권한이 없습니다.';
+  }
+
   function email(empId) {
     return 'emp' + String(empId).trim() + (CFG.emailDomain || '@dkj-fssc.internal');
   }
@@ -223,11 +296,17 @@
     requireLogin: requireLogin,
     configured: configured,
     user: function () { return state.empId ? { empId: state.empId, name: state.name } : null; },
-    token: function () { return state.token; }
+    token: function () { return state.token; },
+    loadStaff: loadStaff,
+    staff: function () { return staffCache; },
+    can: can,
+    denyReason: denyReason
   };
 
   // records/ 아래 기록 서식은 자동으로 로그인을 요구한다
   function boot() {
+    // 결재 화면이 권한을 물어볼 수 있게 역할표를 미리 읽어 둔다(실패해도 화면은 돈다)
+    if (/\/records\//.test(location.pathname)) loadStaff()['catch'](function () {});
     if (/\/records\//.test(location.pathname)) requireLogin().catch(function () {});
     else resume().then(renderBar).catch(function () {});
   }

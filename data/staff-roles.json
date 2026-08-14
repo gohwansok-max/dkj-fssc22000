@@ -1,0 +1,27 @@
+{
+  "_설명": [
+    "직원별 결재 권한표. 이 파일을 고치면 scripts/build-catalog-bundles.py 를 돌려",
+    "js/staff-roles.bundle.js 를 다시 만들고 배포해야 태블릿에 반영됩니다.",
+    "",
+    "왜 파일인가 — 역할표는 모든 태블릿에서 같아야 하는데, js/dkj-cloud-sync.js 는",
+    "기록 키(dkj:records:*:list:v1)만 동기화하므로 localStorage 에 두면 기기마다 달라집니다.",
+    "",
+    "staff 의 키는 사번이고, Firebase 계정(emp<사번>@dkj-fssc.internal)의 사번과 같아야 합니다.",
+    "stages 에 적힌 단계만 그 사람이 결재를 확정할 수 있습니다.",
+    "  writer   작성 확정",
+    "  reviewer 검토 확정",
+    "  approver 승인 확정",
+    "admin 은 앞으로 관리 기능이 생길 때 쓸 표시입니다(지금은 결재에 영향 없음).",
+    "",
+    "staff 가 비어 있으면 아무도 막지 않습니다 — 지금까지처럼 누구나 모든 단계를",
+    "확정할 수 있습니다. 실제 사번을 채워 넣는 순간부터 제한이 걸립니다.",
+    "표에 없는 사번으로 로그인한 사람은 결재를 확정할 수 없습니다.",
+    "",
+    "예시:",
+    "  \"1001\": { \"name\": \"홍길동\", \"stages\": [\"writer\"] },",
+    "  \"1002\": { \"name\": \"김검토\", \"stages\": [\"writer\", \"reviewer\"] },",
+    "  \"1003\": { \"name\": \"박승인\", \"stages\": [\"reviewer\", \"approver\"], \"admin\": true }"
+  ],
+  "updatedAt": "2026-08-14",
+  "staff": {}
+}

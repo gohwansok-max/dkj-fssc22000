@@ -181,14 +181,22 @@
       var shown = done ? (sign.empId ? sign.name + ' (' + sign.empId + ')' : sign.name) : (name || '—');
       var mismatch = done && sign.claimed
         ? '<div class="apv-claimed">기재명 ' + esc(sign.claimed) + '</div>' : '';
+      // 권한표에 걸리면 버튼을 눌러도 되지 않으니 아예 잠그고 이유를 적는다
+      var allowed = !global.DkjAuth || !global.DkjAuth.can || global.DkjAuth.can(st.key);
+      var why = allowed || !global.DkjAuth.denyReason ? '' : global.DkjAuth.denyReason(st.key);
+
       return '<div class="apv-stage' + (done ? ' done' : '') + '">' +
         '<div class="apv-lab">' + esc(st.label) + '</div>' +
         '<div class="apv-name">' + esc(shown) + '</div>' + mismatch +
         '<div class="apv-at">' + (done ? esc(fmt(sign.at)) : '미결재') + '</div>' +
         (done
           ? '<span class="apv-mark">서명됨</span>'
-          : '<button type="button" class="pill-btn ghost apv-btn" data-stage="' +
-            st.key + '">' + esc(st.label) + ' 확정</button>') +
+          : allowed
+            ? '<button type="button" class="pill-btn ghost apv-btn" data-stage="' +
+              st.key + '">' + esc(st.label) + ' 확정</button>'
+            : '<button type="button" class="pill-btn ghost apv-btn" disabled ' +
+              'title="' + esc(why) + '">' + esc(st.label) + ' 확정</button>' +
+              '<div class="apv-deny">' + esc(why) + '</div>') +
         '</div>';
     }
 
@@ -223,6 +231,11 @@
       host.querySelectorAll('.apv-btn').forEach(function (b) {
         b.addEventListener('click', function () {
           var key = b.getAttribute('data-stage');
+          // 버튼은 잠가 뒀지만 화면을 만져 되살릴 수 있으니 누를 때 한 번 더 본다
+          if (global.DkjAuth && global.DkjAuth.can && !global.DkjAuth.can(key)) {
+            alert(global.DkjAuth.denyReason(key));
+            return;
+          }
           var st = getState();
           var claimed = (st.approvals && st.approvals[key]) || '';
           var u = me();
@@ -261,6 +274,8 @@
     }
 
     render();
+    // 역할표는 화면보다 늦게 올 수 있다 — 도착하면 버튼 잠금 상태만 다시 그린다
+    document.addEventListener('dkj:staff-loaded', render);
     return { render: render };
   }
 
