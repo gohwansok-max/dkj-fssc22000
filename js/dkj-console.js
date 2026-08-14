@@ -330,8 +330,9 @@
     /* 오늘 날짜 */
     var td = document.getElementById('ckDate');
     if (td) {
-      td.textContent = today.getFullYear() + '년 ' + (today.getMonth() + 1) + '월 ' +
-        today.getDate() + '일 (' + DOW[today.getDay()] + ')';
+      // 연도를 따로 감싸 두면 좁은 화면에서 CSS 로만 접을 수 있다(.ck-today-year)
+      td.innerHTML = '<span class="ck-today-year">' + today.getFullYear() + '년 </span>' +
+        (today.getMonth() + 1) + '월 ' + today.getDate() + '일 (' + DOW[today.getDay()] + ')';
     }
   }
 

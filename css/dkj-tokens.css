@@ -255,6 +255,9 @@
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  /* 폭이 모자랄 때 '기 록 목 록'처럼 글자가 세로로 쪼개지는 것을 막는다 */
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .ck-hbtn:hover { background: rgba(255, 255, 255, .2); }
@@ -322,6 +325,34 @@
   .ck-main { padding: 16px 14px 40px; }
   /* 태블릿 가로폭에서는 워드마크와 메뉴가 먼저다 — 부제는 접는다 */
   .ck-tagline { display: none; }
+}
+
+/* 휴대폰 — 헤더를 두 줄로 접는다.
+   한 줄에 로고·날짜·메뉴를 다 밀어넣으면 버튼이 눌려 글자가 세로로 쪼개지고
+   워드마크와 날짜가 겹친다(2026-08 현장 갤럭시에서 확인). 줄바꿈을 허용하고
+   고정 높이(72px)를 풀어 내용만큼 늘어나게 한다. */
+@media (max-width: 640px) {
+  .ck-header {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .ck-brand { flex: 1 1 100%; }
+
+  .ck-header-right {
+    margin-left: 0;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .ck-today { font-size: 12.5px; padding: 6px 12px; }
+  .ck-today-year { display: none; }     /* '2026년' 은 접는다 — 폭이 아깝다 */
+
+  .ck-hbtn { height: 40px; padding: 0 12px; font-size: 13px; }
 }
 
 @media print {
