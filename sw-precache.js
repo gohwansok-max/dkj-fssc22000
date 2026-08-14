@@ -1,8 +1,9 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-47cde9a351ab';
+self.DKJ_SW_VERSION = 'v1-06e575db48e7';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
+  './assets/brand/nh-symbol-green.svg',
   './assets/brand/nh-symbol.svg',
   './config.json',
   './css/dkj-archive.css',
