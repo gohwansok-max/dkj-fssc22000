@@ -108,6 +108,25 @@
     });
   }
 
+  /**
+   * 정본 PDF 가 있는 문서의 id·code 를 한 번에 모아 { 'DKJ-P-01': true, … } 로 돌려준다.
+   * 목록 화면이 문서 143건마다 getPdfPath 를 부르지 않아도 되게 하기 위함
+   * (읽는 파일은 어차피 매니페스트·자산 두 개뿐이라 한 번이면 된다).
+   */
+  function pdfIndex() {
+    return Promise.all([loadPdfManifest(), loadDocAssets()]).then(function (res) {
+      var out = {};
+      ((res[0] && res[0].files) || []).forEach(function (f) {
+        if (f && f.id && f.pdf) out[f.id] = true;
+      });
+      var map = (res[1] && res[1].map) || {};
+      Object.keys(map).forEach(function (k) {
+        if (map[k] && map[k].pdf) out[k] = true;
+      });
+      return out;
+    });
+  }
+
   function recordsForProcedure(procId) {
     return loadRecords().then(function (cat) {
       return (cat.records || []).filter(function (r) {
@@ -148,6 +167,7 @@
     loadPdfManifest: loadPdfManifest,
     loadDocAssets: loadDocAssets,
     getPdfPath: getPdfPath,
+    pdfIndex: pdfIndex,
     recordsForProcedure: recordsForProcedure,
     proceduresForRecord: proceduresForRecord,
     sopsForRecord: sopsForRecord,

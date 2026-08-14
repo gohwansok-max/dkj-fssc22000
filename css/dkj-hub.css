@@ -453,6 +453,17 @@
   color: var(--nh-green-dark);
 }
 
+/* 문서관리대장의 '완료'와는 다른 축 — 시스템에 정본 원문이 올라와 있는지 */
+.badge.pdf-ok {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.badge.pdf-none {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .docs-empty {
   padding: 40px 20px;
   text-align: center;

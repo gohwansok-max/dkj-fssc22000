@@ -9,6 +9,12 @@
   var searchQuery = '';
   var statusFilter = 'all';
 
+  /* 정본 PDF 가 연결된 문서 코드 모음.
+     카탈로그의 '완료'는 문서관리대장 기준(문서 자체가 제정 완료)이라, 시스템에 원문이
+     올라와 있는지와는 별개다. 그 둘이 같은 뜻으로 보이면 사용자는 143건 전부 열람
+     가능하다고 여기고 들어갔다가 'PDF가 아직 없습니다'를 만난다. 목록에서 미리 구분한다. */
+  var pdfSet = null;
+
   var listEl = document.getElementById('docList');
   var countEl = document.getElementById('docCount');
   var searchEl = document.getElementById('docSearch');
@@ -27,6 +33,17 @@
 
   function fileTypeLabel(t) {
     return (t || 'file').toUpperCase();
+  }
+
+  function hasPdf(doc) {
+    if (!pdfSet) return false;   // 아직 안 읽혔으면 없는 쪽으로 — 읽히면 다시 그린다
+    return pdfSet[doc.id] === true || pdfSet[doc.code] === true;
+  }
+
+  /** pdf-manifest 와 doc-assets 를 한 번만 읽어 '정본 PDF 있는 문서' 색인을 만든다. */
+  function loadPdfIndex() {
+    if (!window.DkjLinks || !DkjLinks.pdfIndex) return Promise.resolve({});
+    return DkjLinks.pdfIndex().catch(function () { return {}; });
   }
 
   function renderSidebar() {
@@ -106,6 +123,9 @@
         '<div class="doc-actions">' +
           '<span class="badge ' + st + '">' + doc.workflowStatus + '</span>' +
           '<span class="badge type">' + fileTypeLabel(doc.fileType) + '</span>' +
+          (hasPdf(doc)
+            ? '<span class="badge pdf-ok" title="정본 PDF 를 바로 볼 수 있습니다">정본 PDF</span>'
+            : '<span class="badge pdf-none" title="원문이 아직 시스템에 올라오지 않았습니다. 요약만 볼 수 있습니다">요약만</span>') +
           '<a class="pill-btn green" href="doc-viewer.html?id=' + encodeURIComponent(doc.id) + '">열람</a>' +
         '</div>' +
       '</article>';
@@ -171,6 +191,11 @@
       renderSidebar();
       updateCategoryHead();
       renderList();
+      // 정본 PDF 색인은 목록보다 늦게 와도 된다 — 도착하면 뱃지만 다시 그린다
+      loadPdfIndex().then(function (idx) {
+        pdfSet = idx;
+        renderList();
+      });
     })
     .catch(function (err) {
       console.error(err);
