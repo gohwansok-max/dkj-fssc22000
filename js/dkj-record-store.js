@@ -50,6 +50,19 @@
           record.createdBy = who.name;
           record.createdByEmpId = who.empId;
         }
+      } else {
+        // 폼 엔진들은 화면 state 로 record 를 새로 조립해 넘긴다(Object.assign({}, state, …)).
+        // 그 state 에는 최초작성 정보가 없으므로, 여기서 되살리지 않으면 두 번째 저장
+        // (수정·작성완료) 때 '누가 언제 처음 썼는가'가 통째로 지워진다 — 기록 추적성의 근간이라
+        // 반드시 이전 값을 물려받는다.
+        var prev = this.get(formId, record.id);
+        if (prev) {
+          if (!record.createdAt) record.createdAt = prev.createdAt || now;
+          if (!record.createdBy && prev.createdBy) record.createdBy = prev.createdBy;
+          if (!record.createdByEmpId && prev.createdByEmpId) record.createdByEmpId = prev.createdByEmpId;
+        } else if (!record.createdAt) {
+          record.createdAt = now;
+        }
       }
       record.updatedAt = now;
       if (who) {

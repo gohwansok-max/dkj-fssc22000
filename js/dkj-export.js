@@ -26,10 +26,27 @@
   // 'O | O | X | …' 형태로 펴진다.
   var SKIP = ['id', 'formId', 'locked', '_savedAt'];
 
+  /**
+   * 서식 state 는 평평하지 않다 — ledger 계열은 점검일·점검자를 `info` 안에, 결재자를
+   * `approvals` 안에 담는다. 최상위만 훑으면 기록일자가 저장시각으로 밀리고 작성자 칸이
+   * 통째로 비어 심사 자료로 못 쓰므로, 최상위에서 못 찾으면 한 겹 아래 객체까지 본다.
+   * (두 겹 아래는 보지 않는다 — `checks.item3` 같은 점검값이 작성자로 오인될 수 있다.)
+   */
   function pick(rec, keys) {
-    for (var i = 0; i < keys.length; i++) {
-      var v = rec[keys[i]];
+    var i, v;
+    for (i = 0; i < keys.length; i++) {
+      v = rec[keys[i]];
       if (v !== undefined && v !== null && v !== '') return String(v);
+    }
+    var nests = Object.keys(rec || {}).filter(function (k) {
+      var o = rec[k];
+      return o && typeof o === 'object' && !Array.isArray(o);
+    });
+    for (i = 0; i < keys.length; i++) {
+      for (var j = 0; j < nests.length; j++) {
+        v = rec[nests[j]][keys[i]];
+        if (v !== undefined && v !== null && v !== '' && typeof v !== 'object') return String(v);
+      }
     }
     return '';
   }
