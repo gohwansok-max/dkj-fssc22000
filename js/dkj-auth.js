@@ -315,7 +315,7 @@
     reauth: reauth,
     requireLogin: requireLogin,
     configured: configured,
-    user: function () { return state.empId ? { empId: state.empId, name: state.name } : null; },
+    user: function () { return state.empId ? { uid: state.uid, empId: state.empId, name: state.name } : null; },
     token: function () { return state.token; },
     loadStaff: loadStaff,
     staff: function () { return staffCache; },
