@@ -14,8 +14,8 @@
 
   var doc = global.document;
 
-  /** 이 스크립트(js/dkj-pwa.js)의 위치에서 사이트 루트를 되짚는다 */
-  function siteRoot() {
+  /** 이 스크립트(js/dkj-pwa.js) 자신의 <script> 태그 — src 에서 루트·캐시버전을 되짚는 데 쓴다 */
+  function selfScriptEl() {
     var el = doc.currentScript;
     if (!el) {
       var all = doc.getElementsByTagName('script');
@@ -23,8 +23,22 @@
         if ((all[i].src || '').indexOf('dkj-pwa.js') !== -1) { el = all[i]; break; }
       }
     }
-    if (!el || !el.src) return null;
+    return (el && el.src) ? el : null;
+  }
+
+  /** 이 스크립트의 위치에서 사이트 루트를 되짚는다 */
+  function siteRoot() {
+    var el = selfScriptEl();
+    if (!el) return null;
     return el.src.split('?')[0].replace(/js\/dkj-pwa\.js$/, '');
+  }
+
+  /** <script src="…dkj-pwa.js?v=33"> 에서 캐시버전 숫자만 뽑는다 — 화면에 뜬 배지가
+      실제 받은 파일의 버전과 항상 같도록, 별도 상수로 관리하지 않고 여기서 읽는다. */
+  function cacheVersion() {
+    var el = selfScriptEl();
+    var m = el && el.src.match(/[?&]v=([0-9]+)/);
+    return m ? m[1] : '';
   }
 
   /* ---------- 알림 띠 ---------- */
@@ -44,7 +58,11 @@
       '.dkj-pwa-bar.update{background:#009a44}' +
       '.dkj-pwa-bar button{border:0;border-radius:999px;padding:6px 14px;' +
       'font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:#222}' +
-      '@media print{.dkj-pwa-bar{display:none}}';
+      '.dkj-pwa-ver{position:fixed;right:6px;bottom:6px;z-index:9997;' +
+      'font-size:10px;line-height:1;padding:3px 7px;border-radius:999px;' +
+      "font-family:'Noto Sans KR','Malgun Gothic',sans-serif;" +
+      'background:rgba(0,0,0,.4);color:#fff;pointer-events:none;opacity:.7}' +
+      '@media print{.dkj-pwa-bar,.dkj-pwa-ver{display:none}}';
     var s = doc.createElement('style');
     s.setAttribute('data-dkj', 'pwa');
     s.appendChild(doc.createTextNode(css));
@@ -141,8 +159,22 @@
     });
   }
 
+  /** 화면 구석에 지금 받은 캐시버전을 작게 띄운다 — 태블릿·폰에서 배포가
+      실제로 반영됐는지 새로고침 배너를 기다리지 않고도 바로 확인하려는 것. */
+  function renderVersion() {
+    var v = cacheVersion();
+    if (!v) return;
+    injectStyle();
+    var el = doc.createElement('div');
+    el.id = 'dkjPwaVer';
+    el.className = 'dkj-pwa-ver';
+    el.textContent = 'v' + v;
+    doc.body.appendChild(el);
+  }
+
   function init() {
     renderNetworkState();
+    renderVersion();
     global.addEventListener('online', renderNetworkState);
     global.addEventListener('offline', renderNetworkState);
     register();
@@ -151,5 +183,5 @@
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
   else init();
 
-  global.DkjPwa = { siteRoot: siteRoot };
+  global.DkjPwa = { siteRoot: siteRoot, cacheVersion: cacheVersion };
 })(window);
