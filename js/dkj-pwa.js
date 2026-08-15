@@ -33,7 +33,7 @@
     return el.src.split('?')[0].replace(/js\/dkj-pwa\.js$/, '');
   }
 
-  /** <script src="…dkj-pwa.js?v=33"> 에서 캐시버전 숫자만 뽑는다 — 화면에 뜬 배지가
+  /** <script src="…dkj-pwa.js?v=34"> 에서 캐시버전 숫자만 뽑는다 — 화면에 뜬 배지가
       실제 받은 파일의 버전과 항상 같도록, 별도 상수로 관리하지 않고 여기서 읽는다. */
   function cacheVersion() {
     var el = selfScriptEl();

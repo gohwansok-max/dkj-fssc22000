@@ -11,7 +11,7 @@
   var draftTimer = null;
 
   function emptyRow() {
-    return { time: '', fe: '', sus: '', prodFe: '', prodSus: '', judge: '' };
+    return { time: '', fe: '', sus: '', prodOnly: '', prodFe: '', prodSus: '', judge: '' };
   }
 
   function emptyState() {
@@ -113,6 +113,7 @@
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
         '<td>' + oxSelect(row.fe, 'fe') + '</td>' +
         '<td>' + oxSelect(row.sus, 'sus') + '</td>' +
+        '<td>' + oxSelect(row.prodOnly, 'prodOnly') + '</td>' +
         '<td>' + oxSelect(row.prodFe, 'prodFe') + '</td>' +
         '<td>' + oxSelect(row.prodSus, 'prodSus') + '</td>' +
         '<td class="mon-judge ' + (row.judge === 'X' ? 'ng' : row.judge === 'O' ? 'ok' : '') + '">' + (row.judge || '·') + '</td>' +
@@ -200,7 +201,7 @@
     if (!state.lot) return 'LOT를 입력하세요.';
     if (!state.monitorName) return '모니터링 담당자를 입력하세요.';
     var filled = state.rows.filter(function (r) {
-      return r.fe || r.sus || r.prodFe || r.prodSus;
+      return r.fe || r.sus || r.prodOnly || r.prodFe || r.prodSus;
     });
     if (!filled.length) return '시편 검출 결과를 1건 이상 입력하세요.';
     if (state.hasDeviation) {
