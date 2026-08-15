@@ -38,9 +38,11 @@
       deviation: '',
       corrective: '',
       confirmer: '',
+      approver: '',
       remark: '',
-      // 전자결재 — 모니터링 담당자·확인자 2단. audit 는 여기서 만들어 둬야
-      // 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
+      // 전자결재 — 모니터링 담당(작성)·확인자(검토)·승인자(승인) 3단. 정본 인쇄
+      // 서명란(signBox)도 작성/검토/승인 3칸이라 여기서도 맞춘다. audit 는 여기서
+      // 만들어 둬야 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
       approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       audit: [],
@@ -54,14 +56,13 @@
 
   function syncApprovals() {
     if (!window.DkjApproval) return;
-    DkjApproval.bindFlat(state, { writer: 'monitorName', approver: 'confirmer' });
+    DkjApproval.bindFlat(state, { writer: 'monitorName', reviewer: 'confirmer', approver: 'approver' });
   }
 
   function mountApproval() {
     if (!window.DkjApproval || apvUi) return;
     apvUi = DkjApproval.mount({
-      stages: ['writer', 'approver'],
-      labels: { writer: '모니터링', approver: '확인' },
+      stages: ['writer', 'reviewer', 'approver'],
       getState: function () { readForm(); return state; },
       onChange: function () { scheduleDraft(); }
     });
@@ -158,6 +159,13 @@
     scheduleDraft();
   }
 
+  function renderWeightHint() {
+    var el = $('weightClassHint');
+    if (!el) return;
+    var wc = WEIGHT_CLASS[$('weightClass').value] || WEIGHT_CLASS.fresh500;
+    el.textContent = '물성보정 ' + wc.adjust + ' · 안정도 ' + wc.stable + ' (정본에 자동 반영)';
+  }
+
   function readForm() {
     state.workDate = $('workDate').value;
     state.equipment = $('equipment').value;
@@ -169,11 +177,13 @@
     var wc = WEIGHT_CLASS[state.weightClass] || WEIGHT_CLASS.fresh500;
     state.adjust = wc.adjust;
     state.stable = wc.stable;
+    renderWeightHint();
     state.monitorName = $('monitorName').value;
     state.timing = $('timing').value;
     state.deviation = $('deviation').value;
     state.corrective = $('corrective').value;
     state.confirmer = $('confirmer').value;
+    state.approver = $('approver').value;
     state.remark = $('remark').value;
     syncApprovals();
   }
@@ -186,11 +196,13 @@
     $('feSize').value = state.feSize || '1.5';
     $('susSize').value = state.susSize || '2.0';
     $('weightClass').value = state.weightClass || 'fresh500';
+    renderWeightHint();
     $('monitorName').value = state.monitorName || '';
     $('timing').value = state.timing || '시작전';
     $('deviation').value = state.deviation || '';
     $('corrective').value = state.corrective || '';
     $('confirmer').value = state.confirmer || '';
+    $('approver').value = state.approver || '';
     $('remark').value = state.remark || '';
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
     renderRows();
@@ -286,10 +298,11 @@
 
   function bind() {
     ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize', 'weightClass',
-      'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'remark'].forEach(function (id) {
+      'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       $(id).addEventListener('input', scheduleDraft);
       $(id).addEventListener('change', scheduleDraft);
     });
+    $('weightClass').addEventListener('change', renderWeightHint);
     $('btnAddRow').addEventListener('click', function () {
       if (state.locked) return;
       state.rows.push(emptyRow());

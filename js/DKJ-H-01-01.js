@@ -28,9 +28,11 @@
       deviation: '',
       corrective: '',
       confirmer: '',
+      approver: '',
       remark: '',
-      // 전자결재 — 모니터링 담당자·확인자 2단. audit 는 여기서 만들어 둬야
-      // 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
+      // 전자결재 — 모니터링 담당(작성)·확인자(검토)·승인자(승인) 3단. 정본 인쇄
+      // 서명란(signBox)도 작성/검토/승인 3칸이라 여기서도 맞춘다. audit 는 여기서
+      // 만들어 둬야 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
       approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       audit: [],
@@ -44,14 +46,13 @@
 
   function syncApprovals() {
     if (!window.DkjApproval) return;
-    DkjApproval.bindFlat(state, { writer: 'monitorName', approver: 'confirmer' });
+    DkjApproval.bindFlat(state, { writer: 'monitorName', reviewer: 'confirmer', approver: 'approver' });
   }
 
   function mountApproval() {
     if (!window.DkjApproval || apvUi) return;
     apvUi = DkjApproval.mount({
-      stages: ['writer', 'approver'],
-      labels: { writer: '모니터링', approver: '확인' },
+      stages: ['writer', 'reviewer', 'approver'],
       getState: function () { readForm(); return state; },
       onChange: function () { scheduleDraft(); }
     });
@@ -170,6 +171,7 @@
     state.deviation = $('deviation').value;
     state.corrective = $('corrective').value;
     state.confirmer = $('confirmer').value;
+    state.approver = $('approver').value;
     state.remark = $('remark').value;
     syncApprovals();
   }
@@ -186,6 +188,7 @@
     $('deviation').value = state.deviation || '';
     $('corrective').value = state.corrective || '';
     $('confirmer').value = state.confirmer || '';
+    $('approver').value = state.approver || '';
     $('remark').value = state.remark || '';
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
     renderRows();
@@ -279,7 +282,7 @@
 
   function bind() {
     ['workDate', 'disinfectant', 'productName', 'lot', 'clMin', 'clMax', 'timeMin',
-      'monitorName', 'deviation', 'corrective', 'confirmer', 'remark'].forEach(function (id) {
+      'monitorName', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var el = $(id);
       el.addEventListener('input', function () {
         if (id === 'clMin' || id === 'clMax' || id === 'timeMin') {
