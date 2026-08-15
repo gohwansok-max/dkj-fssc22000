@@ -73,7 +73,8 @@
   }
 
   function today() {
-    return new Date().toISOString().slice(0, 10);
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
   function $(id) { return document.getElementById(id); }
@@ -381,7 +382,6 @@
       if (confirm('작성완료 후에는 수정이 제한됩니다. 완료할까요?')) saveRecord(true);
     });
     $('btnNew').addEventListener('click', newEntry);
-    if (!window._dkjDoPrintReady) { window._dkjDoPrintReady = true; }
 
   function dkjDoPrint() {
     var st = (typeof collect === 'function') ? collect() : (typeof state !== 'undefined' ? state : {});

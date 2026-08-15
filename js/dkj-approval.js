@@ -125,13 +125,37 @@
     return state;
   }
 
+  /* ---------- 잠금 후 내용 변경 차단 ----------
+     작성완료(잠금)된 기록을 '불러오기' 로 다시 열면 텍스트 입력칸에는 잠금 가드가 없어서
+     내용을 고친 뒤 저장/작성완료 버튼을 다시 누르면 같은 id 로 조용히 덮어써졌다.
+     다만 검토·승인 결재는 잠긴 기록을 다시 저장해야 신호(signoff)가 남는 구조라
+     재저장 자체를 막을 수는 없다 — 결재·이력 관련 필드만 예외로 두고
+     나머지 필드가 하나라도 달라지면 막는다. */
+  var UNLOCKED_SAVE_FIELDS = { signoff: 1, audit: 1, updatedAt: 1, updatedBy: 1, updatedByEmpId: 1, locked: 1 };
+
+  function sameLockedContent(prev, next) {
+    var keys = {}, k;
+    for (k in prev) keys[k] = 1;
+    for (k in next) keys[k] = 1;
+    for (k in keys) {
+      if (UNLOCKED_SAVE_FIELDS[k]) continue;
+      if (JSON.stringify(prev[k]) !== JSON.stringify(next[k])) return false;
+    }
+    return true;
+  }
+
   /* ---------- 저장 훅 ----------
-     세 엔진(matrix/ledger/report)이 모두 DkjRecordStore.save 를 쓴다.
+     모든 엔진·서식별 스크립트가 DkjRecordStore.save 를 쓴다.
      엔진을 각각 고치는 대신 저장 지점 한 곳에서 이력을 남긴다. */
   function installHook() {
     if (!global.DkjRecordStore || global.DkjRecordStore.__auditHooked) return;
     var orig = global.DkjRecordStore.save;
     global.DkjRecordStore.save = function (formId, record) {
+      var prev = record.id ? this.get(formId, record.id) : null;
+      if (prev && prev.locked && (!record.locked || !sameLockedContent(prev, record))) {
+        try { global.alert('작성완료(잠금)된 기록의 내용은 수정할 수 없습니다. 결재(서명)는 계속 진행할 수 있습니다.'); } catch (e) { /* alert 불가 환경 무시 */ }
+        return prev;
+      }
       try {
         // 저장한 사람도 로그인 세션을 우선한다 — 폼에 적힌 이름은 누구나 바꿀 수 있다.
         var u = me();
@@ -144,6 +168,24 @@
       return orig.call(this, formId, record);
     };
     global.DkjRecordStore.__auditHooked = true;
+  }
+
+  /* ---------- 삭제 차단 ----------
+     작성완료(잠금)된 기록은 지울 수 없어야 한다 — 지금까지는 각 서식의 '최근 기록'
+     삭제 버튼이 잠금 여부를 보지 않고 DkjRecordStore.remove 를 그대로 불렀다.
+     모든 서식이 이 store 하나를 거치므로, 저장 훅과 같은 방식으로 여기 한 곳만 막는다. */
+  function installRemoveGuard() {
+    if (!global.DkjRecordStore || global.DkjRecordStore.__removeGuarded) return;
+    var orig = global.DkjRecordStore.remove;
+    global.DkjRecordStore.remove = function (formId, id) {
+      var rec = this.get(formId, id);
+      if (rec && rec.locked) {
+        try { global.alert('작성완료(잠금)된 기록은 삭제할 수 없습니다.'); } catch (e) { /* alert 불가 환경 무시 */ }
+        return false;
+      }
+      return orig.call(this, formId, id);
+    };
+    global.DkjRecordStore.__removeGuarded = true;
   }
 
   /* ---------- 결재 패널 ---------- */
@@ -280,8 +322,12 @@
   }
 
   installHook();
+  installRemoveGuard();
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', installHook);
+    document.addEventListener('DOMContentLoaded', function () {
+      installHook();
+      installRemoveGuard();
+    });
   }
 
   global.DkjApproval = {

@@ -62,7 +62,8 @@
   }
 
   function today() {
-    return new Date().toISOString().slice(0, 10);
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
   function nowTime() {
@@ -94,7 +95,6 @@
       return;
     }
     if (vals.indexOf('X') !== -1) row.judge = 'X';
-    else if (vals.length === 4 && vals.every(function (v) { return v === 'O'; })) row.judge = 'O';
     else if (vals.every(function (v) { return v === 'O'; })) row.judge = 'O';
     else row.judge = '';
   }

@@ -77,7 +77,8 @@
   }
 
   function today() {
-    return new Date().toISOString().slice(0, 10);
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
   function $(id) { return document.getElementById(id); }
@@ -313,7 +314,6 @@
       $('btnLock').disabled = false;
       $('carBanner').hidden = true;
     });
-    if (!window._dkjDoPrintReady) { window._dkjDoPrintReady = true; }
 
   function dkjDoPrint() {
     var st = (typeof collect === 'function') ? collect() : (typeof state !== 'undefined' ? state : {});
