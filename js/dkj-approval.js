@@ -146,6 +146,24 @@
     global.DkjRecordStore.__auditHooked = true;
   }
 
+  /* ---------- 삭제 차단 ----------
+     작성완료(잠금)된 기록은 지울 수 없어야 한다 — 지금까지는 각 서식의 '최근 기록'
+     삭제 버튼이 잠금 여부를 보지 않고 DkjRecordStore.remove 를 그대로 불렀다.
+     모든 서식이 이 store 하나를 거치므로, 저장 훅과 같은 방식으로 여기 한 곳만 막는다. */
+  function installRemoveGuard() {
+    if (!global.DkjRecordStore || global.DkjRecordStore.__removeGuarded) return;
+    var orig = global.DkjRecordStore.remove;
+    global.DkjRecordStore.remove = function (formId, id) {
+      var rec = this.get(formId, id);
+      if (rec && rec.locked) {
+        try { global.alert('작성완료(잠금)된 기록은 삭제할 수 없습니다.'); } catch (e) { /* alert 불가 환경 무시 */ }
+        return false;
+      }
+      return orig.call(this, formId, id);
+    };
+    global.DkjRecordStore.__removeGuarded = true;
+  }
+
   /* ---------- 결재 패널 ---------- */
 
   function mount(opts) {
@@ -280,8 +298,12 @@
   }
 
   installHook();
+  installRemoveGuard();
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', installHook);
+    document.addEventListener('DOMContentLoaded', function () {
+      installHook();
+      installRemoveGuard();
+    });
   }
 
   global.DkjApproval = {
