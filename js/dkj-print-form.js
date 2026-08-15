@@ -9,14 +9,6 @@
     return document.getElementById(id);
   }
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   function mark(v) {
     if (v === 'O' || v === '○' || v === '적합') return '○';
     if (v === 'X' || v === '×' || v === '부적합' || v === '이탈') return '×';

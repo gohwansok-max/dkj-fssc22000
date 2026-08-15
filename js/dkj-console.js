@@ -15,12 +15,6 @@
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   /* 한 달치 판정은 31일 x 서식수 만큼 호출된다. 매번 파싱하지 않도록 캐시한다. */
   var _cache = {};
 

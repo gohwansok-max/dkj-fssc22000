@@ -13,12 +13,6 @@
 (function (global) {
   'use strict';
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   function nl2br(s) { return esc(s).replace(/\n/g, '<br>'); }
 
   function headHtml(spec, state) {

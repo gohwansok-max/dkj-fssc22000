@@ -5,14 +5,6 @@
 (function (global) {
   'use strict';
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   function ox(v) {
     if (v === 'O' || v === '○') return '○';
     if (v === 'X' || v === '×') return '×';
