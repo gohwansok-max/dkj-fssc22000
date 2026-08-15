@@ -8,12 +8,6 @@
 (function (global) {
   'use strict';
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   /** records/ 하위에서 열리므로 상위로 한 단계 올라간다 */
   function base() {
     return location.pathname.indexOf('/records/') !== -1 ? '../' : '';

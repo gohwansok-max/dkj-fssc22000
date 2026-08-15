@@ -14,12 +14,6 @@
 (function (global) {
   'use strict';
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   function nowIso() { return new Date().toISOString(); }
 
   function fmt(iso) {
