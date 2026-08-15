@@ -2,10 +2,51 @@
   "rules": {
     "dkj-fssc22000": {
       "records": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".validate": "newData.hasChild('value') && newData.hasChild('updatedAt') && newData.child('updatedAt').isNumber()"
+      },
+      "sync_meta": {
+        ".read": "auth != null",
+        ".write": false
+      },
+      "records_v2": {
         "$formKey": {
           ".read": "auth != null",
-          ".write": "auth != null",
-          ".validate": "newData.hasChild('value') && newData.hasChild('updatedAt') && newData.child('updatedAt').isNumber()"
+          "$recordKey": {
+            ".write": "!data.exists() && newData.child('data').child('createdByUid').val() === auth.uid && newData.child('workflow').child('createdByUid').val() === auth.uid && newData.child('workflow').child('locked').val() === false",
+            ".validate": "newData.hasChildren(['data', 'workflow']) && newData.child('data').child('id').isString() && newData.child('data').child('formId').isString() && newData.child('workflow').child('createdByUid').isString() && newData.child('workflow').child('createdAt').isString() && newData.child('workflow').child('locked').isBoolean()",
+            "data": {
+              ".write": "!data.exists() ? newData.child('createdByUid').val() === auth.uid : (data.parent().child('workflow').child('createdByUid').val() === auth.uid && data.parent().child('workflow').child('locked').val() !== true)",
+              ".validate": "newData.hasChildren(['id', 'formId', 'createdByUid', 'createdAt', 'updatedAt']) && newData.child('createdByUid').val() === newData.parent().child('workflow').child('createdByUid').val() && newData.child('id').val() === (data.exists() ? data.child('id').val() : newData.child('id').val()) && newData.child('formId').val() === (data.exists() ? data.child('formId').val() : newData.child('formId').val())"
+            },
+            "workflow": {
+              "createdByUid": {
+                ".write": "!data.exists() && newData.val() === auth.uid"
+              },
+              "createdAt": {
+                ".write": "!data.exists() && newData.isString()"
+              },
+              "locked": {
+                ".write": "(!data.exists() && newData.val() === false) || (data.val() === false && newData.val() === true && data.parent().parent().child('workflow').child('createdByUid').val() === auth.uid)"
+              },
+              "updatedAt": {
+                ".write": "!data.exists() || data.parent().parent().child('workflow').child('createdByUid').val() === auth.uid"
+              }
+            },
+            "approvals": {
+              "$stageKey": {
+                ".write": "!data.exists() && newData.child('uid').val() === auth.uid && newData.child('at').isString()",
+                ".validate": "newData.hasChildren(['uid', 'at', 'name', 'empId'])"
+              }
+            },
+            "audit": {
+              "$auditKey": {
+                ".write": "!data.exists() && newData.child('actorUid').val() === auth.uid && newData.child('at').isString() && newData.child('action').isString()",
+                ".validate": "newData.hasChildren(['actorUid', 'at', 'action', 'hash', 'prev'])"
+              }
+            }
+          }
         }
       }
     }

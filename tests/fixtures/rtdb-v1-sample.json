@@ -1,0 +1,39 @@
+{
+  "dkj-fssc22000": {
+    "records": {
+      "ZGtqOnJlY29yZHM6RlItMDAxOmxpc3Q6djE": {
+        "value": [
+          {
+            "id": "r_100",
+            "formId": "FR-001",
+            "title": "시험 기록",
+            "createdAt": "2026-08-15T01:00:00.000Z",
+            "updatedAt": "2026-08-15T02:00:00.000Z",
+            "createdBy": "0001",
+            "createdByEmpId": "0001",
+            "updatedBy": "0001",
+            "updatedByEmpId": "0001",
+            "locked": true,
+            "signoff": {
+              "writer": {
+                "name": "0001",
+                "empId": "0001",
+                "at": "2026-08-15T02:00:00.000Z"
+              }
+            },
+            "audit": [
+              {
+                "at": "2026-08-15T01:00:00.000Z",
+                "action": "SAVE",
+                "by": "0001",
+                "detail": "저장",
+                "prev": "GENESIS",
+                "hash": "abc123"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
