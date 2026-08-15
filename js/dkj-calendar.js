@@ -11,12 +11,6 @@
 
   var DOW = ['일', '월', '화', '수', '목', '금', '토'];
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   function pad(n) { return (n < 10 ? '0' : '') + n; }
 
   function iso(d) {

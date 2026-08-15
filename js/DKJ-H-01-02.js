@@ -5,12 +5,6 @@
 (function () {
   'use strict';
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   var FORM_ID = 'DKJ-H-01-02';
   var state = emptyState();
   var editingId = null;

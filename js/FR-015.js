@@ -4,12 +4,6 @@
 (function () {
   'use strict';
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   var FORM_ID = 'FR-015';
   var NC_REASONS = [
     { key: 'r01', label: '표시사항 불량' },

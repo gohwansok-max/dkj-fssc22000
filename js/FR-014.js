@@ -4,12 +4,6 @@
 (function () {
   'use strict';
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   var FORM_ID = 'FR-014';
   var CHECK_ITEMS = [
     { key: 'c01', label: '승인공급업체', hint: '승인 목록 등록 업체인가?' },
