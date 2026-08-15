@@ -10,7 +10,7 @@
 **프레임워크·번들러·패키지 매니저가 없습니다.** 순수 HTML/CSS/JS 파일을 정적으로
 서빙하거나 브라우저에서 직접 엽니다. **서버가 전혀 없습니다** — 모든 것이 브라우저에서
 돌고 `localStorage` 에 저장되며, Firebase RTDB 로 기기 간 동기화합니다.
-**테스트·린터·빌드 단계가 없습니다** — 검증은 브라우저에서 직접 열어 확인합니다.
+**테스트·린터·빌드 단계가 없습니다** — 검증은 브라우저에서 직접 열어 확인합니다. 다만 `scripts/smoke-check.py`로 JSON·서식·캐시·규칙의 정적 연결 오류를 먼저 점검할 수 있습니다.
 
 이 저장소는 코엔에프 스마트 HACCP 시스템(`smart-haccp-system`)을 템플릿으로 fork 한
 1호 사업장입니다. 그래서 옛 경로(`tenants/dkj/...`)나 코엔에프 흔적이 가끔 남아 있는데,
@@ -48,6 +48,7 @@ python -m http.server 5500
 ```bash
 python scripts/build-catalog-bundles.py   # data/*.json → js/*.bundle.js  (JSON 고쳤으면 필수)
 python scripts/build-sw-precache.py       # sw-precache.js 재생성 (배포 때 자동으로도 돌아감)
+python scripts/smoke-check.py              # JSON·서식·캐시·규칙의 가벼운 배포 전 점검
 python scripts/sync-fssc-catalog.py       # 원본 문서 → doc-catalog / menu-catalog
 powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   # 절차서 PDF 생성 (Word 필요)
 ```
