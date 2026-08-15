@@ -7,10 +7,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>DKJ-H-01-02 CCP-2P 금속검출 | 동김제농협</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/dkj-tokens.css?v=35">
-  <link rel="stylesheet" href="../css/dkj-form.css?v=35">
-  <link rel="stylesheet" href="../css/dkj-print.css?v=35">
-  <link rel="manifest" href="../manifest.json?v=35">
+  <link rel="stylesheet" href="../css/dkj-tokens.css?v=36">
+  <link rel="stylesheet" href="../css/dkj-form.css?v=36">
+  <link rel="stylesheet" href="../css/dkj-print.css?v=36">
+  <link rel="manifest" href="../manifest.json?v=36">
 </head>
 <body class="dkj-form-page">
   <div class="screen-only">
@@ -78,6 +78,7 @@
             <option value="freshOver1kg">신선편의식품 1kg 이상</option>
             <option value="material">부재료(기타가공품)</option>
           </select>
+          <small id="weightClassHint" style="display:block;color:#888;margin-top:4px;"></small>
         </div>
         <div class="dkj-field">
           <label for="monitorName">모니터링 담당 *</label>
@@ -138,8 +139,12 @@
           <textarea id="corrective" placeholder="이탈 시 필수 · SOP DKJ-W-007 절차 준수"></textarea>
         </div>
         <div class="dkj-field">
-          <label for="confirmer">확인자 (HACCP팀장)</label>
+          <label for="confirmer">확인자 (HACCP팀장) · 검토</label>
           <input type="text" id="confirmer" placeholder="성명">
+        </div>
+        <div class="dkj-field">
+          <label for="approver">승인자</label>
+          <input type="text" id="approver" placeholder="성명">
         </div>
         <div class="dkj-field">
           <label for="remark">비고</label>
@@ -169,16 +174,16 @@
   <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
 
 
-  <script src="../js/dkj-firebase-config.js?v=35"></script>
-  <script src="../js/dkj-auth.js?v=35"></script>
-  <script src="../js/dkj-cloud-sync.js?v=35"></script>
-  <script src="../js/dkj-nav-bar.js?v=35"></script>
-  <script src="../js/dkj-record-store.js?v=35"></script>
-  <script src="../js/dkj-deeplink.js?v=35"></script>
-  <script src="../js/dkj-approval.js?v=35"></script>
-  <script src="../js/dkj-print-form.js?v=35"></script>
-  <script src="../js/dkj-print-official.js?v=35"></script>
-  <script src="../js/DKJ-H-01-02.js?v=35"></script>
-  <script src="../js/dkj-pwa.js?v=35"></script>
+  <script src="../js/dkj-firebase-config.js?v=36"></script>
+  <script src="../js/dkj-auth.js?v=36"></script>
+  <script src="../js/dkj-cloud-sync.js?v=36"></script>
+  <script src="../js/dkj-nav-bar.js?v=36"></script>
+  <script src="../js/dkj-record-store.js?v=36"></script>
+  <script src="../js/dkj-deeplink.js?v=36"></script>
+  <script src="../js/dkj-approval.js?v=36"></script>
+  <script src="../js/dkj-print-form.js?v=36"></script>
+  <script src="../js/dkj-print-official.js?v=36"></script>
+  <script src="../js/DKJ-H-01-02.js?v=36"></script>
+  <script src="../js/dkj-pwa.js?v=36"></script>
 </body>
 </html>
