@@ -143,6 +143,17 @@
     return out;
   }
 
+  /**
+   * CSV/XLSX 수식 주입 방지 — 기록 필드에 `=1+1`, `=HYPERLINK(...)` 같은 값이 들어있으면
+   * 엑셀이 문자열이 아니라 수식으로 해석해 열 때 실행할 수 있다(CSV Injection).
+   * `= + - @` 나 탭·캐리지리턴으로 시작하는 값은 앞에 작은따옴표를 붙여 텍스트로 고정한다.
+   */
+  var FORMULA_RE = /^[=+\-@\t\r]/;
+  function sanitizeCell(v) {
+    var s = String(v == null ? '' : v);
+    return FORMULA_RE.test(s) ? "'" + s : s;
+  }
+
   var BASE_COLS = [
     ['formId', '서식코드'], ['formTitle', '서식명'], ['date', '기록일자'],
     ['title', '기록제목'], ['writer', '작성자'], ['reviewer', '확인자'],
@@ -164,7 +175,7 @@
       return {
         header: BASE_COLS.map(function (c) { return c[1]; }),
         body: rows.map(function (r) {
-          return BASE_COLS.map(function (c) { return r[c[0]] || ''; });
+          return BASE_COLS.map(function (c) { return sanitizeCell(r[c[0]]); });
         })
       };
     }
@@ -178,8 +189,8 @@
     });
     var header = BASE_COLS.map(function (c) { return c[1]; }).concat(extraKeys);
     var body = rows.map(function (r, i) {
-      var base = BASE_COLS.map(function (c) { return r[c[0]] || ''; });
-      return base.concat(extraKeys.map(function (k) { return flats[i][k] || ''; }));
+      var base = BASE_COLS.map(function (c) { return sanitizeCell(r[c[0]]); });
+      return base.concat(extraKeys.map(function (k) { return sanitizeCell(flats[i][k]); }));
     });
     return { header: header, body: body };
   }
