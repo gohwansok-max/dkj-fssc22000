@@ -14,6 +14,12 @@
 (function (global) {
   'use strict';
 
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function nowIso() { return new Date().toISOString(); }
 
   function fmt(iso) {
@@ -72,10 +78,12 @@
   function append(state, action, by, detail) {
     if (!state.audit || !Array.isArray(state.audit)) state.audit = [];
     var prev = state.audit.length ? state.audit[state.audit.length - 1].hash : 'GENESIS';
+    var actor = me();
     var e = {
       at: nowIso(),
       action: action,
       by: by || '',
+      actorUid: (actor && actor.uid) || '',
       detail: detail || ''
     };
     e.prev = prev;
@@ -298,6 +306,7 @@
           st.signoff[key] = {
             name: signer.name,
             empId: signer.empId,
+            uid: (u && u.uid) || '',
             source: signer.source,
             claimed: claimed && claimed !== signer.name ? claimed : undefined,
             at: nowIso()
