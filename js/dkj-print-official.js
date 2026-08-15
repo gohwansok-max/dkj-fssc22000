@@ -93,8 +93,8 @@
         '<td class="c">' + ox(r.prodOnly || '') + '</td>' +
         '<td class="c">' + ox(r.prodFe) + '</td>' +
         '<td class="c">' + ox(r.prodSus) + '</td>' +
-        '<td class="c">' + esc(r.adjust || '') + '</td>' +
-        '<td class="c">' + esc(r.stable || '') + '</td>' +
+        '<td class="c">' + esc(r.adjust || (r.time ? state.adjust : '') || '') + '</td>' +
+        '<td class="c">' + esc(r.stable || (r.time ? state.stable : '') || '') + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'
       );
