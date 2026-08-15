@@ -14,6 +14,15 @@
     return { time: '', fe: '', sus: '', prodOnly: '', prodFe: '', prodSus: '', judge: '' };
   }
 
+  /* 물성보정/안정도 — 인쇄물 한계기준표의 중량구간별 고정값(임시 운영값, 확정 전).
+     매 행마다 같은 값이라 행 데이터로 안 두고 중량구간 선택 하나로 도출한다. */
+  var WEIGHT_CLASS = {
+    fresh500: { label: '신선편의식품 500g 이하', adjust: '70', stable: '450' },
+    fresh1kg: { label: '신선편의식품 500g~1kg', adjust: '70', stable: '954' },
+    freshOver1kg: { label: '신선편의식품 1kg 이상', adjust: '70', stable: '252' },
+    material: { label: '부재료(기타가공품)', adjust: '70', stable: '70' }
+  };
+
   function emptyState() {
     return {
       workDate: today(),
@@ -22,6 +31,7 @@
       lot: '',
       feSize: '1.5',
       susSize: '2.0',
+      weightClass: 'fresh500',
       monitorName: '',
       timing: '시작전',
       rows: [emptyRow(), emptyRow(), emptyRow()],
@@ -155,6 +165,10 @@
     state.lot = $('lot').value;
     state.feSize = $('feSize').value;
     state.susSize = $('susSize').value;
+    state.weightClass = $('weightClass').value;
+    var wc = WEIGHT_CLASS[state.weightClass] || WEIGHT_CLASS.fresh500;
+    state.adjust = wc.adjust;
+    state.stable = wc.stable;
     state.monitorName = $('monitorName').value;
     state.timing = $('timing').value;
     state.deviation = $('deviation').value;
@@ -171,6 +185,7 @@
     $('lot').value = state.lot || '';
     $('feSize').value = state.feSize || '1.5';
     $('susSize').value = state.susSize || '2.0';
+    $('weightClass').value = state.weightClass || 'fresh500';
     $('monitorName').value = state.monitorName || '';
     $('timing').value = state.timing || '시작전';
     $('deviation').value = state.deviation || '';
@@ -270,7 +285,7 @@
   }
 
   function bind() {
-    ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize',
+    ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize', 'weightClass',
       'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'remark'].forEach(function (id) {
       $(id).addEventListener('input', scheduleDraft);
       $(id).addEventListener('change', scheduleDraft);
