@@ -5,6 +5,12 @@
 (function (global) {
   'use strict';
 
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function today() {
     var d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -207,7 +213,7 @@
     }
 
     function historyMeta(r) {
-      return historyKeys.map(function (k) { return r[k] || ''; }).filter(Boolean).join(' · ');
+      return historyKeys.map(function (k) { return r[k] || ''; }).filter(Boolean).map(esc).join(' · ');
     }
 
     function renderHistory() {
@@ -220,7 +226,7 @@
       }
       el.innerHTML = list.map(function (r) {
         return '<div class="dkj-history-item"><div><strong>' + historyMeta(r) + '</strong>' +
-          ' <span class="badge ' + (r.judge === '적합' ? 'done' : 'wip') + '">' + (r.judge || '-') + '</span></div>' +
+          ' <span class="badge ' + (r.judge === '적합' ? 'done' : 'wip') + '">' + esc(r.judge || '-') + '</span></div>' +
           '<div style="display:flex;gap:6px;">' +
           '<button type="button" class="pill-btn ghost" data-load="' + r.id + '">불러오기</button>' +
           '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';

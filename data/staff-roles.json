@@ -17,21 +17,27 @@
     "확정할 수 있습니다. 실제 사번을 채워 넣는 순간부터 제한이 걸립니다.",
     "표에 없는 사번으로 로그인한 사람은 결재를 확정할 수 없습니다.",
     "",
+    "▶ name 을 비워 둔 이유 (2026-08-15) — 이 파일은 GitHub Pages 로 그대로 배포되어",
+    "로그인 없이 누구나 읽을 수 있다. 여기에 실명을 넣으면 사번과 함께 공개 주소에서",
+    "노출된다. 그래서 name 은 빈 문자열로 두고, 표시이름은 Firebase 계정의",
+    "displayName(콘솔에서 설정, 로그인해야 보임)으로만 채운다. displayName 도 없으면",
+    "기록에는 사번이 그대로 남는다 — 이름이 없어도 '누가 썼는가'는 사번으로 추적된다.",
+    "",
     "예시:",
-    "  \"1001\": { \"name\": \"홍길동\", \"stages\": [\"writer\"] },",
-    "  \"1002\": { \"name\": \"김검토\", \"stages\": [\"writer\", \"reviewer\"] },",
-    "  \"1003\": { \"name\": \"박승인\", \"stages\": [\"reviewer\", \"approver\"], \"admin\": true }"
+    "  \"1001\": { \"name\": \"\", \"stages\": [\"writer\"] },",
+    "  \"1002\": { \"name\": \"\", \"stages\": [\"writer\", \"reviewer\"] },",
+    "  \"1003\": { \"name\": \"\", \"stages\": [\"reviewer\", \"approver\"], \"admin\": true }"
   ],
-  "updatedAt": "2026-08-14",
+  "updatedAt": "2026-08-15",
   "staff": {
     "0001": {
-      "name": "이다은",
+      "name": "",
       "stages": [
         "writer"
       ]
     },
     "0002": {
-      "name": "최민재",
+      "name": "",
       "stages": [
         "writer",
         "reviewer",
@@ -39,14 +45,14 @@
       ]
     },
     "0003": {
-      "name": "권화선",
+      "name": "",
       "stages": [
         "writer",
         "reviewer"
       ]
     },
     "0004": {
-      "name": "임석용",
+      "name": "",
       "stages": [
         "writer",
         "reviewer",
@@ -54,7 +60,7 @@
       ]
     },
     "0005": {
-      "name": "최재원",
+      "name": "",
       "stages": [
         "writer",
         "reviewer",
@@ -62,7 +68,7 @@
       ]
     },
     "4343": {
-      "name": "고환석",
+      "name": "",
       "stages": [
         "writer",
         "reviewer",

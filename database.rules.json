@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "dkj-fssc22000": {
+      "records": {
+        "$formKey": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          ".validate": "newData.hasChild('value') && newData.hasChild('updatedAt') && newData.child('updatedAt').isNumber()"
+        }
+      }
+    }
+  }
+}

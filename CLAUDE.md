@@ -80,14 +80,18 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 > 관리자가 직접 추가합니다(공개 가입·삭제는 콘솔에서 차단해 뒀습니다). 사번은 4자리이고
 > 로그인 화면에서 `1` 만 입력해도 `0001` 로 채워집니다(`normId()`).
 >
-> 표시이름 — 콘솔에서 만든 계정에는 `displayName` 이 없어서, 로그인 시
-> `data/staff-roles.json` 의 실명을 가져와 작성자·결재자 이름으로 씁니다. **직원이 늘면
-> 이 표에 사번·이름을 추가하고 `build-catalog-bundles.py` 를 돌려야** 기록에 사번 대신
-> 이름이 남습니다.
+> 표시이름 — 콘솔에서 만든 계정에는 `displayName` 이 없습니다. 예전에는 로그인 시
+> `data/staff-roles.json` 의 실명으로 그 자리를 채웠지만, **2026-08-15부터 이 파일의
+> `name` 은 전부 빈 문자열**입니다(아래 주의사항 참고). 그래서 지금은 Firebase 콘솔에서
+> 계정을 만들 때 `displayName` 에 직접 실명을 넣어야만 기록에 이름이 남고, 안 넣으면
+> 사번이 그대로 남습니다. `staff-roles.json` 은 `stages`(결재 단계 권한)만 채우면 됩니다.
 >
 > 주의 — GitHub Pages 사이트는 저장소가 비공개여도 **누구나 열람 가능**합니다.
-> `data/staff-roles.json` 의 실명도 공개 주소에서 읽힙니다. 노출이 부담되면 이름을
-> 축약(`이 사원`)하거나 비우면 됩니다(그 경우 기록에는 사번이 남습니다).
+> `data/staff-roles.json` 이 로그인 없이 공개 주소에서 읽히기 때문에, 여기 실명·사번을
+> 같이 적어 두면 직원 개인정보가 그대로 노출됩니다. 그래서 `name` 필드는 항상 비워
+> 두기로 했습니다(기록에는 사번이 남아 추적성은 유지됩니다). 실명을 남기고 싶으면
+> `staff-roles.json` 이 아니라 **Firebase 콘솔의 계정 `displayName`**에 넣으세요 —
+> 그건 로그인해야만 읽히는 값입니다.
 > 실제 기록 내용은 로그인 + RTDB 규칙(`auth != null`)으로 보호되므로 공개되지 않습니다.
 
 - 기록 저장은 반드시 **`js/dkj-record-store.js`** 를 거칩니다. 키 규칙:

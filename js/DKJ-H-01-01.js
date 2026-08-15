@@ -5,6 +5,12 @@
 (function () {
   'use strict';
 
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   var FORM_ID = 'DKJ-H-01-01';
   var state = emptyState();
   var editingId = null;
@@ -250,8 +256,8 @@
     }
     el.innerHTML = list.map(function (r) {
       return '<div class="dkj-history-item">' +
-        '<div><strong>' + (r.workDate || '') + '</strong> · ' + (r.productName || '') + ' / ' + (r.lot || '') +
-        ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + (r.judge || '-') + '</span></div>' +
+        '<div><strong>' + esc(r.workDate || '') + '</strong> · ' + esc(r.productName || '') + ' / ' + esc(r.lot || '') +
+        ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + esc(r.judge || '-') + '</span></div>' +
         '<div style="display:flex;gap:6px;">' +
         '<button type="button" class="pill-btn ghost" data-load="' + r.id + '">불러오기</button>' +
         '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';

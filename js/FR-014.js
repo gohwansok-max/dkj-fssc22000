@@ -4,6 +4,12 @@
 (function () {
   'use strict';
 
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   var FORM_ID = 'FR-014';
   var CHECK_ITEMS = [
     { key: 'c01', label: '승인공급업체', hint: '승인 목록 등록 업체인가?' },
@@ -326,9 +332,9 @@
     el.innerHTML = list.slice(0, 20).map(function (r) {
       var badge = r.judge === '적합' ? 'done' : 'wip';
       return '<div class="dkj-history-item">' +
-        '<div class="meta"><strong>' + (r.itemName || '-') + '</strong>' +
-        r.receiveDate + ' · ' + (r.supplier || '') + ' · LOT ' + (r.lot || '') +
-        ' <span class="badge ' + badge + '">' + (r.judge || '-') + '</span></div>' +
+        '<div class="meta"><strong>' + esc(r.itemName || '-') + '</strong>' +
+        esc(r.receiveDate || '') + ' · ' + esc(r.supplier || '') + ' · LOT ' + esc(r.lot || '') +
+        ' <span class="badge ' + badge + '">' + esc(r.judge || '-') + '</span></div>' +
         '<div style="display:flex;gap:6px;">' +
           '<button type="button" class="pill-btn ghost" data-edit="' + r.id + '">불러오기</button>' +
           '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button>' +

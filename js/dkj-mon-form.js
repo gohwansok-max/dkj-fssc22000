@@ -5,6 +5,12 @@
 (function (global) {
   'use strict';
 
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function today() {
     var d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -233,8 +239,8 @@
         return;
       }
       el.innerHTML = list.map(function (r) {
-        return '<div class="dkj-history-item"><div><strong>' + (r.checkDate || '') + '</strong>' +
-          ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + (r.judge || '-') + '</span></div>' +
+        return '<div class="dkj-history-item"><div><strong>' + esc(r.checkDate || '') + '</strong>' +
+          ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + esc(r.judge || '-') + '</span></div>' +
           '<div style="display:flex;gap:6px;">' +
           '<button type="button" class="pill-btn ghost" data-load="' + r.id + '">불러오기</button>' +
           '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';
