@@ -196,6 +196,10 @@ window.DKJ_MENU_CATALOG={
               "href": "quality-dashboard.html"
             },
             {
+              "label": "경영검토·식품안전문화",
+              "href": "management-culture.html"
+            },
+            {
               "label": "DKJ-H-01-01 중요관리점(CCP 1BC) 점검표 소독·헹굼공정",
               "href": "doc-viewer.html?id=DKJ-H-01-01"
             },
@@ -500,6 +504,10 @@ window.DKJ_MENU_CATALOG={
     {
       "label": "품질 대시보드",
       "href": "quality-dashboard.html"
+    },
+    {
+      "label": "경영검토·안전문화",
+      "href": "management-culture.html"
     },
     {
       "label": "PRP",
