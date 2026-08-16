@@ -357,6 +357,25 @@
       ]
     },
     {
+      "id": "company",
+      "label": "센터소개",
+      "columns": [
+        {
+          "title": "동김제농협 산지가공센터",
+          "links": [
+            {
+              "label": "회사소개서·제안서 보기",
+              "href": "company-profile.html"
+            },
+            {
+              "label": "회사소개서 PDF 다운로드",
+              "href": "assets/company/dkj-company-profile-2026.pdf"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "audit_edu",
       "label": "교육·심사",
       "columns": [
@@ -426,6 +445,10 @@
     }
   ],
   "quickLinks": [
+    {
+      "label": "회사소개서",
+      "href": "company-profile.html"
+    },
     {
       "label": "문서센터",
       "href": "docs-center.html"
