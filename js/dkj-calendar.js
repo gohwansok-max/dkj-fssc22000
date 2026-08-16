@@ -26,12 +26,14 @@
     selected: null
   };
 
-  /** 하루치 집계 — {done, ng, part, todo, total} */
+  /** 하루치 집계 — 비생산일의 정기 서식은 분모·미작성에서 제외한다. */
   function dayStat(date) {
-    var st = { done: 0, ng: 0, part: 0, todo: 0, total: state.forms.length, items: [] };
+    var st = { done: 0, ng: 0, part: 0, todo: 0, total: 0, items: [] };
     state.forms.forEach(function (f) {
       var ev = global.DkjConsole.evaluate(f, date);
       st.items.push({ form: f, ev: ev });
+      if (ev.state === 'off') return;
+      st.total++;
       if (ev.state === 'done') st.done++;
       else if (ev.state === 'ng') st.ng++;
       else if (ev.state === 'part') st.part++;
@@ -40,9 +42,10 @@
     return st;
   }
 
-  /** 셀 상태 — full | ng | part | miss | future | today */
+  /** 셀 상태 — full | ng | part | miss | off | future */
   function cellState(date, today) {
     if (date > today && !sameDay(date, today)) return { kind: 'future', st: null };
+    if (global.DkjConsole && !global.DkjConsole.isProductionDay(date)) return { kind: 'off', st: null };
     var st = dayStat(date);
     var written = st.done + st.ng;
     var kind;
@@ -68,7 +71,7 @@
     for (var d = 1; d <= last.getDate(); d++) cells.push(new Date(state.year, state.month, d));
     while (cells.length % 7 !== 0) cells.push(null);
 
-    var missTotal = 0, ngTotal = 0, fullTotal = 0;
+    var missTotal = 0, ngTotal = 0, fullTotal = 0, partTotal = 0, offTotal = 0;
 
     var html = '<div class="ck-cal-dow">' +
       DOW.map(function (w, i) {
@@ -83,17 +86,22 @@
       if (r.kind === 'miss') missTotal++;
       if (r.kind === 'ng') ngTotal++;
       if (r.kind === 'full') fullTotal++;
+      if (r.kind === 'part') partTotal++;
+      if (r.kind === 'off') offTotal++;
 
       var badge = '';
       if (r.st) {
         var written = r.st.done + r.st.ng;
         badge = '<span class="ck-cal-count">' + written + '/' + r.st.total + '</span>';
+      } else if (r.kind === 'off') {
+        badge = '<span class="ck-cal-count">휴무</span>';
       }
+      var status = { full: '완료', ng: '부적합', part: '일부', miss: '미작성', off: '비생산', future: '예정' }[r.kind] || '';
       html += '<button type="button" class="ck-cal-cell k-' + r.kind +
         (isToday ? ' is-today' : '') + (isSel ? ' is-sel' : '') +
         '" data-d="' + iso(date) + '">' +
         '<span class="ck-cal-num' + (date.getDay() === 0 ? ' sun' : (date.getDay() === 6 ? ' sat' : '')) +
-        '">' + date.getDate() + '</span>' + badge + '</button>';
+        '">' + date.getDate() + '</span>' + badge + '<span class="ck-cal-state">' + status + '</span></button>';
     });
     html += '</div>';
     host.innerHTML = html;
@@ -104,9 +112,11 @@
     var sum = document.getElementById('ckCalSummary');
     if (sum) {
       sum.innerHTML =
-        '<span class="ck-cal-lg k-full"></span>전량 기록 ' + fullTotal + '일' +
+        '<span class="ck-cal-lg k-full"></span>완료 ' + fullTotal + '일' +
+        '<span class="ck-cal-lg k-part"></span>일부 작성 ' + partTotal + '일' +
         '<span class="ck-cal-lg k-ng"></span>부적합 ' + ngTotal + '일' +
-        '<span class="ck-cal-lg k-miss"></span>기록 없음 ' + missTotal + '일';
+        '<span class="ck-cal-lg k-miss"></span>미작성 ' + missTotal + '일' +
+        '<span class="ck-cal-lg k-off"></span>비생산 ' + offTotal + '일';
     }
 
     host.querySelectorAll('[data-d]').forEach(function (b) {
@@ -124,7 +134,7 @@
     }
   }
 
-  var LABEL = { todo: '미점검', done: '실시완료', part: '작성 중', ng: '미준수', none: '—' };
+  var LABEL = { todo: '미점검', done: '실시완료', part: '작성 중', ng: '미준수', none: '—', off: '작성 의무 없음' };
 
   function renderDetail() {
     var host = document.getElementById('ckCalDetail');
@@ -139,6 +149,11 @@
 
     if (d > today && !sameDay(d, new Date())) {
       host.innerHTML = head + '<div class="ck-empty">아직 오지 않은 날짜입니다.</div>';
+      return;
+    }
+
+    if (global.DkjConsole && !global.DkjConsole.isProductionDay(d)) {
+      host.innerHTML = head + '<div class="ck-empty ck-empty-prominent">비생산일입니다. 정기 일지 작성 의무가 없습니다. 입고·부적합·고객불만 등 발생 기록만 필요 시 작성하세요.</div>';
       return;
     }
 

@@ -7,17 +7,24 @@
     "perPeriod": "주/월 1장 — 이번 주(월)에 해당하는 기록이 있는지 본다.",
     "event": "발생 시 작성 — 미작성 판정을 하지 않고 최근 기록만 보여준다."
   },
+  "operationCalendar": {
+    "label": "기본 생산일: 월요일~금요일",
+    "workdays": [1, 2, 3, 4, 5],
+    "nonProductionDates": [],
+    "productionDates": []
+  },
+  "_operationCalendarNote": "공휴일·휴무일은 nonProductionDates, 주말 생산일은 productionDates에 YYYY-MM-DD 형식으로 추가한다. 생산일에만 매일 작성 서식의 작성 의무와 작성률 분모를 계산한다.",
   "groups": [
     {
       "id": "daily",
       "label": "매일 작성",
       "forms": [
-        { "code": "DKJ-S-02-01", "title": "작업장 위생점검", "href": "records/DKJ-S-02-01.html", "check": { "mode": "dayColumn" } },
-        { "code": "DKJ-S-02-03", "title": "개인위생 점검", "href": "records/DKJ-S-02-03.html", "check": { "mode": "dayColumn" } },
-        { "code": "DKJ-S-02-04", "title": "이물관리 점검", "href": "records/DKJ-S-02-04.html", "check": { "mode": "perDay", "dateField": "checkDate" } },
-        { "code": "DKJ-S-02-05", "title": "작업장 온도", "href": "records/DKJ-S-02-05.html", "check": { "mode": "dayRow", "dayKey": "day" } },
-        { "code": "DKJ-H-01-01", "title": "CCP-1BC 소독·헹굼", "href": "records/DKJ-H-01-01.html", "ccp": true, "check": { "mode": "perDay", "dateField": "workDate" } },
-        { "code": "DKJ-H-01-02", "title": "CCP-2P 금속검출", "href": "records/DKJ-H-01-02.html", "ccp": true, "check": { "mode": "perDay", "dateField": "workDate" } }
+        { "code": "DKJ-S-02-01", "title": "작업장 위생점검", "priority": "high", "href": "records/DKJ-S-02-01.html", "check": { "mode": "dayColumn" } },
+        { "code": "DKJ-S-02-03", "title": "개인위생 점검", "priority": "high", "href": "records/DKJ-S-02-03.html", "check": { "mode": "dayColumn" } },
+        { "code": "DKJ-S-02-04", "title": "이물관리 점검", "priority": "normal", "href": "records/DKJ-S-02-04.html", "check": { "mode": "perDay", "dateField": "checkDate" } },
+        { "code": "DKJ-S-02-05", "title": "작업장 온도", "priority": "high", "href": "records/DKJ-S-02-05.html", "check": { "mode": "dayRow", "dayKey": "day" } },
+        { "code": "DKJ-H-01-01", "title": "CCP-1BC 소독·헹굼", "priority": "critical", "href": "records/DKJ-H-01-01.html", "ccp": true, "check": { "mode": "perDay", "dateField": "workDate" } },
+        { "code": "DKJ-H-01-02", "title": "CCP-2P 금속검출", "priority": "critical", "href": "records/DKJ-H-01-02.html", "ccp": true, "check": { "mode": "perDay", "dateField": "workDate" } }
       ]
     },
     {
