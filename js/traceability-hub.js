@@ -7,6 +7,14 @@
   var traceStartedAt = null;
   var drillStartedAt = null;
   var currentResult = null;
+  var SCENARIOS = {
+    label_allergen: { name: '라벨·알레르겐 표시 오류', scenario: '라벨 또는 알레르겐 표시 오류 가능성에 따른 모의회수', action: '해당 완제품 LOT 출하보류, 사내 재고 격리, 거래처 판매중지·재고확인 요청, 라벨·포장 LOT 범위 확인', hint: '포장 LOT·라벨 교체 시점과 거래처 판매분까지 전방추적합니다.', decision: '거래처 회수 요청' },
+    micro_chemical: { name: '원료 미생물·잔류농약 부적합', scenario: '원료 미생물 또는 잔류농약 부적합 가능성에 따른 모의회수', action: '원료 LOT 사용 생산분 확인, 출하보류, 사내 재고 격리, 거래처 재고조사 및 회수 범위 확인', hint: 'FR-014 원료 LOT에서 생산 LOT·출하처까지 전방추적합니다.', decision: '출하보류·격리' },
+    ccp_metal: { name: '금속검출기·CCP 이상', scenario: '금속검출기 또는 CCP 모니터링 이상 시점 이후 생산분에 대한 모의회수', action: '이상 확인 시점 이후 생산 LOT를 범위로 설정, 출하보류, 재검사·격리, 거래처 출하분 확인', hint: 'CCP 이상 시점·직전 정상점검·직후 정상점검과 영향을 받은 생산 LOT를 확인합니다.', decision: '출하보류·격리' },
+    cold_chain: { name: '냉장 온도이탈', scenario: '냉장보관 또는 운송 중 온도이탈 가능성에 따른 모의회수', action: '온도이탈 기간·보관 LOT·출하차량을 확인, 품질평가 전 출하보류, 재고격리 및 거래처 재고조사', hint: '사내 냉장재고·운송 중·거래처 재고를 각각 위치별로 분류합니다.', decision: '출하보류·격리' },
+    customer_complaint: { name: '고객 클레임·이물 발견', scenario: '고객 클레임 또는 이물 발견 신고에 따른 모의회수', action: '고객 제공 제품 LOT 확인, 동일 LOT 재고 격리, 원료·공정·포장재 후방추적, 거래처 회수 가능 수량 확인', hint: '고객의 제품 LOT로 원료·공정·포장 LOT까지 후방추적합니다.', decision: '거래처 회수 요청' },
+    supplier_evidence: { name: '공급업체 원산지·증빙 오류', scenario: '공급업체 원산지 또는 시험성적서·납품증빙 오류에 따른 모의회수', action: '해당 원료 LOT의 납품서·시험성적서 확인, 사용 생산분·출하처 파악, 출하보류 및 거래처 증빙 확인', hint: '원료 입고·공급업체 증빙·생산 LOT·출하처의 연결성을 검증합니다.', decision: '모의회수 개시' }
+  };
 
   function $(id) { return document.getElementById(id); }
   function text(value) { return String(value == null ? '' : value); }
@@ -18,6 +26,7 @@
   function esc(value) { return text(value).replace(/[&<>'"]/g, function (c) { return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[c]; }); }
   function elapsedMinutes(start, end) { return start ? Math.max(0, Math.round((Date.parse(end || nowIso()) - Date.parse(start)) / 60000)) : 0; }
   function dateTime(value) { if (!value) return '-'; try { return new Date(value).toLocaleString('ko-KR', { hour12:false }); } catch (e) { return value; } }
+  function localDateTimeNow() { var d = new Date(); var z = function (n) { return String(n).padStart(2, '0'); }; return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + z(d.getHours()) + ':' + z(d.getMinutes()); }
 
   function setStatus(id, message, bad) {
     var el = $(id);
@@ -246,8 +255,32 @@
 
   function startDrill() {
     drillStartedAt = nowIso();
+    if (!$('drillNotifyAt').value) $('drillNotifyAt').value = localDateTimeNow();
     $('drillClock').textContent = '훈련 시작 ' + dateTime(drillStartedAt);
     setStatus('drillStatus', '모의회수 시작 시각을 기록했습니다. 추적 결과와 조치 내용을 입력한 뒤 완료 저장하세요.');
+  }
+
+  function scenarioTemplate() {
+    return SCENARIOS[$('drillScenarioTemplate').value] || null;
+  }
+
+  function applyScenarioTemplate() {
+    var template = scenarioTemplate();
+    if (!template) { $('scenarioHint').textContent = '선택하면 회수 사유·초기 조치가 자동 입력됩니다.'; return; }
+    $('drillScenario').value = template.scenario;
+    $('drillAction').value = template.action;
+    $('drillDecision').value = template.decision;
+    $('scenarioHint').textContent = template.hint;
+    if (!$('drillAuthorityContact').value) $('drillAuthorityContact').value = '모의회수: 실제 통지 대신 연락체계 검증';
+  }
+
+  function updateLocationBalance() {
+    var total = num($('qtyInternal').value) + num($('qtyTransit').value) + num($('qtyCustomer').value) + num($('qtySold').value) + num($('qtyDisposed').value);
+    var target = currentResult ? currentResult.shipQty + currentResult.inventoryQty : 0;
+    var gap = target - total;
+    $('drillLocationTotal').value = total || '';
+    $('drillQtyGap').value = target ? gap : '';
+    if (target && Math.abs(gap) > 0.001 && !$('drillQtyGapReason').value) $('drillQtyGapReason').placeholder = '수량차이 ' + fmt(gap) + '의 사유를 입력하세요';
   }
 
   function applyTrace() {
@@ -255,9 +288,12 @@
     $('drillTargetLot').value = currentResult.query;
     $('drillIsolatedQty').value = currentResult.inventoryQty || '';
     $('drillRecoveredQty').value = (currentResult.inventoryQty + currentResult.shipQty) || '';
+    $('qtyInternal').value = currentResult.inventoryQty || '';
+    $('qtyCustomer').value = currentResult.shipQty || '';
+    updateLocationBalance();
     if (!drillStartedAt) startDrill();
     $('drillClock').textContent = '대상 적용 · ' + elapsedMinutes(drillStartedAt) + '분 경과';
-    setStatus('drillStatus', '현재 추적 결과를 모의회수 대상·수량에 적용했습니다. 실제 수행 조치와 개선사항을 입력하세요.');
+    setStatus('drillStatus', '현재 추적 결과를 모의회수 대상·수량에 적용했습니다. 위치별 수량·통지·효과검증을 확인하세요.');
   }
 
   function saveDrill() {
@@ -266,7 +302,8 @@
     var writer = $('drillWriter').value.trim();
     var scenario = $('drillScenario').value.trim();
     if (!lot || !writer || !scenario) { setStatus('drillStatus', '대상 LOT, 작성자, 시나리오를 입력하세요.', true); return; }
-    if (!($('checkLot').checked && $('checkContact').checked && $('checkIsolation').checked && $('checkImprovement').checked)) { setStatus('drillStatus', '4개 검증확인 항목을 모두 체크하세요.', true); return; }
+    var requiredChecks = ['checkLot', 'checkContact', 'checkIsolation', 'checkDecision', 'checkBalance', 'checkImprovement', 'checkEffectiveness', 'checkEvidence'];
+    if (!requiredChecks.every(function (id) { return $(id).checked; })) { setStatus('drillStatus', '8개 심사 대비 검증확인 항목을 모두 체크하세요.', true); return; }
     if (!window.DkjRecordStore) { setStatus('drillStatus', '기록 저장소를 불러오지 못했습니다.', true); return; }
     if (!drillStartedAt) drillStartedAt = currentResult.startedAt || nowIso();
     var finishedAt = nowIso();
@@ -292,12 +329,18 @@
       recoveredQty: recoveredQty,
       recoveryRate: rate,
       withinTwoHours: minutes <= 120,
+      scenarioTemplate: $('drillScenarioTemplate').value || 'custom',
+      scenarioTemplateName: scenarioTemplate() ? scenarioTemplate().name : '사용자 정의',
+      locationQty: { internal: num($('qtyInternal').value), transit: num($('qtyTransit').value), customer: num($('qtyCustomer').value), sold: num($('qtySold').value), disposed: num($('qtyDisposed').value), total: num($('drillLocationTotal').value), gap: num($('drillQtyGap').value), gapReason: $('drillQtyGapReason').value.trim() },
+      decision: { maker: $('drillDecisionMaker').value.trim(), type: $('drillDecision').value, notifiedAt: $('drillNotifyAt').value },
+      contacts: { recallTeam: $('drillRecallTeam').value.trim(), customer: $('drillCustomerContact').value.trim(), authority: $('drillAuthorityContact').value.trim() },
+      effectiveness: { result: $('drillVerification').value, correctiveOwner: $('drillCorrectiveOwner').value.trim(), correctiveDue: $('drillCorrectiveDue').value, evidence: $('drillEvidence').value.trim() },
       action: $('drillAction').value.trim(),
       improvement: $('drillGap').value.trim(),
-      checks: { lotQtyDestinationInventory: true, contactSystem: true, isolation: true, improvement: true },
+      checks: { lotQtyDestinationInventory: true, contactSystem: true, isolation: true, decisionAuthority: true, massBalance: true, improvement: true, effectiveness: true, evidence: true },
       traceSnapshot: JSON.parse(JSON.stringify(currentResult)),
       locked: true,
-      audit: makeAudit('mock_recall_completed', minutes + '분 · 회수/확보율 ' + rate + '%')
+      audit: makeAudit('mock_recall_completed', minutes + '분 · 회수/확보율 ' + rate + '% · 수량차이 ' + fmt(num($('drillQtyGap').value)))
     };
     DkjRecordStore.save(FORM_DRILL, record);
     $('drillClock').textContent = '완료 ' + dateTime(finishedAt) + ' · ' + minutes + '분';
@@ -311,7 +354,9 @@
       return '<div class="tr-history"><div><strong>연결 · ' + esc(record.rawLot) + ' → ' + esc(record.productionLot) + '</strong><small>' + esc(record.rawItemName) + ' · ' + esc(record.productName) + ' · 출하 ' + fmt(record.shipQty) + ' · 재고 ' + fmt(record.inventoryQty) + ' · ' + esc(record.createdAt ? dateTime(record.createdAt) : '-') + '</small></div><span class="tr-tag">일보 연계</span></div>';
     });
     var drillRows = drills().slice(0, 8).map(function (record) {
-      return '<div class="tr-history"><div><strong>' + esc(record.drillType || '모의회수') + ' · ' + esc(record.targetLot) + '</strong><small>' + esc(record.scenario) + ' · ' + fmt(record.elapsedMinutes) + '분 · 확보율 ' + fmt(record.recoveryRate) + '% · ' + esc(record.createdAt ? dateTime(record.createdAt) : '-') + '</small></div><span class="tr-tag">' + (record.withinTwoHours ? '2시간 이내' : '개선 필요') + '</span></div>';
+      var template = record.scenarioTemplateName ? ' · ' + record.scenarioTemplateName : '';
+      var effect = record.effectiveness && record.effectiveness.result ? ' · 효과검증 ' + record.effectiveness.result : '';
+      return '<div class="tr-history"><div><strong>' + esc(record.drillType || '모의회수') + ' · ' + esc(record.targetLot) + '</strong><small>' + esc(record.scenario) + template + ' · ' + fmt(record.elapsedMinutes) + '분 · 확보율 ' + fmt(record.recoveryRate) + '%' + effect + ' · ' + esc(record.createdAt ? dateTime(record.createdAt) : '-') + '</small></div><span class="tr-tag">' + (record.withinTwoHours ? '2시간 이내' : '개선 필요') + '</span></div>';
     });
     target.innerHTML = (drillRows.concat(linkRows)).join('') || '<div class="tr-empty">저장된 추적성 연결기록 또는 모의회수 결과가 없습니다.</div>';
   }
@@ -381,6 +426,12 @@
     $('applyTrace').addEventListener('click', applyTrace);
     $('saveDrill').addEventListener('click', saveDrill);
     $('linkSource').addEventListener('change', prefillLink);
+    $('drillScenarioTemplate').addEventListener('change', applyScenarioTemplate);
+    ['qtyInternal', 'qtyTransit', 'qtyCustomer', 'qtySold', 'qtyDisposed'].forEach(function (id) {
+      $(id).addEventListener('input', updateLocationBalance);
+      $(id).addEventListener('change', updateLocationBalance);
+    });
+    updateLocationBalance();
     setupQuickLot(new URLSearchParams(location.search));
   }
 
