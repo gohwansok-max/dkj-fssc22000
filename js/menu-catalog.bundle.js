@@ -188,6 +188,10 @@ window.DKJ_MENU_CATALOG={
               "href": "haccp-team-settings.html"
             },
             {
+              "label": "이탈·시정조치(CAPA) 관리",
+              "href": "capa-management.html"
+            },
+            {
               "label": "DKJ-H-01-01 중요관리점(CCP 1BC) 점검표 소독·헹굼공정",
               "href": "doc-viewer.html?id=DKJ-H-01-01"
             },
@@ -484,6 +488,10 @@ window.DKJ_MENU_CATALOG={
     {
       "label": "HACCP팀 설정",
       "href": "haccp-team-settings.html"
+    },
+    {
+      "label": "CAPA 관리",
+      "href": "capa-management.html"
     },
     {
       "label": "PRP",
