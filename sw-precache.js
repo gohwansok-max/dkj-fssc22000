@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-41943a43be6e';
+self.DKJ_SW_VERSION = 'v1-2d11fc499bb8';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -19,6 +19,7 @@ self.DKJ_PRECACHE = [
   './data/console-forms.json',
   './data/doc-assets.json',
   './data/doc-catalog.json',
+  './data/drive-document-manifest.json',
   './data/fr-form-specs/FR-001.json',
   './data/fr-form-specs/FR-002.json',
   './data/fr-form-specs/FR-003.json',
@@ -267,12 +268,14 @@ self.DKJ_PRECACHE = [
   './js/doc-assets.bundle.js',
   './js/doc-catalog.bundle.js',
   './js/docs-center.js',
+  './js/drive-document-manifest.bundle.js',
   './js/fssc-four-domain.js',
   './js/haccp-team-settings.js',
   './js/management-culture.js',
   './js/mdr-catalog.bundle.js',
   './js/mdr-register.js',
   './js/menu-catalog.bundle.js',
+  './js/official-documents.js',
   './js/pdf-manifest.bundle.js',
   './js/process-line.bundle.js',
   './js/products.bundle.js',
@@ -287,6 +290,7 @@ self.DKJ_PRECACHE = [
   './management-culture.html',
   './manifest.json',
   './mdr-register.html',
+  './official-documents.html',
   './offline.html',
   './quality-dashboard.html',
   './record-viewer.html',
