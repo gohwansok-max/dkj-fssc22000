@@ -53,6 +53,10 @@
     });
   }
 
+  function incomingById(id) {
+    return incomingRecords().find(function (record) { return record.id === id; }) || null;
+  }
+
   function links() {
     return (window.DkjRecordStore ? DkjRecordStore.list(FORM_LINK) : []).filter(function (record) {
       return record && record.rawLot && record.productionLot;
@@ -324,6 +328,47 @@
     $('traceResult').textContent = 'LOT 또는 품목명을 입력하고 ‘일보에서 추적 실행’을 누르세요.';
   }
 
+  function scrollTo(id, focusId) {
+    var target = $(id);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (focusId) setTimeout(function () { var field = $(focusId); if (field) field.focus(); }, 420);
+  }
+
+  function setupQuickLot(params) {
+    var sourceId = params.get('from014') || '';
+    var lot = params.get('lot') || '';
+    var source = incomingById(sourceId) || incomingRecords().find(function (record) { return lot && record.lot === lot; }) || null;
+    var quick = $('quickLotCard');
+    var quickMode = params.get('mode') === 'quick' || !!sourceId;
+    if (lot) $('traceLot').value = lot;
+    if (!quickMode || !quick) return;
+
+    quick.classList.add('on');
+    if (source) {
+      $('linkSource').value = source.id;
+      prefillLink();
+      if (!$('linkWriter').value) $('linkWriter').value = source.inspector || source.createdBy || '';
+      if (!$('drillWriter').value) $('drillWriter').value = source.inspector || source.createdBy || '';
+      if (!$('drillScenario').value) $('drillScenario').value = 'FR-014 입고 LOT ' + source.lot + '에 대한 모의회수';
+      $('quickLotTitle').textContent = (source.itemName || '원료') + ' · LOT ' + source.lot;
+      $('quickLotMeta').textContent = [source.receiveDate, source.supplier, (source.qty || '-') + ' ' + (source.unit || '')].filter(Boolean).join(' · ');
+    } else {
+      $('quickLotTitle').textContent = lot ? 'LOT ' + lot : 'FR-014 LOT 정보를 찾지 못했습니다';
+      $('quickLotMeta').textContent = '같은 기기에서 저장한 FR-014 기록인지 확인하세요.';
+    }
+
+    $('quickTrace').addEventListener('click', function () {
+      runTrace();
+      scrollTo('traceResult');
+    });
+    $('quickRecall').addEventListener('click', function () {
+      runTrace();
+      if (!currentResult) return;
+      applyTrace();
+      scrollTo('drillTargetLot', 'drillScenario');
+    });
+  }
+
   function init() {
     $('linkProductionDate').value = today();
     selectIncoming();
@@ -336,8 +381,7 @@
     $('applyTrace').addEventListener('click', applyTrace);
     $('saveDrill').addEventListener('click', saveDrill);
     $('linkSource').addEventListener('change', prefillLink);
-    var params = new URLSearchParams(location.search);
-    if (params.get('lot')) $('traceLot').value = params.get('lot');
+    setupQuickLot(new URLSearchParams(location.search));
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
