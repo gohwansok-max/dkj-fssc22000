@@ -23,6 +23,7 @@
 
   function writeJson(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
+    try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { key: key, value: value } })); } catch (e) {}
   }
 
   function uid() {

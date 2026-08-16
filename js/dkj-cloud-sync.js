@@ -147,6 +147,9 @@
       if (isSyncKey(k) && !cloud[nodeKey(k)]) await legacyPushKey(k);
     }
     markSynced();
+    if (touched) {
+      try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { source: 'cloud', mode: 'legacy' } })); } catch (e) {}
+    }
     if (!silent) toast('☁️ 기존 동기화 완료 · 보안 전환 준비 중');
     if (touched && !sessionStorage.getItem('dkj_cloud_reloaded')) {
       sessionStorage.setItem('dkj_cloud_reloaded', '1');
@@ -329,6 +332,9 @@
       if (await v2SyncForm(ids[j], forms[ids[j]])) touched = true;
     }
     markSynced();
+    if (touched) {
+      try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { source: 'cloud', mode: 'v2' } })); } catch (e) {}
+    }
     if (!silent) toast('☁️ 레코드 단위 동기화 완료');
     if (touched && !sessionStorage.getItem('dkj_cloud_v2_reloaded')) {
       sessionStorage.setItem('dkj_cloud_v2_reloaded', '1');
