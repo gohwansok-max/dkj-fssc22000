@@ -156,6 +156,7 @@
         <div class="tr-section-head"><div><h2>4. 모의회수 검증 기록</h2><p class="tr-sub">추적 결과를 회수 범위로 고정하고, 2시간 목표·격리·통지·회수 수량·개선조치를 증빙합니다.</p></div><span class="tr-clock" id="drillClock">훈련 미시작</span></div>
         <div class="tr-actions"><button class="tr-btn warn" id="startDrill" type="button">모의회수 시작 시각 기록</button><button class="tr-btn secondary" id="applyTrace" type="button">현재 추적 결과 적용</button></div>
         <div class="tr-field-grid three" style="margin-top:14px;">
+          <div class="tr-field wide"><label for="drillScenarioTemplate">심사 대비 시나리오 템플릿 *</label><select id="drillScenarioTemplate"><option value="">시나리오를 선택하세요</option><option value="label_allergen">1. 라벨·알레르겐 표시 오류</option><option value="micro_chemical">2. 원료 미생물·잔류농약 부적합</option><option value="ccp_metal">3. 금속검출기·CCP 이상</option><option value="cold_chain">4. 냉장 온도이탈</option><option value="customer_complaint">5. 고객 클레임·이물 발견</option><option value="supplier_evidence">6. 공급업체 원산지·증빙 오류</option></select><small id="scenarioHint">선택하면 회수 사유·초기 조치가 자동 입력됩니다.</small></div>
           <div class="tr-field"><label for="drillTargetLot">대상 LOT *</label><input id="drillTargetLot" type="text" placeholder="추적 결과에서 자동 입력"></div>
           <div class="tr-field"><label for="drillType">훈련 유형</label><select id="drillType"><option>모의회수</option><option>전방추적 검증</option><option>후방추적 검증</option><option>실제 회수 대응</option></select></div>
           <div class="tr-field"><label for="drillWriter">작성자 *</label><input id="drillWriter" type="text" placeholder="성명"></div>
@@ -163,14 +164,40 @@
           <div class="tr-field"><label for="drillRecoveredQty">회수/확보 수량</label><input id="drillRecoveredQty" type="number" min="0" step="0.001" placeholder="0"></div>
           <div class="tr-field"><label for="drillReviewer">검토자</label><input id="drillReviewer" type="text" placeholder="성명"></div>
           <div class="tr-field wide"><label for="drillScenario">시나리오·회수 사유 *</label><input id="drillScenario" type="text" placeholder="예: 원료 LOT 이물 혼입 가능성에 따른 모의회수"></div>
+        </div>
+        <details class="tr-details" open><summary>회수 범위·위치별 격리·수량대조</summary><div class="tr-field-grid three">
+          <div class="tr-field"><label for="qtyInternal">사내 격리 재고</label><input id="qtyInternal" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="qtyTransit">운송 중 수량</label><input id="qtyTransit" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="qtyCustomer">거래처 재고</label><input id="qtyCustomer" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="qtySold">소비자 판매분</label><input id="qtySold" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="qtyDisposed">폐기·반품 처리분</label><input id="qtyDisposed" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="drillLocationTotal">위치 분류 합계</label><input id="drillLocationTotal" type="number" readonly placeholder="자동 계산"></div>
+          <div class="tr-field"><label for="drillQtyGap">회수 대상 대비 수량차이</label><input id="drillQtyGap" type="number" readonly placeholder="자동 계산"></div>
+          <div class="tr-field wide"><label for="drillQtyGapReason">수량차이·미회수 사유</label><input id="drillQtyGapReason" type="text" placeholder="예: 소비자 판매분으로 연락처 미확보, 거래처 재고 조사 중"></div>
+        </div></details>
+        <details class="tr-details"><summary>통지·결정·효과검증</summary><div class="tr-field-grid three">
+          <div class="tr-field"><label for="drillDecisionMaker">회수 개시 결정권자</label><input id="drillDecisionMaker" type="text" placeholder="성명·직책"></div>
+          <div class="tr-field"><label for="drillDecision">회수 결정</label><select id="drillDecision"><option>모의회수 개시</option><option>출하보류·격리</option><option>거래처 회수 요청</option><option>실제 회수 전환 검토</option></select></div>
+          <div class="tr-field"><label for="drillNotifyAt">최초 통지 시각</label><input id="drillNotifyAt" type="datetime-local"></div>
+          <div class="tr-field"><label for="drillRecallTeam">회수팀 연락 대상</label><input id="drillRecallTeam" type="text" placeholder="성명·연락 결과"></div>
+          <div class="tr-field"><label for="drillCustomerContact">거래처 연락 대상</label><input id="drillCustomerContact" type="text" placeholder="거래처·담당자·수신 여부"></div>
+          <div class="tr-field"><label for="drillAuthorityContact">관할기관 통지</label><input id="drillAuthorityContact" type="text" placeholder="모의: 해당없음 / 실제: 기관·시각"></div>
+          <div class="tr-field"><label for="drillVerification">효과검증 결과</label><select id="drillVerification"><option>적합</option><option>보완 필요</option><option>부적합</option></select></div>
+          <div class="tr-field"><label for="drillCorrectiveOwner">개선조치 책임자</label><input id="drillCorrectiveOwner" type="text" placeholder="성명·부서"></div>
+          <div class="tr-field"><label for="drillCorrectiveDue">개선 완료기한</label><input id="drillCorrectiveDue" type="date"></div>
+          <div class="tr-field wide"><label for="drillEvidence">증빙 참조</label><input id="drillEvidence" type="text" placeholder="출하전표, 거래명세서, 통화기록, 격리사진, 공문 번호 등"></div>
           <div class="tr-field wide"><label for="drillAction">통지·격리·회수 조치</label><textarea id="drillAction" placeholder="회수팀 통지, 거래처 연락, 사내 재고 격리, 출하보류 등 실제 수행 내용을 입력하세요."></textarea></div>
           <div class="tr-field wide"><label for="drillGap">발견사항·개선조치</label><textarea id="drillGap" placeholder="수량차이, 누락된 LOT, 연락처 오류, 기록 미비와 개선조치를 입력하세요."></textarea></div>
-        </div>
+        </div></details>
         <div class="tr-checks">
           <label class="tr-check"><input id="checkLot" type="checkbox"> LOT·수량·출하처·재고를 확인했다.</label>
-          <label class="tr-check"><input id="checkContact" type="checkbox"> 회수 연락체계·통지 대상을 확인했다.</label>
-          <label class="tr-check"><input id="checkIsolation" type="checkbox"> 사내 재고 격리 또는 출하보류를 확인했다.</label>
+          <label class="tr-check"><input id="checkContact" type="checkbox"> 회수팀·거래처·기관 통지 대상을 확인했다.</label>
+          <label class="tr-check"><input id="checkIsolation" type="checkbox"> 위치별 격리·출하보류를 확인했다.</label>
+          <label class="tr-check"><input id="checkDecision" type="checkbox"> 회수 개시 결정권자와 판단 근거를 확인했다.</label>
+          <label class="tr-check"><input id="checkBalance" type="checkbox"> 회수 대상·위치 분류·수량차이를 대조했다.</label>
           <label class="tr-check"><input id="checkImprovement" type="checkbox"> 갭과 후속 개선조치를 기록했다.</label>
+          <label class="tr-check"><input id="checkEffectiveness" type="checkbox"> 통지·회수 효과와 미회수 사유를 검증했다.</label>
+          <label class="tr-check"><input id="checkEvidence" type="checkbox"> 전표·연락·격리 등 증빙 참조를 기록했다.</label>
         </div>
         <div class="tr-actions"><button class="tr-btn" id="saveDrill" type="button">모의회수 검증 저장·완료</button></div>
         <p class="tr-note warn">‘완료’는 이 페이지가 수집한 현재 연결기록의 스냅샷을 보존합니다. 실제 회수에서는 제품회수 절차서(DKJ-P-06), 관할기관·거래처 통지 및 제품회수 보고서(FR-016)를 병행해야 합니다.</p>
