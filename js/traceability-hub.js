@@ -3,6 +3,8 @@
 
   var FORM_INCOMING = 'FR-014';
   var FORM_NC_RAW = 'FR-015';
+  var FORM_NC_PRODUCT = 'FR-039';
+  var FORM_RECALL = 'FR-016';
   var FORM_LINK = 'TRACE-LINK';
   var FORM_DRILL = 'TRACE-DRILL';
   var traceStartedAt = null;
@@ -71,6 +73,18 @@
     return (window.DkjRecordStore ? DkjRecordStore.list(FORM_NC_RAW) : []).filter(function (record) {
       return record && record.lot;
     }).sort(function (a, b) { return String(b.processDate || b.createdAt || '').localeCompare(String(a.processDate || a.createdAt || '')); });
+  }
+
+  function ncProductRecords() {
+    return (window.DkjRecordStore ? DkjRecordStore.list(FORM_NC_PRODUCT) : []).filter(function (record) {
+      return record && record.lot;
+    }).sort(function (a, b) { return String(b.docDate || b.createdAt || '').localeCompare(String(a.docDate || a.createdAt || '')); });
+  }
+
+  function recallReports() {
+    return (window.DkjRecordStore ? DkjRecordStore.list(FORM_RECALL) : []).filter(function (record) {
+      return record && record.lot;
+    }).sort(function (a, b) { return String(b.startDate || b.docDate || b.createdAt || '').localeCompare(String(a.startDate || a.docDate || a.createdAt || '')); });
   }
 
   function links() {
@@ -169,11 +183,11 @@
 
   function matches(record, query, date) {
     if (date) {
-      var recordDate = record.receiveDate || record.processDate || record.productionDate || record.createdAt || '';
+      var recordDate = record.receiveDate || record.processDate || record.productionDate || record.docDate || record.startDate || record.createdAt || '';
       if (String(recordDate).slice(0, 10) !== date) return false;
     }
     if (!query) return true;
-    var haystack = [record.lot, record.rawLot, record.productionLot, record.itemName, record.rawItemName, record.productName, record.supplier, record.destination, record.shipmentNo].map(lower).join(' ');
+    var haystack = [record.lot, record.rawLot, record.productionLot, record.packLot, record.itemName, record.rawItemName, record.productName, record.subject, record.supplier, record.vendor, record.destination, record.shipmentNo, record.ncType, record.recallClass].map(lower).join(' ');
     return haystack.indexOf(query) !== -1;
   }
 
@@ -183,12 +197,16 @@
     var basisDate = $('traceDate').value;
     var incoming = incomingRecords();
     var ncRecords = ncRawRecords();
+    var productNcRecords = ncProductRecords();
+    var recallRecordList = recallReports();
     var linkRecords = links();
     if (!query) { setStatus('traceStatus', '추적할 LOT 또는 품목명을 입력하세요.', true); return; }
     traceStartedAt = nowIso();
 
     var matchedIncoming = incoming.filter(function (record) { return matches(record, query, basisDate); });
     var matchedNc = ncRecords.filter(function (record) { return matches(record, query, basisDate); });
+    var matchedProductNc = productNcRecords.filter(function (record) { return matches(record, query, basisDate); });
+    var matchedRecalls = recallRecordList.filter(function (record) { return matches(record, query, basisDate); });
     var matchedLinks = linkRecords.filter(function (record) { return matches(record, query, basisDate); });
     var rawLotMap = {};
     matchedIncoming.forEach(function (record) { rawLotMap[record.lot] = true; });
@@ -215,6 +233,17 @@
     ncRecords.forEach(function (record) {
       if (allRawLots[record.lot] && matchedNc.indexOf(record) === -1) matchedNc.push(record);
     });
+    var allProductLots = {};
+    matchedLinks.forEach(function (record) {
+      if (record.productionLot) allProductLots[record.productionLot] = true;
+      if (record.packLot) allProductLots[record.packLot] = true;
+    });
+    productNcRecords.forEach(function (record) {
+      if (allProductLots[record.lot] && matchedProductNc.indexOf(record) === -1) matchedProductNc.push(record);
+    });
+    recallRecordList.forEach(function (record) {
+      if (allProductLots[record.lot] && matchedRecalls.indexOf(record) === -1) matchedRecalls.push(record);
+    });
 
     if (direction === 'forward') {
       // 조회 기준 원료 외의 보조 원료는 결과에서 제외한다.
@@ -235,20 +264,26 @@
     var inputQty = matchedIncoming.reduce(function (sum, record) { return sum + num(record.qty); }, 0);
     var ncQuarantineQty = matchedNc.filter(function (record) { return (record.disposition || '격리') === '격리'; }).reduce(function (sum, record) { return sum + num(record.qty); }, 0);
     var ncClosedQty = matchedNc.filter(function (record) { return record.disposition === '반품' || record.disposition === '폐기'; }).reduce(function (sum, record) { return sum + num(record.qty); }, 0);
-    var targetRecallQty = (shipQty + inventoryQty) || ncQuarantineQty;
+    var productNcQuarantineQty = matchedProductNc.filter(function (record) { return (record.disposition || '격리') === '격리'; }).reduce(function (sum, record) { return sum + num(record.qty); }, 0);
+    var productNcClosedQty = matchedProductNc.filter(function (record) { return record.disposition === '반품' || record.disposition === '폐기'; }).reduce(function (sum, record) { return sum + num(record.qty); }, 0);
+    var productRecallQty = shipQty + inventoryQty + productNcQuarantineQty;
+    var targetRecallQty = productRecallQty || ncQuarantineQty;
     currentResult = {
       query: $('traceLot').value.trim(), direction: direction, basisDate: basisDate,
-      startedAt: traceStartedAt, incoming: matchedIncoming, ncRecords: matchedNc, links: matchedLinks,
+      startedAt: traceStartedAt, incoming: matchedIncoming, ncRecords: matchedNc, productNcRecords: matchedProductNc, recallReports: matchedRecalls, links: matchedLinks,
       inputQty: inputQty, outputQty: outputQty, shipQty: shipQty, inventoryQty: inventoryQty,
-      ncQuarantineQty: ncQuarantineQty, ncClosedQty: ncClosedQty, targetRecallQty: targetRecallQty
+      ncQuarantineQty: ncQuarantineQty, ncClosedQty: ncClosedQty, productNcQuarantineQty: productNcQuarantineQty, productNcClosedQty: productNcClosedQty, productRecallQty: productRecallQty, recallUsesRawOnly: !productRecallQty, targetRecallQty: targetRecallQty
     };
     renderTraceResult();
-    setStatus('traceStatus', (matchedIncoming.length || matchedLinks.length || matchedNc.length) ? '일보 기반 추적을 완료했습니다. FR-015 부적합 처리·격리 결과도 함께 확인하세요.' : '일치하는 기록이 없습니다. FR-014 입고 LOT, FR-015 부적합 처리 또는 생산·출하 연결기록을 확인하세요.', !(matchedIncoming.length || matchedLinks.length || matchedNc.length));
+    var found = matchedIncoming.length || matchedLinks.length || matchedNc.length || matchedProductNc.length || matchedRecalls.length;
+    setStatus('traceStatus', found ? '일보 기반 추적을 완료했습니다. FR-015 원료격리, FR-039 제품격리, FR-016 회수보고도 함께 확인하세요.' : '일치하는 기록이 없습니다. FR-014 입고 LOT, FR-015·FR-039 부적합 처리 또는 생산·출하 연결기록을 확인하세요.', !found);
   }
 
   function recordLink(formId, id) {
     if (formId === FORM_INCOMING) return 'records/FR-014.html?id=' + encodeURIComponent(id || '');
     if (formId === FORM_NC_RAW) return 'records/FR-015.html?id=' + encodeURIComponent(id || '');
+    if (formId === FORM_NC_PRODUCT) return 'records/FR-039.html?record=' + encodeURIComponent(id || '');
+    if (formId === FORM_RECALL) return 'records/FR-016.html?record=' + encodeURIComponent(id || '');
     return '#traceHistory';
   }
 
@@ -258,8 +293,8 @@
     var target = $('traceResult');
     if (!result) return;
     $('traceClock').textContent = '추적 시작 ' + dateTime(result.startedAt) + ' · ' + elapsedMinutes(result.startedAt) + '분 경과';
-    summary.innerHTML = metric('원료 입고', result.incoming.length + '건') + metric('생산 LOT', result.links.length + '건') + metric('출하대상', fmt(result.shipQty)) + metric('확보 재고', fmt(result.inventoryQty)) + metric('FR-015 격리', fmt(result.ncQuarantineQty));
-    if (!result.incoming.length && !result.links.length && !result.ncRecords.length) { target.className = 'tr-empty'; target.textContent = '일치하는 일보 또는 연결기록이 없습니다.'; return; }
+    summary.innerHTML = metric('원료 입고', result.incoming.length + '건') + metric('생산 LOT', result.links.length + '건') + metric('출하대상', fmt(result.shipQty)) + metric('확보 재고', fmt(result.inventoryQty)) + metric('FR-015 격리', fmt(result.ncQuarantineQty)) + metric('FR-039 제품격리', fmt(result.productNcQuarantineQty)) + metric('FR-016 회수보고', result.recallReports.length + '건');
+    if (!result.incoming.length && !result.links.length && !result.ncRecords.length && !result.productNcRecords.length && !result.recallReports.length) { target.className = 'tr-empty'; target.textContent = '일치하는 일보 또는 연결기록이 없습니다.'; return; }
     target.className = '';
     var incomingRows = result.incoming.map(function (record) {
       return '<tr><td><a href="' + recordLink(FORM_INCOMING, record.id) + '">' + esc(record.itemName) + '</a></td><td>' + esc(record.lot) + '</td><td>' + esc(record.supplier || '-') + '</td><td>' + esc(record.receiveDate || '-') + '</td><td>' + fmt(record.qty) + ' ' + esc(record.unit || '') + '</td><td>' + esc(record.judge || '-') + '</td></tr>';
@@ -273,11 +308,20 @@
       var location = record.isolateLocation || '-';
       return '<tr><td><a href="' + recordLink(FORM_NC_RAW, record.id) + '">' + esc(record.itemName || '-') + '</a></td><td>' + esc(record.lot) + '</td><td>' + fmt(record.qty) + ' ' + esc(record.unit || '') + '</td><td>' + esc(location) + '</td><td><span class="tr-tag">' + esc(status) + '</span></td><td>' + esc(record.reasonText || '-') + '</td></tr>';
     }).join('') || '<tr><td colspan="6">연결된 FR-015 부적합 원부자재 처리기록이 없습니다.</td></tr>';
+    var productNcRows = result.productNcRecords.map(function (record) {
+      var status = record.disposition || '격리';
+      return '<tr><td><a href="' + recordLink(FORM_NC_PRODUCT, record.id) + '">' + esc(record.subject || '-') + '</a></td><td>' + esc(record.lot) + '</td><td>' + fmt(record.qty) + '</td><td>' + esc(record.ncType || '-') + '</td><td><span class="tr-tag">' + esc(status) + '</span></td><td>' + esc(record.dispose || record.detail || '-') + '</td></tr>';
+    }).join('') || '<tr><td colspan="6">연결된 FR-039 부적합품 관리기록이 없습니다.</td></tr>';
+    var recallRows = result.recallReports.map(function (record) {
+      return '<tr><td><a href="' + recordLink(FORM_RECALL, record.id) + '">' + esc(record.subject || '-') + '</a></td><td>' + esc(record.lot) + '</td><td>' + esc(record.recallClass || '-') + '</td><td>' + fmt(record.qty) + '</td><td>' + esc(record.startDate || '-') + '</td><td>' + esc(record.result || '작성 중') + '</td></tr>';
+    }).join('') || '<tr><td colspan="6">연결된 FR-016 제품회수 보고서가 없습니다. 실제 회수 전환 시 아래 초안 버튼으로 생성하세요.</td></tr>';
     var balance = result.inputQty ? Math.round((result.outputQty / result.inputQty) * 1000) / 10 : 0;
     target.innerHTML = '<div class="tr-table-wrap"><table class="tr-table"><thead><tr><th colspan="6">원료 입고 일보</th></tr><tr><th>품목</th><th>LOT</th><th>공급업체</th><th>입고일</th><th>입고수량</th><th>판정</th></tr></thead><tbody>' + incomingRows + '</tbody></table></div>' +
       '<div class="tr-table-wrap"><table class="tr-table"><thead><tr><th colspan="6">생산·출하 연결기록</th></tr><tr><th>생산 LOT</th><th>완제품</th><th>연결 LOT</th><th>출하처·전표</th><th>출하수량</th><th>재고</th></tr></thead><tbody>' + linkRows + '</tbody></table></div>' +
       '<div class="tr-table-wrap"><table class="tr-table"><thead><tr><th colspan="6">FR-015 부적합 원부자재 처리기록</th></tr><tr><th>품목</th><th>LOT</th><th>처리수량</th><th>격리 위치</th><th>처리결과</th><th>사유</th></tr></thead><tbody>' + ncRows + '</tbody></table></div>' +
-      '<p class="tr-note">수량대조: 입고 ' + fmt(result.inputQty) + ' / 생산 ' + fmt(result.outputQty) + ' / 출하 ' + fmt(result.shipQty) + ' / 정상재고 ' + fmt(result.inventoryQty) + ' / FR-015 격리 ' + fmt(result.ncQuarantineQty) + ' / 반품·폐기 ' + fmt(result.ncClosedQty) + ' · 회수 대상 ' + fmt(result.targetRecallQty) + ' · 생산수율(참고) ' + fmt(balance) + '%</p>';
+      '<div class="tr-table-wrap"><table class="tr-table"><thead><tr><th colspan="6">FR-039 부적합품 관리기록</th></tr><tr><th>품명</th><th>LOT</th><th>수량</th><th>부적합유형</th><th>처리</th><th>처리결과·확인</th></tr></thead><tbody>' + productNcRows + '</tbody></table></div>' +
+      '<div class="tr-table-wrap"><table class="tr-table"><thead><tr><th colspan="6">FR-016 제품회수 보고서 및 기록</th></tr><tr><th>제품명</th><th>LOT</th><th>회수등급</th><th>회수대상량</th><th>개시일</th><th>결과·종료</th></tr></thead><tbody>' + recallRows + '</tbody></table></div>' +
+      '<p class="tr-note">수량대조: 입고 ' + fmt(result.inputQty) + ' / 생산 ' + fmt(result.outputQty) + ' / 출하 ' + fmt(result.shipQty) + ' / 정상재고 ' + fmt(result.inventoryQty) + ' / FR-015 원료격리 ' + fmt(result.ncQuarantineQty) + ' / FR-039 제품격리 ' + fmt(result.productNcQuarantineQty) + ' / FR-015 반품·폐기 ' + fmt(result.ncClosedQty) + ' / FR-039 반품·폐기 ' + fmt(result.productNcClosedQty) + ' · 회수 대상 ' + fmt(result.targetRecallQty) + ' · 생산수율(참고) ' + fmt(balance) + '%</p>';
   }
 
   function metric(label, value) { return '<div class="tr-metric"><span>' + esc(label) + '</span><b>' + esc(value) + '</b></div>'; }
@@ -304,7 +348,7 @@
   }
 
   function updateLocationBalance() {
-    var total = num($('qtyInternal').value) + num($('qtyNonconforming').value) + num($('qtyTransit').value) + num($('qtyCustomer').value) + num($('qtySold').value) + num($('qtyDisposed').value);
+    var total = num($('qtyInternal').value) + num($('qtyNonconforming').value) + num($('qtyProductNonconforming').value) + num($('qtyTransit').value) + num($('qtyCustomer').value) + num($('qtySold').value) + num($('qtyDisposed').value);
     var target = currentResult ? currentResult.targetRecallQty : 0;
     var gap = target - total;
     $('drillLocationTotal').value = total || '';
@@ -315,15 +359,52 @@
   function applyTrace() {
     if (!currentResult) { setStatus('drillStatus', '먼저 LOT 추적을 실행하세요.', true); return; }
     $('drillTargetLot').value = currentResult.query;
-    $('drillIsolatedQty').value = (currentResult.inventoryQty + currentResult.ncQuarantineQty) || '';
+    var rawOnly = currentResult.recallUsesRawOnly;
+    $('drillIsolatedQty').value = (currentResult.inventoryQty + currentResult.productNcQuarantineQty + (rawOnly ? currentResult.ncQuarantineQty : 0)) || '';
     $('drillRecoveredQty').value = currentResult.targetRecallQty || '';
     $('qtyInternal').value = currentResult.inventoryQty || '';
-    $('qtyNonconforming').value = currentResult.ncQuarantineQty || '';
+    $('qtyNonconforming').value = rawOnly ? (currentResult.ncQuarantineQty || '') : '';
+    $('qtyProductNonconforming').value = currentResult.productNcQuarantineQty || '';
     $('qtyCustomer').value = currentResult.shipQty || '';
     updateLocationBalance();
     if (!drillStartedAt) startDrill();
     $('drillClock').textContent = '대상 적용 · ' + elapsedMinutes(drillStartedAt) + '분 경과';
     setStatus('drillStatus', '현재 추적 결과를 모의회수 대상·수량에 적용했습니다. 위치별 수량·통지·효과검증을 확인하세요.');
+  }
+
+  function productNameForRecall() {
+    var linked = currentResult && currentResult.links && currentResult.links[0];
+    var nonconforming = currentResult && currentResult.productNcRecords && currentResult.productNcRecords[0];
+    var incoming = currentResult && currentResult.incoming && currentResult.incoming[0];
+    return (linked && linked.productName) || (nonconforming && nonconforming.subject) || (incoming && incoming.itemName) || currentResult.query;
+  }
+
+  function createRecallDraft() {
+    if (!currentResult) { setStatus('drillStatus', 'FR-016 초안을 만들려면 먼저 LOT 추적을 실행하세요.', true); return; }
+    if (!window.DkjRecordStore) { setStatus('drillStatus', '기록 저장소를 불러오지 못했습니다.', true); return; }
+    var writer = $('drillWriter').value.trim();
+    if (!writer) { setStatus('drillStatus', 'FR-016 회수보고서 초안 생성을 위해 작성자 이름을 입력하세요.', true); return; }
+    var lot = $('drillTargetLot').value.trim() || currentResult.query;
+    var qty = currentResult.targetRecallQty;
+    var destinations = currentResult.links.map(function (record) { return record.destination || record.shipmentNo; }).filter(Boolean);
+    var scope = ['대상 LOT: ' + lot, '출하 대상: ' + fmt(currentResult.shipQty), '정상재고: ' + fmt(currentResult.inventoryQty), 'FR-015 원료격리: ' + fmt(currentResult.ncQuarantineQty), 'FR-039 제품격리: ' + fmt(currentResult.productNcQuarantineQty), destinations.length ? '거래처/전표: ' + destinations.join(', ') : '거래처/전표: 추적 결과 확인'].join('\n');
+    var action = $('drillAction').value.trim() || '추적성 결과에 따라 출하보류·격리·거래처 재고확인 및 회수 조치를 실시한다.';
+    var record = {
+      formId: FORM_RECALL,
+      title: '제품회수 보고서 및 기록 · ' + productNameForRecall(),
+      docDate: today(), subject: productNameForRecall(), lot: lot, recallClass: '2등급', startDate: today(), qty: qty,
+      writer: writer, reviewer: $('drillReviewer').value.trim(), approver: '',
+      reason: $('drillScenario').value.trim() || 'LOT 추적 결과에 따른 제품회수 검토',
+      scope: scope,
+      action: action,
+      result: '초안 생성: 모의회수 수량대조 결과(대상 ' + fmt(qty) + ', 수량차이 ' + fmt(num($('drillQtyGap').value)) + ')를 확인 후 최종 종료결과를 작성한다.',
+      sourceTraceDrill: { lot: lot, traceStartedAt: currentResult.startedAt, targetQty: qty, sourceFormIds: [FORM_INCOMING, FORM_NC_RAW, FORM_NC_PRODUCT, FORM_LINK] },
+      locked: false,
+      audit: makeAudit('recall_report_draft_created', '추적성·모의회수 화면에서 FR-016 초안 생성')
+    };
+    var saved = DkjRecordStore.save(FORM_RECALL, record);
+    setStatus('drillStatus', 'FR-016 제품회수 보고서 초안을 생성했습니다. 회수등급·조치·종료결과를 확인하세요.');
+    location.href = recordLink(FORM_RECALL, saved.id);
   }
 
   function saveDrill() {
@@ -355,7 +436,8 @@
       targetShipQty: currentResult.shipQty,
       targetInventoryQty: currentResult.inventoryQty,
       targetNonconformingQty: currentResult.ncQuarantineQty,
-      targetReturnedOrDisposedQty: currentResult.ncClosedQty,
+      targetProductNonconformingQty: currentResult.productNcQuarantineQty,
+      targetReturnedOrDisposedQty: currentResult.ncClosedQty + currentResult.productNcClosedQty,
       targetQty: targetQty,
       isolatedQty: num($('drillIsolatedQty').value),
       recoveredQty: recoveredQty,
@@ -363,7 +445,7 @@
       withinTwoHours: minutes <= 120,
       scenarioTemplate: $('drillScenarioTemplate').value || 'custom',
       scenarioTemplateName: scenarioTemplate() ? scenarioTemplate().name : '사용자 정의',
-      locationQty: { internal: num($('qtyInternal').value), nonconforming: num($('qtyNonconforming').value), transit: num($('qtyTransit').value), customer: num($('qtyCustomer').value), sold: num($('qtySold').value), disposed: num($('qtyDisposed').value), total: num($('drillLocationTotal').value), gap: num($('drillQtyGap').value), gapReason: $('drillQtyGapReason').value.trim() },
+      locationQty: { internal: num($('qtyInternal').value), nonconforming: num($('qtyNonconforming').value), productNonconforming: num($('qtyProductNonconforming').value), transit: num($('qtyTransit').value), customer: num($('qtyCustomer').value), sold: num($('qtySold').value), disposed: num($('qtyDisposed').value), total: num($('drillLocationTotal').value), gap: num($('drillQtyGap').value), gapReason: $('drillQtyGapReason').value.trim() },
       decision: { maker: $('drillDecisionMaker').value.trim(), type: $('drillDecision').value, notifiedAt: $('drillNotifyAt').value },
       contacts: { recallTeam: $('drillRecallTeam').value.trim(), customer: $('drillCustomerContact').value.trim(), authority: $('drillAuthorityContact').value.trim() },
       effectiveness: { result: $('drillVerification').value, correctiveOwner: $('drillCorrectiveOwner').value.trim(), correctiveDue: $('drillCorrectiveDue').value, evidence: $('drillEvidence').value.trim() },
@@ -400,7 +482,7 @@
     $('traceDate').value = '';
     $('traceStatus').textContent = '';
     $('traceClock').textContent = '추적 대기';
-    $('traceSummary').innerHTML = metric('원료 입고', '0건') + metric('생산 LOT', '0건') + metric('출하대상', '0') + metric('확보 재고', '0') + metric('FR-015 격리', '0');
+    $('traceSummary').innerHTML = metric('원료 입고', '0건') + metric('생산 LOT', '0건') + metric('출하대상', '0') + metric('확보 재고', '0') + metric('FR-015 격리', '0') + metric('FR-039 제품격리', '0') + metric('FR-016 회수보고', '0건');
     $('traceResult').className = 'tr-empty';
     $('traceResult').textContent = 'LOT 또는 품목명을 입력하고 ‘일보에서 추적 실행’을 누르세요.';
   }
@@ -456,10 +538,11 @@
     $('saveLink').addEventListener('click', saveLink);
     $('startDrill').addEventListener('click', startDrill);
     $('applyTrace').addEventListener('click', applyTrace);
+    $('createRecallDraft').addEventListener('click', createRecallDraft);
     $('saveDrill').addEventListener('click', saveDrill);
     $('linkSource').addEventListener('change', prefillLink);
     $('drillScenarioTemplate').addEventListener('change', applyScenarioTemplate);
-    ['qtyInternal', 'qtyNonconforming', 'qtyTransit', 'qtyCustomer', 'qtySold', 'qtyDisposed'].forEach(function (id) {
+    ['qtyInternal', 'qtyNonconforming', 'qtyProductNonconforming', 'qtyTransit', 'qtyCustomer', 'qtySold', 'qtyDisposed'].forEach(function (id) {
       $(id).addEventListener('input', updateLocationBalance);
       $(id).addEventListener('change', updateLocationBalance);
     });

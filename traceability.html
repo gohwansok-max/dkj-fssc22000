@@ -148,13 +148,13 @@
 
       <article class="tr-card full">
         <div class="tr-section-head"><div><h2>3. 추적 결과 · 수량대조</h2><p class="tr-sub">추적 경로와 연결된 일보를 즉시 확인하고, 회수 범위 산정에 필요한 수량을 대조합니다.</p></div><span class="tr-clock" id="traceClock">추적 대기</span></div>
-        <div class="tr-summary" id="traceSummary"><div class="tr-metric"><span>원료 입고</span><b>0건</b></div><div class="tr-metric"><span>생산 LOT</span><b>0건</b></div><div class="tr-metric"><span>출하대상</span><b>0</b></div><div class="tr-metric"><span>확보 재고</span><b>0</b></div><div class="tr-metric"><span>FR-015 격리</span><b>0</b></div></div>
+        <div class="tr-summary" id="traceSummary"><div class="tr-metric"><span>원료 입고</span><b>0건</b></div><div class="tr-metric"><span>생산 LOT</span><b>0건</b></div><div class="tr-metric"><span>출하대상</span><b>0</b></div><div class="tr-metric"><span>확보 재고</span><b>0</b></div><div class="tr-metric"><span>FR-015 격리</span><b>0</b></div><div class="tr-metric"><span>FR-039 제품격리</span><b>0</b></div><div class="tr-metric"><span>FR-016 회수보고</span><b>0건</b></div></div>
         <div id="traceResult" class="tr-empty" style="margin-top:14px;">LOT 또는 품목명을 입력하고 ‘일보에서 추적 실행’을 누르세요.</div>
       </article>
 
       <article class="tr-card full">
         <div class="tr-section-head"><div><h2>4. 모의회수 검증 기록</h2><p class="tr-sub">추적 결과를 회수 범위로 고정하고, 2시간 목표·격리·통지·회수 수량·개선조치를 증빙합니다.</p></div><span class="tr-clock" id="drillClock">훈련 미시작</span></div>
-        <div class="tr-actions"><button class="tr-btn warn" id="startDrill" type="button">모의회수 시작 시각 기록</button><button class="tr-btn secondary" id="applyTrace" type="button">현재 추적 결과 적용</button></div>
+        <div class="tr-actions"><button class="tr-btn warn" id="startDrill" type="button">모의회수 시작 시각 기록</button><button class="tr-btn secondary" id="applyTrace" type="button">현재 추적 결과 적용</button><button class="tr-btn secondary" id="createRecallDraft" type="button">FR-016 회수보고서 초안 만들기</button></div>
         <div class="tr-field-grid three" style="margin-top:14px;">
           <div class="tr-field wide"><label for="drillScenarioTemplate">심사 대비 시나리오 템플릿 *</label><select id="drillScenarioTemplate"><option value="">시나리오를 선택하세요</option><option value="label_allergen">1. 라벨·알레르겐 표시 오류</option><option value="micro_chemical">2. 원료 미생물·잔류농약 부적합</option><option value="ccp_metal">3. 금속검출기·CCP 이상</option><option value="cold_chain">4. 냉장 온도이탈</option><option value="customer_complaint">5. 고객 클레임·이물 발견</option><option value="supplier_evidence">6. 공급업체 원산지·증빙 오류</option></select><small id="scenarioHint">선택하면 회수 사유·초기 조치가 자동 입력됩니다.</small></div>
           <div class="tr-field"><label for="drillTargetLot">대상 LOT *</label><input id="drillTargetLot" type="text" placeholder="추적 결과에서 자동 입력"></div>
@@ -167,7 +167,8 @@
         </div>
         <details class="tr-details" open><summary>회수 범위·위치별 격리·수량대조</summary><div class="tr-field-grid three">
           <div class="tr-field"><label for="qtyInternal">사내 정상 재고</label><input id="qtyInternal" type="number" min="0" step="0.001" placeholder="0"></div>
-          <div class="tr-field"><label for="qtyNonconforming">FR-015 부적합 격리</label><input id="qtyNonconforming" type="number" min="0" step="0.001" placeholder="자동 반영"></div>
+          <div class="tr-field"><label for="qtyNonconforming">FR-015 원료 격리</label><input id="qtyNonconforming" type="number" min="0" step="0.001" placeholder="자동 반영"></div>
+          <div class="tr-field"><label for="qtyProductNonconforming">FR-039 제품 격리</label><input id="qtyProductNonconforming" type="number" min="0" step="0.001" placeholder="자동 반영"></div>
           <div class="tr-field"><label for="qtyTransit">운송 중 수량</label><input id="qtyTransit" type="number" min="0" step="0.001" placeholder="0"></div>
           <div class="tr-field"><label for="qtyCustomer">거래처 재고</label><input id="qtyCustomer" type="number" min="0" step="0.001" placeholder="0"></div>
           <div class="tr-field"><label for="qtySold">소비자 판매분</label><input id="qtySold" type="number" min="0" step="0.001" placeholder="0"></div>
@@ -201,7 +202,7 @@
           <label class="tr-check"><input id="checkEvidence" type="checkbox"> 전표·연락·격리 등 증빙 참조를 기록했다.</label>
         </div>
         <div class="tr-actions"><button class="tr-btn" id="saveDrill" type="button">모의회수 검증 저장·완료</button></div>
-        <p class="tr-note warn">‘완료’는 이 페이지가 수집한 현재 연결기록의 스냅샷을 보존합니다. 실제 회수에서는 제품회수 절차서(DKJ-P-06), 관할기관·거래처 통지 및 제품회수 보고서(FR-016)를 병행해야 합니다.</p>
+        <p class="tr-note warn">‘완료’는 이 페이지가 수집한 현재 연결기록의 스냅샷을 보존합니다. 실제 회수에서는 제품회수 절차서(DKJ-P-06), 관할기관·거래처 통지 및 제품회수 보고서(FR-016)를 병행해야 합니다. FR-016 초안 버튼은 LOT·수량·회수범위·조치 내용을 채운 뒤 회수보고서 양식으로 이동합니다.</p>
         <p class="tr-status" id="drillStatus" aria-live="polite"></p>
       </article>
 
@@ -220,7 +221,7 @@
   <script src="js/menu-catalog.bundle.js?v=40"></script>
   <script src="js/dkj-links.js?v=40"></script>
   <script src="js/dkj-nav.js?v=40"></script>
-  <script src="js/traceability-hub.js?v=41"></script>
+  <script src="js/traceability-hub.js?v=42"></script>
   <script src="js/dkj-pwa.js?v=40"></script>
 </body>
 </html>
