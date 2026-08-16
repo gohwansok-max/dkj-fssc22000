@@ -21,18 +21,10 @@
               ".validate": "newData.hasChildren(['id', 'formId', 'createdByUid', 'createdAt', 'updatedAt']) && newData.child('createdByUid').val() === newData.parent().child('workflow').child('createdByUid').val() && newData.child('id').val() === (data.exists() ? data.child('id').val() : newData.child('id').val()) && newData.child('formId').val() === (data.exists() ? data.child('formId').val() : newData.child('formId').val())"
             },
             "workflow": {
-              "createdByUid": {
-                ".write": "!data.exists() && newData.val() === auth.uid"
-              },
-              "createdAt": {
-                ".write": "!data.exists() && newData.isString()"
-              },
-              "locked": {
-                ".write": "(!data.exists() && newData.val() === false) || (data.val() === false && newData.val() === true && data.parent().parent().child('workflow').child('createdByUid').val() === auth.uid)"
-              },
-              "updatedAt": {
-                ".write": "!data.exists() || data.parent().parent().child('workflow').child('createdByUid').val() === auth.uid"
-              }
+              "createdByUid": { ".write": "!data.exists() && newData.val() === auth.uid" },
+              "createdAt": { ".write": "!data.exists() && newData.isString()" },
+              "locked": { ".write": "(!data.exists() && newData.val() === false) || (data.val() === false && newData.val() === true && data.parent().parent().child('workflow').child('createdByUid').val() === auth.uid)" },
+              "updatedAt": { ".write": "!data.exists() || data.parent().parent().child('workflow').child('createdByUid').val() === auth.uid" }
             },
             "approvals": {
               "$stageKey": {
@@ -46,6 +38,23 @@
                 ".validate": "newData.hasChildren(['actorUid', 'at', 'action', 'hash', 'prev'])"
               }
             }
+          }
+        }
+      },
+      "system": {
+        "users": {
+          ".read": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'",
+          "$uid": {
+            ".read": "auth != null && ($uid === auth.uid || auth.token.email === 'emp4343@dkj-fssc.internal')",
+            ".write": "auth != null && (auth.token.email === 'emp4343@dkj-fssc.internal' || (!data.exists() && $uid === auth.uid && newData.child('uid').val() === auth.uid && newData.child('role').val() === 'worker'))",
+            ".validate": "newData.hasChildren(['uid', 'empId', 'role']) && newData.child('uid').val() === $uid && newData.child('empId').isString() && (newData.child('role').val() === 'system_admin' || newData.child('role').val() === 'responsible' || newData.child('role').val() === 'manager' || newData.child('role').val() === 'worker')"
+          }
+        },
+        "role_audit": {
+          ".read": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'",
+          "$auditId": {
+            ".write": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal' && !data.exists() && newData.child('actorUid').val() === auth.uid",
+            ".validate": "newData.hasChildren(['actorUid', 'actorEmpId', 'targetUid', 'targetEmpId', 'beforeRole', 'afterRole', 'at'])"
           }
         }
       }

@@ -55,13 +55,23 @@
       });
   }
 
+    function allowed(link) {
+    if (!link || !link.requiredRole) return true;
+    if (link.requiredRole === 'system_admin') {
+      return !!(global.DkjAuth && global.DkjAuth.isSystemAdmin && global.DkjAuth.isSystemAdmin());
+    }
+    return false;
+  }
+
   function renderMega(item, base) {
     var cols = (item.columns || []).map(function (col) {
-      var links = (col.links || []).map(function (lnk) {
+      var links = (col.links || []).filter(allowed).map(function (lnk) {
         return '<a href="' + esc(href(base, lnk.href)) + '">' + esc(lnk.label) + '</a>';
       }).join('');
+      if (!links) return '';
       return '<div class="mega-col"><div class="mega-title">' + esc(col.title) + '</div>' + links + '</div>';
     }).join('');
+
     return (
       '<div class="gnb-item" data-nav="' + esc(item.id) + '">' +
         '<button type="button" class="gnb-trigger" aria-expanded="false">' + esc(item.label) + '</button>' +
@@ -162,6 +172,9 @@
     parts.push('<a class="gnb-static" data-nav="records" href="' + esc(href(base, 'records-center.html')) + '">기록센터</a>');
     parts.push('<a class="gnb-static" data-nav="archive" href="' + esc(href(base, 'records-archive.html')) + '">기록보관함</a>');
     parts.push('<a class="gnb-static" data-nav="mdr" href="' + esc(href(base, 'mdr-register.html')) + '">MDR</a>');
+    if (global.DkjAuth && global.DkjAuth.isSystemAdmin && global.DkjAuth.isSystemAdmin()) {
+      parts.push('<a class="gnb-static" data-nav="system" href="' + esc(href(base, 'system-settings.html')) + '">시스템 설정</a>');
+    }
 
     root.innerHTML = parts.join('');
     root.classList.add('gnb-mega');
@@ -196,6 +209,11 @@
   }
 
   global.DkjNav = { init: init, loadMenu: loadMenu };
+
+  document.addEventListener('dkj:auth-ready', function () {
+    CACHE = null;
+    init();
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
