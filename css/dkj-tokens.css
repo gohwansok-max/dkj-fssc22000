@@ -327,11 +327,11 @@
   .ck-tagline { display: none; }
 }
 
-/* 휴대폰 — 헤더를 두 줄로 접는다.
+/* 태블릿·휴대폰 — 헤더를 여러 줄로 접는다.
    한 줄에 로고·날짜·메뉴를 다 밀어넣으면 버튼이 눌려 글자가 세로로 쪼개지고
    워드마크와 날짜가 겹친다(2026-08 현장 갤럭시에서 확인). 줄바꿈을 허용하고
    고정 높이(72px)를 풀어 내용만큼 늘어나게 한다. */
-@media (max-width: 640px) {
+@media (max-width: 1360px) {
   .ck-header {
     height: auto;
     flex-wrap: wrap;
