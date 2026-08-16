@@ -148,6 +148,14 @@
   <script src="js/dkj-cloud-sync.js?v=38"></script>
   <script src="js/dkj-calendar.js?v=38"></script>
   <script src="js/dkj-console.js?v=38"></script>
-  <script src="js/dkj-pwa.js?v=38"></script>
+  <script src="js/dkj-pwa.js?v=40"></script>
+  <script>
+    // 기존 현장 기기도 화면 진입 즉시 최신 서비스워커를 확인한다.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(function (reg) {
+        if (reg) reg.update().catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>
