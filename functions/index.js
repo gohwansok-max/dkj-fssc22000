@@ -69,13 +69,13 @@ function evaluate(record, workflow) {
   if ((formId === 'TRACE-DRILL' || formId === 'FR-017') && locked) {
     const minutes = number(record.elapsedMinutes || record.minutes);
     if (record.withinTwoHours === false || minutes > 120) {
-      alerts.push(alert('danger', 'mock_recall_over_2h', '모의회수 2시간 목표 미달', `LOT ${lot} · ${minutes}분 소요`, `${stamp}|${minutes}|${record.withinTwoHours}`));
+      alerts.push(alert('danger', 'mock_recall_over_2h', '모의회수 2시간 목표 미달', `LOT ${lot} · ${minutes}분 소요`, `${minutes}|${record.withinTwoHours}`));
     }
     if (record.recoveryRate !== '' && record.recoveryRate != null && number(record.recoveryRate) < 100) {
-      alerts.push(alert('warning', 'mock_recall_recovery_gap', '모의회수 수량대조 확인 필요', `LOT ${lot} · 회수·확보율 ${number(record.recoveryRate)}%`, `${stamp}|${record.recoveryRate}`));
+      alerts.push(alert('warning', 'mock_recall_recovery_gap', '모의회수 수량대조 확인 필요', `LOT ${lot} · 회수·확보율 ${number(record.recoveryRate)}%`, `${record.recoveryRate}`));
     }
     if (record.locationQty && Math.abs(number(record.locationQty.gap)) > 0) {
-      alerts.push(alert('danger', 'mock_recall_quantity_gap', '모의회수 수량 차이 발생', `LOT ${lot} · 수량차이 ${number(record.locationQty.gap)}`, `${stamp}|${record.locationQty.gap}`));
+      alerts.push(alert('danger', 'mock_recall_quantity_gap', '모의회수 수량 차이 발생', `LOT ${lot} · 수량차이 ${number(record.locationQty.gap)}`, `${record.locationQty.gap}`));
     }
   }
 
