@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#009a44">
+  <title>추적성 검증·모의회수 | 동김제농협 산지유통센터</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=40">
+  <link rel="stylesheet" href="css/dkj-hub.css?v=40">
+  <link rel="manifest" href="manifest.json?v=40">
+  <style>
+    :root { --tr-green:#008a3d; --tr-dark:#123827; --tr-bg:#f4f8f5; --tr-line:#d8e8de; --tr-amber:#a85f00; }
+    body { margin:0; color:#183827; background:var(--tr-bg); font-family:"Noto Sans KR",sans-serif; }
+    .site-header .brand { display:flex; align-items:center; gap:9px; min-width:0; text-decoration:none; }
+    .site-header .brand > img { display:block; width:34px; height:34px; object-fit:contain; flex:0 0 auto; }
+    .site-header .brand span { display:grid; gap:0; color:#fff; line-height:1.08; font-size:12px; white-space:nowrap; }
+    .site-header .brand em { color:#c8f0d5; font-size:11px; font-style:normal; white-space:nowrap; }
+    .tr-wrap { max-width:1280px; margin:0 auto; padding:28px 20px 72px; }
+    .tr-hero { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding:30px; border-radius:20px; color:#fff; background:linear-gradient(135deg,#006a34,#00a850); box-shadow:0 12px 30px #076b3730; }
+    .tr-kicker { margin:0 0 7px; color:#d4f8df; font-size:12px; font-weight:800; letter-spacing:.12em; }
+    .tr-hero h1 { margin:0; font-size:28px; letter-spacing:-.04em; }
+    .tr-hero p { max-width:720px; margin:10px 0 0; color:#effff3; font-size:14px; line-height:1.7; }
+    .tr-badges { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+    .tr-badge { padding:7px 10px; border:1px solid #ffffff55; border-radius:99px; color:#fff; background:#ffffff1c; font-size:12px; font-weight:800; white-space:nowrap; }
+    .tr-grid { display:grid; grid-template-columns:1.05fr .95fr; gap:18px; margin-top:18px; }
+    .tr-card { padding:22px; border:1px solid var(--tr-line); border-radius:18px; background:#fff; box-shadow:0 6px 20px #164c2910; }
+    .tr-card.full { grid-column:1 / -1; }
+    .tr-card h2 { margin:0; color:#17452d; font-size:18px; letter-spacing:-.03em; }
+    .tr-card .tr-sub { margin:6px 0 16px; color:#5c7668; font-size:13px; line-height:1.6; }
+    .tr-field-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .tr-field-grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .tr-field { display:flex; flex-direction:column; gap:6px; }
+    .tr-field.wide { grid-column:1 / -1; }
+    .tr-field label { color:#315443; font-size:12px; font-weight:800; }
+    .tr-field input, .tr-field select, .tr-field textarea { box-sizing:border-box; width:100%; min-height:42px; padding:9px 11px; border:1px solid #cadfd1; border-radius:9px; outline:0; color:#173727; background:#fff; font:inherit; font-size:14px; }
+    .tr-field textarea { min-height:92px; resize:vertical; line-height:1.55; }
+    .tr-field input:focus, .tr-field select:focus, .tr-field textarea:focus { border-color:#009a44; box-shadow:0 0 0 3px #009a4420; }
+    .tr-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:16px; }
+    .tr-btn { min-height:42px; padding:0 14px; border:0; border-radius:9px; cursor:pointer; color:#fff; background:#008a3d; font:800 13px "Noto Sans KR",sans-serif; }
+    .tr-btn:hover { background:#006e31; }
+    .tr-btn.secondary { color:#0b6e35; border:1px solid #a9d7ba; background:#f7fff8; }
+    .tr-btn.warn { color:#6e4000; background:#ffe8bd; }
+    .tr-note { margin:14px 0 0; padding:11px 13px; border-left:4px solid #00a44f; border-radius:7px; color:#315443; background:#eff9f2; font-size:13px; line-height:1.65; }
+    .tr-note.warn { border-color:#f4a223; color:#755000; background:#fff8e9; }
+    .tr-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:16px; }
+    .tr-metric { padding:13px; border:1px solid #dcece1; border-radius:11px; background:#fbfefc; }
+    .tr-metric span { display:block; color:#648273; font-size:11px; font-weight:700; }
+    .tr-metric b { display:block; margin-top:4px; color:#14663a; font-size:19px; letter-spacing:-.03em; }
+    .tr-empty { padding:24px; border:1px dashed #bfd7c7; border-radius:12px; color:#628071; background:#fbfefc; font-size:13px; text-align:center; }
+    .tr-table-wrap { overflow:auto; margin-top:14px; border:1px solid #dcebe0; border-radius:11px; }
+    .tr-table { width:100%; min-width:760px; border-collapse:collapse; background:#fff; font-size:13px; }
+    .tr-table th { padding:10px 11px; color:#355745; background:#edf7ef; font-size:12px; text-align:left; }
+    .tr-table td { padding:10px 11px; border-top:1px solid #e5efe8; color:#284c39; vertical-align:top; }
+    .tr-table a { color:#087a3c; font-weight:800; text-decoration:none; }
+    .tr-tag { display:inline-block; margin:1px 3px 1px 0; padding:3px 7px; border-radius:99px; color:#146039; background:#e7f6eb; font-size:11px; font-weight:800; }
+    .tr-status { min-height:20px; margin:12px 0 0; color:#087a3c; font-size:13px; font-weight:800; }
+    .tr-status.bad { color:#b24411; }
+    .tr-section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .tr-clock { padding:7px 10px; border-radius:8px; color:#086837; background:#edf9f0; font-size:12px; font-weight:800; }
+    .tr-checks { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:14px 0 0; }
+    .tr-check { display:flex; align-items:center; gap:8px; padding:10px; border:1px solid #dbe9df; border-radius:9px; color:#355646; font-size:13px; }
+    .tr-check input { width:17px; height:17px; accent-color:#009a44; }
+    .tr-list { display:grid; gap:8px; margin-top:14px; }
+    .tr-history { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid #dbe9df; border-radius:10px; background:#fbfefc; }
+    .tr-history strong { color:#204a33; font-size:13px; }
+    .tr-history small { display:block; margin-top:3px; color:#6a8878; }
+    @media (max-width:900px) { .tr-grid { grid-template-columns:1fr; } .tr-card.full { grid-column:auto; } .tr-hero { align-items:flex-start; flex-direction:column; } .tr-badges { justify-content:flex-start; } }
+    @media (max-width:620px) { .tr-wrap { padding:16px 12px 44px; } .tr-hero { padding:22px; border-radius:15px; } .tr-hero h1 { font-size:23px; } .tr-card { padding:17px; border-radius:14px; } .tr-field-grid, .tr-field-grid.three, .tr-summary, .tr-checks { grid-template-columns:1fr; } .tr-field.wide { grid-column:auto; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html"><img src="assets/brand/nh-symbol.svg" alt=""><span><b>동김제농협</b><b>산지유통센터</b></span><em>스마트 HACCP · FSSC22000 V6</em></a>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <nav class="gnb" id="gnb" data-dkj-nav data-active="haccp"></nav>
+  </header>
+
+  <main class="tr-wrap">
+    <section class="tr-hero">
+      <div>
+        <p class="tr-kicker">TRACEABILITY · MOCK RECALL</p>
+        <h1>추적성 검증 · 모의회수</h1>
+        <p>일보에 저장된 원료 입고 LOT와 생산·출하 연결기록을 바탕으로 정방향·역방향 추적을 수행하고, 회수범위·수량대조·격리·통지·개선조치까지 하나의 전자기록으로 남깁니다.</p>
+      </div>
+      <div class="tr-badges"><span class="tr-badge">DKJ-P-18</span><span class="tr-badge">ISO 22000 8.3</span><span class="tr-badge">2시간 목표</span><span class="tr-badge">연 1회 이상</span></div>
+    </section>
+
+    <section class="tr-grid">
+      <article class="tr-card">
+        <h2>1. LOT 추적 실행</h2>
+        <p class="tr-sub">원료 LOT은 전방추적(원료→제품·출하처), 제품 LOT은 후방추적(제품→원료·공급처)을 기본으로 조회합니다.</p>
+        <div class="tr-field-grid">
+          <div class="tr-field wide"><label for="traceLot">추적 LOT 또는 품목명</label><input id="traceLot" type="text" placeholder="예: 20260816-01, 양상추, 완제품 LOT"></div>
+          <div class="tr-field"><label for="traceDirection">추적 방향</label><select id="traceDirection"><option value="both">양방향 추적</option><option value="forward">전방추적: 원료→제품·출하</option><option value="backward">후방추적: 제품→원료·공급처</option></select></div>
+          <div class="tr-field"><label for="traceDate">기준일(선택)</label><input id="traceDate" type="date"></div>
+        </div>
+        <div class="tr-actions"><button class="tr-btn" id="runTrace" type="button">일보에서 추적 실행</button><button class="tr-btn secondary" id="clearTrace" type="button">조회 초기화</button></div>
+        <p class="tr-note">입고기록(FR-014), 원료보관 기록(DKJ-STORE-01), 이 화면에서 등록한 생산·출하 연결기록을 자동 집계합니다. 생산·출하 일보가 별도로 전산화되지 않은 구간은 아래에서 연결기록을 등록해야 회수범위가 완성됩니다.</p>
+        <p class="tr-status" id="traceStatus" aria-live="polite"></p>
+      </article>
+
+      <article class="tr-card">
+        <h2>2. 생산·출하 연결 등록</h2>
+        <p class="tr-sub">입고 LOT를 생산 LOT·포장 LOT·출하처·수량과 연결합니다. 기존 원료 입고일보는 자동 선택지로 표시됩니다.</p>
+        <div class="tr-field-grid">
+          <div class="tr-field wide"><label for="linkSource">원료 입고 LOT / 기록</label><select id="linkSource"><option value="">원료 입고기록을 선택하세요</option></select></div>
+          <div class="tr-field"><label for="linkProductionLot">생산 LOT *</label><input id="linkProductionLot" type="text" placeholder="예: P-20260816-01"></div>
+          <div class="tr-field"><label for="linkProductName">완제품명 *</label><input id="linkProductName" type="text" placeholder="예: 샐러드믹스 150g"></div>
+          <div class="tr-field"><label for="linkProductionDate">생산일 *</label><input id="linkProductionDate" type="date"></div>
+          <div class="tr-field"><label for="linkUsedQty">원료 투입량</label><input id="linkUsedQty" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="linkOutputQty">생산수량</label><input id="linkOutputQty" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="linkPackLot">포장재 LOT</label><input id="linkPackLot" type="text" placeholder="선택"></div>
+          <div class="tr-field"><label for="linkDestination">출하처</label><input id="linkDestination" type="text" placeholder="거래처 또는 물류센터"></div>
+          <div class="tr-field"><label for="linkShipQty">출하수량</label><input id="linkShipQty" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="linkInventoryQty">잔여재고</label><input id="linkInventoryQty" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="linkWriter">등록자 *</label><input id="linkWriter" type="text" placeholder="성명"></div>
+          <div class="tr-field"><label for="linkShipmentNo">출하전표/비고</label><input id="linkShipmentNo" type="text" placeholder="전표번호 또는 비고"></div>
+        </div>
+        <div class="tr-actions"><button class="tr-btn" id="saveLink" type="button">연결기록 저장</button><button class="tr-btn secondary" id="prefillLink" type="button">선택 원료 정보 불러오기</button></div>
+        <p class="tr-status" id="linkStatus" aria-live="polite"></p>
+      </article>
+
+      <article class="tr-card full">
+        <div class="tr-section-head"><div><h2>3. 추적 결과 · 수량대조</h2><p class="tr-sub">추적 경로와 연결된 일보를 즉시 확인하고, 회수 범위 산정에 필요한 수량을 대조합니다.</p></div><span class="tr-clock" id="traceClock">추적 대기</span></div>
+        <div class="tr-summary" id="traceSummary"><div class="tr-metric"><span>원료 입고</span><b>0건</b></div><div class="tr-metric"><span>생산 LOT</span><b>0건</b></div><div class="tr-metric"><span>출하대상</span><b>0</b></div><div class="tr-metric"><span>확보 재고</span><b>0</b></div></div>
+        <div id="traceResult" class="tr-empty" style="margin-top:14px;">LOT 또는 품목명을 입력하고 ‘일보에서 추적 실행’을 누르세요.</div>
+      </article>
+
+      <article class="tr-card full">
+        <div class="tr-section-head"><div><h2>4. 모의회수 검증 기록</h2><p class="tr-sub">추적 결과를 회수 범위로 고정하고, 2시간 목표·격리·통지·회수 수량·개선조치를 증빙합니다.</p></div><span class="tr-clock" id="drillClock">훈련 미시작</span></div>
+        <div class="tr-actions"><button class="tr-btn warn" id="startDrill" type="button">모의회수 시작 시각 기록</button><button class="tr-btn secondary" id="applyTrace" type="button">현재 추적 결과 적용</button></div>
+        <div class="tr-field-grid three" style="margin-top:14px;">
+          <div class="tr-field"><label for="drillTargetLot">대상 LOT *</label><input id="drillTargetLot" type="text" placeholder="추적 결과에서 자동 입력"></div>
+          <div class="tr-field"><label for="drillType">훈련 유형</label><select id="drillType"><option>모의회수</option><option>전방추적 검증</option><option>후방추적 검증</option><option>실제 회수 대응</option></select></div>
+          <div class="tr-field"><label for="drillWriter">작성자 *</label><input id="drillWriter" type="text" placeholder="성명"></div>
+          <div class="tr-field"><label for="drillIsolatedQty">격리 수량</label><input id="drillIsolatedQty" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="drillRecoveredQty">회수/확보 수량</label><input id="drillRecoveredQty" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="drillReviewer">검토자</label><input id="drillReviewer" type="text" placeholder="성명"></div>
+          <div class="tr-field wide"><label for="drillScenario">시나리오·회수 사유 *</label><input id="drillScenario" type="text" placeholder="예: 원료 LOT 이물 혼입 가능성에 따른 모의회수"></div>
+          <div class="tr-field wide"><label for="drillAction">통지·격리·회수 조치</label><textarea id="drillAction" placeholder="회수팀 통지, 거래처 연락, 사내 재고 격리, 출하보류 등 실제 수행 내용을 입력하세요."></textarea></div>
+          <div class="tr-field wide"><label for="drillGap">발견사항·개선조치</label><textarea id="drillGap" placeholder="수량차이, 누락된 LOT, 연락처 오류, 기록 미비와 개선조치를 입력하세요."></textarea></div>
+        </div>
+        <div class="tr-checks">
+          <label class="tr-check"><input id="checkLot" type="checkbox"> LOT·수량·출하처·재고를 확인했다.</label>
+          <label class="tr-check"><input id="checkContact" type="checkbox"> 회수 연락체계·통지 대상을 확인했다.</label>
+          <label class="tr-check"><input id="checkIsolation" type="checkbox"> 사내 재고 격리 또는 출하보류를 확인했다.</label>
+          <label class="tr-check"><input id="checkImprovement" type="checkbox"> 갭과 후속 개선조치를 기록했다.</label>
+        </div>
+        <div class="tr-actions"><button class="tr-btn" id="saveDrill" type="button">모의회수 검증 저장·완료</button></div>
+        <p class="tr-note warn">‘완료’는 이 페이지가 수집한 현재 연결기록의 스냅샷을 보존합니다. 실제 회수에서는 제품회수 절차서(DKJ-P-06), 관할기관·거래처 통지 및 제품회수 보고서(FR-016)를 병행해야 합니다.</p>
+        <p class="tr-status" id="drillStatus" aria-live="polite"></p>
+      </article>
+
+      <article class="tr-card full">
+        <h2>최근 추적성·모의회수 증빙</h2>
+        <p class="tr-sub">저장된 연결기록과 모의회수 결과를 확인합니다. 완료 기록은 원 기록의 수정·삭제 통제 및 전자결재 절차와 함께 운영하세요.</p>
+        <div id="traceHistory" class="tr-list"><div class="tr-empty">저장된 추적성 증빙이 없습니다.</div></div>
+      </article>
+    </section>
+  </main>
+
+  <script src="js/dkj-util.js?v=40"></script>
+  <script src="js/dkj-auth.js?v=40"></script>
+  <script src="js/dkj-record-store.js?v=40"></script>
+  <script src="js/dkj-cloud-sync.js?v=40"></script>
+  <script src="js/menu-catalog.bundle.js?v=40"></script>
+  <script src="js/dkj-links.js?v=40"></script>
+  <script src="js/dkj-nav.js?v=40"></script>
+  <script src="js/traceability-hub.js?v=40"></script>
+  <script src="js/dkj-pwa.js?v=40"></script>
+</body>
+</html>

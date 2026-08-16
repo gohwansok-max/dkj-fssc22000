@@ -176,6 +176,10 @@
           "title": "CCP·검증",
           "links": [
             {
+              "label": "추적성 검증·모의회수",
+              "href": "traceability.html"
+            },
+            {
               "label": "DKJ-H-01-01 중요관리점(CCP 1BC) 점검표 소독·헹굼공정",
               "href": "doc-viewer.html?id=DKJ-H-01-01"
             },
