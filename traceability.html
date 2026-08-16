@@ -18,6 +18,14 @@
     .site-header .brand em { color:#c8f0d5; font-size:11px; font-style:normal; white-space:nowrap; }
     .tr-wrap { max-width:1280px; margin:0 auto; padding:28px 20px 72px; }
     .tr-hero { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding:30px; border-radius:20px; color:#fff; background:linear-gradient(135deg,#006a34,#00a850); box-shadow:0 12px 30px #076b3730; }
+    .tr-quick { display:none; align-items:center; justify-content:space-between; gap:16px; margin-top:14px; padding:15px 16px; border:1px solid #98d5b0; border-radius:15px; background:#eaffef; box-shadow:0 5px 15px #16714114; }
+    .tr-quick.on { display:flex; }
+    .tr-quick-source { min-width:0; }
+    .tr-quick-source small { display:block; color:#237044; font-weight:800; font-size:11px; }
+    .tr-quick-source strong { display:block; overflow:hidden; color:#164b2c; font-size:15px; text-overflow:ellipsis; white-space:nowrap; }
+    .tr-quick-source span { display:block; margin-top:3px; color:#527765; font-size:12px; }
+    .tr-quick-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+    .tr-quick-actions .tr-btn { min-height:38px; }
     .tr-kicker { margin:0 0 7px; color:#d4f8df; font-size:12px; font-weight:800; letter-spacing:.12em; }
     .tr-hero h1 { margin:0; font-size:28px; letter-spacing:-.04em; }
     .tr-hero p { max-width:720px; margin:10px 0 0; color:#effff3; font-size:14px; line-height:1.7; }
@@ -62,11 +70,14 @@
     .tr-check { display:flex; align-items:center; gap:8px; padding:10px; border:1px solid #dbe9df; border-radius:9px; color:#355646; font-size:13px; }
     .tr-check input { width:17px; height:17px; accent-color:#009a44; }
     .tr-list { display:grid; gap:8px; margin-top:14px; }
+    .tr-details { margin-top:10px; border:1px solid #d9e8dd; border-radius:11px; background:#fbfefc; }
+    .tr-details summary { cursor:pointer; padding:12px 14px; color:#17643b; font-size:13px; font-weight:800; }
+    .tr-details > div { padding:0 14px 14px; }
     .tr-history { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid #dbe9df; border-radius:10px; background:#fbfefc; }
     .tr-history strong { color:#204a33; font-size:13px; }
     .tr-history small { display:block; margin-top:3px; color:#6a8878; }
     @media (max-width:900px) { .tr-grid { grid-template-columns:1fr; } .tr-card.full { grid-column:auto; } .tr-hero { align-items:flex-start; flex-direction:column; } .tr-badges { justify-content:flex-start; } }
-    @media (max-width:620px) { .tr-wrap { padding:16px 12px 44px; } .tr-hero { padding:22px; border-radius:15px; } .tr-hero h1 { font-size:23px; } .tr-card { padding:17px; border-radius:14px; } .tr-field-grid, .tr-field-grid.three, .tr-summary, .tr-checks { grid-template-columns:1fr; } .tr-field.wide { grid-column:auto; } }
+    @media (max-width:620px) { .tr-wrap { padding:12px 10px 40px; } .site-header .brand em { display:none; } .tr-hero { padding:18px; border-radius:14px; } .tr-hero h1 { font-size:23px; } .tr-hero p { margin-top:6px; font-size:12px; line-height:1.55; } .tr-badges { gap:5px; } .tr-badge { padding:5px 7px; font-size:10px; } .tr-quick { align-items:stretch; flex-direction:column; padding:13px; } .tr-quick-actions { justify-content:stretch; } .tr-quick-actions .tr-btn { flex:1 1 145px; } .tr-card { padding:15px; border-radius:13px; } .tr-card h2 { font-size:17px; } .tr-sub { font-size:12px; } .tr-field-grid, .tr-field-grid.three, .tr-summary, .tr-checks { grid-template-columns:1fr; gap:9px; } .tr-field.wide { grid-column:auto; } .tr-field input, .tr-field select, .tr-field textarea { min-height:46px; font-size:16px; } .tr-field textarea { min-height:74px; } .tr-actions { position:sticky; bottom:8px; z-index:5; padding:8px; border:1px solid #cfe3d5; border-radius:11px; background:#ffffffed; box-shadow:0 6px 16px #164c2920; } .tr-actions .tr-btn { flex:1 1 130px; } .tr-summary { grid-template-columns:repeat(2,minmax(0,1fr)); } .tr-metric { padding:10px; } .tr-metric b { font-size:17px; } .tr-table { min-width:620px; } .tr-details summary { padding:13px; font-size:13px; } }
   </style>
 </head>
 <body>
@@ -84,6 +95,18 @@
         <p>일보에 저장된 원료 입고 LOT와 생산·출하 연결기록을 바탕으로 정방향·역방향 추적을 수행하고, 회수범위·수량대조·격리·통지·개선조치까지 하나의 전자기록으로 남깁니다.</p>
       </div>
       <div class="tr-badges"><span class="tr-badge">DKJ-P-18</span><span class="tr-badge">ISO 22000 8.3</span><span class="tr-badge">2시간 목표</span><span class="tr-badge">연 1회 이상</span></div>
+    </section>
+
+    <section class="tr-quick" id="quickLotCard" aria-live="polite">
+      <div class="tr-quick-source">
+        <small>FR-014 입고일보에서 전달된 LOT</small>
+        <strong id="quickLotTitle">LOT 정보를 불러오는 중</strong>
+        <span id="quickLotMeta"></span>
+      </div>
+      <div class="tr-quick-actions">
+        <button class="tr-btn secondary" id="quickTrace" type="button">1. LOT 추적</button>
+        <button class="tr-btn" id="quickRecall" type="button">2. 모의회수 시작</button>
+      </div>
     </section>
 
     <section class="tr-grid">
@@ -107,16 +130,18 @@
           <div class="tr-field wide"><label for="linkSource">원료 입고 LOT / 기록</label><select id="linkSource"><option value="">원료 입고기록을 선택하세요</option></select></div>
           <div class="tr-field"><label for="linkProductionLot">생산 LOT *</label><input id="linkProductionLot" type="text" placeholder="예: P-20260816-01"></div>
           <div class="tr-field"><label for="linkProductName">완제품명 *</label><input id="linkProductName" type="text" placeholder="예: 샐러드믹스 150g"></div>
-          <div class="tr-field"><label for="linkProductionDate">생산일 *</label><input id="linkProductionDate" type="date"></div>
-          <div class="tr-field"><label for="linkUsedQty">원료 투입량</label><input id="linkUsedQty" type="number" min="0" step="0.001" placeholder="0"></div>
-          <div class="tr-field"><label for="linkOutputQty">생산수량</label><input id="linkOutputQty" type="number" min="0" step="0.001" placeholder="0"></div>
-          <div class="tr-field"><label for="linkPackLot">포장재 LOT</label><input id="linkPackLot" type="text" placeholder="선택"></div>
           <div class="tr-field"><label for="linkDestination">출하처</label><input id="linkDestination" type="text" placeholder="거래처 또는 물류센터"></div>
           <div class="tr-field"><label for="linkShipQty">출하수량</label><input id="linkShipQty" type="number" min="0" step="0.001" placeholder="0"></div>
           <div class="tr-field"><label for="linkInventoryQty">잔여재고</label><input id="linkInventoryQty" type="number" min="0" step="0.001" placeholder="0"></div>
           <div class="tr-field"><label for="linkWriter">등록자 *</label><input id="linkWriter" type="text" placeholder="성명"></div>
-          <div class="tr-field"><label for="linkShipmentNo">출하전표/비고</label><input id="linkShipmentNo" type="text" placeholder="전표번호 또는 비고"></div>
         </div>
+        <details class="tr-details"><summary>상세 연결정보 입력 (생산일·투입량·포장 LOT·전표)</summary><div class="tr-field-grid">
+          <div class="tr-field"><label for="linkProductionDate">생산일 *</label><input id="linkProductionDate" type="date"></div>
+          <div class="tr-field"><label for="linkUsedQty">원료 투입량</label><input id="linkUsedQty" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="linkOutputQty">생산수량</label><input id="linkOutputQty" type="number" min="0" step="0.001" placeholder="0"></div>
+          <div class="tr-field"><label for="linkPackLot">포장재 LOT</label><input id="linkPackLot" type="text" placeholder="선택"></div>
+          <div class="tr-field wide"><label for="linkShipmentNo">출하전표/비고</label><input id="linkShipmentNo" type="text" placeholder="전표번호 또는 비고"></div>
+        </div></details>
         <div class="tr-actions"><button class="tr-btn" id="saveLink" type="button">연결기록 저장</button><button class="tr-btn secondary" id="prefillLink" type="button">선택 원료 정보 불러오기</button></div>
         <p class="tr-status" id="linkStatus" aria-live="polite"></p>
       </article>
