@@ -17,6 +17,8 @@
 /* global DKJ_PRECACHE, DKJ_SW_VERSION */
 'use strict';
 
+// 배포 식별자: 정적 자산 UI 수정도 기존 현장 기기의 서비스워커 갱신을 즉시 유도한다.
+var DKJ_DEPLOY_MARKER = '20260816-mobile-header-v2';
 importScripts('sw-precache.js');
 
 var VERSION = self.DKJ_SW_VERSION || 'v1-dev';
