@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#006b3f">
+  <title>시스템 설정 · 사용자 권한 | 동김제농협 산지유통센터</title>
+  <link rel="stylesheet" href="css/dkj-nav.css?v=45">
+  <style>
+    :root{--green:#006b3f;--green2:#087e4c;--ink:#12253a;--muted:#61746a;--line:#d8e5dd;--bg:#f3f8f5;--amber:#9b5c00;--red:#b42318}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Noto Sans KR","Malgun Gothic",Arial,sans-serif}.page{max-width:1200px;margin:auto;padding:24px 16px 72px}.hero{background:linear-gradient(120deg,#004e31,#008c58);border-radius:20px;padding:28px;color:#fff;box-shadow:0 10px 28px rgba(0,71,43,.15)}.eyebrow{font-size:12px;letter-spacing:.11em;font-weight:800;opacity:.82}.hero h1{margin:7px 0;font-size:28px}.hero p{margin:0;max-width:880px;color:#e4f7eb}.system-status{margin:16px 0;padding:13px 15px;border-radius:12px;background:#eef5fc;border:1px solid #c6ddf3;color:#1d5d95}.system-status.ok{background:#edf9f1;border-color:#bee1ca;color:#12663e}.system-status.bad{background:#fff3f1;border-color:#f0c2bb;color:#a12618}.card{background:#fff;border:1px solid var(--line);border-radius:16px;margin:15px 0;padding:20px;box-shadow:0 3px 12px rgba(18,51,35,.03)}.card h2{font-size:20px;margin:0 0 5px}.desc{margin:0 0 14px;color:var(--muted);font-size:13px}.role-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.role-box{border:1px solid #d9e7df;border-radius:12px;padding:13px;background:#fcfffd}.role-box b{display:block;color:var(--green);font-size:15px}.role-box span{display:block;font-size:12px;color:var(--muted);margin-top:5px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:11px}.user-table{width:100%;border-collapse:collapse;min-width:920px}.user-table th{background:#edf7f1;color:#315a43;font-size:12px;text-align:left}.user-table th,.user-table td{padding:9px;border-bottom:1px solid #e5eee8;vertical-align:middle}.user-table tr:last-child td{border-bottom:0}.user-table input,.user-table select{width:100%;border:1px solid #cbdad1;border-radius:7px;padding:8px;font:13px inherit;background:#fff}.save-role{border:1px solid #b9d5c5;background:#fff;color:#075f39;border-radius:8px;padding:8px 11px;font:700 13px inherit;cursor:pointer;white-space:nowrap}.save-role:disabled{opacity:.5;cursor:not-allowed}.empty{padding:24px!important;text-align:center;color:var(--muted)}.audit{margin-top:12px}.audit-row{display:grid;grid-template-columns:180px 90px 1fr 110px;gap:10px;padding:10px 0;border-bottom:1px solid #e5eee8;font-size:13px}.audit-row:last-child{border-bottom:0}.audit-row b{color:var(--green)}.denied{background:#fff3f1;border:1px solid #f0c2bb;border-radius:16px;padding:26px;color:#8c2118}.denied h2{margin:0 0 6px;font-size:20px}.note{font-size:12px;color:var(--muted);margin:10px 0 0}.admin-lock{display:inline-block;background:#e8f6ec;color:#12663e;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:800}@media(max-width:800px){.page{padding:16px 12px 56px}.hero{padding:22px 17px}.hero h1{font-size:24px}.card{padding:15px}.role-grid{grid-template-columns:repeat(2,1fr)}.audit-row{grid-template-columns:1fr 1fr}.audit-row span:nth-child(3){grid-column:1/-1}.audit-row span:nth-child(4){grid-column:1/-1}.system-status{font-size:13px}}
+  </style>
+</head>
+<body>
+  <nav class="gnb" id="gnb" data-dkj-nav data-active="system" data-base=""></nav>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">SYSTEM ADMINISTRATION · USER ROLES</div>
+      <h1>시스템 설정 · 사용자 권한</h1>
+      <p>사번 4343 고환석 시스템 관리자만 직원의 표시 이름과 역할을 설정할 수 있습니다. 직원이 처음 로그인하면 사용자 목록에 자동 등록됩니다.</p>
+    </section>
+
+    <div class="system-status" id="systemStatus">로그인 권한을 확인하는 중입니다.</div>
+
+    <section id="systemDenied" class="denied" hidden>
+      <h2>시스템 관리자 전용 화면입니다</h2>
+      <p>사용자 권한은 사번 4343 시스템 관리자만 변경할 수 있습니다. 본인 계정으로 다시 로그인해 주세요.</p>
+    </section>
+
+    <div id="systemContent" hidden>
+      <section class="card">
+        <h2>4단계 역할 기준</h2>
+        <p class="desc">역할은 화면 접근과 작성·검토·승인 결재 단계를 구분합니다. 시스템 관리자는 사용자 권한 설정까지 관리합니다.</p>
+        <div class="role-grid">
+          <div class="role-box"><b>시스템 관리자</b><span>사용자 권한 설정 · 작성 · 검토 · 승인</span></div>
+          <div class="role-box"><b>책임자</b><span>작성 · 검토 · 승인</span></div>
+          <div class="role-box"><b>관리자</b><span>작성 · 검토</span></div>
+          <div class="role-box"><b>작업자</b><span>작성</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>사용자 권한 관리 <span class="admin-lock">시스템 관리자 전용</span></h2>
+        <p class="desc">처음 로그인한 직원만 목록에 표시됩니다. 사번 4343은 시스템 관리자로 고정되며, 다른 직원의 역할만 변경할 수 있습니다.</p>
+        <div class="table-wrap">
+          <table class="user-table">
+            <thead><tr><th style="width:11%">사번</th><th style="width:23%">표시 이름</th><th style="width:20%">변경할 역할</th><th style="width:16%">현재 역할</th><th style="width:20%">최근 로그인</th><th style="width:10%">저장</th></tr></thead>
+            <tbody id="userRows"><tr><td colspan="6" class="empty">사용자 정보를 불러오는 중입니다.</td></tr></tbody>
+          </table>
+        </div>
+        <p class="note">등록 사용자 수: <strong id="registeredCount">0</strong>명. 권한을 변경하면 변경 이력이 아래에 자동 저장됩니다.</p>
+      </section>
+
+      <section class="card">
+        <h2>권한 변경 이력</h2>
+        <p class="desc">누가 언제 어떤 사용자의 역할을 바꿨는지 확인합니다. 심사 또는 내부 점검 시 객관적 증빙으로 활용할 수 있습니다.</p>
+        <div class="audit" id="roleAudit"><p class="empty">변경 이력을 불러오는 중입니다.</p></div>
+      </section>
+    </div>
+  </main>
+  <script src="js/dkj-util.js?v=45"></script>
+  <script src="js/dkj-firebase-config.js?v=45"></script>
+  <script src="js/dkj-auth.js?v=45"></script>
+  <script src="js/dkj-cloud-sync.js?v=45"></script>
+  <script src="js/menu-catalog.bundle.js?v=45"></script>
+  <script src="js/dkj-nav.js?v=45"></script>
+  <script src="js/system-settings.js?v=45"></script>
+  <script src="js/dkj-pwa.js?v=45"></script>
+</body>
+</html>

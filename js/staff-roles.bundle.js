@@ -1,80 +1,24 @@
 window.DKJ_STAFF_ROLES={
   "_설명": [
-    "직원별 결재 권한표. 이 파일을 고치면 scripts/build-catalog-bundles.py 를 돌려",
-    "js/staff-roles.bundle.js 를 다시 만들고 배포해야 태블릿에 반영됩니다.",
-    "",
-    "왜 파일인가 — 역할표는 모든 태블릿에서 같아야 하는데, js/dkj-cloud-sync.js 는",
-    "기록 키(dkj:records:*:list:v1)만 동기화하므로 localStorage 에 두면 기기마다 달라집니다.",
-    "",
-    "staff 의 키는 사번이고, Firebase 계정(emp<사번>@dkj-fssc.internal)의 사번과 같아야 합니다.",
-    "stages 에 적힌 단계만 그 사람이 결재를 확정할 수 있습니다.",
-    "  writer   작성 확정",
-    "  reviewer 검토 확정",
-    "  approver 승인 확정",
-    "admin 은 앞으로 관리 기능이 생길 때 쓸 표시입니다(지금은 결재에 영향 없음).",
-    "",
-    "staff 가 비어 있으면 아무도 막지 않습니다 — 지금까지처럼 누구나 모든 단계를",
-    "확정할 수 있습니다. 실제 사번을 채워 넣는 순간부터 제한이 걸립니다.",
-    "표에 없는 사번으로 로그인한 사람은 결재를 확정할 수 없습니다.",
-    "",
-    "▶ name 을 비워 둔 이유 (2026-08-15) — 이 파일은 GitHub Pages 로 그대로 배포되어",
-    "로그인 없이 누구나 읽을 수 있다. 여기에 실명을 넣으면 사번과 함께 공개 주소에서",
-    "노출된다. 그래서 name 은 빈 문자열로 두고, 표시이름은 Firebase 계정의",
-    "displayName(콘솔에서 설정, 로그인해야 보임)으로만 채운다. displayName 도 없으면",
-    "기록에는 사번이 그대로 남는다 — 이름이 없어도 '누가 썼는가'는 사번으로 추적된다.",
-    "",
-    "예시:",
-    "  \"1001\": { \"name\": \"\", \"stages\": [\"writer\"] },",
-    "  \"1002\": { \"name\": \"\", \"stages\": [\"writer\", \"reviewer\"] },",
-    "  \"1003\": { \"name\": \"\", \"stages\": [\"reviewer\", \"approver\"], \"admin\": true }"
+    "직원별 기본 역할표입니다. 실제 운영 역할은 Firebase RTDB의 system/users에 저장되며, 이 파일은 최초 로그인과 오프라인 결재 화면을 위한 기본값입니다.",
+    "역할은 시스템 관리자, 책임자, 관리자, 작업자 4단계입니다.",
+    "시스템 관리자(emp4343)는 사용자 권한을 설정할 수 있고 모든 결재 단계를 수행합니다.",
+    "책임자는 작성·검토·승인, 관리자는 작성·검토, 작업자는 작성 단계만 수행합니다.",
+    "이 파일은 공개 배포되므로 실명은 넣지 않습니다. 이름은 Firebase Authentication의 표시이름 또는 시스템 관리자 화면에서 관리합니다."
   ],
-  "updatedAt": "2026-08-15",
+  "updatedAt": "2026-08-16",
+  "roles": {
+    "system_admin": { "label": "시스템 관리자", "stages": ["writer", "reviewer", "approver"] },
+    "responsible": { "label": "책임자", "stages": ["writer", "reviewer", "approver"] },
+    "manager": { "label": "관리자", "stages": ["writer", "reviewer"] },
+    "worker": { "label": "작업자", "stages": ["writer"] }
+  },
   "staff": {
-    "0001": {
-      "name": "",
-      "stages": [
-        "writer"
-      ]
-    },
-    "0002": {
-      "name": "",
-      "stages": [
-        "writer",
-        "reviewer",
-        "approver"
-      ]
-    },
-    "0003": {
-      "name": "",
-      "stages": [
-        "writer",
-        "reviewer"
-      ]
-    },
-    "0004": {
-      "name": "",
-      "stages": [
-        "writer",
-        "reviewer",
-        "approver"
-      ]
-    },
-    "0005": {
-      "name": "",
-      "stages": [
-        "writer",
-        "reviewer",
-        "approver"
-      ]
-    },
-    "4343": {
-      "name": "",
-      "stages": [
-        "writer",
-        "reviewer",
-        "approver"
-      ],
-      "admin": true
-    }
+    "0001": { "name": "", "role": "worker", "stages": ["writer"] },
+    "0002": { "name": "", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
+    "0003": { "name": "", "role": "manager", "stages": ["writer", "reviewer"] },
+    "0004": { "name": "", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
+    "0005": { "name": "", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
+    "4343": { "name": "", "role": "system_admin", "stages": ["writer", "reviewer", "approver"], "admin": true }
   }
 };
