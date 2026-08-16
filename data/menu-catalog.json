@@ -192,6 +192,10 @@
               "href": "capa-management.html"
             },
             {
+              "label": "종합 품질 대시보드",
+              "href": "quality-dashboard.html"
+            },
+            {
               "label": "DKJ-H-01-01 중요관리점(CCP 1BC) 점검표 소독·헹굼공정",
               "href": "doc-viewer.html?id=DKJ-H-01-01"
             },
@@ -492,6 +496,10 @@
     {
       "label": "CAPA 관리",
       "href": "capa-management.html"
+    },
+    {
+      "label": "품질 대시보드",
+      "href": "quality-dashboard.html"
     },
     {
       "label": "PRP",
