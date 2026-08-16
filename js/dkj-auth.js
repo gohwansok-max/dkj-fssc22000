@@ -295,11 +295,16 @@
     can: can, denyReason: denyReason
   };
 
+  var booted = false;
   function boot() {
+    if (booted) return;
+    booted = true;
     if (/\/records\//.test(location.pathname)) loadStaff()['catch'](function () {});
     if (isPublicPage()) resume().then(function () { renderBar(); emitReady(); }).catch(function () {});
     else requireLogin().catch(function () {});
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
+  // 일부 모바일 PWA에서 DOMContentLoaded 감지가 늦는 경우를 대비한 안전망이다.
+  global.addEventListener('load', boot);
 })(window);
