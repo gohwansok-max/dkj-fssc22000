@@ -384,7 +384,7 @@ window.DKJ_MENU_CATALOG={
         }
       ]
     },
-        {
+    {
       "id": "company",
       "label": "센터소개",
       "columns": [
@@ -472,7 +472,7 @@ window.DKJ_MENU_CATALOG={
       ]
     }
   ],
-    "quickLinks": [
+  "quickLinks": [
     {
       "label": "회사소개서",
       "href": "company-profile.html"
