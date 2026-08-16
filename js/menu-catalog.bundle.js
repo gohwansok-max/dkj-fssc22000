@@ -24,6 +24,10 @@ window.DKJ_MENU_CATALOG={
               "href": "mdr-register.html"
             },
             {
+              "label": "정본 문서 열람실",
+              "href": "official-documents.html"
+            },
+            {
               "label": "문서번호체계",
               "href": "doc-viewer.html?id=DOC-001"
             }
