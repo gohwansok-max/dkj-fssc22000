@@ -14,6 +14,7 @@
      올라와 있는지와는 별개다. 그 둘이 같은 뜻으로 보이면 사용자는 143건 전부 열람
      가능하다고 여기고 들어갔다가 'PDF가 아직 없습니다'를 만난다. 목록에서 미리 구분한다. */
   var pdfSet = null;
+  var driveSet = null;
 
   var listEl = document.getElementById('docList');
   var countEl = document.getElementById('docCount');
@@ -38,6 +39,11 @@
   function hasPdf(doc) {
     if (!pdfSet) return false;   // 아직 안 읽혔으면 없는 쪽으로 — 읽히면 다시 그린다
     return pdfSet[doc.id] === true || pdfSet[doc.code] === true;
+  }
+
+  function hasDrive(doc) {
+    if (!driveSet) return false;
+    return driveSet[doc.id] === true || driveSet[doc.code] === true;
   }
 
   /** pdf-manifest 와 doc-assets 를 한 번만 읽어 '정본 PDF 있는 문서' 색인을 만든다. */
@@ -124,8 +130,10 @@
           '<span class="badge ' + st + '">' + doc.workflowStatus + '</span>' +
           '<span class="badge type">' + fileTypeLabel(doc.fileType) + '</span>' +
           (hasPdf(doc)
-            ? '<span class="badge pdf-ok" title="정본 PDF 를 바로 볼 수 있습니다">정본 PDF</span>'
-            : '<span class="badge pdf-none" title="원문이 아직 시스템에 올라오지 않았습니다. 요약만 볼 수 있습니다">요약만</span>') +
+            ? '<span class="badge pdf-ok" title="Google Drive의 PDF 정본을 바로 볼 수 있습니다">정본 PDF</span>'
+            : hasDrive(doc)
+              ? '<span class="badge pdf-ok" title="Google Drive 원본을 바로 볼 수 있습니다">Drive 원본</span>'
+              : '<span class="badge pdf-none" title="연결된 원본 또는 PDF가 없습니다. 요약만 볼 수 있습니다">요약만</span>') +
           '<a class="pill-btn green" href="doc-viewer.html?id=' + encodeURIComponent(doc.id) + '">열람</a>' +
         '</div>' +
       '</article>';
@@ -192,8 +200,12 @@
       updateCategoryHead();
       renderList();
       // 정본 PDF 색인은 목록보다 늦게 와도 된다 — 도착하면 뱃지만 다시 그린다
-      loadPdfIndex().then(function (idx) {
-        pdfSet = idx;
+      Promise.all([
+        loadPdfIndex(),
+        window.DkjLinks && DkjLinks.driveIndex ? DkjLinks.driveIndex().catch(function () { return {}; }) : Promise.resolve({})
+      ]).then(function (res) {
+        pdfSet = res[0];
+        driveSet = res[1];
         renderList();
       });
     })

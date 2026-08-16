@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dkj-tokens.css?v=45">
-  <link rel="stylesheet" href="css/dkj-hub.css?v=45">
-  <link rel="manifest" href="manifest.json?v=45">
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=46">
+  <link rel="stylesheet" href="css/dkj-hub.css?v=46">
+  <link rel="manifest" href="manifest.json?v=46">
 </head>
 <body class="hub-page">
 
@@ -52,15 +52,15 @@
     <p style="color:var(--ink-3);">카탈로그에서 문서 정보를 읽는 중입니다.</p>
   </main>
 
-  <script src="js/dkj-util.js?v=45"></script>
-  <script src="js/dkj-firebase-config.js?v=45"></script>
-  <script src="js/dkj-auth.js?v=45"></script>
-  <script src="js/dkj-cloud-sync.js?v=45"></script>
-  <script src="js/doc-assets.bundle.js?v=45"></script>
-  <script src="js/doc-catalog.bundle.js?v=45"></script>
-  <script src="js/dkj-links.js?v=45-3"></script>
-  <script src="js/menu-catalog.bundle.js?v=45"></script>
-  <script src="js/dkj-nav.js?v=45"></script>
+  <script src="js/dkj-util.js?v=46"></script>
+  <script src="js/dkj-firebase-config.js?v=46"></script>
+  <script src="js/dkj-auth.js?v=46"></script>
+  <script src="js/dkj-cloud-sync.js?v=46"></script>
+  <script src="js/doc-assets.bundle.js?v=46"></script>
+  <script src="js/doc-catalog.bundle.js?v=46"></script>
+  <script src="js/dkj-links.js?v=46"></script>
+  <script src="js/menu-catalog.bundle.js?v=46"></script>
+  <script src="js/dkj-nav.js?v=46"></script>
   <script>
     (function () {
       'use strict';
@@ -146,45 +146,67 @@
             (doc.highlights || []).join('\n· ') || '요약본 준비 중';
         }
 
-        DkjLinks.getPdfPath(doc.id, doc.code).then(function (pdf) {
+        Promise.all([
+          DkjLinks.getPdfPath(doc.id, doc.code),
+          DkjLinks.driveDocumentFor ? DkjLinks.driveDocumentFor(doc.id, doc.code) : Promise.resolve(null)
+        ]).then(function (res) {
+          var pdf = res[0];
+          var driveDoc = res[1];
           var panel = document.getElementById('pdfPanel');
           var btnPrint = document.getElementById('btnPrintPdf');
+          var sourceDownload = driveDoc && driveDoc.downloadUrl ?
+            '<a class="pill-btn ghost" href="' + driveDoc.downloadUrl + '" target="_blank" rel="noopener">원본 다운로드</a> ' : '';
           if (pdf) {
             panel.innerHTML =
               '<div class="viewer-notice ok" style="margin:0 0 12px;">' +
-              '✓ <strong>인쇄는 PDF 정본만 사용</strong>합니다. 요약 탭 HTML은 참고용이며 출력물로 쓰지 마세요.' +
+              '✓ <strong>Google Drive PDF 정본 연결됨</strong> · 인쇄는 PDF 정본을 사용하세요.' +
               '</div>' +
               '<div class="pdf-toolbar">' +
-                '<a class="pill-btn ghost" href="' + pdf + '" target="_blank" rel="noopener">새 탭에서 열기</a> ' +
+                '<a class="pill-btn ghost" href="' + pdf + '" target="_blank" rel="noopener">PDF 새 탭 열기</a> ' + sourceDownload +
                 '<button type="button" class="pill-btn green" id="btnPdfPrintInline">정본 PDF 인쇄</button>' +
               '</div>' +
-              '<iframe class="pdf-frame" id="pdfFrame" src="' + pdf + '#view=FitH" title="PDF ' + doc.code + '"></iframe>';
+              '<iframe class="pdf-frame" id="pdfFrame" src="' + pdf + '" title="PDF ' + doc.code + '"></iframe>';
             if (btnPrint) {
               btnPrint.hidden = false;
               btnPrint.onclick = function () { printPdf(pdf); };
             }
             var inline = document.getElementById('btnPdfPrintInline');
             if (inline) inline.onclick = function () { printPdf(pdf); };
-            // 절차서·기준서·SOP는 기본 탭을 PDF로
-            var cat = (doc.category || doc.menuGroup || '').toLowerCase();
-            var code = (doc.code || '').toUpperCase();
-            if (!params.get('tab') && (
-              code.indexOf('DKJ-P') === 0 || code.indexOf('PRP') === 0 ||
-              code.indexOf('DKJ-W') === 0 || code.indexOf('DKJ-M') === 0 ||
-              cat.indexOf('절차') >= 0 || cat.indexOf('sop') >= 0
-            )) {
-              setTab('pdf');
+          } else if (driveDoc) {
+            panel.innerHTML =
+              '<div class="viewer-notice ok" style="margin:0 0 12px;">' +
+              '✓ <strong>Google Drive 원본 연결됨</strong> · PDF 정본이 아직 연결되지 않아 원본을 열람합니다.' +
+              '</div>' +
+              '<div class="pdf-toolbar">' +
+                '<a class="pill-btn ghost" href="' + driveDoc.viewUrl + '" target="_blank" rel="noopener">원본 새 탭 열기</a> ' +
+                '<a class="pill-btn ghost" href="' + driveDoc.downloadUrl + '" target="_blank" rel="noopener">원본 다운로드</a> ' +
+                '<button type="button" class="pill-btn green" id="btnDrivePrintInline">원본 인쇄</button>' +
+              '</div>' +
+              '<iframe class="pdf-frame" id="pdfFrame" src="' + driveDoc.previewUrl + '" title="원본 ' + doc.code + '"></iframe>';
+            if (btnPrint) {
+              btnPrint.hidden = false;
+              btnPrint.textContent = '원본 인쇄';
+              btnPrint.onclick = function () { printPdf(driveDoc.viewUrl); };
             }
+            var drivePrint = document.getElementById('btnDrivePrintInline');
+            if (drivePrint) drivePrint.onclick = function () { printPdf(driveDoc.viewUrl); };
           } else {
             panel.innerHTML =
               '<div class="viewer-notice">' +
-              '📄 PDF가 아직 없습니다. 정본 인쇄를 위해 PDF가 필요합니다.<br><br>' +
-              '<strong>생성 방법</strong> (PC + Word):<br>' +
-              '<code>powershell -ExecutionPolicy Bypass -File scripts\\sync-dkj-assets.ps1 -PdfOnly</code><br>' +
-              '(저장소 루트에서 실행)<br><br>' +
-              '또는 절차서 PDF를 <code>assets/pdf/' + doc.code + '.pdf</code> 에 직접 복사하세요.' +
+              '📄 연결된 PDF 또는 Drive 원본이 없습니다. 정본 열람실에서 전체 문서를 검색하거나 문서관리 담당자에게 확인하세요.<br><br>' +
+              '<a class="pill-btn green" href="official-documents.html">정본 문서 열람실 열기</a>' +
               '</div>';
             if (btnPrint) btnPrint.hidden = true;
+          }
+          // 절차서·기준서·SOP는 PDF 또는 Drive 원본 탭을 기본으로 연다.
+          var cat = (doc.category || doc.menuGroup || '').toLowerCase();
+          var code = (doc.code || '').toUpperCase();
+          if ((pdf || driveDoc) && !params.get('tab') && (
+            code.indexOf('DKJ-P') === 0 || code.indexOf('PRP') === 0 ||
+            code.indexOf('DKJ-W') === 0 || code.indexOf('DKJ-M') === 0 ||
+            cat.indexOf('절차') >= 0 || cat.indexOf('sop') >= 0
+          )) {
+            setTab('pdf');
           }
         });
 
@@ -244,6 +266,6 @@
       });
     })();
   </script>
-  <script src="js/dkj-pwa.js?v=45"></script>
+  <script src="js/dkj-pwa.js?v=46"></script>
 </body>
 </html>
