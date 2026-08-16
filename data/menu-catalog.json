@@ -184,6 +184,10 @@
               "href": "fssc-audit-readiness.html"
             },
             {
+              "label": "HACCP팀 위험·환경 설정",
+              "href": "haccp-team-settings.html"
+            },
+            {
               "label": "DKJ-H-01-01 중요관리점(CCP 1BC) 점검표 소독·헹굼공정",
               "href": "doc-viewer.html?id=DKJ-H-01-01"
             },
@@ -476,6 +480,10 @@
     {
       "label": "FSSC 심사준비",
       "href": "fssc-audit-readiness.html"
+    },
+    {
+      "label": "HACCP팀 설정",
+      "href": "haccp-team-settings.html"
     },
     {
       "label": "PRP",

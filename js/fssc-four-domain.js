@@ -78,8 +78,23 @@
     }).join('');
   }
 
+  function renderTeamSettingsSummary() {
+    var mount = document.getElementById('teamSettingsSummary');
+    if (!mount || !window.DkjRecordStore) return;
+    var records = window.DkjRecordStore.list('HACCP-TEAM-SETTINGS')
+      .filter(function (record) { return record && record.locked; })
+      .sort(function (a, b) { return String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')); });
+    if (!records.length) {
+      mount.innerHTML = '<strong>승인 기준 미설정</strong> · HACCP팀이 위험등급과 환경 채취지점·주기·판정기준을 검토·승인해야 심사 준비 기준이 확정됩니다. <a href="haccp-team-settings.html" style="color:#fff;font-weight:800;text-decoration:underline">설정·승인하기 →</a>';
+      return;
+    }
+    var setting = records[0];
+    mount.innerHTML = '<strong>승인 기준 적용 중</strong> · ' + esc(setting.revision || '개정번호 미입력') + ' / 적용일 ' + esc(displayDate(setting.effectiveDate)) + ' / 환경 채취지점 ' + esc((setting.samplingSites || []).length) + '개 · 승인자 ' + esc((setting.signoff && setting.signoff.approver && setting.signoff.approver.name) || setting.approver || '미입력') + ' <a href="haccp-team-settings.html" style="color:#fff;font-weight:800;text-decoration:underline">개정이력 보기 →</a>';
+  }
+
   function refreshAll() {
     refreshSummary();
+    renderTeamSettingsSummary();
     Object.keys(DOMAIN).forEach(renderEvidence);
   }
 
