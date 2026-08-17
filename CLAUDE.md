@@ -255,19 +255,16 @@ python scripts/build-sw-precache.py
 ## 배포에서 빠지는 것
 
 `deploy-pages.yml` 이 `_site/` 로 rsync 하면서 제외: `.git`, `.github`, `.gitignore`,
-`_site`, `scripts`, `*.md`, `*.local.json`. 사이트가 실제로 읽는 건 `data/*.json`, `css`,
-`js`, `assets`, `records` 뿐입니다. 배포된 사이트가 필요로 하는 파일을 이 제외 목록에
-걸리게 두지 마세요.
+`_site`, `scripts`, `functions`, `tests`, `*.md`, `*.local.json`. 사이트가 실제로 읽는 건
+`data/*.json`, `css`, `js`, `assets`, `records` 뿐입니다. 배포된 사이트가 필요로 하는 파일을
+이 제외 목록에 걸리게 두지 마세요.
 
 `data/asset-sources.local.json` 은 컨설팅 원본 폴더의 로컬 절대경로라 gitignore 대상입니다.
 공개 배포물에 로컬 경로나 직원 실명이 들어가지 않게 주의하세요.
 
-**주의 — `functions/`(Firebase Cloud Functions 코드)와 `tests/`(마이그레이션 검증용 샘플
-JSON)는 제외 목록에 없어서 그대로 `_site/`에 rsync 되어 GitHub Pages에 올라갑니다.**
-지금 확인한 바로는 실제 비밀값이 하드코딩돼 있진 않지만(웹훅 URL·서명 비밀은 Secret Manager
-참조뿐), 브라우저가 실행할 필요 없는 서버 코드가 공개 배포물에 섞이는 상태입니다. 손대기
-전에 사용자에게 먼저 확인하세요 — `deploy-pages.yml`의 exclude 목록에 `functions`, `tests`를
-추가하는 게 자연스러워 보이지만, 배포 워크플로 변경이라 임의로 하지 않았습니다.
+`functions`(Firebase Cloud Functions 코드)와 `tests`(마이그레이션 검증용 샘플 JSON)는
+2026-08-17에 제외 목록에 추가했습니다 — 그 전에는 브라우저가 쓰지 않는 서버 코드가
+그대로 GitHub Pages에 올라가고 있었습니다(비밀값 하드코딩은 없었지만 불필요한 노출).
 
 ## 언어
 

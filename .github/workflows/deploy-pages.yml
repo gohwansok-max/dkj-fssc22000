@@ -31,7 +31,8 @@ jobs:
       - name: 서비스워커 프리캐시 목록 생성
         run: python3 scripts/build-sw-precache.py
       # 사내 도구/문서는 공개 사이트에 올리지 않는다 — 사이트가 fetch 하는 것은
-      # data/*.json, css, js, assets, records 뿐이고 scripts/ 는 참조하지 않는다
+      # data/*.json, css, js, assets, records 뿐이고 scripts/·functions/(Firebase
+      # Cloud Functions 서버 코드)·tests/(마이그레이션 검증용 샘플)는 참조하지 않는다
       - name: Stage site (내부 파일 제외)
         run: |
           rsync -a --delete \
@@ -40,6 +41,8 @@ jobs:
             --exclude '.gitignore' \
             --exclude '_site' \
             --exclude 'scripts' \
+            --exclude 'functions' \
+            --exclude 'tests' \
             --exclude '*.md' \
             --exclude '*.local.json' \
             ./ _site/
