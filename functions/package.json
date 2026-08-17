@@ -1,0 +1,14 @@
+{
+  "name": "dkj-fssc22000-quality-alerts",
+  "private": true,
+  "version": "1.0.0",
+  "description": "동김제농협 스마트 HACCP·FSSC 22000 품질 경보 Firebase Functions",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.1"
+  }
+}

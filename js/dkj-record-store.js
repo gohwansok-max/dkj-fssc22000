@@ -23,6 +23,7 @@
 
   function writeJson(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
+    try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { key: key, value: value } })); } catch (e) {}
   }
 
   function uid() {
@@ -49,6 +50,7 @@
         if (who) {
           record.createdBy = who.name;
           record.createdByEmpId = who.empId;
+          record.createdByUid = who.uid || '';
         }
       } else {
         // 폼 엔진들은 화면 state 로 record 를 새로 조립해 넘긴다(Object.assign({}, state, …)).
@@ -60,6 +62,7 @@
           if (!record.createdAt) record.createdAt = prev.createdAt || now;
           if (!record.createdBy && prev.createdBy) record.createdBy = prev.createdBy;
           if (!record.createdByEmpId && prev.createdByEmpId) record.createdByEmpId = prev.createdByEmpId;
+          if (!record.createdByUid && prev.createdByUid) record.createdByUid = prev.createdByUid;
         } else if (!record.createdAt) {
           record.createdAt = now;
         }
@@ -68,6 +71,7 @@
       if (who) {
         record.updatedBy = who.name;
         record.updatedByEmpId = who.empId;
+        record.updatedByUid = who.uid || '';
       }
       record.formId = formId;
       var idx = list.findIndex(function (r) { return r.id === record.id; });

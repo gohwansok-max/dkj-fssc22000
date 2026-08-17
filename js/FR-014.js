@@ -244,6 +244,7 @@
     editingId = saved.id;
     setStatus(lock ? '작성완료 저장됨' : '저장 완료', true);
     refreshApproval();
+    showTraceBanner(true, saved);
     renderHistory();
     if (data.judge === '부적합') {
       showFr015Banner(true, saved.id);
@@ -277,6 +278,23 @@
         '&supplier=' + encodeURIComponent(data.supplier || '') +
         '&receiveDate=' + encodeURIComponent(data.receiveDate || '');
       link.href = 'DKJ-STORE-01.html?' + q;
+    }
+  }
+
+  function showTraceBanner(show, data) {
+    var el = $('traceBanner');
+    var link = $('traceLink');
+    if (el) el.hidden = !show;
+    if (link && data) {
+      var q = 'from014=' + encodeURIComponent(data.id || '') +
+        '&lot=' + encodeURIComponent(data.lot || '') +
+        '&item=' + encodeURIComponent(data.itemName || '') +
+        '&supplier=' + encodeURIComponent(data.supplier || '') +
+        '&qty=' + encodeURIComponent(data.qty || '') +
+        '&unit=' + encodeURIComponent(data.unit || 'kg') +
+        '&date=' + encodeURIComponent(data.receiveDate || '') +
+        '&mode=quick';
+      link.href = '../traceability.html?' + q;
     }
   }
 
@@ -345,6 +363,7 @@
           $('btnLock').disabled = !!rec.locked;
           showFr015Banner(rec.judge === '부적합', rec.id);
           showStoreBanner(rec.judge === '적합', rec);
+          showTraceBanner(true, rec);
         }
       });
     });
@@ -364,6 +383,7 @@
     $('btnLock').disabled = false;
     showFr015Banner(false);
     showStoreBanner(false);
+    showTraceBanner(false);
     setStatus('새 입고 작성', false);
   }
 
@@ -425,6 +445,9 @@
         editingId = rec.id;
         fillForm(rec);
         $('btnLock').disabled = !!rec.locked;
+        showFr015Banner(rec.judge === '부적합', rec.id);
+        showStoreBanner(rec.judge === '적합', rec);
+        showTraceBanner(true, rec);
       }
     }
 
