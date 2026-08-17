@@ -259,8 +259,8 @@
       return;
     }
     el.innerHTML = list.slice(0, 15).map(function (r) {
-      return '<div class="dkj-history-item"><div class="meta"><strong>' + (r.itemName || '-') + '</strong>' +
-        r.processDate + ' · ' + (r.disposition || '') + ' · LOT ' + (r.lot || '') +
+      return '<div class="dkj-history-item"><div class="meta"><strong>' + esc(r.itemName || '-') + '</strong>' +
+        esc(r.processDate || '') + ' · ' + esc(r.disposition || '') + ' · LOT ' + esc(r.lot || '') +
         '</div><div style="display:flex;gap:6px;">' +
         '<button type="button" class="pill-btn ghost" data-edit="' + r.id + '">불러오기</button>' +
         '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';

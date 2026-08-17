@@ -61,34 +61,74 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 | 기록보관함 | `records-archive.html` | 저장된 기록 통합 조회 + 엑셀/CSV/PDF 내보내기 + 백업·복원 |
 | 문서센터 | `docs-center.html` → `doc-viewer.html` | 매뉴얼·절차서 열람 |
 | 문서관리대장 | `mdr-register.html` | MDR-001 등록대장 |
+| 정본 문서 열람실 | `official-documents.html` | Google Drive 원본·PDF 259건 검색·열람·인쇄 (문서센터와 별개 경로) |
+| 시스템 설정 | `system-settings.html` | 시스템 관리자(사번 4343) 전용 — 로그인한 사용자 역할 배정 |
+| 종합 품질 대시보드 | `quality-dashboard.html` | CAPA 기한초과·모의회수 목표미달·추적성 후속확인 실시간 경보 |
+| 이탈·시정조치(CAPA) 관리 | `capa-management.html` | CCP 이탈·부적합의 CAPA 등록·진행·종결 |
+| 추적성 검증·모의회수 | `traceability.html` | 모의회수 훈련 기록, 2시간 목표·수량대조 |
+| 경영검토·식품안전문화 | `management-culture.html` | 경영검토 회의록, 식품안전문화 활동 |
+| FSSC 추가요건 심사준비 | `fssc-audit-readiness.html` | FSSC22000 4대 영역 요구사항 체크 |
+| HACCP팀 위험·환경 설정 | `haccp-team-settings.html` | HACCP팀 구성, 위해요소·환경 기준 설정 |
+| 회사소개서 | `company-profile.html` | 대외 제안용 회사소개서 |
+
+새 화면들은 2026-08-16에 마누스(다른 AI 에이전트)가 PR #26~#35로 main에 직접 merge했습니다.
+각 화면의 배경·운영 절차는 `docs/*.md`(특히 `RTDB_V2_MIGRATION.md`, `ENTRY_LOGIN_AND_ROLE_SETUP.md`,
+`QUALITY_ALERT_AUTOMATION.md`, `GOOGLE_DRIVE_DOCUMENT_LIBRARY.md`, `NEXT_STEPS_AFTER_V2.md`)에
+더 자세히 있습니다. `docs/`는 배포 제외 대상이라 소스에만 있습니다.
 
 ## 데이터 저장 — 전부 브라우저에
 
 - **정본(SSOT)은 브라우저 `localStorage`** 이고, Firebase RTDB(`js/dkj-cloud-sync.js`)가
   기기 간 동기화 사본입니다. 서버 DB 는 없습니다.
 
-> **클라우드 켜짐 (2026-08-14 설정 완료).**
+> **클라우드 켜짐, 첫 화면 로그인·역할 체계로 확장 (2026-08-16, PR #29~#31).**
 > `js/dkj-firebase-config.js` 에 Firebase 프로젝트 `dkj-fssc22000` 값이 들어가 있어
 > `DkjAuth.configured()` 가 `true` 입니다. 그래서 지금 동작은 이렇습니다.
-> - `records/` 아래 서식을 열면 **사번·비밀번호 로그인 화면**이 먼저 뜹니다.
+> - **모든 화면**(서식뿐 아니라 콘솔·문서센터·관리 화면까지) 첫 진입 시
+>   **사번·비밀번호 로그인 화면**이 먼저 뜹니다.
 > - 저장된 기록(`dkj:records:*:list:v1`)은 30초 주기로 RTDB 와 양방향 병합됩니다.
 >   같은 id 는 `updatedAt` 이 최신인 쪽이 남습니다(통째 덮어쓰기 아님).
-> - 결재 서명이 **로그인한 사람** 기준으로 남고, `data/staff-roles.json` 의 단계 권한이
->   실제로 걸립니다. 표에 없는 사번은 결재를 확정할 수 없습니다.
+> - 결재 서명이 **로그인한 사람** 기준으로 남습니다.
 >
-> 계정 체계 — 이메일은 `emp<사번>@dkj-fssc.internal`(실제 메일 주소 아님), 콘솔에서
+> 역할 4단계 — **시스템 관리자**(사번 4343 고정, 사용자 권한 설정 가능) / **책임자**(작성·검토·
+> 승인) / **관리자**(작성·검토) / **작업자**(작성만). 실제 운영 권한의 출처는
+> **RTDB `system/users/<uid>`** 이고, `data/staff-roles.json` 은 최초 로그인·오프라인 결재
+> 화면을 위한 **기본값**일 뿐입니다(둘이 다르면 RTDB 쪽이 이깁니다). 처음 로그인한 사용자는
+> 기본적으로 작업자로 등록되고, 시스템 관리자(4343)가 `system-settings.html`에서 역할을
+> 조정합니다. 운영 절차는 `docs/ENTRY_LOGIN_AND_ROLE_SETUP.md` 참고.
+>
+> 계정 체계 — 이메일은 `emp<사번>@dkj-fssc.internal`(실제 메일 주소 아님), Firebase 콘솔에서
 > 관리자가 직접 추가합니다(공개 가입·삭제는 콘솔에서 차단해 뒀습니다). 사번은 4자리이고
 > 로그인 화면에서 `1` 만 입력해도 `0001` 로 채워집니다(`normId()`).
 >
-> 표시이름 — 콘솔에서 만든 계정에는 `displayName` 이 없어서, 로그인 시
-> `data/staff-roles.json` 의 실명을 가져와 작성자·결재자 이름으로 씁니다. **직원이 늘면
-> 이 표에 사번·이름을 추가하고 `build-catalog-bundles.py` 를 돌려야** 기록에 사번 대신
-> 이름이 남습니다.
+> 표시이름 — 이름을 정하는 순서는 ① Firebase Authentication 계정의 `displayName`
+> ② `system-settings.html`에서 관리자가 지정한 이름(RTDB `system/users`에 저장, 로그인해야
+> 읽힘) ③ `data/staff-roles.json`의 `name`(항상 빈 문자열, 아래 참고) 순으로 폴백합니다.
+> 실명을 남기려면 ①이나 ②를 쓰세요 — 둘 다 로그인 없이는 안 읽힙니다.
 >
 > 주의 — GitHub Pages 사이트는 저장소가 비공개여도 **누구나 열람 가능**합니다.
-> `data/staff-roles.json` 의 실명도 공개 주소에서 읽힙니다. 노출이 부담되면 이름을
-> 축약(`이 사원`)하거나 비우면 됩니다(그 경우 기록에는 사번이 남습니다).
-> 실제 기록 내용은 로그인 + RTDB 규칙(`auth != null`)으로 보호되므로 공개되지 않습니다.
+> `data/staff-roles.json` 이 로그인 없이 공개 주소에서 읽히기 때문에, 여기 실명·사번을
+> 같이 적어 두면 직원 개인정보가 그대로 노출됩니다. 그래서 `name` 필드는 항상 비워
+> 두기로 했습니다(기록에는 사번이 남아 추적성은 유지됩니다).
+> 실제 기록 내용은 로그인 + RTDB 규칙(`database.rules.json`)으로 보호되므로 공개되지 않습니다.
+
+### RTDB 기록 저장 스키마 — V1(배열) → V2(레코드별 노드) 전환 준비 완료, 전환 대기중
+
+`js/dkj-cloud-sync.js`는 두 스키마를 동시에 압니다.
+
+- **V1(기존)**: `records/<서식별-인코딩키>` 에 그 서식의 기록 **배열 전체**를 통째로 저장.
+  레코드 단위 권한(본인만 수정, 잠금 후 거부)을 RTDB 규칙으로 걸 수 없는 구조입니다.
+- **V2(신규)**: `records_v2/<서식>/<기록ID>` 에 기록마다 **독립 노드**로 저장하고
+  `data`/`workflow`(최초작성자 uid·잠금상태)/`approvals`/`audit`로 나눕니다. `database.rules.json`이
+  이 구조에서 "최초 작성자만 본문 수정", "잠금된 기록은 서버가 쓰기 거부", "결재·감사이력은
+  추가만 가능"을 레코드 단위로 강제합니다.
+
+**지금은 V2 코드·규칙이 저장소에 준비돼 있을 뿐, 실제 운영 데이터의 전환(=`sync_meta/schemaVersion`을
+2로 바꾸는 것)은 아직 안 됐습니다.** 전환은 되돌리기 어려운 운영 데이터 작업이라 사람이 직접
+Firebase 콘솔에서 백업·검증하며 수행해야 합니다 — 절대 코드만 보고 "이미 전환됨"이라 판단하지
+말고, 실제로 `sync_meta/schemaVersion`이 몇인지 확인하세요. 절차는 `docs/RTDB_V2_MIGRATION.md`,
+변환 스크립트는 `scripts/migrate-rtdb-v1-to-v2.py`(Firebase에 직접 접속하지 않고 백업 JSON을
+읽어 import 파일만 생성).
 
 - 기록 저장은 반드시 **`js/dkj-record-store.js`** 를 거칩니다. 키 규칙:
   - `dkj:records:<서식코드>:list:v1` — 저장된 기록 배열 (기록보관함이 읽는 유일한 곳)
@@ -134,7 +174,7 @@ JSON fetch 대신 번들을 씁니다). 번들만 고치면 다음 생성 때 �
 | `menu-catalog.json` | 상단 메뉴 구성 |
 | `console-forms.json` | 업무 콘솔의 주기별 그룹(매일/주간·월간/발생 시/연간) |
 | `mdr-catalog.json` | 문서관리대장 — **문서 제목·개정번호의 정본** |
-| `staff-roles.json` | 직원별 결재 권한 — 사번마다 확정할 수 있는 단계 |
+| `staff-roles.json` | 직원별 **기본** 역할·결재 권한 — 실제 운영 권한은 RTDB `system/users`가 우선 |
 
 `staff-roles.json` 이 localStorage 가 아니라 배포 파일인 이유: 역할표는 모든 태블릿에서
 같아야 하는데 `js/dkj-cloud-sync.js` 는 기록 키(`dkj:records:*:list:v1`)만 동기화합니다.
@@ -145,16 +185,47 @@ JSON fetch 대신 번들을 씁니다). 번들만 고치면 다음 생성 때 �
 서식 제목이나 문서명이 필요하면 지어내지 말고 `mdr-catalog.json`(문서관리대장)에서
 가져오세요. 주기 분류는 `console-forms.json` 의 그룹을 따릅니다.
 
+## 품질 대시보드 실시간 경보 — 웹 화면은 배포됨, 외부 발송은 미배포
+
+`quality-dashboard.html`은 CAPA 기한초과, 모의회수 2시간 목표 미달, 제품회수·추적성 후속확인을
+화면을 열어 둔 상태에서 즉시 보여주고 브라우저 알림도 띄웁니다. 이건 지금 바로 동작합니다.
+
+화면을 닫아도 이메일·카카오 알림톡·문자로 보내는 **외부 자동 발송**은 별도 배포가 필요합니다 —
+`functions/index.js`의 `dispatchQualityAlert`(RTDB `records_v2` 변경 트리거) → HMAC 서명 웹훅 →
+Make 시나리오 → Gmail/카카오/SMS. 웹훅 URL·서명 비밀은 코드에 없고 Firebase Secret Manager에만
+있습니다(`DKJ_ALERT_WEBHOOK_URL`, `DKJ_ALERT_WEBHOOK_SECRET`). 배포하려면 Firebase Blaze 요금제
+전환, Functions 배포, Make 시나리오 구성이 먼저 필요합니다 — 자세한 건 `docs/QUALITY_ALERT_AUTOMATION.md`.
+**Make의 기존 `Integration Google Sheets, Google Gemini AI, Gmail` 시나리오는 별개 용도이니
+승인 없이 건드리지 마세요.**
+
+## Google Drive 정본 문서 열람실
+
+`official-documents.html`은 문서센터(`docs-center.html`)와 별개로, Google Drive 원본 폴더
+(`0) 동김제농협_FSSC22000_V6_운영체계구축_최종본260714`)의 원본·PDF 259건을 웹에서 검색·열람·
+인쇄합니다. 파일 자체는 GitHub Pages에 복사하지 않고 Drive에 남아 있고, 링크 공개 권한은
+**뷰어**로 낮춰져 있습니다(쓰기 권한 절대 금지 — `docs/GOOGLE_DRIVE_DOCUMENT_LIBRARY.md` 참고).
+
+문서를 추가·개정하면 `python scripts/inventory_drive_tree.py` → `python scripts/build_drive_document_manifest.py`
+순으로 돌려 `data/drive-document-manifest.json`과 `js/drive-document-manifest.bundle.js`를
+갱신해야 반영됩니다. 문서번호(`DKJ-P-01`, `DKJ-H-01-01` 등)가 원본과 PDF에서 같아야 자동으로
+연결됩니다.
+
 ## 캐시 버전과 서비스워커
 
 정적 자원은 전부 `?v=<숫자>` 를 달고 있습니다. **JS/CSS 를 고쳤으면 이 숫자를 올려야**
-기존 사용자 브라우저가 새 파일을 받습니다:
+기존 사용자 브라우저가 새 파일을 받습니다. 현재 버전은 파일에 직접 물어보고(`grep -roh '?v=[0-9]*' *.html js/*.js | sort | uniq -c`)
+가장 많이 쓰인 숫자를 기준으로 다음 숫자로 올리세요 — 아래 21/22는 예시일 뿐입니다.
 
 ```bash
 grep -rl "?v=21" --include=*.html --include=*.js . | xargs sed -i 's/?v=21/?v=22/g'
-sed -i "s/v=21/v=22/g" scripts/inject-*.py     # 주입 스크립트도 함께 (안 하면 다음 실행 때 옛 버전을 되넣음)
+sed -i "s/v=21/v=22/g" scripts/inject-*.py     # 주입 스크립트도 함께
 python scripts/build-sw-precache.py
 ```
+
+**`scripts/inject-*.py` 를 빼먹으면 안 됩니다.** 실제로 2026-08-15~08-16 사이 여러 번 버전이
+올라가는 동안(v=38→44→46→47) 이 스크립트들은 갱신되지 않고 v=38에 멈춰 있었습니다 — 다음에
+누가 `inject-*.py` 를 실행했다면 최신 화면에 옛 버전 스크립트 태그를 도로 심었을 뻔한
+상황이었습니다. 버전을 올릴 때마다 `grep -rn "v=[0-9]" scripts/inject-*.py` 로 같이 확인하세요.
 
 주의 — `sw.js` 의 `cacheFirst()` 는 `{ ignoreSearch: true }` 로 캐시를 조회해서
 **`?v=` 만으로는 서비스워커를 못 뚫습니다.** 그래서 배포 직후 첫 화면은 이전 것이 뜹니다.
@@ -184,12 +255,16 @@ python scripts/build-sw-precache.py
 ## 배포에서 빠지는 것
 
 `deploy-pages.yml` 이 `_site/` 로 rsync 하면서 제외: `.git`, `.github`, `.gitignore`,
-`_site`, `scripts`, `*.md`, `*.local.json`. 사이트가 실제로 읽는 건 `data/*.json`, `css`,
-`js`, `assets`, `records` 뿐입니다. 배포된 사이트가 필요로 하는 파일을 이 제외 목록에
-걸리게 두지 마세요.
+`_site`, `scripts`, `functions`, `tests`, `*.md`, `*.local.json`. 사이트가 실제로 읽는 건
+`data/*.json`, `css`, `js`, `assets`, `records` 뿐입니다. 배포된 사이트가 필요로 하는 파일을
+이 제외 목록에 걸리게 두지 마세요.
 
 `data/asset-sources.local.json` 은 컨설팅 원본 폴더의 로컬 절대경로라 gitignore 대상입니다.
 공개 배포물에 로컬 경로나 직원 실명이 들어가지 않게 주의하세요.
+
+`functions`(Firebase Cloud Functions 코드)와 `tests`(마이그레이션 검증용 샘플 JSON)는
+2026-08-17에 제외 목록에 추가했습니다 — 그 전에는 브라우저가 쓰지 않는 서버 코드가
+그대로 GitHub Pages에 올라가고 있었습니다(비밀값 하드코딩은 없었지만 불필요한 노출).
 
 ## 언어
 

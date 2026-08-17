@@ -228,10 +228,10 @@
         return;
       }
       el.innerHTML = list.map(function (r) {
-        var bits = historyKeys.map(function (k) { return r[k] || ''; }).filter(Boolean).join(' · ');
+        var bits = historyKeys.map(function (k) { return r[k] || ''; }).filter(Boolean).map(esc).join(' · ');
         return '<div class="dkj-history-item">' +
           '<div><strong>' + bits + '</strong> ' +
-          '<span class="badge ' + (r.locked ? 'done' : 'wip') + '">' + (r.judge || '-') + '</span></div>' +
+          '<span class="badge ' + (r.locked ? 'done' : 'wip') + '">' + esc(r.judge || '-') + '</span></div>' +
           '<div style="display:flex;gap:6px;">' +
           '<button type="button" class="pill-btn ghost" data-load="' + r.id + '">불러오기</button>' +
           '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';
