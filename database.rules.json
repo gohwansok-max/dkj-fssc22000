@@ -11,6 +11,7 @@
         ".write": false
       },
       "records_v2": {
+        ".read": "auth != null",
         "$formKey": {
           ".read": "auth != null",
           "$recordKey": {
