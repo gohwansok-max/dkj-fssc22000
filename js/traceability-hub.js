@@ -18,6 +18,14 @@
     customer_complaint: { name: '고객 클레임·이물 발견', scenario: '고객 클레임 또는 이물 발견 신고에 따른 모의회수', action: '고객 제공 제품 LOT 확인, 동일 LOT 재고 격리, 원료·공정·포장재 후방추적, 거래처 회수 가능 수량 확인', hint: '고객의 제품 LOT로 원료·공정·포장 LOT까지 후방추적합니다.', decision: '거래처 회수 요청' },
     supplier_evidence: { name: '공급업체 원산지·증빙 오류', scenario: '공급업체 원산지 또는 시험성적서·납품증빙 오류에 따른 모의회수', action: '해당 원료 LOT의 납품서·시험성적서 확인, 사용 생산분·출하처 파악, 출하보류 및 거래처 증빙 확인', hint: '원료 입고·공급업체 증빙·생산 LOT·출하처의 연결성을 검증합니다.', decision: '모의회수 개시' }
   };
+  var AUDIT_SCENARIOS = {
+    raw_forward: { name: '원료 LOT 전방추적', direction: 'forward', drillType: '전방추적 검증', template: 'micro_chemical', instruction: '원료 LOT를 입력해 사용 완제품, 출하처, 정상재고·격리 수량을 확인하세요.' },
+    product_backward: { name: '완제품 LOT 후방추적', direction: 'backward', drillType: '후방추적 검증', template: 'customer_complaint', instruction: '완제품 LOT를 입력해 원료 LOT, 공급업체, 포장 LOT와 입고기록을 확인하세요.' },
+    mass_balance: { name: '수량대조·회수범위', direction: 'both', drillType: '모의회수', template: 'micro_chemical', instruction: '대상 LOT를 입력하고 출하·재고·격리·폐기·거래처 수량을 대조하세요.' },
+    ccp_window: { name: 'CCP 이상 영향범위', direction: 'both', drillType: '모의회수', template: 'ccp_metal', instruction: 'CCP 이상 시점의 생산 LOT 또는 대표 LOT를 입력해 영향을 받은 범위를 확인하세요.' },
+    label_pack: { name: '라벨·포장 LOT 추적', direction: 'both', drillType: '모의회수', template: 'label_allergen', instruction: '완제품 또는 포장 LOT를 입력해 라벨 교체 시점, 출하처와 보유재고를 확인하세요.' },
+    supplier_evidence: { name: '공급업체 증빙 연결', direction: 'forward', drillType: '전방추적 검증', template: 'supplier_evidence', instruction: '원료 LOT를 입력해 입고검사, 공급업체 증빙, 생산·출하 연결기록을 확인하세요.' }
+  };
 
   function $(id) { return document.getElementById(id); }
   function text(value) { return String(value == null ? '' : value); }
@@ -347,6 +355,19 @@
     if (!$('drillAuthorityContact').value) $('drillAuthorityContact').value = '모의회수: 실제 통지 대신 연락체계 검증';
   }
 
+  function applyAuditScenario(key) {
+    var scenario = AUDIT_SCENARIOS[key];
+    if (!scenario) return;
+    $('traceDirection').value = scenario.direction;
+    $('drillType').value = scenario.drillType;
+    $('drillScenarioTemplate').value = scenario.template;
+    applyScenarioTemplate();
+    var status = $('auditScenarioStatus');
+    if (status) status.textContent = scenario.name + ' 준비 완료: ' + scenario.instruction;
+    setStatus('traceStatus', scenario.name + '을 선택했습니다. 대상 LOT를 입력한 뒤 추적을 실행하세요.');
+    scrollTo('traceLot', 'traceLot');
+  }
+
   function updateLocationBalance() {
     var total = num($('qtyInternal').value) + num($('qtyNonconforming').value) + num($('qtyProductNonconforming').value) + num($('qtyTransit').value) + num($('qtyCustomer').value) + num($('qtySold').value) + num($('qtyDisposed').value);
     var target = currentResult ? currentResult.targetRecallQty : 0;
@@ -542,6 +563,7 @@
     $('saveDrill').addEventListener('click', saveDrill);
     $('linkSource').addEventListener('change', prefillLink);
     $('drillScenarioTemplate').addEventListener('change', applyScenarioTemplate);
+    document.querySelectorAll('[data-trace-scenario]').forEach(function (button) { button.addEventListener('click', function () { applyAuditScenario(button.getAttribute('data-trace-scenario')); }); });
     ['qtyInternal', 'qtyNonconforming', 'qtyProductNonconforming', 'qtyTransit', 'qtyCustomer', 'qtySold', 'qtyDisposed'].forEach(function (id) {
       $(id).addEventListener('input', updateLocationBalance);
       $(id).addEventListener('change', updateLocationBalance);

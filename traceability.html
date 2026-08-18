@@ -33,7 +33,7 @@
     .tr-badge { padding:7px 10px; border:1px solid #ffffff55; border-radius:99px; color:#fff; background:#ffffff1c; font-size:12px; font-weight:800; white-space:nowrap; }
     .tr-grid { display:grid; grid-template-columns:1.05fr .95fr; gap:18px; margin-top:18px; }
     .tr-card { padding:22px; border:1px solid var(--tr-line); border-radius:18px; background:#fff; box-shadow:0 6px 20px #164c2910; }
-    .tr-card.full { grid-column:1 / -1; }
+    .tr-card.full { grid-column:1 / -1; }.tr-audit-scenarios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.tr-audit-scenario{display:flex;min-height:156px;flex-direction:column;align-items:flex-start;gap:7px;padding:14px;border:1px solid #b9ddc6;border-radius:12px;color:#244a34;background:#fbfffc;text-align:left;font:inherit;cursor:pointer}.tr-audit-scenario:hover{border-color:#008a3d;background:#f0fbf3}.tr-audit-scenario b{color:#14663a;font-size:15px}.tr-audit-scenario span{color:#587665;font-size:12px;line-height:1.55}.tr-audit-scenario small{margin-top:auto;color:#0b7439;font-size:11px;font-weight:800}.tr-audit-status{min-height:20px;margin:12px 0 0;color:#087a3c;font-size:13px;font-weight:800}@media(max-width:900px){.tr-audit-scenarios{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.tr-audit-scenarios{grid-template-columns:1fr}.tr-audit-scenario{min-height:0;padding:13px}}
     .tr-card h2 { margin:0; color:#17452d; font-size:18px; letter-spacing:-.03em; }
     .tr-card .tr-sub { margin:6px 0 16px; color:#5c7668; font-size:13px; line-height:1.6; }
     .tr-field-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
@@ -109,7 +109,7 @@
       </div>
     </section>
 
-    <section class="tr-grid">
+    <section class="tr-card" aria-labelledby="auditScenarioTitle"><div class="tr-section-head"><div><h2 id="auditScenarioTitle">심사관 요청형 추적성 테스트 시나리오</h2><p class="tr-sub">시나리오를 선택한 뒤 대상 LOT를 입력하면 추적 방향·모의회수 사유·초기조치가 자동 준비됩니다. 실제 데이터로 전방·후방 경로와 수량대조를 증빙하세요.</p></div><span class="tr-clock">ISO 22000 8.3</span></div><div class="tr-audit-scenarios"><button class="tr-audit-scenario" type="button" data-trace-scenario="raw_forward"><b>1. 원료 LOT 전방추적</b><span>원료 1개 LOT가 사용된 완제품, 출하처, 재고, 격리 범위를 확인합니다.</span><small>원료 → 완제품·출하처</small></button><button class="tr-audit-scenario" type="button" data-trace-scenario="product_backward"><b>2. 완제품 LOT 후방추적</b><span>완제품 1개 LOT에서 원료 LOT, 공급업체, 포장 LOT와 관련 기록을 확인합니다.</span><small>완제품 → 원료·공급업체</small></button><button class="tr-audit-scenario" type="button" data-trace-scenario="mass_balance"><b>3. 수량대조·회수범위</b><span>출하·재고·격리·폐기·거래처 수량을 대조하고 차이 사유를 기록합니다.</span><small>수량대조 · 모의회수</small></button><button class="tr-audit-scenario" type="button" data-trace-scenario="ccp_window"><b>4. CCP 이상 영향범위</b><span>이상 시점, 직전·직후 정상 확인, 영향을 받는 생산 LOT와 출하분을 확인합니다.</span><small>CCP 시점 · 생산범위</small></button><button class="tr-audit-scenario" type="button" data-trace-scenario="label_pack"><b>5. 라벨·포장 LOT 추적</b><span>표시 오류 발생 시 포장 LOT, 라벨 교체 시점, 판매처와 보유재고를 확인합니다.</span><small>포장 LOT · 표시관리</small></button><button class="tr-audit-scenario" type="button" data-trace-scenario="supplier_evidence"><b>6. 공급업체 증빙 연결</b><span>원료 LOT부터 입고검사, 시험성적서·원산지 증빙, 생산·출하 기록을 확인합니다.</span><small>공급업체 · 성적서</small></button></div><p id="auditScenarioStatus" class="tr-audit-status" aria-live="polite">원하는 심사 시나리오를 선택하세요.</p></section>\n\n    <section class="tr-grid">
       <article class="tr-card">
         <h2>1. LOT 추적 실행</h2>
         <p class="tr-sub">원료 LOT은 전방추적(원료→제품·출하처), 제품 LOT은 후방추적(제품→원료·공급처)을 기본으로 조회합니다.</p>
@@ -221,7 +221,7 @@
   <script src="js/menu-catalog.bundle.js?v=48"></script>
   <script src="js/dkj-links.js?v=48"></script>
   <script src="js/dkj-nav.js?v=48"></script>
-  <script src="js/traceability-hub.js?v=48"></script>
+  <script src="js/traceability-hub.js?v=56"></script>
   <script src="js/dkj-pwa.js?v=48"></script>
 </body>
 </html>
