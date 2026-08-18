@@ -50,13 +50,27 @@
   }
   function blankState() {
     var user = me();
-    return { recordType: 'capa', title: '이탈·시정조치(CAPA)', capaNo: newCapaNo(), foundDate: today(), severity: '중대', discovery: '공정·CCP 모니터링', item: '', lot: '', qty: '', unit: 'kg', isolation: '', description: '', containment: '', containmentOwner: (user && user.name) || '', rootMethod: '5 Why', actionOwner: '', dueDate: '', rootCause: '', actionPlan: '', status: 'containment', verifyDate: '', verifier: '', verificationResult: '', verificationDetail: '', evidence: '', closureDate: '', managementReview: '', writer: (user && user.name) || '', reviewer: '', approver: '', approvals: { writer: (user && user.name) || '', reviewer: '', approver: '' }, signoff: {}, audit: [], sourceForm: '', sourceId: '', sourceTitle: '', sourceSnapshot: {}, locked: false, createdAt: nowIso() };
+    return { recordType: 'capa', title: '이탈·시정조치(CAPA)', capaNo: newCapaNo(), foundDate: today(), severity: '중대', discovery: '공정·CCP 모니터링', item: '', lot: '', qty: '', unit: 'kg', isolation: '', description: '', containment: '', containmentOwner: (user && user.name) || '', rootMethod: '5 Why', actionOwner: '', dueDate: '', verificationDueDate: '', rootCause: '', actionPlan: '', status: 'containment', verifyDate: '', verifier: '', verificationResult: '', verificationDetail: '', evidence: '', closureDate: '', managementReview: '', writer: (user && user.name) || '', reviewer: '', approver: '', approvals: { writer: (user && user.name) || '', reviewer: '', approver: '' }, signoff: {}, audit: [], sourceForm: '', sourceId: '', sourceTitle: '', sourceSnapshot: {}, locked: false, createdAt: nowIso() };
   }
 
+  function deadlineFor(r) {
+    return (r.status === 'verification' || r.status === 'closed') && r.verificationDueDate ? r.verificationDueDate : r.dueDate;
+  }
+  function daysTo(date) {
+    if (!date) return null;
+    var start = new Date(today() + 'T00:00:00');
+    var end = new Date(String(date).slice(0, 10) + 'T00:00:00');
+    return Math.round((end - start) / 86400000);
+  }
+  function isDueSoon(r) {
+    var days = daysTo(deadlineFor(r));
+    return !r.locked && days != null && days >= 0 && days <= 7;
+  }
   function statusMeta(r) {
-    var due = r.dueDate && !r.locked && r.dueDate < today();
+    var deadline = deadlineFor(r), days = daysTo(deadline);
     if (r.locked) return { label: '종결 완료', cls: 'done' };
-    if (due) return { label: '기한 초과', cls: 'overdue' };
+    if (deadline && days < 0) return { label: '기한 초과', cls: 'overdue' };
+    if (isDueSoon(r)) return { label: '7일 이내', cls: 'soon' };
     var map = { containment: '즉시조치 완료', root: '원인분석 완료', action: '조치 실행 중', verification: '효과검증 대기', closed: '종결 요청' };
     return { label: map[r.status] || '초안', cls: 'progress' };
   }
@@ -107,7 +121,7 @@
 
   function formState() {
     var s = clone(current || blankState());
-    ['capaNo','foundDate','severity','discovery','item','lot','qty','unit','isolation','description','containment','containmentOwner','rootMethod','actionOwner','dueDate','rootCause','actionPlan','status','verifyDate','verifier','verificationResult','verificationDetail','evidence','closureDate','managementReview','writer','reviewer','approver'].forEach(function (key) { s[key] = textValue(key); });
+    ['capaNo','foundDate','severity','discovery','item','lot','qty','unit','isolation','description','containment','containmentOwner','rootMethod','actionOwner','dueDate','verificationDueDate','rootCause','actionPlan','status','verifyDate','verifier','verificationResult','verificationDetail','evidence','closureDate','managementReview','writer','reviewer','approver'].forEach(function (key) { s[key] = textValue(key); });
     s.title = 'CAPA ' + s.capaNo + ' · ' + (s.item || '품목 미입력');
     s.recordType = 'capa'; s.updatedAt = nowIso();
     s.approvals = { writer: s.writer, reviewer: s.reviewer, approver: s.approver };
@@ -124,9 +138,12 @@
   }
   function readyValid(s) {
     if (!draftValid(s)) return false;
-    var items = [['rootCause','근본원인 분석'],['actionPlan','시정·예방조치'],['actionOwner','조치 책임자'],['dueDate','조치 완료기한'],['verifyDate','효과검증일'],['verifier','효과검증자'],['verificationDetail','효과검증 방법·결과']];
+    var items = [['rootCause','근본원인 분석'],['actionPlan','시정·예방조치'],['actionOwner','조치 책임자'],['dueDate','조치 완료기한'],['verificationDueDate','효과검증 예정일'],['verifyDate','효과검증일'],['verifier','효과검증자'],['verificationDetail','효과검증 방법·결과'],['evidence','증빙 참조'],['closureDate','종결 제안일']];
     var miss = items.filter(function (p) { return !s[p[0]]; }).map(function (p) { return p[1]; });
     if (!s.verificationResult || s.verificationResult === '검증 대기') miss.push('효과검증 결과');
+    if (s.verificationResult && s.verificationResult !== '적합·재발 없음') miss.push('종결 가능한 효과검증 결과(적합·재발 없음)');
+    if (s.foundDate && s.dueDate && s.dueDate < s.foundDate) miss.push('발견일 이후의 조치 완료기한');
+    if (s.verifyDate && s.closureDate && s.closureDate < s.verifyDate) miss.push('효과검증일 이후의 종결 제안일');
     if (miss.length) { alert('종결 요청 전 다음 항목을 입력하세요.\n- ' + miss.join('\n- ')); return false; }
     return true;
   }
@@ -153,7 +170,7 @@
 
   function renderForm() {
     var s = current || blankState();
-    ['capaNo','foundDate','severity','discovery','item','lot','qty','unit','isolation','description','containment','containmentOwner','rootMethod','actionOwner','dueDate','rootCause','actionPlan','status','verifyDate','verifier','verificationResult','verificationDetail','evidence','closureDate','managementReview','writer','reviewer','approver'].forEach(function (key) { setValue(key, s[key]); });
+    ['capaNo','foundDate','severity','discovery','item','lot','qty','unit','isolation','description','containment','containmentOwner','rootMethod','actionOwner','dueDate','verificationDueDate','rootCause','actionPlan','status','verifyDate','verifier','verificationResult','verificationDetail','evidence','closureDate','managementReview','writer','reviewer','approver'].forEach(function (key) { setValue(key, s[key]); });
     $('sourceForm').value = s.sourceForm || ''; renderSourceOptions();
     if (s.sourceForm && s.sourceId) $('sourceRecord').value = s.sourceForm + '|' + s.sourceId;
     if (s.sourceForm) { $('sourceInfo').className = 'source-info'; $('sourceInfo').innerHTML = '<strong>' + esc(s.sourceForm) + ' 원천기록 연동</strong> · ' + esc(s.sourceTitle || '저장된 원천기록') + ' · 원천 스냅샷이 CAPA에 보존돼 있습니다.'; }
@@ -163,17 +180,27 @@
 
   function renderMetrics() {
     var list = records(), open = list.filter(function (r) { return !r.locked; });
+    var overdue = open.filter(function (r) { var days = daysTo(deadlineFor(r)); return days != null && days < 0; });
+    var dueSoon = open.filter(isDueSoon);
     $('mOpen').textContent = open.length;
-    $('mOverdue').textContent = open.filter(function (r) { return r.dueDate && r.dueDate < today(); }).length;
+    $('mOverdue').textContent = overdue.length;
     $('mRoot').textContent = open.filter(function (r) { return !r.rootCause || r.status === 'containment'; }).length;
     $('mVerify').textContent = open.filter(function (r) { return r.status === 'verification' || (!r.verificationDetail && r.status !== 'containment'); }).length;
+    $('mDueSoon').textContent = dueSoon.length;
     $('mClosed').textContent = list.filter(function (r) { return r.locked; }).length;
+    var notice = $('dueSoonNotice');
+    if (notice) {
+      if (overdue.length || dueSoon.length) {
+        notice.classList.remove('hide');
+        notice.innerHTML = '<strong>CAPA 기한 경보:</strong> 기한 초과 ' + overdue.length + '건 · 7일 이내 ' + dueSoon.length + '건입니다. 원인분석·조치 또는 효과검증 일정을 확인하세요.';
+      } else { notice.classList.add('hide'); notice.textContent = ''; }
+    }
   }
   function renderHistory() {
     renderMetrics();
     var filter = $('historyFilter').value, rows = records();
-    rows = rows.filter(function (r) { var overdue = !r.locked && r.dueDate && r.dueDate < today(); if (filter === 'open') return !r.locked; if (filter === 'overdue') return overdue; if (filter === 'verification') return !r.locked && (r.status === 'verification' || r.status === 'closed'); if (filter === 'closed') return r.locked; return true; });
-    $('capaHistory').innerHTML = rows.length ? rows.map(function (r) { var meta = statusMeta(r); return '<div class="history-row"><span><strong>' + esc(r.capaNo || '-') + '</strong><br><span class="tag">' + esc(formatDate(r.foundDate)) + '</span></span><span class="badge ' + meta.cls + '">' + meta.label + '</span><span><strong>' + esc(r.item || '품목 미입력') + '</strong> · LOT ' + esc(r.lot || '-') + '<br><span class="tag">' + esc((r.sourceForm || '직접 등록') + ' / ' + (r.discovery || '-')) + '</span><br>' + esc(r.description || '이탈내용 미입력') + '</span><span>책임: ' + esc(r.actionOwner || r.containmentOwner || '-') + '<br>기한: ' + esc(formatDate(r.dueDate)) + '</span><span><button class="btn load-capa" data-id="' + esc(r.id) + '">열기</button></span></div>'; }).join('') : '<p class="desc">저장된 CAPA가 없습니다.</p>';
+    rows = rows.filter(function (r) { var days = daysTo(deadlineFor(r)), overdue = !r.locked && days != null && days < 0; if (filter === 'open') return !r.locked; if (filter === 'overdue') return overdue; if (filter === 'dueSoon') return isDueSoon(r); if (filter === 'verification') return !r.locked && (r.status === 'verification' || r.status === 'closed'); if (filter === 'closed') return r.locked; return true; });
+    $('capaHistory').innerHTML = rows.length ? rows.map(function (r) { var meta = statusMeta(r); return '<div class="history-row"><span><strong>' + esc(r.capaNo || '-') + '</strong><br><span class="tag">' + esc(formatDate(r.foundDate)) + '</span></span><span class="badge ' + meta.cls + '">' + meta.label + '</span><span><strong>' + esc(r.item || '품목 미입력') + '</strong> · LOT ' + esc(r.lot || '-') + '<br><span class="tag">' + esc((r.sourceForm || '직접 등록') + ' / ' + (r.discovery || '-')) + '</span><br>' + esc(r.description || '이탈내용 미입력') + '</span><span>책임: ' + esc(r.actionOwner || r.containmentOwner || '-') + '<br>기한: ' + esc(formatDate(deadlineFor(r))) + '</span><span><button class="btn load-capa" data-id="' + esc(r.id) + '">열기</button></span></div>'; }).join('') : '<p class="desc">저장된 CAPA가 없습니다.</p>';
     $('capaHistory').querySelectorAll('.load-capa').forEach(function (b) { b.addEventListener('click', function () { load(b.getAttribute('data-id')); }); });
   }
 
