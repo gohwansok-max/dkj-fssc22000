@@ -13,3 +13,5 @@
 | 문법 검증 | 통과 | `node --check js/periodic-alerts.js`, `node --check js/dkj-nav.js`, `git diff --check` 통과 |
 
 > 브라우저 알림은 정기 관리 알림 화면을 열어 둔 동안 30초마다 예정일을 재확인합니다. 화면을 닫은 상태의 문자·이메일·카카오 자동 발송은 별도 서버 기반 발송 연동이 필요합니다.
+
+| GitHub Pages 공개 배포 | 통과 | 커밋 `118a391` 배포 후 `https://gohwansok-max.github.io/dkj-fssc22000/periodic-alerts.html`가 HTTP 200으로 응답하고 페이지 제목이 정상 표시됨 |
