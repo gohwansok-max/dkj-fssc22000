@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-d95faf6f9e3b';
+self.DKJ_SW_VERSION = 'v1-c4ec3c4f5d98';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -13,7 +13,11 @@ self.DKJ_PRECACHE = [
   './css/dkj-form.css',
   './css/dkj-hub.css',
   './css/dkj-matrix.css',
+  './css/dkj-nav.css',
+  './css/dkj-periodic-alerts.css',
+  './css/dkj-periodic-alerts.v54.css',
   './css/dkj-print.css',
+  './css/dkj-quick-nav.css',
   './css/dkj-tokens.css',
   './data/asset-sources.json',
   './data/console-forms.json',
@@ -261,6 +265,7 @@ self.DKJ_PRECACHE = [
   './js/dkj-print-form.js',
   './js/dkj-print-official.js',
   './js/dkj-pwa.js',
+  './js/dkj-quick-nav.js',
   './js/dkj-record-store.js',
   './js/dkj-report-form.js',
   './js/dkj-report-print.js',
@@ -277,6 +282,10 @@ self.DKJ_PRECACHE = [
   './js/menu-catalog.bundle.js',
   './js/official-documents.js',
   './js/pdf-manifest.bundle.js',
+  './js/periodic-alert-excel.js',
+  './js/periodic-alert-excel.v54.js',
+  './js/periodic-alerts.js',
+  './js/periodic-alerts.v54.js',
   './js/process-line.bundle.js',
   './js/products.bundle.js',
   './js/quality-dashboard.js',
@@ -292,6 +301,7 @@ self.DKJ_PRECACHE = [
   './mdr-register.html',
   './official-documents.html',
   './offline.html',
+  './periodic-alerts.html',
   './quality-dashboard.html',
   './record-viewer.html',
   './records-archive.html',

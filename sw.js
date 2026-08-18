@@ -18,7 +18,7 @@
 'use strict';
 
 // 배포 식별자: 정적 자산 UI 수정도 기존 현장 기기의 서비스워커 갱신을 즉시 유도한다.
-var DKJ_DEPLOY_MARKER = '20260816-mobile-header-v2';
+var DKJ_DEPLOY_MARKER = '20260818-excel-validation-v54';
 importScripts('sw-precache.js');
 
 var VERSION = self.DKJ_SW_VERSION || 'v1-dev';
@@ -180,6 +180,13 @@ self.addEventListener('fetch', function (e) {
   // 네트워크가 끊긴 경우에만 기존 프리캐시·런타임 캐시로 대체한다.
   if (url.pathname.endsWith('/data/menu-catalog.json') ||
       url.pathname.endsWith('/js/menu-catalog.bundle.js')) {
+    e.respondWith(networkFirstStatic(request));
+    return;
+  }
+
+  // 업무 화면의 검증·저장 로직은 최신본을 우선 적용한다. 오프라인일 때만 캐시로 대체해
+  // 캐시된 이전 스크립트가 새 화면 HTML과 엇갈리는 문제를 예방한다.
+  if (/\.(?:js|css)$/i.test(url.pathname)) {
     e.respondWith(networkFirstStatic(request));
     return;
   }
