@@ -28,3 +28,8 @@
 | 이메일 설정 저장 | 통과 | 수신 이메일, 매일 발송 시각, 활성 상태, 발송 대상 수준이 `PERIODIC-ALERT-SETTINGS` 전자기록으로 저장됨 |
 | GitHub Pages 공개 배포 (이메일·엑셀) | 통과 | 커밋 `bc7daef` 배포 후 이메일 설정·엑셀 일괄 관리 제어와 7개 관리 항목이 공개 페이지에서 정상 로드됨 |
 | Firebase 서버 배포 상태 | 보류 | 현재 실행 환경에는 Firebase CLI 인증 계정이 없고, Firebase Console은 서비스 약관 동의 상태 확인 오류가 표시되어 예약 함수·비밀값 배포를 완료할 수 없음 |
+| Firebase CLI 인증 | 사용자 확인 필요 | Google 계정 선택 후 휴대전화 Google 메시지의 숫자 19 확인이 요구됨 |
+| Firebase 예약 이메일 함수 배포 | 통과 | `dispatchPeriodicEmailAlert` v2 예약 함수가 `asia-southeast1`에 배포되고 15분 단위 스케줄이 생성됨 |
+| Make 이메일 발송 시나리오 | 통과 | 전용 웹훅과 Gmail 발송 모듈을 연결한 활성 시나리오가 정상 동작함 |
+| 실제 연결 시험 이메일 | 통과 | Gmail 발송 시나리오가 2개 모듈 실행을 성공 처리했으며, 연결 시험 알림을 수신 이메일로 1회 발송함 |
+| 기본 이메일 설정 | 통과 | `gohwansok@gmail.com`, 매일 08:30 KST, 기한 경과·당일·사전 알림 발송 사용 상태를 Firebase 전자기록에 등록함 |
