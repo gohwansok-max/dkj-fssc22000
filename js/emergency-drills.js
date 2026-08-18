@@ -4,6 +4,8 @@
   var FORM_ID = 'EMERGENCY-DRILL';
   var selectedId = '';
   var reportHtml = '';
+  var current = null;
+  var approvalUi = null;
   var CHECKS = [
     '인명안전과 현장 접근통제를 우선 확인했다.',
     '제품·원료·포장재·용수·설비에 대한 영향범위를 판단했다.',
@@ -87,7 +89,8 @@
   function value(id) { return ($(id).value || '').trim(); }
   function selected() { return SCENARIOS.find(function (item) { return item.id === selectedId; }) || null; }
   function setStatus(id, message, bad) { var el = $(id); if (!el) return; el.textContent = message || ''; el.className = 'status' + (bad ? ' bad' : ''); }
-  function audit(action, detail) { var user = window.DkjAuth && DkjAuth.user ? DkjAuth.user() : null; return [{ id:'a_' + Date.now(), at:new Date().toISOString(), action:action, actor:(user && user.name) || '', actorEmpId:(user && user.empId) || '', actorUid:(user && user.uid) || '', detail:detail || '' }]; }
+  function clone(value) { return JSON.parse(JSON.stringify(value || {})); }
+  function scenarioById(id) { return SCENARIOS.filter(function (item) { return item.id === id; })[0] || null; }
 
   function renderCards() {
     $('scenarioGrid').innerHTML = SCENARIOS.map(function (item) { return '<button class="scenario-btn' + (item.id === selectedId ? ' active' : '') + '" type="button" data-scenario="' + esc(item.id) + '"><span class="scenario-num">' + esc(item.number) + '</span><b>' + esc(item.title) + '</b><span>' + esc(item.short) + '</span><small>' + esc(item.category) + ' · 결과보고서 자동작성</small></button>'; }).join('');
@@ -124,10 +127,11 @@
 
   function buildReport(data) {
     var item = data.item;
+    var statusLabel = data.statusLabel || '모의훈련 결과 초안';
     var number = 'ED-' + data.date.replace(/-/g, '') + '-' + item.number;
     var timeline = item.timeline.map(function (row) { return '<li><b>' + esc(row[0]) + '</b>' + esc(row[1]) + '</li>'; }).join('');
     var checks = data.checks.map(function (row) { return '<tr><td>' + esc(row.text) + '</td><td>' + (row.checked ? '확인' : '확인 필요') + '</td></tr>'; }).join('');
-    return '<div class="report-head"><div class="report-kicker">FSSC 22000 · EMERGENCY PREPAREDNESS / FOOD DEFENSE EXERCISE</div><h2>비상·식품방어 모의훈련 결과보고서</h2><div class="report-meta"><span><b>보고서 번호:</b> ' + esc(number) + '</span><span><b>훈련 구분:</b> ' + esc(item.category) + '</span><span><b>훈련일시:</b> ' + esc(data.date + ' ' + data.time) + '</span><span><b>훈련 장소:</b> ' + esc(data.site) + '</span><span><b>훈련 총괄:</b> ' + esc(data.leader) + '</span><span><b>상태:</b> 모의훈련 결과 초안</span></div></div>' +
+    return '<div class="report-head"><div class="report-kicker">FSSC 22000 · EMERGENCY PREPAREDNESS / FOOD DEFENSE EXERCISE</div><h2>비상·식품방어 모의훈련 결과보고서</h2><div class="report-meta"><span><b>보고서 번호:</b> ' + esc(number) + '</span><span><b>훈련 구분:</b> ' + esc(item.category) + '</span><span><b>훈련일시:</b> ' + esc(data.date + ' ' + data.time) + '</span><span><b>훈련 장소:</b> ' + esc(data.site) + '</span><span><b>훈련 총괄:</b> ' + esc(data.leader) + '</span><span><b>상태:</b> ' + esc(statusLabel) + '</span></div></div>' +
       '<section class="report-section"><h3>1. 훈련 목적 및 범위</h3><p>' + esc(item.goal) + '\n\n본 훈련은 실제 비상사태가 아닌 통제된 모의상황으로 실시하였다. 훈련 범위는 ' + esc(data.site) + '이며, 참여·연계 역할은 ' + esc(data.participants) + '이다.</p></section>' +
       '<section class="report-section"><h3>2. 부여 상황 및 초기 판단</h3><p>' + esc(data.incident) + '\n\n훈련 총괄은 인명안전과 현장 접근통제를 우선으로 하고, 제품·원료·포장재·설비의 영향 여부를 확인하는 방향으로 초기 대응을 지휘하였다.</p></section>' +
       '<section class="report-section"><h3>3. 훈련 전개 및 역할 수행</h3><ul class="timeline">' + timeline + '</ul></section>' +
@@ -137,12 +141,69 @@
       '<section class="report-section"><h3>7. 증빙 및 결론</h3><p><b>증빙 참조:</b> ' + esc(data.evidence) + '\n\n본 보고서는 모의훈련의 시나리오와 실제 확인 내용을 바탕으로 자동 작성된 초안이다. 훈련 총괄과 관련 부서는 사실관계·증빙·개선조치를 검토한 뒤 저장·잠금하며, 미비점은 시정조치 절차에 따라 추적한다.</p></section>';
   }
 
+  function approvalStatus(record) {
+    var sign = (record && record.signoff) || {};
+    if (record && record.locked) return '최종 승인·잠금';
+    if (sign.approver) return '승인 완료';
+    if (sign.reviewer) return '검토 완료 · 승인 대기';
+    if (sign.writer) return '작성 확정 · 검토 대기';
+    if (record && record.approvalRequested) return '결재 요청 · 작성 대기';
+    return '모의훈련 결과 초안';
+  }
+
+  function approvalTable(record) {
+    var names = (record && record.approvals) || {};
+    var signs = (record && record.signoff) || {};
+    var stages = [{key:'writer',label:'작성'},{key:'reviewer',label:'검토'},{key:'approver',label:'승인'}];
+    var rows = stages.map(function (stage) {
+      var sign = signs[stage.key];
+      var name = sign ? (sign.empId ? sign.name + ' (' + sign.empId + ')' : sign.name) : (names[stage.key] || '미지정');
+      var at = sign && sign.at ? formatDate(sign.at) : '결재 대기';
+      return '<tr><th>' + stage.label + '</th><td>' + esc(name) + '</td><td class="' + (sign ? 'signed' : 'pending') + '">' + (sign ? '서명 완료' : '결재 대기') + '</td><td>' + esc(at) + '</td></tr>';
+    }).join('');
+    return '<section class="report-section report-approval"><h3>8. 결재 및 승인</h3><table class="approval-table"><thead><tr><th>단계</th><th>결재권자</th><th>상태</th><th>일시</th></tr></thead><tbody>' + rows + '</tbody></table></section>';
+  }
+
+  function buildApprovedReport(record) {
+    var item = scenarioById(record.scenarioId);
+    if (!item) return record.reportHtml || '';
+    var data = { item:item, date:record.drillDate, time:record.drillTime, site:record.site, leader:record.leader, participants:record.participants, incident:record.incident, action:record.action, finding:record.finding, evidence:record.evidence, checks:record.checks || [], statusLabel:approvalStatus(record) };
+    return buildReport(data) + approvalTable(record);
+  }
+
+  function currentApprovals() { return { writer:value('writer'), reviewer:value('reviewer'), approver:value('approver') }; }
+  function setApprovals(approvals) { approvals = approvals || {}; ['writer','reviewer','approver'].forEach(function (key) { if ($(key)) $(key).value = approvals[key] || ''; }); }
+  function allSigned(record) { var sign = (record && record.signoff) || {}; return !!(sign.writer && sign.reviewer && sign.approver); }
+  function approvalNamesValid() { var approvals = currentApprovals(); return !!(approvals.writer && approvals.reviewer && approvals.approver); }
+  function lockedState() { return !!(current && (current.approvalRequested || current.locked)); }
+
+  function updateApprovalUi() {
+    var locked = lockedState();
+    ['drillDate','drillTime','site','leader','participants','incidentInput','actualAction','findingInput','evidence','writer','reviewer','approver'].forEach(function (id) { if ($(id)) $(id).disabled = locked; });
+    for (var i = 0; i < CHECKS.length; i++) if ($('check_' + i)) $('check_' + i).disabled = locked;
+    $('generateReport').disabled = locked; $('saveReport').disabled = locked; $('requestApproval').disabled = !current || !!(current && current.approvalRequested) || !!(current && current.locked); $('lockReport').disabled = !current || !allSigned(current) || !!(current && current.locked);
+    var notice = $('approvalNotice');
+    if (!current) notice.textContent = '결재 요청 전 결과보고서 초안을 저장하세요.';
+    else if (current.locked) notice.textContent = '최종 승인·잠금된 기록입니다. 본문 수정과 삭제가 차단됩니다.';
+    else if (current.approvalRequested) notice.textContent = '결재 진행 중입니다. 작성·검토·승인 단계가 모두 확정되면 최종 잠금할 수 있습니다.';
+    else notice.textContent = '결재권자 확인 후 “결재 요청”을 누르세요. 요청 후 보고서 본문은 수정할 수 없습니다.';
+    if (!current) { $('approvalPanel').innerHTML = '<div class="hint">결과보고서 초안을 저장하면 작성·검토·승인 결재를 진행할 수 있습니다.</div>'; return; }
+    if (!current.approvalRequested) { $('approvalPanel').innerHTML = '<div class="hint">초안이 저장됐습니다. 결재권자를 확인한 뒤 “결재 요청”을 누르면 전자서명 단계를 시작할 수 있습니다.</div>'; return; }
+    if (approvalUi) approvalUi.render();
+  }
+
+  function mountApproval() {
+    if (!window.DkjApproval) return;
+    approvalUi = window.DkjApproval.mount({ getState:function () { return current || { approvals:currentApprovals(), signoff:{}, audit:[] }; }, onChange:function (state) { current = state; current.reportHtml = buildApprovedReport(current); DkjRecordStore.save(FORM_ID, current); $('reportPreview').innerHTML = current.reportHtml; renderHistory(); updateApprovalUi(); setStatus('formStatus', '결재 서명이 저장되었습니다. 다음 결재 단계 또는 최종 잠금을 진행하세요.'); } });
+  }
+
   function generate() {
+    if (current && current.approvalRequested) { reportHtml = buildApprovedReport(current); $('reportPreview').innerHTML = reportHtml; return; }
     var data = reportData();
     if (!data) { setStatus('formStatus', '먼저 훈련 시나리오를 선택하세요.', true); return; }
-    reportHtml = buildReport(data);
+    reportHtml = buildReport(data) + approvalTable({ approvals:currentApprovals(), signoff:{}, approvalRequested:false });
     $('reportPreview').innerHTML = reportHtml;
-    setStatus('formStatus', '결과보고서 초안을 작성했습니다. 실제 훈련 사실과 증빙을 검토한 뒤 저장·잠금하세요.');
+    setStatus('formStatus', '결과보고서 초안을 작성했습니다. 실제 훈련 사실과 증빙을 검토한 뒤 초안으로 저장하세요.');
   }
 
   function validForSave(data) {
@@ -152,41 +213,77 @@
     return '';
   }
 
-  function save() {
+  function formRecord() {
     var data = reportData();
     var error = validForSave(data);
-    if (error) { setStatus('formStatus', error, true); return; }
-    if (!window.DkjRecordStore) { setStatus('formStatus', '기록 저장소를 불러오지 못했습니다.', true); return; }
-    if (!reportHtml) generate();
+    if (error) { setStatus('formStatus', error, true); return null; }
+    var prior = current ? clone(current) : {};
     var item = data.item;
-    var record = {
-      formId:FORM_ID, title:'모의훈련 · ' + item.title + ' · ' + data.date, scenarioId:item.id, scenarioTitle:item.title, category:item.category,
-      drillDate:data.date, drillTime:data.time, site:data.site, leader:data.leader, participants:data.participants, incident:data.incident, action:data.action, finding:data.finding, evidence:data.evidence,
-      checks:data.checks, reportHtml:reportHtml, locked:true, createdAt:new Date().toISOString(), audit:audit('emergency_drill_completed', item.title + ' 모의훈련 결과 저장·잠금')
-    };
-    DkjRecordStore.save(FORM_ID, record);
-    setStatus('formStatus', '모의훈련 결과보고서를 저장·잠금했습니다. CAPA가 필요한 개선과제는 CAPA 관리 화면에 등록하세요.');
-    renderHistory();
+    prior.formId = FORM_ID; prior.title = '모의훈련 · ' + item.title + ' · ' + data.date; prior.scenarioId = item.id; prior.scenarioTitle = item.title; prior.category = item.category;
+    prior.drillDate = data.date; prior.drillTime = data.time; prior.site = data.site; prior.leader = data.leader; prior.participants = data.participants; prior.incident = data.incident; prior.action = data.action; prior.finding = data.finding; prior.evidence = data.evidence;
+    prior.checks = data.checks; prior.approvals = currentApprovals(); prior.signoff = prior.signoff || {}; prior.audit = prior.audit || []; prior.locked = !!prior.locked; prior.approvalRequested = !!prior.approvalRequested; prior.createdAt = prior.createdAt || new Date().toISOString(); prior.updatedAt = new Date().toISOString();
+    prior.reportHtml = buildApprovedReport(prior);
+    return prior;
   }
 
-  function records() { return window.DkjRecordStore ? DkjRecordStore.list(FORM_ID).sort(function(a,b){ return String(b.createdAt||'').localeCompare(String(a.createdAt||'')); }) : []; }
+  function persist(message) {
+    if (!window.DkjRecordStore) { setStatus('formStatus', '기록 저장소를 불러오지 못했습니다.', true); return null; }
+    DkjRecordStore.save(FORM_ID, current);
+    current = DkjRecordStore.get(FORM_ID, current.id) || current;
+    reportHtml = current.reportHtml || buildApprovedReport(current); $('reportPreview').innerHTML = reportHtml;
+    renderHistory(); updateApprovalUi(); if (message) setStatus('formStatus', message);
+    return current;
+  }
+
+  function saveDraft() {
+    if (current && current.approvalRequested) { setStatus('formStatus', '결재 요청 후에는 본문을 수정할 수 없습니다. 결재를 완료하거나 새 훈련을 시작하세요.', true); return null; }
+    var record = formRecord(); if (!record) return null;
+    current = record; return persist('결재 전 결과보고서 초안을 저장했습니다. 결재권자를 확인한 뒤 결재 요청하세요.');
+  }
+
+  function requestApproval() {
+    if (!current) { if (!saveDraft()) return; }
+    if (!approvalNamesValid()) { setStatus('formStatus', '작성자·검토자·승인자를 모두 입력하세요.', true); return; }
+    current.approvals = currentApprovals(); current.approvalRequested = true; current.updatedAt = new Date().toISOString();
+    if (window.DkjApproval && DkjApproval.append) DkjApproval.append(current, 'APPROVAL_REQUEST', current.approvals.writer, '모의훈련 결과보고서 결재 요청');
+    current.reportHtml = buildApprovedReport(current); persist('결재를 요청했습니다. 작성 → 검토 → 승인 순으로 결재를 확정하세요.');
+  }
+
+  function lockReport() {
+    if (!current || !current.approvalRequested) { setStatus('formStatus', '먼저 초안을 저장하고 결재를 요청하세요.', true); return; }
+    if (!allSigned(current)) { setStatus('formStatus', '작성·검토·승인 결재를 모두 확정한 뒤 최종 잠금할 수 있습니다.', true); return; }
+    if (!confirm('승인된 모의훈련 결과보고서를 최종 잠금합니다. 이후 본문 수정과 삭제가 차단됩니다. 계속하시겠습니까?')) return;
+    current.locked = true; current.completedAt = new Date().toISOString(); current.updatedAt = current.completedAt; current.reportHtml = buildApprovedReport(current);
+    persist('모의훈련 결과보고서가 최종 승인·잠금됐습니다. PDF 또는 인쇄본을 심사 증빙으로 활용하세요.');
+  }
+
+  function records() { return window.DkjRecordStore ? DkjRecordStore.list(FORM_ID).sort(function(a,b){ return String(b.updatedAt||b.createdAt||'').localeCompare(String(a.updatedAt||a.createdAt||'')); }) : []; }
   function formatDate(value) { try { return new Date(value).toLocaleString('ko-KR',{hour12:false}); } catch(e) { return value || '-'; } }
   function renderHistory() {
     var list = records().slice(0, 10);
-    $('reportHistory').innerHTML = list.length ? list.map(function (record) { return '<div class="history-row"><div><strong>' + esc(record.title) + '</strong><small>' + esc([record.site, record.leader, record.createdAt ? formatDate(record.createdAt) : ''].filter(Boolean).join(' · ')) + '</small></div><span class="badge">저장·잠금</span></div>'; }).join('') : '<div class="report-empty">저장된 모의훈련 결과가 없습니다.</div>';
+    $('reportHistory').innerHTML = list.length ? list.map(function (record) { return '<div class="history-row"><div><strong>' + esc(record.title) + '</strong><small>' + esc([record.site, record.leader, record.updatedAt ? formatDate(record.updatedAt) : ''].filter(Boolean).join(' · ')) + '</small></div><span class="badge">' + esc(approvalStatus(record)) + '</span><button class="btn secondary load-report" type="button" data-id="' + esc(record.id) + '">열기</button></div>'; }).join('') : '<div class="report-empty">저장된 모의훈련 결과가 없습니다.</div>';
+    document.querySelectorAll('.load-report').forEach(function (button) { button.addEventListener('click', function () { loadReport(button.getAttribute('data-id')); }); });
+  }
+
+  function loadReport(id) {
+    if (!window.DkjRecordStore) return;
+    current = DkjRecordStore.get(FORM_ID, id); if (!current) return;
+    selectedId = current.scenarioId || ''; renderCards();
+    ['drillDate','drillTime','site','leader','participants','incidentInput','actualAction','findingInput','evidence'].forEach(function (key) { if ($(key)) $(key).value = current[key === 'incidentInput' ? 'incident' : key === 'actualAction' ? 'action' : key === 'findingInput' ? 'finding' : key] || ''; });
+    setApprovals(current.approvals); renderChecks(); (current.checks || []).forEach(function (row, index) { if ($('check_' + index)) $('check_' + index).checked = !!row.checked; });
+    var item = selected(); $('scenarioDetail').innerHTML = item ? '<b>' + esc(item.title) + '</b><br><strong>훈련 목표:</strong> ' + esc(item.goal) : '저장된 모의훈련 결과';
+    reportHtml = buildApprovedReport(current); $('reportPreview').innerHTML = reportHtml; updateApprovalUi(); setStatus('formStatus', '저장된 모의훈련 결과보고서를 열었습니다.');
   }
 
   function reset() {
-    selectedId = '';
-    ['site','leader','participants','incidentInput','actualAction','findingInput','evidence'].forEach(function (id) { $(id).value = ''; });
-    $('drillDate').value = today(); $('drillTime').value = nowTime();
-    renderCards(); renderChecks(); $('scenarioDetail').textContent = '왼쪽의 시나리오를 선택하면 훈련 목표와 권장 전개가 표시됩니다.'; $('reportPreview').innerHTML = '<div class="report-empty">시나리오를 선택하고 <strong>결과보고서 자동 작성</strong>을 누르세요.</div>'; reportHtml = ''; setStatus('scenarioStatus', '시나리오를 선택하세요.'); setStatus('formStatus', '새 모의훈련을 준비했습니다.');
+    current = null; selectedId = ''; ['site','leader','participants','incidentInput','actualAction','findingInput','evidence'].forEach(function (id) { $(id).value = ''; }); setApprovals({});
+    $('drillDate').value = today(); $('drillTime').value = nowTime(); renderCards(); renderChecks(); $('scenarioDetail').textContent = '왼쪽의 시나리오를 선택하면 훈련 목표와 권장 전개가 표시됩니다.'; $('reportPreview').innerHTML = '<div class="report-empty">시나리오를 선택하고 <strong>결과보고서 자동 작성</strong>을 누르세요.</div>'; reportHtml = ''; setStatus('scenarioStatus', '시나리오를 선택하세요.'); setStatus('formStatus', '새 모의훈련을 준비했습니다.'); updateApprovalUi();
   }
 
   function ensureReport() { if (!reportHtml) generate(); return !!reportHtml; }
   function pdfFileName() { var data = reportData(); var title = data && data.item ? data.item.title : '모의훈련'; var date = data ? data.date.replace(/-/g, '') : today().replace(/-/g, ''); return ('DKJ_모의훈련_결과보고서_' + date + '_' + title).replace(/[\\/:*?\"<>|]/g, '_') + '.pdf'; }
   function printDocument(report) {
-    return '<!doctype html><html lang="ko"><head><meta charset="UTF-8"><title>모의훈련 결과보고서</title><style>@page{size:A4;margin:14mm}body{margin:0;color:#23464e;background:#fff;font-family:"Noto Sans KR","Malgun Gothic",sans-serif}.report{color:#23464e}.report-head{padding-bottom:16px;border-bottom:3px solid #0b5c72}.report-kicker{color:#0a7b6c;font-size:10px;font-weight:800;letter-spacing:.1em}.report h2{margin:5px 0;color:#163f4a;font-size:23px}.report-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:12px;color:#527078;font-size:11px}.report-section{margin-top:18px;break-inside:avoid;page-break-inside:avoid}.report-section h3{margin:0 0 8px;color:#155463;font-size:14px}.report-section p{margin:0;color:#385a62;font-size:12px;line-height:1.8;white-space:pre-line}.timeline{margin:0;padding:0;list-style:none}.timeline li{padding:7px 0;border-bottom:1px solid #e1edef;color:#385a62;font-size:12px;line-height:1.55}.timeline b{display:inline-block;min-width:66px;color:#0b7184}.report-table{width:100%;border-collapse:collapse;font-size:11px;break-inside:avoid;page-break-inside:avoid}.report-table th,.report-table td{padding:7px;border:1px solid #dce9eb;text-align:left;vertical-align:top}.report-table th{width:30%;color:#2f5760;background:#eef8f9}@media(max-width:600px){.report-meta{grid-template-columns:1fr}}</style></head><body><main class="report">' + report + '</main></body></html>';
+    return '<!doctype html><html lang="ko"><head><meta charset="UTF-8"><title>모의훈련 결과보고서</title><style>@page{size:A4;margin:14mm}body{margin:0;color:#23464e;background:#fff;font-family:"Noto Sans KR","Malgun Gothic",sans-serif}.report{color:#23464e}.report-head{padding-bottom:16px;border-bottom:3px solid #0b5c72}.report-kicker{color:#0a7b6c;font-size:10px;font-weight:800;letter-spacing:.1em}.report h2{margin:5px 0;color:#163f4a;font-size:23px}.report-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:12px;color:#527078;font-size:11px}.report-section{margin-top:18px;break-inside:avoid;page-break-inside:avoid}.report-section h3{margin:0 0 8px;color:#155463;font-size:14px}.report-section p{margin:0;color:#385a62;font-size:12px;line-height:1.8;white-space:pre-line}.timeline{margin:0;padding:0;list-style:none}.timeline li{padding:7px 0;border-bottom:1px solid #e1edef;color:#385a62;font-size:12px;line-height:1.55}.timeline b{display:inline-block;min-width:66px;color:#0b7184}.report-table{width:100%;border-collapse:collapse;font-size:11px;break-inside:avoid;page-break-inside:avoid}.report-table th,.report-table td{padding:7px;border:1px solid #dce9eb;text-align:left;vertical-align:top}.report-table th{width:30%;color:#2f5760;background:#eef8f9}.approval-table{width:100%;border-collapse:collapse;font-size:11px;break-inside:avoid;page-break-inside:avoid}.approval-table th,.approval-table td{padding:7px;border:1px solid #dce9eb;text-align:left;vertical-align:top}.approval-table th{color:#2f5760;background:#eef8f9}.signed{color:#11714c;font-weight:800}.pending{color:#a95b08;font-weight:800}@media(max-width:600px){.report-meta{grid-template-columns:1fr}}</style></head><body><main class="report">' + report + '</main></body></html>';
   }
   function printReport() {
     if (!ensureReport()) return;
@@ -206,8 +303,8 @@
   }
 
   function init() {
-    $('drillDate').value = today(); $('drillTime').value = nowTime(); renderCards(); renderChecks(); renderHistory();
-    $('generateReport').addEventListener('click', generate); $('saveReport').addEventListener('click', save); $('downloadPdf').addEventListener('click', downloadPdf); $('newReport').addEventListener('click', reset); $('printReport').addEventListener('click', printReport);
+    $('drillDate').value = today(); $('drillTime').value = nowTime(); renderCards(); renderChecks(); mountApproval(); renderHistory(); updateApprovalUi();
+    $('generateReport').addEventListener('click', generate); $('saveReport').addEventListener('click', saveDraft); $('requestApproval').addEventListener('click', requestApproval); $('lockReport').addEventListener('click', lockReport); $('downloadPdf').addEventListener('click', downloadPdf); $('newReport').addEventListener('click', reset); $('printReport').addEventListener('click', printReport);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
