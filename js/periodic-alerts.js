@@ -2,10 +2,12 @@
   'use strict';
 
   var FORM_ID = 'PERIODIC-ALERTS';
+  var EMAIL_SETTINGS_FORM_ID = 'PERIODIC-ALERT-SETTINGS';
+  var EMAIL_SETTINGS_ID = 'pa-email-settings';
   var SETTINGS_KEY = 'dkj:periodic-alerts:settings:v1';
   var SEEN_KEY = 'dkj:periodic-alerts:seen:v1';
   var CHECK_MS = 30000;
-  var state = { initialized: false, items: [], alerts: [], timer: null };
+  var state = { initialized: false, items: [], alerts: [], email: null, emailDirty: false, timer: null };
   var $ = function (id) { return document.getElementById(id); };
 
   var DEFAULT_ITEMS = [
@@ -76,6 +78,22 @@
     return { browserEnabled: saved.browserEnabled === true };
   }
   function saveSettings(next) { writeJson(SETTINGS_KEY, next); }
+  function defaultEmailSettings() {
+    return { id: EMAIL_SETTINGS_ID, kind: 'periodic_email_settings', recipients: [], dispatchTime: '08:30', enabled: true, levels: { overdue: true, today: true, soon: true } };
+  }
+  function loadEmailSettings() {
+    try {
+      var rows = (window.DkjRecordStore && window.DkjRecordStore.list(EMAIL_SETTINGS_FORM_ID)) || [];
+      var saved = rows.find(function (row) { return row && row.id === EMAIL_SETTINGS_ID; });
+      var base = defaultEmailSettings();
+      if (!saved) return base;
+      return Object.assign(base, saved, { recipients: Array.isArray(saved.recipients) ? saved.recipients : [], levels: Object.assign({}, base.levels, saved.levels || {}) });
+    } catch (e) { return defaultEmailSettings(); }
+  }
+  function saveEmailSettings(config) {
+    if (!window.DkjRecordStore) throw new Error('저장소를 불러오지 못했습니다.');
+    return window.DkjRecordStore.save(EMAIL_SETTINGS_FORM_ID, Object.assign({}, state.email || {}, config, { id: EMAIL_SETTINGS_ID, kind: 'periodic_email_settings' }));
+  }
   function browserPermission() { return 'Notification' in window ? Notification.permission : 'unsupported'; }
   function toast(text, bad) {
     var el = $('paToast'); if (!el) return;
@@ -134,6 +152,21 @@
         '<td><div class="pa-row-actions">' + (item.active && item.dueDate ? '<button type="button" class="pa-btn outline" data-action="complete" data-id="' + esc(item.id) + '">완료</button>' : '') + '<button type="button" class="pa-btn outline" data-action="edit" data-id="' + esc(item.id) + '">수정</button></div></td></tr>';
     }).join('') : '<tr><td colspan="7"><div class="pa-empty">조건에 맞는 관리 항목이 없습니다.</div></td></tr>';
   }
+  function renderEmailSettings() {
+    state.email = loadEmailSettings();
+    if (!state.emailDirty) {
+      $('paEmailRecipients').value = state.email.recipients.join(', ');
+      $('paEmailDispatchTime').value = state.email.dispatchTime || '08:30';
+      $('paEmailEnabled').checked = state.email.enabled !== false;
+      $('paEmailOverdue').checked = state.email.levels.overdue !== false;
+      $('paEmailToday').checked = state.email.levels.today !== false;
+      $('paEmailSoon').checked = state.email.levels.soon !== false;
+    }
+    var status = $('paEmailStatus'), recipientCount = state.email.recipients.length;
+    if (!state.email.enabled) { status.className = 'pa-email-status warn'; status.textContent = '서버 이메일 자동 발송이 꺼져 있습니다.'; }
+    else if (!recipientCount) { status.className = 'pa-email-status warn'; status.textContent = '수신 이메일을 등록하면 매일 ' + (state.email.dispatchTime || '08:30') + '에 서버가 자동 발송합니다.'; }
+    else { status.className = 'pa-email-status ok'; status.textContent = recipientCount + '명에게 매일 ' + (state.email.dispatchTime || '08:30') + '에 자동 발송하도록 저장되었습니다. 서버 배포 후 브라우저를 닫아도 동작합니다.'; }
+  }
   function renderLiveInfo() {
     var config = settings(), permission = browserPermission();
     $('paBrowserEnabled').checked = config.browserEnabled;
@@ -168,8 +201,48 @@
   }
   function render() {
     state.items = loadItems();
-    renderSummary(); renderAlerts(); renderTable(); renderLiveInfo(); notifyNewAlerts(); maybeOpenAlertWindow();
+    renderSummary(); renderAlerts(); renderTable(); renderEmailSettings(); renderLiveInfo(); notifyNewAlerts(); maybeOpenAlertWindow();
     state.initialized = true;
+  }
+  function validEmail(value) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim()); }
+  function saveEmailFromScreen() {
+    var raw = $('paEmailRecipients').value || '';
+    var recipients = raw.split(/[;,\n]/).map(function (value) { return value.trim(); }).filter(Boolean);
+    var invalid = recipients.filter(function (value) { return !validEmail(value); });
+    var time = $('paEmailDispatchTime').value || '';
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) { toast('발송 시각을 확인하세요.', true); return; }
+    if ($('paEmailEnabled').checked && !recipients.length) { toast('이메일 자동 발송을 사용하려면 수신 이메일을 입력하세요.', true); return; }
+    if (invalid.length) { toast('올바른 이메일 형식이 아닙니다: ' + invalid[0], true); return; }
+    var unique = recipients.filter(function (value, index, list) { return list.indexOf(value) === index; });
+    try {
+      saveEmailSettings({ recipients: unique, dispatchTime: time, enabled: $('paEmailEnabled').checked, levels: { overdue: $('paEmailOverdue').checked, today: $('paEmailToday').checked, soon: $('paEmailSoon').checked } });
+      state.emailDirty = false; setStatus('이메일 자동 발송 설정을 저장했습니다.'); render();
+    } catch (e) { toast('이메일 설정을 저장하지 못했습니다. 다시 시도해 주세요.', true); }
+  }
+  function excelStatus(text, level) {
+    var el = $('paExcelStatus'); if (!el) return;
+    el.textContent = text; el.className = 'pa-excel-status' + (level ? ' ' + level : '');
+  }
+  function downloadExcelTemplate() {
+    if (!window.DkjPeriodicAlertExcel) { toast('엑셀 모듈을 불러오지 못했습니다.', true); return; }
+    excelStatus('엑셀 양식을 만드는 중입니다.');
+    DkjPeriodicAlertExcel.downloadTemplate().then(function () { excelStatus('엑셀 양식을 내려받았습니다.', 'ok'); }).catch(function () { excelStatus('엑셀 양식을 만들지 못했습니다. 다시 시도해 주세요.', 'warn'); });
+  }
+  function downloadExcelItems() {
+    if (!window.DkjPeriodicAlertExcel) { toast('엑셀 모듈을 불러오지 못했습니다.', true); return; }
+    excelStatus(state.items.length + '개 관리 항목을 엑셀로 만드는 중입니다.');
+    DkjPeriodicAlertExcel.downloadItems(state.items).then(function () { excelStatus(state.items.length + '개 관리 항목을 엑셀로 내려받았습니다.', 'ok'); }).catch(function () { excelStatus('엑셀 파일을 만들지 못했습니다. 다시 시도해 주세요.', 'warn'); });
+  }
+  function uploadExcelItems(file) {
+    if (!file || !window.DkjPeriodicAlertExcel) return;
+    excelStatus('엑셀 파일을 확인하는 중입니다.');
+    DkjPeriodicAlertExcel.parseFile(file).then(function (result) {
+      if (result.errors.length) { excelStatus('업로드하지 않았습니다. ' + result.errors.slice(0, 3).join(' / ') + (result.errors.length > 3 ? ' 외 ' + (result.errors.length - 3) + '건' : ''), 'warn'); return; }
+      if (!result.items.length) { excelStatus('등록하거나 수정할 관리 항목이 없습니다.', 'warn'); return; }
+      var current = {}; state.items.forEach(function (item) { current[item.id] = item; });
+      result.items.forEach(function (item) { saveItem(Object.assign({}, current[item.id] || {}, item)); });
+      excelStatus(result.items.length + '개 관리 항목을 일괄 반영했습니다.', 'ok'); setStatus('엑셀 업로드를 완료했습니다.'); render();
+    }).catch(function (error) { excelStatus(error && error.message === 'XLSX_ONLY' ? 'xlsx 파일만 업로드할 수 있습니다.' : '엑셀 파일을 읽지 못했습니다. 제공된 양식을 사용해 주세요.', 'warn'); });
   }
   function openDialog(id) {
     var dialog = $(id); if (!dialog) return;
@@ -251,6 +324,12 @@
     $('paEditorForm').addEventListener('submit', submitEditor);
     $('paBrowserEnabled').addEventListener('change', function () { var next = settings(); next.browserEnabled = this.checked; saveSettings(next); render(); });
     $('paRequestPermission').addEventListener('click', requestPermission);
+    $('paSaveEmailSettings').addEventListener('click', saveEmailFromScreen);
+    ['paEmailRecipients', 'paEmailDispatchTime', 'paEmailEnabled', 'paEmailOverdue', 'paEmailToday', 'paEmailSoon'].forEach(function (id) { $(id).addEventListener('input', function () { state.emailDirty = true; }); $(id).addEventListener('change', function () { state.emailDirty = true; }); });
+    $('paDownloadTemplate').addEventListener('click', downloadExcelTemplate);
+    $('paDownloadItems').addEventListener('click', downloadExcelItems);
+    $('paUploadItems').addEventListener('click', function () { $('paExcelFile').click(); });
+    $('paExcelFile').addEventListener('change', function () { var file = this.files && this.files[0]; this.value = ''; uploadExcelItems(file); });
     $('paTypeFilter').addEventListener('change', renderTable);
     $('paStateFilter').addEventListener('change', renderTable);
     document.addEventListener('click', function (event) {
@@ -262,7 +341,7 @@
   }
   function onStorage(event) {
     var key = String((event && event.key) || '');
-    if (key.indexOf('dkj:records:' + FORM_ID + ':') === 0 || key === SETTINGS_KEY) render();
+    if (key.indexOf('dkj:records:' + FORM_ID + ':') === 0 || key.indexOf('dkj:records:' + EMAIL_SETTINGS_FORM_ID + ':') === 0 || key === SETTINGS_KEY) render();
   }
   function init() {
     ensureDefaults();
