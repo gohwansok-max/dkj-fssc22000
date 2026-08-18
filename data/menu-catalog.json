@@ -208,6 +208,10 @@
               "href": "management-culture.html"
             },
             {
+              "label": "전자결재·감사이력 관리자",
+              "href": "audit-trail.html"
+            },
+            {
               "label": "DKJ-H-01-01 중요관리점(CCP 1BC) 점검표 소독·헹굼공정",
               "href": "doc-viewer.html?id=DKJ-H-01-01"
             },
