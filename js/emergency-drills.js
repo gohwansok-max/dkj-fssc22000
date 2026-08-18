@@ -183,11 +183,31 @@
     renderCards(); renderChecks(); $('scenarioDetail').textContent = '왼쪽의 시나리오를 선택하면 훈련 목표와 권장 전개가 표시됩니다.'; $('reportPreview').innerHTML = '<div class="report-empty">시나리오를 선택하고 <strong>결과보고서 자동 작성</strong>을 누르세요.</div>'; reportHtml = ''; setStatus('scenarioStatus', '시나리오를 선택하세요.'); setStatus('formStatus', '새 모의훈련을 준비했습니다.');
   }
 
-  function printReport() { if (!reportHtml) generate(); if (!reportHtml) return; window.print(); }
+  function ensureReport() { if (!reportHtml) generate(); return !!reportHtml; }
+  function pdfFileName() { var data = reportData(); var title = data && data.item ? data.item.title : '모의훈련'; var date = data ? data.date.replace(/-/g, '') : today().replace(/-/g, ''); return ('DKJ_모의훈련_결과보고서_' + date + '_' + title).replace(/[\\/:*?\"<>|]/g, '_') + '.pdf'; }
+  function printDocument(report) {
+    return '<!doctype html><html lang="ko"><head><meta charset="UTF-8"><title>모의훈련 결과보고서</title><style>@page{size:A4;margin:14mm}body{margin:0;color:#23464e;background:#fff;font-family:"Noto Sans KR","Malgun Gothic",sans-serif}.report{color:#23464e}.report-head{padding-bottom:16px;border-bottom:3px solid #0b5c72}.report-kicker{color:#0a7b6c;font-size:10px;font-weight:800;letter-spacing:.1em}.report h2{margin:5px 0;color:#163f4a;font-size:23px}.report-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:12px;color:#527078;font-size:11px}.report-section{margin-top:18px;break-inside:avoid;page-break-inside:avoid}.report-section h3{margin:0 0 8px;color:#155463;font-size:14px}.report-section p{margin:0;color:#385a62;font-size:12px;line-height:1.8;white-space:pre-line}.timeline{margin:0;padding:0;list-style:none}.timeline li{padding:7px 0;border-bottom:1px solid #e1edef;color:#385a62;font-size:12px;line-height:1.55}.timeline b{display:inline-block;min-width:66px;color:#0b7184}.report-table{width:100%;border-collapse:collapse;font-size:11px;break-inside:avoid;page-break-inside:avoid}.report-table th,.report-table td{padding:7px;border:1px solid #dce9eb;text-align:left;vertical-align:top}.report-table th{width:30%;color:#2f5760;background:#eef8f9}@media(max-width:600px){.report-meta{grid-template-columns:1fr}}</style></head><body><main class="report">' + report + '</main></body></html>';
+  }
+  function printReport() {
+    if (!ensureReport()) return;
+    var popup = window.open('', '_blank', 'noopener,noreferrer,width=900,height=900');
+    if (!popup) { setStatus('formStatus', '인쇄 창을 열 수 없습니다. 브라우저 팝업 차단을 해제한 뒤 다시 시도하세요.', true); return; }
+    popup.document.open(); popup.document.write(printDocument(reportHtml)); popup.document.close();
+    setTimeout(function () { popup.focus(); popup.print(); }, 350);
+    setStatus('formStatus', 'A4 인쇄 창을 열었습니다. 프린터를 선택하거나 인쇄 대화상자에서 PDF로 저장하세요.');
+  }
+  function downloadPdf() {
+    if (!ensureReport()) return;
+    if (typeof window.html2pdf !== 'function') { setStatus('formStatus', 'PDF 생성 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도하세요.', true); return; }
+    var button = $('downloadPdf'); button.disabled = true; button.textContent = 'PDF 생성 중…';
+    var source = $('reportPreview');
+    var options = { margin:[10,10,10,10], filename:pdfFileName(), image:{type:'jpeg',quality:0.98}, html2canvas:{scale:3,useCORS:true,backgroundColor:'#ffffff'}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy']} };
+    window.html2pdf().set(options).from(source).save().then(function () { setStatus('formStatus', 'A4 PDF 파일을 다운로드했습니다. 파일명: ' + pdfFileName()); }).catch(function () { setStatus('formStatus', 'PDF 생성에 실패했습니다. 인쇄 기능에서 “PDF로 저장”을 사용해 주세요.', true); }).finally(function () { button.disabled = false; button.textContent = 'PDF 다운로드'; });
+  }
 
   function init() {
     $('drillDate').value = today(); $('drillTime').value = nowTime(); renderCards(); renderChecks(); renderHistory();
-    $('generateReport').addEventListener('click', generate); $('saveReport').addEventListener('click', save); $('newReport').addEventListener('click', reset); $('printReport').addEventListener('click', printReport);
+    $('generateReport').addEventListener('click', generate); $('saveReport').addEventListener('click', save); $('downloadPdf').addEventListener('click', downloadPdf); $('newReport').addEventListener('click', reset); $('printReport').addEventListener('click', printReport);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
