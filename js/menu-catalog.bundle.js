@@ -184,6 +184,10 @@ window.DKJ_MENU_CATALOG={
               "href": "traceability.html"
             },
             {
+              "label": "비상·식품방어 모의훈련",
+              "href": "emergency-drills.html"
+            },
+            {
               "label": "FSSC 추가요건 심사준비",
               "href": "fssc-audit-readiness.html"
             },

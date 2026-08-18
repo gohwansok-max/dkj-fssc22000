@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-cc410f0ad861';
+self.DKJ_SW_VERSION = 'v1-a5163fd4e8a4';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -163,6 +163,7 @@ self.DKJ_PRECACHE = [
   './data/staff-roles.json',
   './doc-viewer.html',
   './docs-center.html',
+  './emergency-drills.html',
   './fssc-audit-readiness.html',
   './haccp-team-settings.html',
   './index.html',
@@ -274,6 +275,7 @@ self.DKJ_PRECACHE = [
   './js/doc-catalog.bundle.js',
   './js/docs-center.js',
   './js/drive-document-manifest.bundle.js',
+  './js/emergency-drills.js',
   './js/fssc-four-domain.js',
   './js/haccp-team-settings.js',
   './js/management-culture.js',
