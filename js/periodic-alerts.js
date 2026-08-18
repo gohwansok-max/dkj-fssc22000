@@ -7,7 +7,7 @@
   var SETTINGS_KEY = 'dkj:periodic-alerts:settings:v1';
   var SEEN_KEY = 'dkj:periodic-alerts:seen:v1';
   var CHECK_MS = 30000;
-  var state = { initialized: false, items: [], alerts: [], email: null, emailDirty: false, timer: null };
+  var state = { initialized: false, items: [], alerts: [], email: null, emailDirty: false, excelResult: null, timer: null };
   var $ = function (id) { return document.getElementById(id); };
 
   var DEFAULT_ITEMS = [
@@ -223,6 +223,34 @@
     var el = $('paExcelStatus'); if (!el) return;
     el.textContent = text; el.className = 'pa-excel-status' + (level ? ' ' + level : '');
   }
+  function clearExcelErrors() {
+    state.excelResult = null;
+    var box = $('paExcelErrors'), button = $('paDownloadErrorReport');
+    if (box) { box.hidden = true; box.innerHTML = ''; }
+    if (button) button.hidden = true;
+  }
+  function excelErrorText(error) {
+    if (window.DkjPeriodicAlertExcel && DkjPeriodicAlertExcel.errorText) return DkjPeriodicAlertExcel.errorText(error);
+    return (error.row ? error.row + '행 ' : '') + (error.label || error.field || '파일') + ': ' + (error.message || '오류');
+  }
+  function renderExcelErrors(result) {
+    var errors = (result && result.errors) || [], box = $('paExcelErrors'), button = $('paDownloadErrorReport');
+    if (!box) return;
+    var rowCount = result.invalidRows || new Set(errors.filter(function (error) { return error.row > 1; }).map(function (error) { return error.row; })).size;
+    var visible = errors.slice(0, 10);
+    box.innerHTML = '<div class="pa-excel-errors__head"><b>업로드 차단: 오류 ' + esc(rowCount || errors.length) + '행 · ' + esc(errors.length) + '건</b><span>모든 오류를 수정한 뒤 다시 업로드하세요.</span></div><ul>' +
+      visible.map(function (error) { return '<li>' + esc(excelErrorText(error)) + '</li>'; }).join('') +
+      '</ul>' + (errors.length > visible.length ? '<p class="pa-excel-errors__more">외 ' + esc(errors.length - visible.length) + '건은 오류 목록 다운로드에서 확인할 수 있습니다.</p>' : '');
+    box.hidden = false;
+    if (button) button.hidden = !errors.length;
+  }
+  function downloadExcelErrorReport() {
+    if (!state.excelResult || !state.excelResult.errors || !state.excelResult.errors.length || !window.DkjPeriodicAlertExcel) return;
+    excelStatus('오류 목록 엑셀을 만드는 중입니다.');
+    DkjPeriodicAlertExcel.downloadErrorReport(state.excelResult).then(function (count) {
+      excelStatus(count + '건의 오류 목록을 엑셀로 내려받았습니다.', 'warn');
+    }).catch(function () { excelStatus('오류 목록 파일을 만들지 못했습니다. 다시 시도해 주세요.', 'error'); });
+  }
   function downloadExcelTemplate() {
     if (!window.DkjPeriodicAlertExcel) { toast('엑셀 모듈을 불러오지 못했습니다.', true); return; }
     excelStatus('엑셀 양식을 만드는 중입니다.');
@@ -235,14 +263,26 @@
   }
   function uploadExcelItems(file) {
     if (!file || !window.DkjPeriodicAlertExcel) return;
+    clearExcelErrors();
     excelStatus('엑셀 파일을 확인하는 중입니다.');
     DkjPeriodicAlertExcel.parseFile(file).then(function (result) {
-      if (result.errors.length) { excelStatus('업로드하지 않았습니다. ' + result.errors.slice(0, 3).join(' / ') + (result.errors.length > 3 ? ' 외 ' + (result.errors.length - 3) + '건' : ''), 'warn'); return; }
-      if (!result.items.length) { excelStatus('등록하거나 수정할 관리 항목이 없습니다.', 'warn'); return; }
+      if (result.errors.length) {
+        state.excelResult = result;
+        renderExcelErrors(result);
+        excelStatus('업로드를 차단했습니다. 오류 ' + (result.invalidRows || result.errors.length) + '행, 총 ' + result.errors.length + '건을 수정하세요.', 'error');
+        toast('엑셀 데이터 오류로 업로드가 차단되었습니다.', true);
+        return;
+      }
+      if (!result.items.length) { excelStatus('등록하거나 수정할 관리 항목이 없습니다. 빈 행은 자동으로 건너뜁니다.', 'warn'); return; }
       var current = {}; state.items.forEach(function (item) { current[item.id] = item; });
       result.items.forEach(function (item) { saveItem(Object.assign({}, current[item.id] || {}, item)); });
-      excelStatus(result.items.length + '개 관리 항목을 일괄 반영했습니다.', 'ok'); setStatus('엑셀 업로드를 완료했습니다.'); render();
-    }).catch(function (error) { excelStatus(error && error.message === 'XLSX_ONLY' ? 'xlsx 파일만 업로드할 수 있습니다.' : '엑셀 파일을 읽지 못했습니다. 제공된 양식을 사용해 주세요.', 'warn'); });
+      excelStatus(result.items.length + '개 관리 항목을 검증 후 일괄 반영했습니다.' + (result.skipped ? ' 빈 행 ' + result.skipped + '건은 건너뛰었습니다.' : ''), 'ok');
+      setStatus('엑셀 업로드를 완료했습니다.'); render();
+    }).catch(function (error) {
+      var code = error && error.message;
+      var message = code === 'XLSX_ONLY' ? 'xlsx 파일만 업로드할 수 있습니다.' : (code === 'FILE_TOO_LARGE' ? '파일 크기는 5MB 이하만 업로드할 수 있습니다.' : '엑셀 파일을 읽지 못했습니다. 제공된 양식을 사용해 주세요.');
+      excelStatus(message, 'error');
+    });
   }
   function openDialog(id) {
     var dialog = $(id); if (!dialog) return;
@@ -329,6 +369,7 @@
     $('paDownloadTemplate').addEventListener('click', downloadExcelTemplate);
     $('paDownloadItems').addEventListener('click', downloadExcelItems);
     $('paUploadItems').addEventListener('click', function () { $('paExcelFile').click(); });
+    $('paDownloadErrorReport').addEventListener('click', downloadExcelErrorReport);
     $('paExcelFile').addEventListener('change', function () { var file = this.files && this.files[0]; this.value = ''; uploadExcelItems(file); });
     $('paTypeFilter').addEventListener('change', renderTable);
     $('paStateFilter').addEventListener('change', renderTable);
