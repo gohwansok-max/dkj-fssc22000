@@ -200,6 +200,10 @@ window.DKJ_MENU_CATALOG={
               "href": "capa-management.html"
             },
             {
+              "label": "임원 통합 현황",
+              "href": "executive-dashboard.html"
+            },
+            {
               "label": "종합 품질 대시보드",
               "href": "quality-dashboard.html"
             },

@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-31d416325caf';
+self.DKJ_SW_VERSION = 'v1-2203ae073331';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -9,6 +9,7 @@ self.DKJ_PRECACHE = [
   './capa-management.html',
   './company-profile.html',
   './config.json',
+  './css/dkj-accessibility.css',
   './css/dkj-archive.css',
   './css/dkj-console.css',
   './css/dkj-form.css',
@@ -165,6 +166,7 @@ self.DKJ_PRECACHE = [
   './doc-viewer.html',
   './docs-center.html',
   './emergency-drills.html',
+  './executive-dashboard.html',
   './fssc-audit-readiness.html',
   './haccp-team-settings.html',
   './index.html',
@@ -246,6 +248,7 @@ self.DKJ_PRECACHE = [
   './js/capa-management.js',
   './js/company-profile.js',
   './js/console-forms.bundle.js',
+  './js/dkj-accessibility.js',
   './js/dkj-approval.js',
   './js/dkj-auth.js',
   './js/dkj-calendar.js',
@@ -278,6 +281,7 @@ self.DKJ_PRECACHE = [
   './js/docs-center.js',
   './js/drive-document-manifest.bundle.js',
   './js/emergency-drills.js',
+  './js/executive-dashboard.js',
   './js/fssc-four-domain.js',
   './js/haccp-team-settings.js',
   './js/html2pdf.bundle.min.js',
