@@ -11,7 +11,7 @@
   "pattern": "ledger",
   "code": "DKJ-S-02-05",
   "title": "작업장 온도 점검일지",
-  "subtitle": "선행요건 · 일자별 오전·오후 온도 · 월 단위 시트",
+  "subtitle": "선행요건 · 일자별 냉장창고 1차·2차·3차 온도 · 월 단위 시트",
   "docNo": "DKJ-S-02-05",
   "infoFields": [
     {
@@ -236,7 +236,7 @@
     },
     {
       "key": "z6_am",
-      "label": "오전",
+      "label": "1차",
       "width": "5%",
       "type": "num",
       "unit": "℃",
@@ -255,7 +255,7 @@
     },
     {
       "key": "z6_pm",
-      "label": "오후",
+      "label": "2차",
       "width": "5%",
       "type": "num",
       "unit": "℃",
@@ -273,8 +273,27 @@
       "group": "원재료 냉장창고 ( 0 ~ 5℃ )"
     },
     {
+      "key": "z6_3",
+      "label": "3차",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "원재료 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z6_3j",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "원재료 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
       "key": "z7_am",
-      "label": "오전",
+      "label": "1차",
       "width": "5%",
       "type": "num",
       "unit": "℃",
@@ -293,7 +312,7 @@
     },
     {
       "key": "z7_pm",
-      "label": "오후",
+      "label": "2차",
       "width": "5%",
       "type": "num",
       "unit": "℃",
@@ -301,6 +320,25 @@
     },
     {
       "key": "z7_pmj",
+      "label": "적/부",
+      "width": "4%",
+      "type": "choice",
+      "choices": [
+        "적",
+        "부"
+      ],
+      "group": "완제품 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z7_3",
+      "label": "3차",
+      "width": "5%",
+      "type": "num",
+      "unit": "℃",
+      "group": "완제품 냉장창고 ( 0 ~ 5℃ )"
+    },
+    {
+      "key": "z7_3j",
       "label": "적/부",
       "width": "4%",
       "type": "choice",
@@ -345,10 +383,14 @@
       "z6_amj",
       "z6_pm",
       "z6_pmj",
+      "z6_3",
+      "z6_3j",
       "z7_am",
       "z7_amj",
       "z7_pm",
       "z7_pmj",
+      "z7_3",
+      "z7_3j",
       "remark"
     ]
   ],
