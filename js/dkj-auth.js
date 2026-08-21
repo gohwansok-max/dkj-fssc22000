@@ -36,8 +36,24 @@
     return /^[0-9]{1,3}$/.test(v) ? ('000' + v).slice(-4) : v;
   }
   function email(empId) { var c = config(); return 'emp' + normId(empId) + (c.emailDomain || '@dkj-fssc.internal'); }
-  function readJson(store, key, fallback) {
-    try { var raw = store.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
+  function storage(name) {
+    try { return global[name] || null; } catch (e) { return null; }
+  }
+  function readJson(name, key, fallback) {
+    var store = storage(name);
+    try { var raw = store && store.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
+  }
+  function getStored(name, key) {
+    var store = storage(name);
+    try { return store ? store.getItem(key) : null; } catch (e) { return null; }
+  }
+  function setStored(name, key, value) {
+    var store = storage(name);
+    try { if (store) store.setItem(key, value); } catch (e) { /* Safari private mode may reject storage writes. */ }
+  }
+  function removeStored(name, key) {
+    var store = storage(name);
+    try { if (store) store.removeItem(key); } catch (e) {}
   }
   function rootUrl(path) {
     var c = config();
@@ -56,12 +72,10 @@
       name: name || String(empId || ''),
       role: normalizeRole(role || defaultRole(empId))
     };
-    try {
-      var saved = { token: state.token, uid: state.uid, empId: state.empId, name: state.name, role: state.role };
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(saved));
-      localStorage.setItem(USER_KEY, JSON.stringify({ empId: state.empId, name: state.name, role: state.role }));
-      if (refreshToken) localStorage.setItem(refreshKey(state.empId), refreshToken);
-    } catch (e) {}
+    var saved = { token: state.token, uid: state.uid, empId: state.empId, name: state.name, role: state.role };
+    setStored('sessionStorage', SESSION_KEY, JSON.stringify(saved));
+    setStored('localStorage', USER_KEY, JSON.stringify({ empId: state.empId, name: state.name, role: state.role }));
+    if (refreshToken) setStored('localStorage', refreshKey(state.empId), refreshToken);
   }
 
   async function signIn(empId, password) {
@@ -174,17 +188,16 @@
 
   async function resume() {
     if (!configured()) throw new Error('NOT_CONFIGURED');
-    var sess = readJson(sessionStorage, SESSION_KEY, null);
+    var sess = readJson('sessionStorage', SESSION_KEY, null);
     if (sess && sess.token) {
       persist(sess.empId, sess.name, sess.token, null, sess.uid, sess.role);
       await loadAssignedRole();
       if (global.DkjCloudSync) global.DkjCloudSync.start();
       return state;
     }
-    var last = readJson(localStorage, USER_KEY, readJson(localStorage, LEGACY_USER_KEY, null));
+    var last = readJson('localStorage', USER_KEY, readJson('localStorage', LEGACY_USER_KEY, null));
     if (!last || !last.empId) throw new Error('NO_SESSION');
-    var saved = null;
-    try { saved = localStorage.getItem(refreshKey(last.empId)); } catch (e) {}
+    var saved = getStored('localStorage', refreshKey(last.empId));
     if (!saved) throw new Error('NO_SESSION');
     var d = await refresh(saved);
     persist(last.empId, last.name, d.idToken, d.refreshToken || saved, d.uid, last.role || defaultRole(last.empId));
@@ -196,17 +209,19 @@
   function logout() {
     var empId = state.empId;
     state = { token: '', uid: '', empId: '', name: '', role: 'worker' };
-    try {
-      sessionStorage.removeItem(SESSION_KEY);
-      localStorage.removeItem(USER_KEY);
-      localStorage.removeItem(LEGACY_USER_KEY);
-      if (empId) localStorage.removeItem(refreshKey(empId));
-    } catch (e) {}
-    location.reload();
+    removeStored('sessionStorage', SESSION_KEY);
+    removeStored('localStorage', USER_KEY);
+    removeStored('localStorage', LEGACY_USER_KEY);
+    if (empId) removeStored('localStorage', refreshKey(empId));
+    var bar = document.querySelector('.dkj-auth-bar');
+    if (bar) bar.remove();
+    emitReady();
+    if (isPublicPage()) return;
+    showLogin('로그아웃되었습니다. 다른 사번으로 로그인할 수 있습니다.');
   }
   async function reauth() {
     if (!state.empId) throw new Error('NO_SESSION');
-    var saved = localStorage.getItem(refreshKey(state.empId));
+    var saved = getStored('localStorage', refreshKey(state.empId));
     if (!saved) throw new Error('NO_SESSION');
     var d = await refresh(saved);
     persist(state.empId, state.name, d.idToken, d.refreshToken || saved, d.uid, state.role);
