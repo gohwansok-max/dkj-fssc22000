@@ -200,7 +200,6 @@
     var mode = (form.check || {}).mode || 'event';
     var recs = readList(code);
     var draft = readDraft(code);
-    var all = draft ? [draft].concat(recs) : recs;
     var target = iso(date);
 
     if (mode === 'event') {
@@ -231,8 +230,8 @@
     }
     if (mode === 'dayColumn') {
       var bestState = null;
-      for (var i = 0; i < all.length; i++) {
-        var colRecord = all[i];
+      for (var i = 0; i < recs.length; i++) {
+        var colRecord = recs[i];
         if (!colRecord || !colRecord.days || !colRecord.checks) continue;
         var idx = colRecord.days.indexOf(target);
         if (idx < 0) continue;
@@ -250,14 +249,26 @@
           ng ? { state: 'ng', note: '기준 이탈 있음' } : { state: 'done', note: '오늘 열 완료' };
         bestState = best(bestState, current);
       }
+      // 임시본은 보관함에 아직 없는 기록이므로 완료로 집계하지 않는다.
+      // 저장본이 없거나 저장본이 아직 미입력인 경우에만 작성 중으로 표시한다.
+      if (draft && draft.days && draft.checks && (!bestState || bestState.state === 'todo')) {
+        var draftIdx = draft.days.indexOf(target);
+        if (draftIdx >= 0) {
+          var draftKeys = Object.keys(draft.checks);
+          var draftFilled = draftKeys.some(function (key) {
+            return String((draft.checks[key] || [])[draftIdx] || '').trim();
+          });
+          if (draftFilled) return { state: 'part', note: '작성 중' };
+        }
+      }
       return bestState || { state: 'todo', note: '이번 시트 없음' };
     }
     if (mode === 'dayRow') {
       var dayKey = form.check.dayKey || 'day';
       var dayNum = date.getDate();
       var rowState = null;
-      for (var j = 0; j < all.length; j++) {
-        var rowRecord = all[j];
+      for (var j = 0; j < recs.length; j++) {
+        var rowRecord = recs[j];
         if (!rowRecord || !rowRecord.rows) continue;
         var row = rowRecord.rows.find(function (item) { return Number(String(item[dayKey] || '').replace(/\D/g, '')) === dayNum; });
         if (!row) continue;
@@ -266,6 +277,22 @@
         var bad = values.some(function (key) { return row[key] === '부' || row[key] === 'X'; });
         rowState = best(rowState, !written ? { state: 'todo', note: '오늘 행 미입력' } :
           bad ? { state: 'ng', note: '기준 이탈 있음' } : { state: 'done', note: '오늘 행 입력됨' });
+      }
+      // 입력 중인 임시본은 기록보관함의 확정 기록이 아니다. 따라서 값이
+      // 채워져 있어도 완료가 아니라 작성 중으로만 표시한다.
+      if (draft && draft.rows && (!rowState || rowState.state === 'todo')) {
+        var draftRow = draft.rows.find(function (item) {
+          return Number(String(item[dayKey] || '').replace(/\D/g, '')) === dayNum;
+        });
+        if (draftRow) {
+          var draftValues = Object.keys(draftRow).filter(function (key) {
+            return key !== dayKey && key !== 'dow';
+          });
+          var draftWritten = draftValues.some(function (key) {
+            return String(draftRow[key] || '').trim();
+          });
+          if (draftWritten) return { state: 'part', note: '작성 중' };
+        }
       }
       return rowState || { state: 'todo', note: '이번 시트 없음' };
     }
