@@ -4,7 +4,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = b'52'
+VERSION = b'53'
 changed = 0
 for path in ROOT.rglob('*.html'):
     raw = path.read_bytes()

@@ -13,6 +13,14 @@
   "title": "작업장 온도 점검일지",
   "subtitle": "선행요건 · 일자별 냉장창고 1차·2차·3차 온도 · 월 단위 시트",
   "docNo": "DKJ-S-02-05",
+  "bulkChoiceKeys": [
+    "z6_amj",
+    "z6_pmj",
+    "z6_3j",
+    "z7_amj",
+    "z7_pmj",
+    "z7_3j"
+  ],
   "infoFields": [
     {
       "id": "month",
@@ -384,7 +392,9 @@
       "z6_pm",
       "z6_pmj",
       "z6_3",
-      "z6_3j",
+      "z6_3j"
+    ],
+    [
       "z7_am",
       "z7_amj",
       "z7_pm",

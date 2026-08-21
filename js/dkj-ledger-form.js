@@ -213,12 +213,26 @@
       host.querySelectorAll('#ledgerGrid input, #ledgerGrid select, #ledgerGrid button, '
         + '#infoFields input, #incidentGrid input')
         .forEach(function (el) { el.disabled = !!state.locked; });
+      ['btnBulkOk', 'btnBulkNg'].forEach(function (id) {
+        if ($(id)) $(id).disabled = !!state.locked;
+      });
     }
 
     function filledRows() {
       return state.rows.filter(function (r) {
         return COLS.some(function (c) { return String(r[c.key] || '').trim(); });
       });
+    }
+
+    function applyBulkChoice(value) {
+      var keys = spec.bulkChoiceKeys || [];
+      if (state.locked || !keys.length) return;
+      state.rows.forEach(function (row) {
+        keys.forEach(function (key) { row[key] = value; });
+      });
+      renderGrid();
+      scheduleDraft();
+      setStatus('냉장창고 적/부 전체 ' + value + ' 입력됨', false);
     }
 
     function validate() {
@@ -321,6 +335,8 @@
         renderGrid();
         scheduleDraft();
       });
+      if ($('btnBulkOk')) $('btnBulkOk').addEventListener('click', function () { applyBulkChoice('적'); });
+      if ($('btnBulkNg')) $('btnBulkNg').addEventListener('click', function () { applyBulkChoice('부'); });
       if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
       if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
       if ($('btnNew')) $('btnNew').addEventListener('click', function () {
