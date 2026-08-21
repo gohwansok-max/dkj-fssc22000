@@ -17,14 +17,33 @@
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
 
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+
   function sameDay(a, b) { return iso(a) === iso(b); }
 
   var state = {
     year: 0,
     month: 0,        // 0-based
     forms: [],
-    selected: null
+    selected: null,
+    saveMessage: '',
+    saveError: false
   };
+
+  function selectedMode(date) {
+    var calendar = global.DkjConsole && global.DkjConsole.operationCalendar ? global.DkjConsole.operationCalendar() : {};
+    var day = iso(date);
+    if ((calendar.productionDates || []).indexOf(day) !== -1) return 'production';
+    if ((calendar.nonProductionDates || []).indexOf(day) !== -1) return 'nonProduction';
+    return 'default';
+  }
+  function modeLabel(mode) {
+    return mode === 'production' ? '생산일 지정' : mode === 'nonProduction' ? '비생산일 지정' : '기본 규칙';
+  }
 
   /** 하루치 집계 — 비생산일의 정기 서식은 분모·미작성에서 제외한다. */
   function dayStat(date) {
@@ -146,24 +165,57 @@
     today.setHours(23, 59, 59, 999);
     var head = '<div class="ck-cal-dhead">' + d.getFullYear() + '. ' + (d.getMonth() + 1) +
       '. ' + d.getDate() + ' (' + DOW[d.getDay()] + ')</div>';
+    var currentMode = selectedMode(d);
+    var editable = !!(global.DkjConsole && global.DkjConsole.canEditOperationCalendar && global.DkjConsole.canEditOperationCalendar());
+    var operation = '<section class="ck-cal-operation" aria-labelledby="ckCalOperationTitle">' +
+      '<div class="ck-cal-operation-head"><div><h3 id="ckCalOperationTitle">운영일 설정</h3>' +
+      '<p>이 날짜의 정기 일지 작성 기준을 선택합니다.</p></div><strong class="ck-cal-operation-mode">' + modeLabel(currentMode) + '</strong></div>';
+    if (editable) {
+      operation += '<div class="ck-cal-operation-actions" role="group" aria-label="운영일 선택">' +
+        '<button type="button" data-calendar-mode="production"' + (currentMode === 'production' ? ' disabled aria-pressed="true"' : ' aria-pressed="false"') + '>생산일로 지정</button>' +
+        '<button type="button" data-calendar-mode="nonProduction"' + (currentMode === 'nonProduction' ? ' disabled aria-pressed="true"' : ' aria-pressed="false"') + '>비생산일로 지정</button>' +
+        '<button type="button" class="secondary" data-calendar-mode="default"' + (currentMode === 'default' ? ' disabled aria-pressed="true"' : ' aria-pressed="false"') + '>기본 규칙 적용</button></div>';
+    } else {
+      operation += '<p class="ck-cal-operation-readonly">운영일 변경은 시스템 관리자만 저장할 수 있습니다.</p>';
+    }
+    if (state.saveMessage) operation += '<p class="ck-cal-save-status' + (state.saveError ? ' is-error' : '') + '">' + esc(state.saveMessage) + '</p>';
+    operation += '</section>';
+
+    var body = '';
 
     if (d > today && !sameDay(d, new Date())) {
-      host.innerHTML = head + '<div class="ck-empty">아직 오지 않은 날짜입니다.</div>';
-      return;
+      body = '<div class="ck-empty">아직 오지 않은 날짜입니다. 운영일은 미리 지정할 수 있습니다.</div>';
+    } else if (global.DkjConsole && !global.DkjConsole.isProductionDay(d)) {
+      body = '<div class="ck-empty ck-empty-prominent">비생산일입니다. 정기 일지 작성 의무가 없습니다. 입고·부적합·고객불만 등 발생 기록만 필요 시 작성하세요.</div>';
+    } else {
+      var st = dayStat(d);
+      body = '<div class="ck-list">' + st.items.map(function (it) {
+        return '<a class="ck-row" href="' + esc(it.form.href) + '" style="text-decoration:none;color:inherit">' +
+          '<span class="ck-sdot s-' + it.ev.state + '"></span>' +
+          '<span class="nm">' + esc(it.form.title) + '</span>' +
+          '<span class="rt">' + LABEL[it.ev.state] + '</span></a>';
+      }).join('') + '</div>';
     }
-
-    if (global.DkjConsole && !global.DkjConsole.isProductionDay(d)) {
-      host.innerHTML = head + '<div class="ck-empty ck-empty-prominent">비생산일입니다. 정기 일지 작성 의무가 없습니다. 입고·부적합·고객불만 등 발생 기록만 필요 시 작성하세요.</div>';
-      return;
-    }
-
-    var st = dayStat(d);
-    host.innerHTML = head + '<div class="ck-list">' + st.items.map(function (it) {
-      return '<a class="ck-row" href="' + esc(it.form.href) + '" style="text-decoration:none;color:inherit">' +
-        '<span class="ck-sdot s-' + it.ev.state + '"></span>' +
-        '<span class="nm">' + esc(it.form.title) + '</span>' +
-        '<span class="rt">' + LABEL[it.ev.state] + '</span></a>';
-    }).join('') + '</div>';
+    host.innerHTML = head + operation + body;
+    host.querySelectorAll('[data-calendar-mode]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (!global.DkjConsole || !global.DkjConsole.setOperationDate) return;
+        state.saveMessage = '저장 중…';
+        state.saveError = false;
+        renderDetail();
+        global.DkjConsole.setOperationDate(d, button.getAttribute('data-calendar-mode')).then(function () {
+          state.saveMessage = '이 기기와 공통 일정에 저장했습니다.';
+          state.saveError = false;
+          render();
+          renderDetail();
+        }).catch(function (err) {
+          state.saveMessage = err && err.message === 'ADMIN_REQUIRED' ? '시스템 관리자만 운영일을 변경할 수 있습니다.' : '기기에는 반영했지만 공통 일정 저장에 실패했습니다. 연결 후 다시 시도하세요.';
+          state.saveError = true;
+          render();
+          renderDetail();
+        });
+      });
+    });
   }
 
   function move(delta) {
@@ -188,9 +240,10 @@
     var prev = document.getElementById('ckCalPrev');
     var next = document.getElementById('ckCalNext');
     var cur = document.getElementById('ckCalToday');
-    if (prev) prev.addEventListener('click', function () { move(-1); });
-    if (next) next.addEventListener('click', function () { move(1); });
-    if (cur) {
+    if (prev && !prev.dataset.bound) { prev.dataset.bound = '1'; prev.addEventListener('click', function () { move(-1); }); }
+    if (next && !next.dataset.bound) { next.dataset.bound = '1'; next.addEventListener('click', function () { move(1); }); }
+    if (cur && !cur.dataset.bound) {
+      cur.dataset.bound = '1';
       cur.addEventListener('click', function () {
         var n = new Date();
         state.year = n.getFullYear();
@@ -205,5 +258,9 @@
     renderDetail();
   }
 
-  global.DkjCalendar = { mount: mount, dayStat: dayStat };
+  global.addEventListener('dkj:operation-calendar-changed', function () {
+    render();
+    renderDetail();
+  });
+  global.DkjCalendar = { mount: mount, dayStat: dayStat, refresh: function () { render(); renderDetail(); } };
 })(window);

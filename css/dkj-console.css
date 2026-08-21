@@ -397,6 +397,34 @@
   line-height: 1.5;
 }
 
+.ck-cal-operation {
+  margin: 12px 0 16px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  background: #fbfdfb;
+}
+.ck-cal-operation-head { display: flex; align-items: flex-start; gap: 10px; }
+.ck-cal-operation-head h3 { margin: 0; color: var(--nh-green-ink); font-size: 14px; }
+.ck-cal-operation-head p { margin: 3px 0 0; color: var(--ink-3); font-size: 12px; }
+.ck-cal-operation-mode { margin-left: auto; color: var(--nh-green-dark); font-size: 12px; white-space: nowrap; }
+.ck-cal-operation-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
+.ck-cal-operation-actions button {
+  min-height: 38px;
+  padding: 7px 11px;
+  border: 1px solid var(--nh-green);
+  border-radius: var(--r-s);
+  background: var(--nh-green);
+  color: #fff;
+  font: 700 12px inherit;
+  cursor: pointer;
+}
+.ck-cal-operation-actions button.secondary { border-color: var(--line); background: #fff; color: var(--ink-2); }
+.ck-cal-operation-actions button:disabled { opacity: .55; cursor: default; }
+.ck-cal-operation-readonly { margin: 10px 0 0; color: var(--ink-3); font-size: 12px; }
+.ck-cal-save-status { margin: 9px 0 0; color: var(--nh-green-dark); font-size: 12px; font-weight: 700; }
+.ck-cal-save-status.is-error { color: var(--st-ng); }
+
 @media (max-width: 1180px) {
   .ck-cal-wrap { grid-template-columns: 1fr; }
 }
@@ -486,4 +514,7 @@
   .ck-cal-body, .ck-cal-dow { gap: 3px; }
   .ck-cal-cell { min-height: 60px; padding: 4px 1px; }
   .ck-cal-count { padding: 1px 4px; font-size: 10px; }
+  .ck-cal-operation-head { display: block; }
+  .ck-cal-operation-mode { display: block; margin: 5px 0 0; }
+  .ck-cal-operation-actions { display: grid; grid-template-columns: 1fr; }
 }

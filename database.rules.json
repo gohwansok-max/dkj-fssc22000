@@ -3,8 +3,10 @@
     "dkj-fssc22000": {
       "records": {
         ".read": "auth != null",
-        ".write": "auth != null",
-        ".validate": "newData.hasChild('value') && newData.hasChild('updatedAt') && newData.child('updatedAt').isNumber()"
+        "$recordKey": {
+          ".write": "auth != null && ($recordKey !== 'ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE' || auth.token.email === 'emp4343@dkj-fssc.internal')",
+          ".validate": "$recordKey === 'ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE' ? newData.hasChildren(['value', 'updatedAt']) && newData.child('updatedAt').isNumber() && newData.child('value').hasChild('calendar') && newData.child('value').child('calendar').hasChildren(['workdays', 'nonProductionDates', 'productionDates']) : newData.hasChild('value') && newData.hasChild('updatedAt') && newData.child('updatedAt').isNumber()"
+        }
       },
       "sync_meta": {
         ".read": "auth != null",

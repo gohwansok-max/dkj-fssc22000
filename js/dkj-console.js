@@ -8,6 +8,9 @@
   var DOW = ['일', '월', '화', '수', '목', '금', '토'];
   var _cache = {};
   var operationCalendar = { workdays: [1, 2, 3, 4, 5], nonProductionDates: [], productionDates: [] };
+  var OPERATION_CALENDAR_KEY = 'dkj:operation-calendar:v1';
+  var OPERATION_CALENDAR_REMOTE_NODE = 'ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE';
+  var operationCalendarLoad = null;
   var recentRecords = [];
 
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -18,6 +21,135 @@
     });
   }
   function clearCache() { _cache = {}; }
+
+  function normalizeDates(list) {
+    var seen = {};
+    return (Array.isArray(list) ? list : []).map(function (value) {
+      return String(value || '').trim();
+    }).filter(function (value) {
+      return /^\d{4}-\d{2}-\d{2}$/.test(value) && !seen[value] && (seen[value] = true);
+    }).sort();
+  }
+  function normalizeCalendar(value) {
+    var source = value || {}, workdays = Array.isArray(source.workdays) ? source.workdays : [1, 2, 3, 4, 5];
+    workdays = workdays.map(function (day) { return Number(day); }).filter(function (day, index, list) {
+      return day >= 0 && day <= 6 && list.indexOf(day) === index;
+    }).sort(function (a, b) { return a - b; });
+    var productionDates = normalizeDates(source.productionDates);
+    var nonProductionDates = normalizeDates(source.nonProductionDates).filter(function (date) {
+      return productionDates.indexOf(date) === -1;
+    });
+    return {
+      label: String(source.label || '기본 생산일: 월요일~금요일'),
+      workdays: workdays,
+      nonProductionDates: nonProductionDates,
+      productionDates: productionDates,
+      updatedAt: source.updatedAt || '',
+      updatedBy: source.updatedBy || ''
+    };
+  }
+  function readCalendarCache() {
+    try {
+      var raw = localStorage.getItem(OPERATION_CALENDAR_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      return parsed && parsed.calendar ? { calendar: normalizeCalendar(parsed.calendar), pending: !!parsed.pending } : { calendar: normalizeCalendar(parsed), pending: false };
+    } catch (e) { return null; }
+  }
+  function writeCalendarCache(value, pending) {
+    try { localStorage.setItem(OPERATION_CALENDAR_KEY, JSON.stringify({ calendar: normalizeCalendar(value), pending: !!pending })); } catch (e) {}
+  }
+  function calendarOwner() {
+    var auth = global.DkjAuth;
+    return auth && auth.user ? auth.user() : null;
+  }
+  function canEditOperationCalendar() {
+    var auth = global.DkjAuth;
+    return !!(auth && auth.isSystemAdmin && auth.isSystemAdmin());
+  }
+  function updateCalendarInMemory(value, pending) {
+    operationCalendar = normalizeCalendar(value);
+    if (global.DkjConsole && global.DkjConsole.config) global.DkjConsole.config.operationCalendar = operationCalendar;
+    writeCalendarCache(operationCalendar, pending);
+    clearCache();
+  }
+  function emitCalendarChanged() {
+    try { global.dispatchEvent(new CustomEvent('dkj:operation-calendar-changed', { detail: operationCalendar })); } catch (e) {}
+  }
+  function refreshCalendarViews() {
+    if (global.DkjConsole && global.DkjConsole.config) render(global.DkjConsole.config);
+    emitCalendarChanged();
+  }
+  function remoteCalendarPath() {
+    return 'records/' + OPERATION_CALENDAR_REMOTE_NODE;
+  }
+  function calendarFromRemote(value) {
+    if (!value || typeof value !== 'object') return null;
+    var stored = value.value && value.value.calendar ? value.value.calendar : value.calendar;
+    return stored && typeof stored === 'object' ? normalizeCalendar(stored) : null;
+  }
+  function saveCalendarRemote(value) {
+    var auth = global.DkjAuth;
+    var who = calendarOwner() || {};
+    var path = remoteCalendarPath();
+    if (!auth || !auth.request || !auth.token || !auth.token() || !path) return Promise.reject(new Error('NO_SESSION'));
+    var payload = normalizeCalendar(value);
+    payload.updatedAt = new Date().toISOString();
+    payload.updatedBy = String(who.name || who.empId || '');
+    return auth.request(path, 'PUT', {
+      value: { calendar: payload },
+      updatedAt: Date.now(),
+      updatedBy: payload.updatedBy
+    }).then(function () {
+      updateCalendarInMemory(payload, false);
+      refreshCalendarViews();
+      return payload;
+    });
+  }
+  function loadOperationCalendar(cfg) {
+    var base = normalizeCalendar((cfg && cfg.operationCalendar) || operationCalendar);
+    var cached = readCalendarCache();
+    if (cached) base = cached.calendar;
+    updateCalendarInMemory(base, !!(cached && cached.pending));
+    if (operationCalendarLoad) return operationCalendarLoad;
+    var auth = global.DkjAuth;
+    var path = remoteCalendarPath();
+    if (!auth || !auth.request || !auth.token || !auth.token() || !path) return Promise.resolve(operationCalendar);
+    operationCalendarLoad = auth.request(path, 'GET').then(function (remote) {
+      if (cached && cached.pending && canEditOperationCalendar()) {
+        return saveCalendarRemote(cached.calendar);
+      }
+      var shared = calendarFromRemote(remote);
+      if (shared) updateCalendarInMemory(shared, false);
+      refreshCalendarViews();
+      return operationCalendar;
+    }).catch(function () {
+      operationCalendarLoad = null;
+      refreshCalendarViews();
+      return operationCalendar;
+    });
+    return operationCalendarLoad;
+  }
+  function setOperationCalendar(value) {
+    var next = normalizeCalendar(value);
+    if (!canEditOperationCalendar()) return Promise.reject(new Error('ADMIN_REQUIRED'));
+    updateCalendarInMemory(next, true);
+    refreshCalendarViews();
+    return saveCalendarRemote(next).catch(function (err) {
+      updateCalendarInMemory(next, true);
+      refreshCalendarViews();
+      throw err;
+    });
+  }
+  function setOperationDate(date, mode) {
+    var day = typeof date === 'string' ? date : iso(date);
+    var next = normalizeCalendar(operationCalendar);
+    next.productionDates = next.productionDates.filter(function (value) { return value !== day; });
+    next.nonProductionDates = next.nonProductionDates.filter(function (value) { return value !== day; });
+    if (mode === 'production') next.productionDates.push(day);
+    if (mode === 'nonProduction') next.nonProductionDates.push(day);
+    return setOperationCalendar(next);
+  }
 
   function readList(code) {
     var key = 'L' + code;
@@ -248,7 +380,8 @@
 
   function render(cfg) {
     clearCache();
-    operationCalendar = cfg.operationCalendar || operationCalendar;
+    operationCalendar = normalizeCalendar(cfg.operationCalendar || operationCalendar);
+    cfg.operationCalendar = operationCalendar;
     var today = new Date();
     var groups = cfg.groups || [];
     var daily = (groups.find(function (g) { return g.id === 'daily'; }) || {}).forms || [];
@@ -341,13 +474,33 @@
     render(global.DkjConsole.config);
     if (global.DkjCalendar) global.DkjCalendar.mount(global.DkjConsole.config);
   }
+  function refreshAfterAuth() {
+    if (!global.DkjConsole.config) return;
+    loadOperationCalendar(global.DkjConsole.config).then(refreshCalendarViews);
+  }
   function init() {
     loadForms().then(function (cfg) {
       global.DkjConsole.config = cfg;
       refreshFromRecordChange();
+      loadOperationCalendar(cfg).then(refreshCalendarViews);
       global.addEventListener('dkj:records-changed', refreshFromRecordChange);
+      global.addEventListener('dkj:auth-ready', refreshAfterAuth);
+      global.addEventListener('online', function () {
+        var cached = readCalendarCache();
+        if (cached && cached.pending && canEditOperationCalendar()) {
+          saveCalendarRemote(cached.calendar)['catch'](function () {});
+        }
+      });
       global.addEventListener('storage', function (event) {
-        if (event && event.key && event.key.indexOf('dkj:records:') === 0) refreshFromRecordChange();
+        if (!event || !event.key) return;
+        if (event.key.indexOf('dkj:records:') === 0) refreshFromRecordChange();
+        if (event.key === OPERATION_CALENDAR_KEY) {
+          var cached = readCalendarCache();
+          if (cached) {
+            updateCalendarInMemory(cached.calendar, cached.pending);
+            refreshCalendarViews();
+          }
+        }
       });
     }).catch(function (err) {
       var el = document.getElementById('ckToday');
@@ -357,5 +510,19 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  global.DkjConsole = { evaluate: evaluate, render: render, refresh: refreshFromRecordChange, clearCache: clearCache, iso: iso, isProductionDay: isProductionDay, DOW: DOW, config: null };
+  global.DkjConsole = {
+    evaluate: evaluate,
+    render: render,
+    refresh: refreshFromRecordChange,
+    clearCache: clearCache,
+    iso: iso,
+    isProductionDay: isProductionDay,
+    operationCalendar: function () { return normalizeCalendar(operationCalendar); },
+    canEditOperationCalendar: canEditOperationCalendar,
+    setOperationCalendar: setOperationCalendar,
+    setOperationDate: setOperationDate,
+    loadOperationCalendar: loadOperationCalendar,
+    DOW: DOW,
+    config: null
+  };
 })(window);

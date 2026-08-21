@@ -13,7 +13,7 @@
     "nonProductionDates": [],
     "productionDates": []
   },
-  "_operationCalendarNote": "공휴일·휴무일은 nonProductionDates, 주말 생산일은 productionDates에 YYYY-MM-DD 형식으로 추가한다. 생산일에만 매일 작성 서식의 작성 의무와 작성률 분모를 계산한다.",
+  "_operationCalendarNote": "기본 평일 규칙을 사용하되 달력에서 날짜별 생산일·비생산일 예외를 지정한다. nonProductionDates와 productionDates는 YYYY-MM-DD 형식이며, 생산일에만 매일 작성 서식의 작성 의무와 작성률 분모를 계산한다.",
   "groups": [
     {
       "id": "daily",

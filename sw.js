@@ -18,7 +18,7 @@
 'use strict';
 
 // 배포 식별자: 정적 자산 UI 수정도 기존 현장 기기의 서비스워커 갱신을 즉시 유도한다.
-var DKJ_DEPLOY_MARKER = '20260821-ios-auth-v55';
+var DKJ_DEPLOY_MARKER = '20260821-operation-calendar-v56';
 importScripts('sw-precache.js');
 
 var VERSION = self.DKJ_SW_VERSION || 'v1-dev';
