@@ -230,9 +230,35 @@
   line-height: 1.25;
 }
 
-/* 작업장 온도표는 냉장창고 3회 점검 열을 읽기 쉽게 가로 스크롤로 유지한다. */
-.temperature-log-page .lgf-table { min-width: 1760px; }
+/* 작업장 온도표는 온도와 적/부 열을 같은 폭으로 고정해 가로 스크롤로 표시한다. */
+.temperature-log-page .lgf-table {
+  width: max-content;
+  min-width: 100%;
+  table-layout: fixed;
+}
 .temperature-log-page .lgf-table thead th { white-space: nowrap; }
+.temperature-log-page .lgf-table thead tr:last-child th,
+.temperature-log-page .lgf-table tbody td {
+  width: 72px !important;
+  min-width: 72px;
+  max-width: 72px;
+}
+.temperature-log-page .lgf-table thead th[rowspan="2"] {
+  width: 72px !important;
+  min-width: 72px;
+}
+.temperature-log-page .lgf-table tbody td:last-child {
+  width: 120px !important;
+  min-width: 120px;
+  max-width: 120px;
+}
+.temperature-log-page .lgf-table td input,
+.temperature-log-page .lgf-table td select {
+  min-width: 62px;
+  padding-right: 4px;
+  padding-left: 4px;
+  text-align: center;
+}
 .temperature-log-page .temperature-bulk-actions {
   flex-wrap: wrap;
   padding: 8px 10px;
