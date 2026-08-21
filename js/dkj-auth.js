@@ -14,6 +14,7 @@
   var USER_KEY = 'dkj:auth:user:v2';
   var LEGACY_USER_KEY = 'dkj:auth:user:v1';
   var ADMIN_EMP_ID = '4343';
+  var REQUEST_TIMEOUT_MS = 15000;
   var ROLES = {
     system_admin: { label: '시스템 관리자', stages: ['writer', 'reviewer', 'approver'] },
     responsible: { label: '책임자', stages: ['writer', 'reviewer', 'approver'] },
@@ -60,6 +61,46 @@
     var root = String(c.databaseURL || '').replace(/\/$/, '') + '/' + (c.root || 'dkj-fssc22000');
     return root + (path ? '/' + path : '') + '.json?auth=' + encodeURIComponent(state.token || '');
   }
+  function authError(code, cause) {
+    var err = new Error(code);
+    err.code = code;
+    if (cause) err.cause = cause;
+    return err;
+  }
+  function fetchWithTimeout(url, options) {
+    var opts = options || {}, requestOpts = {}, controller = null, timer;
+    Object.keys(opts).forEach(function (key) { requestOpts[key] = opts[key]; });
+    if (typeof global.AbortController === 'function') {
+      controller = new global.AbortController();
+      requestOpts.signal = controller.signal;
+    }
+    var request = fetch(url, requestOpts)['catch'](function (err) {
+      if (err && err.name === 'AbortError') throw authError('NETWORK_TIMEOUT', err);
+      throw authError('NETWORK_ERROR', err);
+    });
+    var timeout = new Promise(function (_, reject) {
+      timer = setTimeout(function () {
+        if (controller) controller.abort();
+        reject(authError('NETWORK_TIMEOUT'));
+      }, REQUEST_TIMEOUT_MS);
+    });
+    return Promise.race([request, timeout]).then(function (response) {
+      clearTimeout(timer);
+      return response;
+    }, function (err) {
+      clearTimeout(timer);
+      throw err;
+    });
+  }
+  function responseJson(response) {
+    return response.text().then(function (text) {
+      if (!text) return {};
+      try { return JSON.parse(text); } catch (e) { throw authError('INVALID_RESPONSE', e); }
+    })['catch'](function (err) {
+      if (err && err.code) throw err;
+      throw authError('INVALID_RESPONSE', err);
+    });
+  }
   function emitReady() {
     try { document.dispatchEvent(new CustomEvent('dkj:auth-ready', { detail: user() })); } catch (e) {}
   }
@@ -79,35 +120,36 @@
   }
 
   async function signIn(empId, password) {
-    var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + config().apiKey, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+    var r = await fetchWithTimeout('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + config().apiKey, {
+      method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email(empId), password: password, returnSecureToken: true })
     });
-    var d = await r.json();
+    var d = await responseJson(r);
     if (!r.ok) throw new Error((d.error && d.error.message) || 'SIGNIN_FAILED');
     return d;
   }
   async function refresh(refreshToken) {
-    var r = await fetch('https://securetoken.googleapis.com/v1/token?key=' + config().apiKey, {
-      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    var r = await fetchWithTimeout('https://securetoken.googleapis.com/v1/token?key=' + config().apiKey, {
+      method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(refreshToken)
     });
-    var d = await r.json();
+    var d = await responseJson(r);
     if (!r.ok) throw new Error((d.error && d.error.message) || 'REFRESH_FAILED');
     return { idToken: d.id_token, refreshToken: d.refresh_token, uid: d.user_id };
   }
-  async function request(path, method, data) {
+  async function request(path, method, data, retried) {
     if (!state.token) throw new Error('NO_SESSION');
-    var r = await fetch(rootUrl(path), {
-      method: method || 'GET', headers: { 'Content-Type': 'application/json' },
+    var r = await fetchWithTimeout(rootUrl(path), {
+      method: method || 'GET', cache: 'no-store', headers: { 'Content-Type': 'application/json' },
       body: data === undefined ? undefined : JSON.stringify(data)
     });
     if (r.status === 401) {
+      if (retried) throw authError('SESSION_EXPIRED');
       await reauth();
-      return request(path, method, data);
+      return request(path, method, data, true);
     }
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
+    return responseJson(r);
   }
 
   function scriptRoot() {
@@ -279,7 +321,13 @@
         mask.remove(); renderBar(); emitReady();
       }).catch(function (ex) {
         btn.disabled = false;
-        err.textContent = ex.message === 'NOT_CONFIGURED' ? '클라우드 설정이 아직 완료되지 않았습니다.' : (ex.message === 'INVALID_LOGIN_CREDENTIALS' || String(ex.message).indexOf('PASSWORD') >= 0 || String(ex.message).indexOf('EMAIL') >= 0) ? '사번 또는 비밀번호가 맞지 않습니다.' : '로그인 실패: ' + ex.message;
+        var code = String((ex && (ex.code || ex.message)) || 'UNKNOWN_ERROR');
+        err.textContent = code === 'NOT_CONFIGURED' ? '클라우드 설정이 아직 완료되지 않았습니다.' :
+          (code === 'NETWORK_TIMEOUT' || code === 'NETWORK_ERROR') ? '인터넷 연결을 확인한 뒤 다시 시도하세요.' :
+          code === 'INVALID_RESPONSE' ? '로그인 서버 응답이 올바르지 않습니다. 다시 시도하세요.' :
+          code === 'SESSION_EXPIRED' ? '로그인이 만료되었습니다. 다시 로그인해 주세요.' :
+          (code === 'INVALID_LOGIN_CREDENTIALS' || code.indexOf('PASSWORD') >= 0 || code.indexOf('EMAIL') >= 0) ? '사번 또는 비밀번호가 맞지 않습니다.' :
+          '로그인에 실패했습니다. 잠시 후 다시 시도하세요.';
       });
     });
     mask.querySelector('#dkjEmpId').focus();
