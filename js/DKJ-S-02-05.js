@@ -25,8 +25,8 @@
     {
       "id": "month",
       "label": "점검 월",
-      "type": "text",
-      "placeholder": "2026년 8월",
+      "type": "month",
+      "placeholder": "2026-08",
       "required": true
     },
     {

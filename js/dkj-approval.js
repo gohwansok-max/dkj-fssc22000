@@ -190,6 +190,57 @@
     global.DkjRecordStore.__removeGuarded = true;
   }
 
+  function staffOptions() {
+    var rows = [];
+    var seen = {};
+    function add(empId, name) {
+      var label = String(name || '').trim();
+      var id = String(empId || '').trim();
+      if (!label && id) label = '사번 ' + id;
+      if (!label || seen[label]) return;
+      seen[label] = true;
+      rows.push({ value: label, label: label + (id ? ' (' + id + ')' : '') });
+    }
+    try {
+      var fixed = global.DkjAuth && global.DkjAuth.staff && global.DkjAuth.staff();
+      Object.keys(fixed || {}).forEach(function (id) { add(id, fixed[id].name); });
+    } catch (e) {}
+    try {
+      var current = me();
+      if (current) add(current.empId, current.name);
+    } catch (e) {}
+    return rows;
+  }
+
+  function attachStaffPickers() {
+    var fields = ['writer', 'reviewer', 'approver', 'inspector', 'confirmer', 'monitorName'];
+    var options = staffOptions();
+    fields.forEach(function (id) {
+      var input = document.getElementById(id);
+      if (!input) return;
+      var currentValue = input.value || '';
+      var select = input;
+      if (input.tagName === 'INPUT') {
+        select = document.createElement('select');
+        select.id = input.id;
+        select.className = input.className;
+        select.required = input.required;
+        input.parentNode.replaceChild(select, input);
+      }
+      if (select.tagName !== 'SELECT') return;
+      select.setAttribute('data-dkj-staff-picker', 'true');
+      select.innerHTML = '<option value="">등록 인원 선택</option>' + options.map(function (o) {
+        return '<option value="' + esc(o.value) + '">' + esc(o.label) + '</option>';
+      }).join('');
+      if (currentValue) {
+        if (!options.some(function (o) { return o.value === currentValue; })) {
+          select.insertAdjacentHTML('beforeend', '<option value="' + esc(currentValue) + '">' + esc(currentValue) + '</option>');
+        }
+        select.value = currentValue;
+      }
+    });
+  }
+
   /* ---------- 결재 패널 ---------- */
 
   function mount(opts) {
@@ -319,8 +370,21 @@
     }
 
     render();
-    // 역할표는 화면보다 늦게 올 수 있다 — 도착하면 버튼 잠금 상태만 다시 그린다
-    document.addEventListener('dkj:staff-loaded', render);
+    try {
+      if (global.DkjAuth && global.DkjAuth.loadStaff) global.DkjAuth.loadStaff()['catch'](function () {});
+      if (global.DkjAuth && global.DkjAuth.loadUsers) global.DkjAuth.loadUsers()['catch'](function () {});
+    } catch (e) {}
+    attachStaffPickers();
+    document.addEventListener('dkj:auth-ready', function () {
+      try {
+        if (global.DkjAuth && global.DkjAuth.loadUsers) global.DkjAuth.loadUsers()['catch'](function () {});
+      } catch (e) {}
+    });
+    document.addEventListener('dkj:staff-loaded', function () {
+      attachStaffPickers();
+      render();
+    });
+    document.addEventListener('dkj:auth-ready', attachStaffPickers);
     return { render: render };
   }
 

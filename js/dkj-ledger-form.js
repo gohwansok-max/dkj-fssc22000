@@ -116,8 +116,10 @@
         var v = state.info[f.id] || '';
         var input = f.type === 'date'
           ? '<input type="date" data-info="' + f.id + '" value="' + esc(v) + '">'
-          : '<input type="text" data-info="' + f.id + '" value="' + esc(v) + '" placeholder="' +
-            esc(f.placeholder || '') + '">';
+          : f.type === 'month'
+            ? '<input type="month" data-info="' + f.id + '" value="' + esc(v) + '">'
+            : '<input type="text" data-info="' + f.id + '" value="' + esc(v) + '" placeholder="' +
+              esc(f.placeholder || '') + '">';
         return '<div class="dkj-field"><label>' + esc(f.label) + '</label>' + input + '</div>';
       }).join('');
       host.querySelectorAll('[data-info]').forEach(function (el) {
@@ -322,7 +324,7 @@
 
     function bind() {
       ['writer', 'reviewer', 'approver'].forEach(function (k) {
-        if ($(k)) $(k).addEventListener('input', function () {
+        if ($(k)) $(k).addEventListener($(k).tagName === 'SELECT' ? 'change' : 'input', function () {
           state.approvals[k] = this.value; scheduleDraft();
         });
       });
@@ -349,9 +351,9 @@
       var draft = DkjRecordStore.loadDraft(FORM_ID);
       if (draft) state = Object.assign(emptyState(spec), draft);
       writeForm();
+      mountApproval();
       bind();
       renderHistory();
-      mountApproval();
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {

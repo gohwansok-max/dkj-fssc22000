@@ -185,6 +185,24 @@
       });
   }
 
+  function loadUsers() {
+    if (!configured() || !state.token) return Promise.resolve({});
+    return request('system/users', 'GET').then(function (users) {
+      var rows = users || {};
+      Object.keys(rows).forEach(function (uid) {
+        var row = rows[uid] || {};
+        if (!staffCache) staffCache = {};
+        staffCache[String(row.empId || uid)] = {
+          name: row.name || '',
+          role: row.role || 'worker',
+          stages: (ROLES[normalizeRole(row.role)] || ROLES.worker).stages
+        };
+      });
+      try { document.dispatchEvent(new CustomEvent('dkj:staff-loaded')); } catch (e) {}
+      return rows;
+    });
+  }
+
   async function loadAssignedRole() {
     if (!configured() || !state.uid) return state.role;
     try {
@@ -354,7 +372,7 @@
     login: login, logout: logout, resume: resume, reauth: reauth, requireLogin: requireLogin,
     configured: configured, user: user, token: function () { return state.token; }, role: function () { return state.role; },
     roleLabel: roleLabel, roles: function () { return ROLES; }, isSystemAdmin: isSystemAdmin,
-    request: request, loadAssignedRole: loadAssignedRole, loadStaff: loadStaff, staff: function () { return staffCache; },
+    request: request, loadAssignedRole: loadAssignedRole, loadStaff: loadStaff, loadUsers: loadUsers, staff: function () { return staffCache; },
     can: can, denyReason: denyReason
   };
 

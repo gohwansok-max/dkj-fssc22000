@@ -45,7 +45,7 @@
       },
       "system": {
         "users": {
-          ".read": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'",
+          ".read": "auth != null",
           "$uid": {
             ".read": "auth != null && ($uid === auth.uid || auth.token.email === 'emp4343@dkj-fssc.internal')",
             ".write": "auth != null && (auth.token.email === 'emp4343@dkj-fssc.internal' || (!data.exists() && $uid === auth.uid && newData.child('uid').val() === auth.uid && newData.child('role').val() === 'worker'))",

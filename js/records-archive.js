@@ -135,8 +135,11 @@
       $(id).addEventListener('change', apply);
     });
     ['arcWriter', 'arcQuery'].forEach(function (id) {
-      $(id).addEventListener('input', apply);
+      $(id).addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') apply();
+      });
     });
+    $('arcSearch').addEventListener('click', apply);
 
     $('arcAll').addEventListener('change', function () {
       selected = {};
