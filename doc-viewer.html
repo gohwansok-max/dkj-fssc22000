@@ -154,16 +154,18 @@
           var pdf = res[0];
           var driveDoc = res[1];
           var panel = document.getElementById('pdfPanel');
-          var btnPrint = document.getElementById('btnPrintPdf');
+          var pdfDownload = pdf ?
+            '<a class="pill-btn ghost" href="' + pdf + '" download="' + doc.code + '_' + doc.title + '.pdf" target="_blank" rel="noopener">PDF 다운로드</a> ' : '';
           var sourceDownload = driveDoc && driveDoc.downloadUrl ?
-            '<a class="pill-btn ghost" href="' + driveDoc.downloadUrl + '" target="_blank" rel="noopener">원본 다운로드</a> ' : '';
+            '<a class="pill-btn ghost" href="' + driveDoc.downloadUrl + '" download target="_blank" rel="noopener">원본 다운로드</a> ' : '';
           if (pdf) {
             panel.innerHTML =
               '<div class="viewer-notice ok" style="margin:0 0 12px;">' +
               '✓ <strong>Google Drive PDF 정본 연결됨</strong> · 인쇄는 PDF 정본을 사용하세요.' +
               '</div>' +
               '<div class="pdf-toolbar">' +
-                '<a class="pill-btn ghost" href="' + pdf + '" target="_blank" rel="noopener">PDF 새 탭 열기</a> ' + sourceDownload +
+                '<a class="pill-btn ghost" href="' + pdf + '" target="_blank" rel="noopener">PDF 새 탭 열기</a> ' +
+                pdfDownload + sourceDownload +
                 '<button type="button" class="pill-btn green" id="btnPdfPrintInline">정본 PDF 인쇄</button>' +
               '</div>' +
               '<iframe class="pdf-frame" id="pdfFrame" src="' + pdf + '" title="PDF ' + doc.code + '"></iframe>';
@@ -180,7 +182,7 @@
               '</div>' +
               '<div class="pdf-toolbar">' +
                 '<a class="pill-btn ghost" href="' + driveDoc.viewUrl + '" target="_blank" rel="noopener">원본 새 탭 열기</a> ' +
-                '<a class="pill-btn ghost" href="' + driveDoc.downloadUrl + '" target="_blank" rel="noopener">원본 다운로드</a> ' +
+                '<a class="pill-btn ghost" href="' + driveDoc.downloadUrl + '" download target="_blank" rel="noopener">원본 다운로드</a> ' +
                 '<button type="button" class="pill-btn green" id="btnDrivePrintInline">원본 인쇄</button>' +
               '</div>' +
               '<iframe class="pdf-frame" id="pdfFrame" src="' + driveDoc.previewUrl + '" title="원본 ' + doc.code + '"></iframe>';
