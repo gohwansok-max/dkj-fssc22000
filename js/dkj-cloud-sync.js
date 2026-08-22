@@ -130,20 +130,35 @@
     });
   }
 
+  function storageKeys() {
+    var keys = [];
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k != null) keys.push(k);
+      }
+    } catch (e) {}
+    return keys;
+  }
+
   async function legacySyncAll(silent) {
     var cloud = (await request('records', 'GET')) || {};
     var touched = 0;
-    for (var encodedKey in cloud) {
-      if (!Object.prototype.hasOwnProperty.call(cloud, encodedKey)) continue;
-      var key = readNodeKey(encodedKey), row = cloud[encodedKey];
-      if (!isSyncKey(key) || !row) continue;
+    var keys = Object.keys(cloud);
+    for (var i = 0; i < keys.length; i++) {
+      var encodedKey = keys[i];
+      var key = readNodeKey(encodedKey);
+      if (!isSyncKey(key)) continue;
+      var row = cloud[encodedKey];
+      if (!row || !Array.isArray(row.value)) continue;
       var localVal = parse(localStorage.getItem(key)) || [];
       var merged = mergeRecords(localVal, row.value);
       if (!same(merged, localVal)) { writeLocal(key, merged); touched++; }
       if (!same(merged, row.value)) await legacyPushKey(key);
     }
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i);
+    var localKeys = storageKeys();
+    for (var i = 0; i < localKeys.length; i++) {
+      var k = localKeys[i];
       if (isSyncKey(k) && !cloud[nodeKey(k)]) await legacyPushKey(k);
     }
     markSynced();
@@ -323,8 +338,9 @@
     var cloud = (await request('records_v2', 'GET')) || {};
     var forms = {}, touched = false;
     Object.keys(cloud).forEach(function (encodedForm) { forms[readNodeKey(encodedForm)] = cloud[encodedForm]; });
-    for (var i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i), formId = formIdOf(key);
+    var storageKeyList = storageKeys();
+    for (var i = 0; i < storageKeyList.length; i++) {
+      var key = storageKeyList[i], formId = formIdOf(key);
       if (formId) forms[formId] = forms[formId] || null;
     }
     var ids = Object.keys(forms);

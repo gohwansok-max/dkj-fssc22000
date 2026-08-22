@@ -14,7 +14,7 @@
   }
 
   function currentCode() {
-    var m = location.pathname.match(/([A-Z]{3}-[A-Z]-\d{2}-[A-Z0-9-]+)\.html/);
+    var m = location.pathname.match(/\/records\/([^/]+)\.html/i) || location.pathname.match(/([A-Za-z0-9_-]+)\.html/i);
     return m ? m[1] : '';
   }
 

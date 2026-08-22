@@ -20,6 +20,8 @@ BUNDLES = [
     ("process-line.json", "process-line.bundle.js", "DKJ_PROCESS_LINE"),
     # 직원별 결재 권한 — js/dkj-auth.js 가 읽는다
     ("staff-roles.json", "staff-roles.bundle.js", "DKJ_STAFF_ROLES"),
+    # MDR 카탈로그
+    ("mdr-catalog.json", "mdr-catalog.bundle.js", "DKJ_MDR_CATALOG"),
 ]
 
 

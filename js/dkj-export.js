@@ -13,7 +13,14 @@
   'use strict';
 
   var LIST_RE = /^dkj:records:(.+):list:v1$/;
-  var EXCELJS_SRC = 'js/vendor/exceljs.bare.min.js';
+
+  function base() {
+    return location.pathname.indexOf('/records/') !== -1 ? '../' : '';
+  }
+
+  function excelJsSrc() {
+    return base() + 'js/vendor/exceljs.bare.min.js';
+  }
 
   // 서식마다 이름이 다른 '같은 뜻'의 필드들 — 앞의 것부터 찾아 쓴다
   var DATE_KEYS = ['checkDate', 'workDate', 'docDate', 'date', 'inspectDate', 'weekStart', 'ymd'];
@@ -58,11 +65,23 @@
     return hit ? hit.title : '';
   }
 
+  function storageKeys() {
+    var keys = [];
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k != null) keys.push(k);
+      }
+    } catch (e) {}
+    return keys;
+  }
+
   /** localStorage 안의 모든 기록을 서식 구분 없이 한 배열로 모은다. */
   function collect() {
     var out = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i);
+    var keys = storageKeys();
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       var m = key && key.match(LIST_RE);
       if (!m) continue;
       var formId = m[1];
@@ -240,7 +259,7 @@
     if (global.ExcelJS) return Promise.resolve(global.ExcelJS);
     return new Promise(function (resolve, reject) {
       var s = document.createElement('script');
-      s.src = EXCELJS_SRC;
+      s.src = excelJsSrc();
       s.onload = function () {
         global.ExcelJS ? resolve(global.ExcelJS) : reject(new Error('EXCELJS_LOAD_FAILED'));
       };
@@ -328,8 +347,9 @@
   /** 전체 기록 원본 백업 — 복원 가능한 형태(JSON). */
   function toJsonBackup(filename) {
     var dump = { site: '동김제농협 산지유통센터', exportedAt: new Date().toISOString(), records: {} };
-    for (var i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i);
+    var keys = storageKeys();
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       if (key && LIST_RE.test(key)) {
         try { dump.records[key] = JSON.parse(localStorage.getItem(key)); } catch (e) {}
       }

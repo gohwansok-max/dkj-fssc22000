@@ -42,7 +42,11 @@ jobs:
             --exclude '_site' \
             --exclude 'scripts' \
             --exclude 'functions' \
+            --exclude 'functions-periodic' \
             --exclude 'tests' \
+            --exclude 'database.rules.json' \
+            --exclude 'firebase.json' \
+            --exclude '.firebaserc' \
             --exclude '*.md' \
             --exclude '*.local.json' \
             ./ _site/

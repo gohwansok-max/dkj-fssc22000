@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-6086afb60e38';
+self.DKJ_SW_VERSION = 'v1-8b36a7d7c655';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -17,7 +17,6 @@ self.DKJ_PRECACHE = [
   './css/dkj-matrix.css',
   './css/dkj-nav.css',
   './css/dkj-periodic-alerts.css',
-  './css/dkj-periodic-alerts.v54.css',
   './css/dkj-print.css',
   './css/dkj-quick-nav.css',
   './css/dkj-tokens.css',
@@ -292,9 +291,7 @@ self.DKJ_PRECACHE = [
   './js/official-documents.js',
   './js/pdf-manifest.bundle.js',
   './js/periodic-alert-excel.js',
-  './js/periodic-alert-excel.v54.js',
   './js/periodic-alerts.js',
-  './js/periodic-alerts.v54.js',
   './js/process-line.bundle.js',
   './js/products.bundle.js',
   './js/quality-dashboard.js',

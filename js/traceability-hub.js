@@ -48,8 +48,15 @@
 
   function localRecords() {
     var out = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i) || '';
+    var keys = [];
+    try {
+      for (var k = 0; k < localStorage.length; k++) {
+        var sk = localStorage.key(k);
+        if (sk != null) keys.push(sk);
+      }
+    } catch (e) {}
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i] || '';
       var match = key.match(/^dkj:records:([^:]+):list:v1$/);
       if (!match) continue;
       try {
