@@ -53,6 +53,11 @@
     .btn-del:hover{background:#b42318;color:#fff;border-color:#b42318}
     .btn-del:disabled{opacity:.35;cursor:not-allowed;background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0}
     
+    .pw-wrap{display:flex;align-items:center;gap:4px;width:100%}
+    .pw-wrap input{flex:1;min-width:0;font-family:inherit;letter-spacing:.04em;font-weight:600;color:#0f5132;background:#f9fdfa}
+    .btn-pw-eye{border:1px solid #cbdad1;background:#f0f7f3;color:#234f37;border-radius:6px;padding:6px 8px;font-size:12px;cursor:pointer;flex:0 0 auto;transition:background .15s}
+    .btn-pw-eye:hover{background:#dbeee2}
+    
     .role-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
     .role-box{border:1px solid #d9e7df;border-radius:12px;padding:13px;background:#fcfffd}
     .role-box b{display:block;color:var(--green);font-size:15px}
@@ -151,12 +156,11 @@
         <div class="table-wrap">
           <table class="user-table">
             <thead>
-              <tr>
-                <th style="width:10%">사번 (ID)</th>
-                <th style="width:18%">성명 (표시 이름)</th>
-                <th style="width:18%">권한 역할</th>
-                <th style="width:20%">비밀번호 변경</th>
-                <th style="width:18%">최근 로그인</th>
+                <th style="width:12%">사번 (ID)</th>
+                <th style="width:17%">성명 (표시 이름)</th>
+                <th style="width:17%">권한 역할</th>
+                <th style="width:21%">비밀번호 (조회 / 수정)</th>
+                <th style="width:17%">최근 로그인</th>
                 <th style="width:16%">관리</th>
               </tr>
             </thead>

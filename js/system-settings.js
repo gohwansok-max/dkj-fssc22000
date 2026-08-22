@@ -69,6 +69,7 @@
 
     target.innerHTML = rows.map(function (row) {
       var isRootAdmin = String(row.empId) === '4343';
+      var currentPw = row.password || row.empId || '';
       return '<tr data-emp-id="' + esc(row.empId) + '">' +
         '<td>' +
           (isRootAdmin
@@ -77,7 +78,12 @@
         '</td>' +
         '<td><input type="text" class="user-name" maxlength="20" value="' + esc(row.name || '') + '" placeholder="성명"></td>' +
         '<td><select class="user-role"' + (isRootAdmin ? ' disabled' : '') + '>' + optionTags(row.role || 'worker') + '</select></td>' +
-        '<td><input type="text" class="user-pw pw-input" maxlength="30" placeholder="새 비밀번호 입력 시 변경" value=""></td>' +
+        '<td>' +
+          '<div class="pw-wrap">' +
+            '<input type="text" class="user-pw pw-input" maxlength="30" placeholder="비밀번호" value="' + esc(currentPw) + '">' +
+            '<button type="button" class="btn-pw-eye" title="비밀번호 숨기기/보기">🔒</button>' +
+          '</div>' +
+        '</td>' +
         '<td><span style="font-size:12px;color:#555;">' + esc(fmt(row.lastLoginAt || row.createdAt)) + '</span></td>' +
         '<td>' +
           '<div class="action-cell">' +
@@ -94,6 +100,21 @@
     });
     Array.prototype.forEach.call(target.querySelectorAll('.btn-del-user'), function (btn) {
       btn.addEventListener('click', function () { deleteRow(btn.closest('tr')); });
+    });
+    Array.prototype.forEach.call(target.querySelectorAll('.btn-pw-eye'), function (btn) {
+      btn.addEventListener('click', function () {
+        var input = btn.closest('.pw-wrap').querySelector('.user-pw');
+        if (!input) return;
+        if (input.type === 'password') {
+          input.type = 'text';
+          btn.textContent = '🔒';
+          btn.title = '비밀번호 숨기기';
+        } else {
+          input.type = 'password';
+          btn.textContent = '👁️';
+          btn.title = '비밀번호 보기';
+        }
+      });
     });
   }
 
@@ -131,12 +152,12 @@
         password: password
       });
 
-      addAudit('사용자 계정 신규 추가', empId, name + ' · ' + roles[role]);
+      addAudit('사용자 계정 신규 추가', empId, name + ' · ' + roles[role] + ' · 비밀번호 설정');
       $('newEmpId').value = '';
       $('newName').value = '';
       $('newPassword').value = '';
       renderUsers();
-      setStatus('사용자 ' + name + '(' + empId + ') 계정을 성공적으로 등록했습니다! 바로 로그인할 수 있습니다.', 'ok');
+      setStatus('사용자 ' + name + '(' + empId + ') 계정을 성공적으로 등록했습니다! 비밀번호: [' + password + ']', 'ok');
     } catch (e) {
       setStatus('사용자 등록 실패: ' + e.message, 'bad');
     }
@@ -152,23 +173,20 @@
 
     if (!newEmpId) { setStatus('사번(아이디)을 입력하세요.', 'bad'); return; }
     if (!name) { setStatus('성명을 입력하세요.', 'bad'); return; }
+    if (!pw) { setStatus('비밀번호를 입력하세요.', 'bad'); return; }
 
     try {
-      var updateData = { newEmpId: newEmpId, name: name, role: role };
+      var updateData = { newEmpId: newEmpId, name: name, role: role, password: pw };
       var detail = name + ' · ' + roles[role];
       if (newEmpId !== oldEmpId) {
         detail += ' · 아이디 변경(' + oldEmpId + '→' + newEmpId + ')';
       }
-      if (pw) {
-        updateData.password = pw;
-        detail += ' · 비밀번호 변경';
-      }
+      detail += ' · 비밀번호 저장(' + pw + ')';
 
       window.DkjAuth.saveUser(oldEmpId, updateData);
       addAudit('사용자 계정 정보 수정', newEmpId, detail);
-      tr.querySelector('.user-pw').value = '';
       renderUsers();
-      setStatus('사용자 ' + name + '(' + newEmpId + ') 계정 정보를 저장했습니다. 해당 아이디로 바로 로그인할 수 있습니다.', 'ok');
+      setStatus('사용자 ' + name + '(' + newEmpId + ') 계정 정보를 저장했습니다. (비밀번호: ' + pw + ')', 'ok');
     } catch (e) {
       setStatus('저장 실패: ' + e.message, 'bad');
     }
