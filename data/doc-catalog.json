@@ -22,7 +22,7 @@
       "description": "FSSC22000 V6 운영 절차서 — SIPOC·실무TIP·심사확인",
       "menuGroup": "문서체계",
       "workflowStatus": "완료",
-      "count": 20
+      "count": 21
     },
     {
       "id": "prp",
@@ -520,6 +520,29 @@
         "운영중",
         "Rev4 정본"
       ]
+    },
+    {
+      "id": "DKJ-P-21",
+      "category": "procedure",
+      "code": "DKJ-P-21",
+      "title": "식품안전문화 절차서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "docx",
+      "mdrRev": "Rev0",
+      "mdrStatus": "운영중",
+      "tags": [
+        "식품안전문화",
+        "FSSC22000",
+        "V6"
+      ],
+      "highlights": [
+        "2.5.8 추가요구사항",
+        "FSC-01 연계",
+        "DKJ-F-047",
+        "2026.08.20 제정"
+      ],
+      "excerpt": "data/excerpts/DKJ-P-21.txt"
     },
     {
       "id": "PP-00",

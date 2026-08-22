@@ -22,6 +22,8 @@ BUNDLES = [
     ("staff-roles.json", "staff-roles.bundle.js", "DKJ_STAFF_ROLES"),
     # MDR 카탈로그
     ("mdr-catalog.json", "mdr-catalog.bundle.js", "DKJ_MDR_CATALOG"),
+    # Google Drive 정본 문서 매니페스트
+    ("drive-document-manifest.json", "drive-document-manifest.bundle.js", "DKJ_DRIVE_DOCUMENTS"),
 ]
 
 
