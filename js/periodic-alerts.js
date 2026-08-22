@@ -154,6 +154,7 @@
   }
   function renderEmailSettings() {
     state.email = loadEmailSettings();
+    if (!state.email.recipients) state.email.recipients = [];
     if (!state.emailDirty) {
       $('paEmailRecipients').value = state.email.recipients.join(', ');
       $('paEmailDispatchTime').value = state.email.dispatchTime || '08:30';
@@ -162,10 +163,85 @@
       $('paEmailToday').checked = state.email.levels.today !== false;
       $('paEmailSoon').checked = state.email.levels.soon !== false;
     }
+
+    var listEl = $('paRecipientsList');
+    if (listEl) {
+      if (!state.email.recipients.length) {
+        listEl.innerHTML = '<span class="pa-recipient-empty">등록된 수신 이메일이 없습니다. 아래에서 이메일을 추가해 주세요.</span>';
+      } else {
+        listEl.innerHTML = state.email.recipients.map(function (em) {
+          return '<span class="pa-recipient-tag">' + esc(em) + ' <button type="button" class="pa-tag-del" data-email="' + esc(em) + '" title="수신자 삭제">×</button></span>';
+        }).join('');
+      }
+    }
+    if ($('paRecipientCount')) $('paRecipientCount').textContent = state.email.recipients.length;
+
+    var quickEl = $('paQuickStaff');
+    if (quickEl) {
+      quickEl.innerHTML = '<span>💡 빠른 추가:</span> ' +
+        '<button type="button" data-add-email="gohwansok@gmail.com">+ 고환석 (gohwansok@gmail.com)</button> ' +
+        '<button type="button" data-add-email="quality@donggimje.nonghyup.com">+ 품질관리팀</button> ' +
+        '<button type="button" data-add-email="haccp@donggimje.nonghyup.com">+ HACCP팀</button>';
+    }
+
     var status = $('paEmailStatus'), recipientCount = state.email.recipients.length;
     if (!state.email.enabled) { status.className = 'pa-email-status warn'; status.textContent = '서버 이메일 자동 발송이 꺼져 있습니다.'; }
     else if (!recipientCount) { status.className = 'pa-email-status warn'; status.textContent = '수신 이메일을 등록하면 매일 ' + (state.email.dispatchTime || '08:30') + '에 서버가 자동 발송합니다.'; }
-    else { status.className = 'pa-email-status ok'; status.textContent = recipientCount + '명에게 매일 ' + (state.email.dispatchTime || '08:30') + '에 자동 발송하도록 저장되었습니다. 서버 배포 후 브라우저를 닫아도 동작합니다.'; }
+    else { status.className = 'pa-email-status ok'; status.textContent = recipientCount + '명에게 매일 ' + (state.email.dispatchTime || '08:30') + '에 자동 발송하도록 저장되었습니다. (브라우저를 닫아도 서버에서 자동 발송)'; }
+  }
+
+  function addRecipient(emailStr) {
+    var raw = String(emailStr || '').trim();
+    if (!raw) { toast('추가할 이메일 주소를 입력하세요.', true); return; }
+    if (!validEmail(raw)) { toast('올바른 이메일 형식이 아닙니다: ' + raw, true); return; }
+    if (!state.email) state.email = loadEmailSettings();
+    if (!state.email.recipients) state.email.recipients = [];
+    var lower = raw.toLowerCase();
+    if (state.email.recipients.indexOf(lower) !== -1) {
+      toast('이미 등록된 수신 이메일입니다: ' + lower, true);
+      return;
+    }
+    state.email.recipients.push(lower);
+    saveEmailSettings({ recipients: state.email.recipients });
+    state.emailDirty = false;
+    if ($('paNewRecipientInput')) $('paNewRecipientInput').value = '';
+    renderEmailSettings();
+    toast('수신자 추가 완료: ' + lower);
+  }
+
+  function removeRecipient(emailStr) {
+    var lower = String(emailStr || '').trim().toLowerCase();
+    if (!state.email || !state.email.recipients) return;
+    state.email.recipients = state.email.recipients.filter(function (e) { return e.toLowerCase() !== lower; });
+    saveEmailSettings({ recipients: state.email.recipients });
+    state.emailDirty = false;
+    renderEmailSettings();
+    toast('수신자 제거 완료: ' + lower);
+  }
+
+  function previewEmailDispatch() {
+    state.email = loadEmailSettings();
+    var recipients = state.email.recipients || [];
+    var activeAlerts = state.alerts || [];
+    var time = state.email.dispatchTime || '08:30';
+    var enabled = state.email.enabled !== false;
+
+    var msg = '【 정기 알림 이메일 자동 발송 현황 】\n\n' +
+      '• 발송 상태: ' + (enabled ? '🟢 사용 중 (자동 발송 대기)' : '🔴 꺼짐') + '\n' +
+      '• 매일 발송 시각: ' + time + ' (KST 한국 표준시)\n' +
+      '• 등록된 수신자 (' + recipients.length + '명):\n  ' + (recipients.length ? recipients.join('\n  ') : '(수신자가 없습니다. 이메일을 추가해 주세요.)') + '\n\n' +
+      '• 오늘 기준 발송 대상 알림 (' + activeAlerts.length + '건):\n';
+
+    if (!activeAlerts.length) {
+      msg += '  (현재 7일 이내 예정된 알림 항목이 없어 발송이 대기됩니다.)';
+    } else {
+      activeAlerts.forEach(function (it, idx) {
+        var st = statusOf(it);
+        msg += '  ' + (idx + 1) + '. [' + st.label + '] ' + it.name + (it.target ? ' (' + it.target + ')' : '') + ' (예정일: ' + (it.dueDate || '-') + ')\n';
+      });
+    }
+
+    alert(msg);
   }
   function renderLiveInfo() {
     var config = settings(), permission = browserPermission();
@@ -365,7 +441,31 @@
     $('paBrowserEnabled').addEventListener('change', function () { var next = settings(); next.browserEnabled = this.checked; saveSettings(next); render(); });
     $('paRequestPermission').addEventListener('click', requestPermission);
     $('paSaveEmailSettings').addEventListener('click', saveEmailFromScreen);
-    ['paEmailRecipients', 'paEmailDispatchTime', 'paEmailEnabled', 'paEmailOverdue', 'paEmailToday', 'paEmailSoon'].forEach(function (id) { $(id).addEventListener('input', function () { state.emailDirty = true; }); $(id).addEventListener('change', function () { state.emailDirty = true; }); });
+    if ($('paTestEmailDispatch')) $('paTestEmailDispatch').addEventListener('click', previewEmailDispatch);
+    
+    // 수신자 추가 버튼 & 엔터키
+    if ($('paAddRecipientBtn')) {
+      $('paAddRecipientBtn').addEventListener('click', function () {
+        addRecipient($('paNewRecipientInput') && $('paNewRecipientInput').value);
+      });
+    }
+    if ($('paNewRecipientInput')) {
+      $('paNewRecipientInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addRecipient(this.value);
+        }
+      });
+    }
+
+    ['paEmailRecipients', 'paEmailDispatchTime', 'paEmailEnabled', 'paEmailOverdue', 'paEmailToday', 'paEmailSoon'].forEach(function (id) {
+      var el = $(id);
+      if (el) {
+        el.addEventListener('input', function () { state.emailDirty = true; });
+        el.addEventListener('change', function () { state.emailDirty = true; });
+      }
+    });
+
     $('paDownloadTemplate').addEventListener('click', downloadExcelTemplate);
     $('paDownloadItems').addEventListener('click', downloadExcelItems);
     $('paUploadItems').addEventListener('click', function () { $('paExcelFile').click(); });
@@ -373,8 +473,23 @@
     $('paExcelFile').addEventListener('change', function () { var file = this.files && this.files[0]; this.value = ''; uploadExcelItems(file); });
     $('paTypeFilter').addEventListener('change', renderTable);
     $('paStateFilter').addEventListener('change', renderTable);
+
     document.addEventListener('click', function (event) {
-      var button = event.target.closest('[data-action],[data-alert-action]'); if (!button) return;
+      // 수신자 삭제
+      var delBtn = event.target.closest('.pa-tag-del');
+      if (delBtn) {
+        removeRecipient(delBtn.getAttribute('data-email'));
+        return;
+      }
+      // 빠른 추가 버튼
+      var addBtn = event.target.closest('[data-add-email]');
+      if (addBtn) {
+        addRecipient(addBtn.getAttribute('data-add-email'));
+        return;
+      }
+      // 테이블 및 알림창 액션
+      var button = event.target.closest('[data-action],[data-alert-action]');
+      if (!button) return;
       var id = button.getAttribute('data-id');
       if (button.getAttribute('data-action') === 'complete') completeItem(id);
       if (button.getAttribute('data-action') === 'edit' || button.getAttribute('data-alert-action') === 'edit') editItem(id);
