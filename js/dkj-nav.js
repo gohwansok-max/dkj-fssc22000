@@ -96,7 +96,10 @@
       document.body.appendChild(backdrop);
     }
 
+    var leaveTimer = null;
+
     function closeAll() {
+      if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
       items.forEach(function (it) {
         it.classList.remove('open');
         var btn = it.querySelector('.gnb-trigger');
@@ -106,43 +109,55 @@
       root.classList.remove('mega-open');
     }
 
+    function openItem(it) {
+      if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+      items.forEach(function (other) {
+        if (other !== it) {
+          other.classList.remove('open');
+          var obtn = other.querySelector('.gnb-trigger');
+          if (obtn) obtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      it.classList.add('open');
+      var btn = it.querySelector('.gnb-trigger');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+      backdrop.classList.add('show');
+      root.classList.add('mega-open');
+    }
+
     items.forEach(function (it) {
       var btn = it.querySelector('.gnb-trigger');
       if (!btn) return;
+
       btn.addEventListener('click', function (e) {
         e.preventDefault();
-        var willOpen = !it.classList.contains('open');
-        closeAll();
-        if (willOpen) {
-          it.classList.add('open');
-          btn.setAttribute('aria-expanded', 'true');
-          backdrop.classList.add('show');
-          root.classList.add('mega-open');
+        e.stopPropagation();
+        var isOpen = it.classList.contains('open');
+        if (isOpen) {
+          closeAll();
+        } else {
+          openItem(it);
         }
+      });
+
+      it.addEventListener('mouseenter', function () {
+        openItem(it);
+      });
+
+      it.addEventListener('mouseleave', function () {
+        if (leaveTimer) clearTimeout(leaveTimer);
+        leaveTimer = setTimeout(function () {
+          closeAll();
+        }, 280);
       });
     });
 
     backdrop.addEventListener('click', closeAll);
+    document.addEventListener('click', function (e) {
+      if (!root.contains(e.target)) closeAll();
+    });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeAll();
-    });
-
-    // desktop hover open
-    var mq = window.matchMedia('(min-width: 1025px)');
-    items.forEach(function (it) {
-      it.addEventListener('mouseenter', function () {
-        if (!mq.matches) return;
-        closeAll();
-        it.classList.add('open');
-        root.classList.add('mega-open');
-      });
-      it.addEventListener('mouseleave', function () {
-        if (!mq.matches) return;
-        it.classList.remove('open');
-        if (!root.querySelector('.gnb-item.open')) {
-          root.classList.remove('mega-open');
-        }
-      });
     });
   }
 

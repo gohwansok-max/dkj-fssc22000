@@ -302,11 +302,11 @@ img.brand-logo {
 .mega-menu {
   display: none;
   position: absolute;
-  top: calc(100% + 4px);
+  top: 100%;
   left: 0;
   min-width: 580px;
   max-width: calc(100vw - 32px);
-  max-height: calc(100vh - 90px);
+  max-height: calc(100vh - 84px);
   overflow-y: auto;
   padding: 20px;
   background: #ffffff;
@@ -316,8 +316,20 @@ img.brand-logo {
   z-index: 9999;
 }
 
+/* 마우스 이동 시 닫히지 않도록 투명 연결 브릿지 영역 생성 */
+.mega-menu::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: 0;
+  right: 0;
+  height: 18px;
+  display: block;
+}
+
 .gnb-item.open .mega-menu,
-.gnb-item:hover .mega-menu {
+.gnb-item:hover .mega-menu,
+.gnb-item:focus-within .mega-menu {
   display: block !important;
 }
 
