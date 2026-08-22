@@ -13,8 +13,16 @@
   </style>
   <link rel="stylesheet" href="css/dkj-accessibility.css?v=54">
 </head>
-<body>
-<header class="site-header"><a class="brand" href="index.html"><img src="assets/brand/nh-symbol.svg" alt=""><span><b>동김제농협</b><b>산지유통센터</b></span><em>스마트 HACCP · FSSC22000 V6</em></a><button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">☰</button><nav class="gnb" id="gnb" data-dkj-nav data-active="audit_edu"></nav></header>
+<body class="hub-page">
+  <header class="ck-header">
+    <a class="ck-brand" href="index.html" aria-label="업무 콘솔로"><span class="ck-wordmark"><img class="ck-wordmark-symbol" src="assets/brand/nh-symbol.svg" alt=""><span class="ck-wordmark-name"><b>동김제농협</b><b>산지유통센터</b></span></span><span class="ck-tagline">스마트 HACCP · FSSC22000 V6</span></a>
+    <nav class="gnb" id="gnb" data-dkj-nav data-active="audit_edu" data-base="" aria-label="주요 메뉴"></nav>
+    <div class="ck-header-right">
+      <a class="ck-hbtn" href="executive-dashboard.html">임원 현황</a>
+      <a class="ck-hbtn on" href="audit-trail.html" aria-current="page">감사이력</a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="gnb"><span></span><span></span><span></span></button>
+    </div>
+  </header>
 <main id="adminApp" class="at-wrap" data-system-admin>
   <section class="at-hero"><div><p class="at-kicker">FSSC 22000 · ADMINISTRATOR AUDIT EVIDENCE</p><h1>전자결재 이력 · 감사 추적</h1><p>서식별 저장·잠금·결재·승인 이력을 통합 조회합니다. 이 화면은 읽기 전용이며, 감사이력 해시 체인 무결성을 확인하고 심사 요청 범위의 로그를 CSV로 내보낼 수 있습니다.</p></div><div class="at-guard" id="accessPill">관리자 권한 확인 중</div></section>
   <section class="cards"><div class="card"><span>추적 대상 기록</span><b id="countRecords">0</b></div><div class="card"><span>감사이력 이벤트</span><b id="countEvents">0</b></div><div class="card"><span>전자서명 완료</span><b id="countSigns">0</b></div><div class="card ok"><span>무결성 정상</span><b id="countOk">0</b></div><div class="card ng"><span>검토 필요</span><b id="countNg">0</b></div></section>

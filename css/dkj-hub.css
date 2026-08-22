@@ -12,7 +12,44 @@
    주의 — 목록 DOM은 docs-center.js / records-center.js / mdr-register.js 가
    문자열로 만든다. 아래 선택자(.doc-row, .cat-status, .status-pill 등)는
    그 JS가 내보내는 클래스명이므로 이름을 바꾸면 스타일이 끊긴다.
-   ============================================================ */
+/* ---------- 헤더 공통 및 브랜드 로고 크기 고정 ---------- */
+.site-header,
+.ck-header {
+  background: var(--nh-green, #009a44) !important;
+  color: #fff !important;
+  padding: 0 24px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-sizing: border-box;
+}
+
+.site-header .brand,
+.ck-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.site-header .brand img,
+.site-header img,
+.brand img,
+.ck-wordmark-symbol,
+img.brand-logo {
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  flex: 0 0 32px !important;
+  object-fit: contain;
+}
 
 /* ---------- 헤더 안 메가메뉴 (dkj-nav.js) ---------- */
 

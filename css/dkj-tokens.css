@@ -160,9 +160,10 @@
 .console-page *,
 .hub-page * { box-sizing: border-box; }
 
-/* ---------- 헤더 ---------- */
-.ck-header {
-  background: var(--nh-green);
+/* ---------- 헤더 공통 (.ck-header, .site-header) ---------- */
+.ck-header,
+.site-header {
+  background: var(--nh-green, #009a44);
   color: #fff;
   padding: 0 24px;
   height: 72px;
@@ -172,15 +173,29 @@
   position: sticky;
   top: 0;
   z-index: 40;
+  box-sizing: border-box;
 }
 
-.ck-brand {
+.ck-brand,
+.site-header .brand {
   display: flex;
   align-items: center;
   gap: 12px;
   min-width: 0;
   color: inherit;
   text-decoration: none;
+}
+
+.site-header .brand > img,
+.site-header img,
+.ck-wordmark-symbol,
+img.brand-logo {
+  width: 32px;
+  height: 32px;
+  max-width: 32px;
+  max-height: 32px;
+  flex: 0 0 32px;
+  object-fit: contain;
 }
 
 /* 워드마크 — 녹색 심볼 + 사업장명을 흰 타일에 얹은 락업.
@@ -193,21 +208,9 @@
   align-items: center;
   gap: 9px;
   flex: 0 0 auto;
-  /* 순백 유지. 타일을 살짝 어둡게(--nh-green-50) 해 봤지만 노랑(#FFC72C)이 그 자체로
-     밝은 색이라 명도 대비가 오히려 내려간다 — 노랑 1.56:1 → 1.41:1, 녹색 글자 3.68:1
-     → 3.32:1. 심볼을 또렷하게 하려면 어중간하게 낮출 게 아니라 --nh-green-dark 수준까지
-     내리고 글자를 흰색으로 바꿔야 한다(그때 노랑 3.9:1). 흰 바탕은 농협 로고의 기본
-     사용 조건이기도 하다. */
   background: #fff;
   border-radius: 10px;
   padding: 6px 13px 6px 9px;
-}
-
-.ck-wordmark-symbol {
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
-  object-fit: contain;
 }
 
 .ck-wordmark-name {
