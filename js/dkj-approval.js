@@ -238,6 +238,14 @@
         }
         select.value = currentValue;
       }
+      if (!select.getAttribute('data-dkj-bound')) {
+        select.setAttribute('data-dkj-bound', 'true');
+        var handler = function () {
+          global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+        };
+        select.addEventListener('input', handler);
+        select.addEventListener('change', handler);
+      }
     });
   }
 
@@ -385,6 +393,20 @@
       render();
     });
     document.addEventListener('dkj:auth-ready', attachStaffPickers);
+
+    var onFieldChange = function (e) {
+      if (e && e.target && /^(writer|reviewer|approver|inspector|confirmer|monitorName)$/.test(e.target.id)) {
+        if (typeof getState === 'function') getState();
+        render();
+      }
+    };
+    document.addEventListener('input', onFieldChange);
+    document.addEventListener('change', onFieldChange);
+    global.addEventListener('dkj:approval-changed', function () {
+      if (typeof getState === 'function') getState();
+      render();
+    });
+
     return { render: render };
   }
 

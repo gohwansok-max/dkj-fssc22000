@@ -299,8 +299,13 @@
   function bind() {
     ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize', 'weightClass',
       'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
-      $(id).addEventListener('input', scheduleDraft);
-      $(id).addEventListener('change', scheduleDraft);
+      var onFieldInput = function () {
+        readForm();
+        refreshApproval();
+        scheduleDraft();
+      };
+      $(id).addEventListener('input', onFieldInput);
+      $(id).addEventListener('change', onFieldInput);
     });
     $('weightClass').addEventListener('change', renderWeightHint);
     $('btnAddRow').addEventListener('click', function () {
@@ -358,7 +363,7 @@
     mountApproval();
     refreshApproval();
     if (window.DkjUtil) {
-      window.DkjUtil.autoFillUser(state, ['monitorName', 'confirmer', 'approver'], function () {
+      window.DkjUtil.autoFillUser(state, ['monitorName'], function () {
         writeForm();
       });
     }

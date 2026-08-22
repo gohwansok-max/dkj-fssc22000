@@ -284,14 +284,17 @@
     ['workDate', 'disinfectant', 'productName', 'lot', 'clMin', 'clMax', 'timeMin',
       'monitorName', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var el = $(id);
-      el.addEventListener('input', function () {
+      var onFieldInput = function () {
         if (id === 'clMin' || id === 'clMax' || id === 'timeMin') {
           readForm();
           renderRows();
         }
+        readForm();
+        refreshApproval();
         scheduleDraft();
-      });
-      el.addEventListener('change', scheduleDraft);
+      };
+      el.addEventListener('input', onFieldInput);
+      el.addEventListener('change', onFieldInput);
     });
     $('btnAddRow').addEventListener('click', function () {
       if (state.locked) return;
@@ -348,7 +351,7 @@
     mountApproval();
     refreshApproval();
     if (window.DkjUtil) {
-      window.DkjUtil.autoFillUser(state, ['monitorName', 'confirmer', 'approver'], function () {
+      window.DkjUtil.autoFillUser(state, ['monitorName'], function () {
         writeForm();
       });
     }

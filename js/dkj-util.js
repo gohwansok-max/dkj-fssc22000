@@ -64,28 +64,8 @@
     });
   }
 
-  /** 상용구 프리셋 칩 자동 부착 */
+  /** 상용구 프리셋 칩 자동 부착 (전문 텍스트 입력창 전용) */
   var DEFAULT_PRESETS = {
-    corrective: [
-      '이상 없음',
-      '청소·소독 완료',
-      '설비 점검 완료',
-      '작업자 재교육',
-      '담당자 조치 완료'
-    ],
-    deviation: [
-      '특이사항 없음',
-      '기준 편차 복구',
-      '자재 외관 이상',
-      '설비 알람 점검'
-    ],
-    remark: [
-      '특이사항 없음',
-      '기준 준수 확인',
-      '위생 점검 양호',
-      '입고 검사 적합',
-      '정기 관리 완료'
-    ],
     changeSummary: [
       '정기 기준 최신화',
       '설비 변경 절차 수정',
@@ -95,12 +75,39 @@
     impact: [
       '작업자 교육 실시',
       '모니터링 기준 적용',
-      '문서 현장 비치'
+      '문서 현장 비치 완료'
     ],
-    reason: [
-      '문서 최신화',
-      '심사 대응 보완',
-      '프로세스 개선'
+    corrective: [
+      '이상 없음 (정상 유지)',
+      '현장 즉시 청소·소독 완료',
+      '설비 점검 후 정상 가동 확인',
+      '작업자 현장 재교육 실시',
+      '담당자 확인 및 조치 완료'
+    ],
+    deviation: [
+      '특이사항 없음',
+      '기준 편차 복구 완료',
+      '자재 외관 이상 발견',
+      '설비 알람 점검 완료'
+    ],
+    remark: [
+      '특이사항 없음 (정상 가동)',
+      '공정 모니터링 기준 준수 확인',
+      '작업 전·후 청소 소독 양호',
+      '입고 검사 적합 판정',
+      '정기 관리 완료'
+    ],
+    rootCause: [
+      '작업자 부주의',
+      '설비 노후화 및 부품 마모',
+      '원료 품질 편차',
+      '환경 온습도 변화'
+    ],
+    actionPlan: [
+      '현장 즉시 조치 및 재검사',
+      '설비 부품 교체 및 점검',
+      '작업 표준서 개정 및 교육',
+      '모니터링 주기 강화'
     ]
   };
 
@@ -108,7 +115,7 @@
     var root = container || document;
     var map = Object.assign({}, DEFAULT_PRESETS, customMap || {});
     Object.keys(map).forEach(function (id) {
-      var textarea = root.querySelector('textarea#' + id + ', input#' + id);
+      var textarea = root.querySelector('textarea#' + id);
       if (!textarea || textarea.getAttribute('data-chips-bound') === 'true') return;
       textarea.setAttribute('data-chips-bound', 'true');
 

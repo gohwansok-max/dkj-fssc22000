@@ -45,7 +45,7 @@
     if (spec.defaults) {
       Object.keys(spec.defaults).forEach(function (k) { st[k] = spec.defaults[k]; });
     }
-    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['inspector', 'confirmer', 'writer']);
+    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['inspector', 'writer']);
     return st;
   }
 
@@ -254,8 +254,13 @@
       ids.forEach(function (id) {
         var el = $(id);
         if (!el) return;
-        el.addEventListener('input', scheduleDraft);
-        el.addEventListener('change', scheduleDraft);
+        var onFieldInput = function () {
+          readForm();
+          refreshApproval();
+          scheduleDraft();
+        };
+        el.addEventListener('input', onFieldInput);
+        el.addEventListener('change', onFieldInput);
       });
       if ($('judgeOk')) {
         $('judgeOk').addEventListener('click', function () {
@@ -339,7 +344,7 @@
       mountApproval();
       refreshApproval();
       if (global.DkjUtil) {
-        global.DkjUtil.autoFillUser(state, ['inspector', 'confirmer', 'writer'], function () {
+        global.DkjUtil.autoFillUser(state, ['inspector', 'writer'], function () {
           writeForm();
         });
       }

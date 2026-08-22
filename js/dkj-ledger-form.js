@@ -324,9 +324,15 @@
 
     function bind() {
       ['writer', 'reviewer', 'approver'].forEach(function (k) {
-        if ($(k)) $(k).addEventListener($(k).tagName === 'SELECT' ? 'change' : 'input', function () {
-          state.approvals[k] = this.value; scheduleDraft();
-        });
+        if ($(k)) {
+          var onAppChange = function () {
+            state.approvals[k] = this.value;
+            scheduleDraft();
+            global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+          };
+          $(k).addEventListener('input', onAppChange);
+          $(k).addEventListener('change', onAppChange);
+        }
       });
       if ($('remark')) $('remark').addEventListener('input', function () {
         state.remark = this.value; scheduleDraft();
@@ -369,7 +375,7 @@
       bind();
       renderHistory();
       if (global.DkjUtil) {
-        global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
+        global.DkjUtil.autoFillUser(state.approvals, ['writer'], function () {
           writeForm();
         });
       }

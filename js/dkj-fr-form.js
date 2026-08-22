@@ -51,7 +51,7 @@
     (spec.sections || []).forEach(function (s) {
       st[s.id] = '';
     });
-    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['writer', 'reviewer', 'approver', 'inspector']);
+    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['writer', 'inspector']);
     return st;
   }
 
@@ -265,8 +265,13 @@
       ids.forEach(function (id) {
         var el = $(id);
         if (!el) return;
-        el.addEventListener('input', scheduleDraft);
-        el.addEventListener('change', scheduleDraft);
+        var onFieldInput = function () {
+          readForm();
+          refreshApproval();
+          scheduleDraft();
+        };
+        el.addEventListener('input', onFieldInput);
+        el.addEventListener('change', onFieldInput);
       });
       if ($('judgeOk')) {
         $('judgeOk').addEventListener('click', function () {
@@ -338,7 +343,7 @@
       mountApproval();
       refreshApproval();
       if (global.DkjUtil) {
-        global.DkjUtil.autoFillUser(state, ['writer', 'reviewer', 'approver', 'inspector'], function () {
+        global.DkjUtil.autoFillUser(state, ['writer', 'inspector'], function () {
           writeForm();
         });
       }

@@ -368,7 +368,7 @@
         }
       });
       window.DkjUtil.attachChips(document);
-      window.DkjUtil.autoFillUser(state, ['writer', 'reviewer', 'approver'], function () {
+      window.DkjUtil.autoFillUser(state, ['writer'], function () {
         syncToForm();
       });
     }

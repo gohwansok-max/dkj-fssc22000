@@ -469,10 +469,13 @@
       }
       ['writer', 'reviewer', 'approver'].forEach(function (k) {
         if ($(k)) {
-          $(k).addEventListener('input', function () {
+          var onAppChange = function () {
             state.approvals[k] = this.value;
             scheduleDraft();
-          });
+            global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+          };
+          $(k).addEventListener('input', onAppChange);
+          $(k).addEventListener('change', onAppChange);
         }
       });
       if ($('remark')) {
@@ -550,7 +553,7 @@
       renderHistory();
       mountApproval();
       if (global.DkjUtil) {
-        global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
+        global.DkjUtil.autoFillUser(state.approvals, ['writer'], function () {
           writeForm();
         });
       }

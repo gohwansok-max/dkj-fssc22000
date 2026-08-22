@@ -459,7 +459,7 @@
         }
       });
       window.DkjUtil.attachChips(document);
-      window.DkjUtil.autoFillUser(state, ['inspector', 'confirmer'], function () {
+      window.DkjUtil.autoFillUser(state, ['inspector'], function () {
         fillForm(state);
       });
     }

@@ -267,8 +267,13 @@
       metaIds.forEach(function (id) {
         var el = $(id);
         if (!el) return;
-        el.addEventListener('input', scheduleDraft);
-        el.addEventListener('change', scheduleDraft);
+        var onFieldInput = function () {
+          readForm();
+          scheduleDraft();
+          global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+        };
+        el.addEventListener('input', onFieldInput);
+        el.addEventListener('change', onFieldInput);
       });
       if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
       if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
@@ -314,7 +319,7 @@
       bind();
       renderHistory();
       if (global.DkjUtil) {
-        global.DkjUtil.autoFillUser(state, ['inspector', 'confirmer', 'writer'], function () {
+        global.DkjUtil.autoFillUser(state, ['inspector', 'writer'], function () {
           writeForm();
         });
       }
