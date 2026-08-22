@@ -347,11 +347,46 @@
     }
     return out;
   }
+  function renderAlertBanner(ng, ngItems) {
+    var banner = document.getElementById('ckAlertBanner');
+    if (!banner) {
+      var main = document.querySelector('.ck-main');
+      if (!main) return;
+      banner = document.createElement('div');
+      banner.id = 'ckAlertBanner';
+      main.insertBefore(banner, main.firstChild);
+    }
+
+    if (ng > 0) {
+      var itemsList = ngItems.slice(0, 3).map(function (item) {
+        return '<li><strong>' + esc(item.f.title) + '</strong> — ' + esc(item.ev.note) + '</li>';
+      }).join('');
+
+      banner.innerHTML = '<div class="ck-alert-banner">' +
+        '<div class="ck-alert-banner-icon">!</div>' +
+        '<div class="ck-alert-banner-content">' +
+        '<h3>🚨 부적합 ' + ng + '건 발생 — 즉시 확인 필요</h3>' +
+        '<p>CCP 이탈 또는 기준 미준수가 감지되었습니다. 즉시 확인하고 CAPA를 등록하세요.</p>' +
+        (ngItems.length > 0 ? '<ul style="margin:8px 0 0; padding-left:20px; font-size:13px;">' + itemsList + '</ul>' : '') +
+        '</div>' +
+        '<a class="pill-btn green ck-alert-banner-action" href="#ckAlerts">지금 확인하기</a>' +
+        '</div>';
+      banner.style.display = 'block';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
   function renderStatus(today, production, evals) {
     var host = document.getElementById('ckShiftStatus');
     if (!host) return;
     var ng = evals.filter(function (x) { return x.ev.state === 'ng'; }).length;
+    var ngItems = evals.filter(function (x) { return x.ev.state === 'ng'; });
     var todo = evals.filter(function (x) { return x.ev.state === 'todo' || x.ev.state === 'part'; }).length;
+
+    // 부적합 발생 시 상단 고정 배너 표시
+    renderAlertBanner(ng, ngItems);
+
     if (!production) {
       host.innerHTML = '<div class="ck-shift-icon off">○</div><div><h1>오늘은 비생산일입니다</h1><p>정기 일지 작성 의무가 없습니다. 입고·부적합·고객불만 같은 발생 기록만 필요 시 작성하세요.</p></div><a class="pill-btn ghost" href="#ckEvent">발생 기록 보기</a>';
     } else if (ng) {
@@ -421,8 +456,48 @@
 
     renderStatus(today, production, evals);
     var todayEl = document.getElementById('ckToday');
-    if (todayEl) todayEl.innerHTML = production ? evals.map(function (x) { return tileHtml(x.f, x.ev); }).join('') :
-      '<div class="ck-empty ck-empty-prominent">오늘은 <strong>비생산일</strong>입니다. 정기 일지 작성 의무가 없으며, 발생 기록만 필요 시 작성하세요.</div>';
+    if (todayEl) {
+      if (!production) {
+        todayEl.innerHTML = '<div class="ck-empty ck-empty-prominent">오늘은 <strong>비생산일</strong>입니다. 정기 일지 작성 의무가 없으며, 발생 기록만 필요 시 작성하세요.</div>';
+      } else {
+        var incomplete = evals.filter(function (x) { return x.ev.state === 'todo' || x.ev.state === 'part' || x.ev.state === 'ng'; });
+        var complete = evals.filter(function (x) { return x.ev.state === 'done'; });
+
+        var html = incomplete.map(function (x) { return tileHtml(x.f, x.ev); }).join('');
+
+        if (complete.length > 0) {
+          html += '<button class="ck-section-toggle" id="ckToggleCompleted" aria-expanded="false">' +
+            '<span class="ck-section-toggle-icon">▼</span>' +
+            '<span>완료된 일지 ' + complete.length + '개 보기</span>' +
+            '</button>' +
+            '<div class="ck-tiles ck-tiles-completed" id="ckCompletedTiles" aria-hidden="true">' +
+            complete.map(function (x) { return tileHtml(x.f, x.ev); }).join('') +
+            '</div>';
+        }
+
+        todayEl.innerHTML = html;
+
+        // 완료 항목 토글 이벤트
+        var toggleBtn = document.getElementById('ckToggleCompleted');
+        var completedTiles = document.getElementById('ckCompletedTiles');
+        if (toggleBtn && completedTiles) {
+          toggleBtn.addEventListener('click', function () {
+            var isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+            if (isExpanded) {
+              toggleBtn.setAttribute('aria-expanded', 'false');
+              completedTiles.setAttribute('aria-hidden', 'true');
+              completedTiles.classList.remove('is-visible');
+              toggleBtn.querySelector('span:last-child').textContent = '완료된 일지 ' + complete.length + '개 보기';
+            } else {
+              toggleBtn.setAttribute('aria-expanded', 'true');
+              completedTiles.setAttribute('aria-hidden', 'false');
+              completedTiles.classList.add('is-visible');
+              toggleBtn.querySelector('span:last-child').textContent = '완료된 일지 숨기기';
+            }
+          });
+        }
+      }
+    }
     var count = document.getElementById('ckTodayCount');
     if (count) count.textContent = production ? (todoCnt ? todoCnt + '건 남음' : '정기 일지 완료') : '작성 의무 없음';
     var subtitle = document.getElementById('ckTodaySubtitle');

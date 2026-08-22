@@ -12,5 +12,60 @@
 .dkj-help-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dkj-help-box{padding:12px;border:1px solid #d6e8df;border-radius:12px;background:#f7fcf9}.dkj-help-box b{display:block;color:#075c34;font-size:14px}.dkj-help-box p{margin:6px 0 0;color:#466068;font-size:13px;line-height:1.6}
 .dkj-help-tip{margin:12px 0 0;padding:11px 12px;border-left:4px solid #009a44;border-radius:8px;background:#edf9f2;color:#245745;font-size:13px;line-height:1.65}.dkj-help-link{display:inline-flex;align-items:center;min-height:40px;margin-top:12px;padding:0 12px;border-radius:9px;background:#007a3d;color:#fff;text-decoration:none;font-size:13px;font-weight:800}
 body.dkj-large-text{font-size:18px!important}body.dkj-large-text p,body.dkj-large-text li,body.dkj-large-text td,body.dkj-large-text th,body.dkj-large-text input,body.dkj-large-text select,body.dkj-large-text textarea,body.dkj-large-text button{font-size:1.08em!important;line-height:1.7!important}body.dkj-large-text .gnb-static,body.dkj-large-text .gnb-trigger{font-size:16px!important}
+
+/* 색맹 지원 - 색상과 아이콘 조합 */
+.ck-tile.is-done .ck-chip::before { content: "✓"; }
+.ck-tile.is-ng .ck-chip::before { content: "✗"; }
+.ck-tile.is-todo .ck-chip::before { content: "!"; }
+.ck-tile.is-part .ck-chip::before { content: "◐"; }
+.ck-tile.is-off .ck-chip::before { content: "○"; }
+
+/* 포커스 가시성 향상 */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #009a44 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(0, 154, 68, 0.2) !important;
+}
+
+/* 스킵 네비게이션 */
+.skip-nav {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--nh-green);
+  color: #fff;
+  padding: 12px 24px;
+  text-decoration: none;
+  font-weight: 700;
+  z-index: 10000;
+}
+.skip-nav:focus {
+  top: 0;
+}
+
+/* 움직임 감소 선호 사용자 지원 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ck-alert-banner {
+    animation: none !important;
+  }
+
+  .ck-alert-banner-icon {
+    animation: none !important;
+  }
+}
+
 @media(max-width:620px){.dkj-assist{left:10px;bottom:10px;padding:5px}.dkj-assist button{min-width:42px;min-height:42px}.dkj-assist .dkj-assist-help{min-width:42px;font-size:0}.dkj-assist .dkj-assist-help::before{content:"?";font-size:19px}.dkj-help-grid{grid-template-columns:1fr}.dkj-help-inner{padding:18px 16px}.dkj-help-head h2{font-size:18px}}
 @media print{.dkj-assist,.dkj-help-dialog{display:none!important}}
