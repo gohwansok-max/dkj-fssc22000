@@ -226,8 +226,8 @@
 
       var signCells = '';
       for (var s = 0; s < N; s++) {
-        signCells += '<td class="mxf-cellwrap"><input type="text" class="mxf-sign" data-sign="' +
-          s + '" value="' + esc(state.signs[s] || '') + '"></td>';
+        signCells += '<td class="mxf-cellwrap"><input type="text" class="mxf-sign" list="dkjStaffList" data-sign="' +
+          s + '" value="' + esc(state.signs[s] || '') + '" placeholder="선택/입력"></td>';
       }
       var foot =
         '<tr class="mxf-signrow"><th colspan="' + (LEAD ? LEAD.length : LV + 1 + (HAS_FREQ ? 1 : 0)) + '">' +
@@ -276,7 +276,9 @@
       }).join('') + '</tr>';
       var body = state.incidents.map(function (r, i) {
         return '<tr>' + cols.map(function (c) {
-          return '<td><input type="text" data-inc="' + i + '" data-ck="' + c.key +
+          var isStaff = c.key === 'actor' || c.key === 'confirmer' || c.key === 'writer';
+          return '<td><input type="text"' + (isStaff ? ' list="dkjStaffList" placeholder="선택/입력"' : '') +
+            ' data-inc="' + i + '" data-ck="' + c.key +
             '" value="' + esc(r[c.key] || '') + '"></td>';
         }).join('') + '</tr>';
       }).join('');

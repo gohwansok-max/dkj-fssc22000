@@ -195,7 +195,9 @@
       }).join('') + '</tr>';
       var body = state.incidents.map(function (r, i) {
         return '<tr>' + cols.map(function (c) {
-          return '<td><input type="text" data-inc="' + i + '" data-ck="' + c.key +
+          var isStaff = c.key === 'actor' || c.key === 'confirmer' || c.key === 'writer';
+          return '<td><input type="text"' + (isStaff ? ' list="dkjStaffList" placeholder="선택/입력"' : '') +
+            ' data-inc="' + i + '" data-ck="' + c.key +
             '" value="' + esc(r[c.key] || '') + '"></td>';
         }).join('') + '</tr>';
       }).join('');

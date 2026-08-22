@@ -397,7 +397,10 @@
   function start() {
     if (started || !ready()) return;
     started = true;
-    syncAll(false).catch(function () { toast('☁️ 연결 실패 — 오프라인으로 계속 사용됩니다', true); });
+    syncAll(false).catch(function (err) {
+      /* 오프라인-퍼스트: 연결 실패 시 붉은 경고창 대신 콘솔에만 기록하고 로컬 모드로 조용히 유지 */
+      console.info('[DkjCloudSync] 오프라인 또는 로컬 모드로 동작 중입니다.', err && err.message);
+    });
     startPoll();
     global.addEventListener('online', function () { syncAll(true).catch(function () {}); });
   }
