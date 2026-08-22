@@ -1,4 +1,4 @@
-/* 동김제농협 시스템 설정 — 시스템 관리자(emp4343) 전용 사용자 권한관리 */
+/* 동김제농협 시스템 설정 — 시스템 관리자(4343) 전용 사용자 및 계정 관리 */
 (function () {
   'use strict';
   var roles = {
@@ -7,123 +7,227 @@
     manager: '관리자',
     worker: '작업자'
   };
-  var users = {};
+  var AUDIT_KEY = 'dkj:auth:role_audit:v2';
   var auditRows = [];
 
   function $(id) { return document.getElementById(id); }
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>'"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c]; }); }
   function fmt(iso) { try { return iso ? new Date(iso).toLocaleString('ko-KR', { hour12: false }) : '—'; } catch (e) { return '—'; } }
   function setStatus(text, type) { var el = $('systemStatus'); if (!el) return; el.textContent = text; el.className = 'system-status ' + (type || ''); }
+  
   function optionTags(selected) {
-    return Object.keys(roles).map(function (key) { return '<option value="' + key + '"' + (key === selected ? ' selected' : '') + '>' + roles[key] + '</option>'; }).join('');
+    return Object.keys(roles).map(function (key) {
+      return '<option value="' + key + '"' + (key === selected ? ' selected' : '') + '>' + roles[key] + '</option>';
+    }).join('');
+  }
+
+  function loadLocalAudit() {
+    try {
+      var raw = localStorage.getItem(AUDIT_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+
+  function saveLocalAudit(list) {
+    try {
+      localStorage.setItem(AUDIT_KEY, JSON.stringify(list.slice(0, 50)));
+    } catch (e) {}
+  }
+
+  function addAudit(actionText, targetEmpId, detail) {
+    var me = (window.DkjAuth && window.DkjAuth.user && window.DkjAuth.user()) || { empId: '4343' };
+    var item = {
+      at: new Date().toISOString(),
+      actorEmpId: me.empId || '4343',
+      targetEmpId: targetEmpId,
+      action: actionText,
+      detail: detail || ''
+    };
+    auditRows.unshift(item);
+    saveLocalAudit(auditRows);
+    if (window.DkjAuth && window.DkjAuth.configured() && window.DkjAuth.token()) {
+      var auditId = 'audit_' + Date.now() + '_' + String(targetEmpId);
+      window.DkjAuth.request('system/role_audit/' + auditId, 'PUT', item).catch(function () {});
+    }
+    renderAudit();
   }
 
   function renderUsers() {
     var target = $('userRows');
-    var rows = Object.keys(users).map(function (uid) { return users[uid]; }).sort(function (a, b) {
+    var dir = (window.DkjAuth && window.DkjAuth.getDirectory && window.DkjAuth.getDirectory()) || {};
+    var rows = Object.keys(dir).map(function (id) { return dir[id]; }).sort(function (a, b) {
       if (a.empId === '4343') return -1;
       if (b.empId === '4343') return 1;
       return String(a.empId || '').localeCompare(String(b.empId || ''));
     });
+
     $('registeredCount').textContent = rows.length;
     if (!rows.length) {
-      target.innerHTML = '<tr><td colspan="6" class="empty">아직 로그인한 사용자가 없습니다. 직원이 처음 로그인하면 여기에 자동 등록됩니다.</td></tr>';
+      target.innerHTML = '<tr><td colspan="6" class="empty">등록된 사용자가 없습니다. 위의 신규 등록 폼에서 직원을 추가하세요.</td></tr>';
       return;
     }
+
     target.innerHTML = rows.map(function (row) {
-      var locked = String(row.empId) === '4343';
-      return '<tr data-uid="' + esc(row.uid) + '">' +
-        '<td><strong>' + esc(row.empId || '—') + '</strong></td>' +
-        '<td><input class="user-name" maxlength="30" value="' + esc(row.name || '') + '" placeholder="표시 이름"></td>' +
-        '<td><select class="user-role"' + (locked ? ' disabled' : '') + '>' + optionTags(row.role || 'worker') + '</select></td>' +
-        '<td>' + esc(roles[row.role] || roles.worker) + '</td>' +
-        '<td>' + esc(fmt(row.lastLoginAt)) + '</td>' +
-        '<td><button class="save-role" type="button"' + (locked ? ' disabled title="시스템 관리자는 고정됩니다"' : '') + '>저장</button></td>' +
+      var isRootAdmin = String(row.empId) === '4343';
+      return '<tr data-emp-id="' + esc(row.empId) + '">' +
+        '<td><strong>' + esc(row.empId) + '</strong>' + (isRootAdmin ? ' <span class="admin-lock">관리자</span>' : '') + '</td>' +
+        '<td><input type="text" class="user-name" maxlength="20" value="' + esc(row.name || '') + '" placeholder="성명"></td>' +
+        '<td><select class="user-role"' + (isRootAdmin ? ' disabled' : '') + '>' + optionTags(row.role || 'worker') + '</select></td>' +
+        '<td><input type="text" class="user-pw pw-input" maxlength="30" placeholder="새 비밀번호 입력 시 변경" value=""></td>' +
+        '<td><span style="font-size:12px;color:#555;">' + esc(fmt(row.lastLoginAt || row.createdAt)) + '</span></td>' +
+        '<td>' +
+          '<div class="action-cell">' +
+            '<button type="button" class="btn-save btn-save-user">저장</button>' +
+            '<button type="button" class="btn-del btn-del-user"' + (isRootAdmin ? ' disabled title="시스템 관리자는 삭제할 수 없습니다"' : '') + '>삭제</button>' +
+          '</div>' +
+        '</td>' +
       '</tr>';
     }).join('');
-    Array.prototype.forEach.call(target.querySelectorAll('.save-role'), function (btn) {
-      btn.addEventListener('click', function () { saveUser(btn.closest('tr')); });
+
+    // 이벤트 바인딩
+    Array.prototype.forEach.call(target.querySelectorAll('.btn-save-user'), function (btn) {
+      btn.addEventListener('click', function () { saveRow(btn.closest('tr')); });
+    });
+    Array.prototype.forEach.call(target.querySelectorAll('.btn-del-user'), function (btn) {
+      btn.addEventListener('click', function () { deleteRow(btn.closest('tr')); });
     });
   }
 
   function renderAudit() {
     var target = $('roleAudit');
-    if (!auditRows.length) { target.innerHTML = '<p class="empty">아직 역할 변경 이력이 없습니다.</p>'; return; }
+    if (!auditRows.length) {
+      target.innerHTML = '<p class="empty">아직 변경 이력이 없습니다.</p>';
+      return;
+    }
     target.innerHTML = auditRows.slice(0, 20).map(function (row) {
-      return '<div class="audit-row"><span>' + esc(fmt(row.at)) + '</span><strong>' + esc(row.targetEmpId || '—') + '</strong><span>' + esc(roles[row.beforeRole] || '—') + ' → <b>' + esc(roles[row.afterRole] || '—') + '</b></span><span>' + esc(row.actorEmpId || '') + ' 변경</span></div>';
+      return '<div class="audit-row">' +
+        '<span>' + esc(fmt(row.at)) + '</span>' +
+        '<strong>' + esc(row.targetEmpId || '—') + '</strong>' +
+        '<span>' + esc(row.action) + (row.detail ? ' (' + esc(row.detail) + ')' : '') + '</span>' +
+        '<span>' + esc(row.actorEmpId || '4343') + ' 관리자</span>' +
+      '</div>';
     }).join('');
   }
 
-  async function saveUser(tr) {
-    var uid = tr.getAttribute('data-uid'), current = users[uid];
-    if (!current || current.empId === '4343') return;
-    var name = tr.querySelector('.user-name').value.trim();
-    var role = tr.querySelector('.user-role').value;
-    if (!roles[role]) { setStatus('역할을 다시 선택하세요.', 'bad'); return; }
-    var btn = tr.querySelector('.save-role');
-    btn.disabled = true;
+  function handleCreateUser() {
+    var empId = $('newEmpId').value.trim();
+    var name = $('newName').value.trim();
+    var role = $('newRole').value;
+    var password = $('newPassword').value.trim();
+
+    if (!empId) { setStatus('사번(아이디)을 입력하세요.', 'bad'); $('newEmpId').focus(); return; }
+    if (!name) { setStatus('성명(표시 이름)을 입력하세요.', 'bad'); $('newName').focus(); return; }
+    if (!password) { setStatus('초기 비밀번호를 입력하세요.', 'bad'); $('newPassword').focus(); return; }
+
     try {
-      var next = {
-        uid: current.uid,
-        empId: current.empId,
+      window.DkjAuth.addUser({
+        empId: empId,
         name: name,
         role: role,
-        createdAt: current.createdAt || new Date().toISOString(),
-        lastLoginAt: current.lastLoginAt || ''
-      };
-      await window.DkjAuth.request('system/users/' + encodeURIComponent(uid), 'PUT', next);
-      var me = window.DkjAuth.user();
-      var at = new Date().toISOString();
-      var auditId = 'role_' + Date.now() + '_' + uid.slice(0, 8);
-      var audit = {
-        actorUid: me.uid,
-        actorEmpId: me.empId,
-        targetUid: uid,
-        targetEmpId: current.empId,
-        beforeRole: current.role || 'worker',
-        afterRole: role,
-        at: at
-      };
-      await window.DkjAuth.request('system/role_audit/' + auditId, 'PUT', audit);
-      users[uid] = next;
-      auditRows.unshift(audit);
-      renderUsers(); renderAudit();
-      setStatus(current.empId + '번 사용자의 권한을 ' + roles[role] + '(으)로 저장했습니다.', 'ok');
+        password: password
+      });
+
+      addAudit('사용자 계정 신규 추가', empId, name + ' · ' + roles[role]);
+      $('newEmpId').value = '';
+      $('newName').value = '';
+      $('newPassword').value = '';
+      renderUsers();
+      setStatus('사용자 ' + name + '(' + empId + ') 계정을 성공적으로 등록했습니다! 바로 로그인할 수 있습니다.', 'ok');
     } catch (e) {
-      setStatus('권한 저장에 실패했습니다. Firebase 보안 규칙 게시 여부를 확인하세요. (' + e.message + ')', 'bad');
-    } finally { if (btn.isConnected) btn.disabled = false; }
+      setStatus('사용자 등록 실패: ' + e.message, 'bad');
+    }
+  }
+
+  function saveRow(tr) {
+    var empId = tr.getAttribute('data-emp-id');
+    if (!empId) return;
+    var name = tr.querySelector('.user-name').value.trim();
+    var role = tr.querySelector('.user-role').value;
+    var pw = tr.querySelector('.user-pw').value.trim();
+
+    if (!name) { setStatus('성명을 입력하세요.', 'bad'); return; }
+
+    try {
+      var updateData = { name: name, role: role };
+      var detail = name + ' · ' + roles[role];
+      if (pw) {
+        updateData.password = pw;
+        detail += ' · 비밀번호 변경';
+      }
+
+      window.DkjAuth.saveUser(empId, updateData);
+      addAudit('사용자 계정 정보 수정', empId, detail);
+      tr.querySelector('.user-pw').value = '';
+      renderUsers();
+      setStatus(empId + '번 사용자 (' + name + ') 계정 정보를 저장했습니다.', 'ok');
+    } catch (e) {
+      setStatus('저장 실패: ' + e.message, 'bad');
+    }
+  }
+
+  function deleteRow(tr) {
+    var empId = tr.getAttribute('data-emp-id');
+    if (!empId || empId === '4343') {
+      alert('시스템 관리자(4343) 계정은 삭제할 수 없습니다.');
+      return;
+    }
+    var name = tr.querySelector('.user-name').value.trim();
+    if (!confirm('정말 [' + name + ' (' + empId + ')] 사용자를 삭제하시겠습니까?\n삭제 후에는 해당 사번으로 로그인할 수 없습니다.')) {
+      return;
+    }
+
+    try {
+      window.DkjAuth.deleteUser(empId);
+      addAudit('사용자 계정 삭제', empId, name);
+      renderUsers();
+      setStatus(name + '(' + empId + ') 사용자를 삭제했습니다.', 'ok');
+    } catch (e) {
+      setStatus('삭제 실패: ' + e.message, 'bad');
+    }
   }
 
   async function loadData() {
     var auth = window.DkjAuth;
-    if (!auth || !auth.isSystemAdmin || !auth.isSystemAdmin()) {
+    var me = auth && auth.user ? auth.user() : null;
+    
+    // Check if system administrator (4343)
+    if (!me || String(me.empId) !== '4343') {
       $('systemContent').hidden = true;
       $('systemDenied').hidden = false;
       setStatus('시스템 관리자 권한이 필요합니다. 사번 4343으로 로그인하세요.', 'bad');
       return;
     }
+
     $('systemDenied').hidden = true;
     $('systemContent').hidden = false;
-    setStatus('사용자 권한 정보를 불러오는 중입니다.', '');
-    try {
-      var result = await Promise.all([
-        auth.request('system/users', 'GET'),
-        auth.request('system/role_audit', 'GET')
-      ]);
-      users = result[0] || {};
-      auditRows = Object.keys(result[1] || {}).map(function (key) { return result[1][key]; }).sort(function (a, b) { return String(b.at || '').localeCompare(String(a.at || '')); });
-      renderUsers(); renderAudit();
-      setStatus('시스템 관리자 ' + (auth.user().name || auth.user().empId) + '님으로 로그인했습니다.', 'ok');
-    } catch (e) {
-      $('userRows').innerHTML = '<tr><td colspan="6" class="empty">사용자 정보를 불러올 수 없습니다.</td></tr>';
-      setStatus('사용자 권한 저장소에 접근할 수 없습니다. Firebase 보안 규칙을 게시한 뒤 다시 확인하세요. (' + e.message + ')', 'bad');
+    setStatus('시스템 관리자 ' + (me.name || me.empId) + '님 환영합니다. 사용자 계정을 바로 관리할 수 있습니다.', 'ok');
+
+    auditRows = loadLocalAudit();
+    
+    if (auth.loadUsers) {
+      try {
+        await auth.loadUsers();
+      } catch (e) {}
     }
+
+    renderUsers();
+    renderAudit();
   }
 
   function boot() {
-    if (!window.DkjAuth) return;
+    var btnCreate = $('btnCreateUser');
+    if (btnCreate) {
+      btnCreate.addEventListener('click', handleCreateUser);
+    }
     document.addEventListener('dkj:auth-ready', loadData);
-    if (window.DkjAuth.user()) loadData();
+    if (window.DkjAuth && window.DkjAuth.user && window.DkjAuth.user()) {
+      loadData();
+    }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
 })();

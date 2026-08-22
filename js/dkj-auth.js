@@ -160,90 +160,177 @@
     }
     return '';
   }
-  function loadStaff() {
-    if (staffCache) return Promise.resolve(staffCache);
-    if (global.DKJ_STAFF_ROLES) {
-      staffCache = global.DKJ_STAFF_ROLES.staff || {};
-      return Promise.resolve(staffCache);
+  var DIRECTORY_KEY = 'dkj:auth:directory:v3';
+  var DEFAULT_DIRECTORY = {
+    '4343': { empId: '4343', name: '고환석', role: 'system_admin', password: '4343', createdAt: '2026-08-01T00:00:00.000Z' },
+    '0001': { empId: '0001', name: '이다은', role: 'worker', password: '0001', createdAt: '2026-08-01T00:00:00.000Z' },
+    '0002': { empId: '0002', name: '권화선', role: 'manager', password: '0002', createdAt: '2026-08-01T00:00:00.000Z' },
+    '0003': { empId: '0003', name: '최민재', role: 'responsible', password: '0003', createdAt: '2026-08-01T00:00:00.000Z' },
+    '0004': { empId: '0004', name: '임석용', role: 'responsible', password: '0004', createdAt: '2026-08-01T00:00:00.000Z' },
+    '0005': { empId: '0005', name: '최재원', role: 'responsible', password: '0005', createdAt: '2026-08-01T00:00:00.000Z' }
+  };
+
+  function getDirectory() {
+    var stored = readJson('localStorage', DIRECTORY_KEY, null);
+    if (!stored || typeof stored !== 'object') {
+      stored = Object.assign({}, DEFAULT_DIRECTORY);
+      setStored('localStorage', DIRECTORY_KEY, JSON.stringify(stored));
     }
-    var root = scriptRoot();
-    return fetch(root + 'data/staff-roles.json')
-      .then(function (r) { if (!r.ok) throw new Error('staff-roles'); return r.json(); })
-      ['catch'](function () {
-        return new Promise(function (resolve) {
-          var s = document.createElement('script');
-          s.src = root + 'js/staff-roles.bundle.js';
-          s.onload = function () { resolve(global.DKJ_STAFF_ROLES || { staff: {} }); };
-          s.onerror = function () { resolve({ staff: {} }); };
-          document.head.appendChild(s);
-        });
-      })
-      .then(function (d) {
-        staffCache = (d && d.staff) || {};
-        try { document.dispatchEvent(new CustomEvent('dkj:staff-loaded')); } catch (e) {}
-        return staffCache;
-      });
+    if (!stored['4343']) {
+      stored['4343'] = Object.assign({}, DEFAULT_DIRECTORY['4343']);
+    }
+    return stored;
+  }
+
+  function saveDirectory(dir) {
+    if (!dir || typeof dir !== 'object') return;
+    setStored('localStorage', DIRECTORY_KEY, JSON.stringify(dir));
+    if (!staffCache) staffCache = {};
+    Object.keys(dir).forEach(function (id) {
+      var item = dir[id];
+      staffCache[id] = {
+        name: item.name || id,
+        role: item.role || 'worker',
+        stages: (ROLES[normalizeRole(item.role)] || ROLES.worker).stages
+      };
+    });
+    try { document.dispatchEvent(new CustomEvent('dkj:staff-loaded')); } catch (e) {}
+  }
+
+  function addUser(data) {
+    var id = normId(data.empId);
+    if (!id) throw new Error('사번(ID)을 입력하세요.');
+    var dir = getDirectory();
+    if (dir[id]) throw new Error('이미 등록된 사번입니다: ' + id);
+    var item = {
+      uid: 'uid-' + id,
+      empId: id,
+      name: String(data.name || id).trim(),
+      role: normalizeRole(data.role || 'worker'),
+      password: String(data.password || id).trim(),
+      createdAt: new Date().toISOString(),
+      lastLoginAt: ''
+    };
+    dir[id] = item;
+    saveDirectory(dir);
+    if (configured() && state.token) {
+      request('system/users/' + encodeURIComponent(item.uid), 'PUT', item).catch(function () {});
+    }
+    return item;
+  }
+
+  function saveUser(empId, data) {
+    var id = normId(empId);
+    var dir = getDirectory();
+    if (!dir[id]) throw new Error('사용자를 찾을 수 없습니다.');
+    var item = dir[id];
+    if (data.name !== undefined) item.name = String(data.name).trim();
+    if (data.role !== undefined && id !== ADMIN_EMP_ID) item.role = normalizeRole(data.role);
+    if (data.password) item.password = String(data.password).trim();
+    item.updatedAt = new Date().toISOString();
+    dir[id] = item;
+    saveDirectory(dir);
+    if (configured() && state.token) {
+      request('system/users/' + encodeURIComponent(item.uid || ('uid-' + id)), 'PUT', item).catch(function () {});
+    }
+    return item;
+  }
+
+  function deleteUser(empId) {
+    var id = normId(empId);
+    if (id === ADMIN_EMP_ID) throw new Error('시스템 관리자(4343) 계정은 삭제할 수 없습니다.');
+    var dir = getDirectory();
+    if (!dir[id]) return;
+    var uid = dir[id].uid || ('uid-' + id);
+    delete dir[id];
+    saveDirectory(dir);
+    if (configured() && state.token) {
+      request('system/users/' + encodeURIComponent(uid), 'DELETE').catch(function () {});
+    }
+  }
+
+  function loadStaff() {
+    var dir = getDirectory();
+    staffCache = {};
+    Object.keys(dir).forEach(function (id) {
+      var item = dir[id];
+      staffCache[id] = {
+        name: item.name || id,
+        role: item.role || 'worker',
+        stages: (ROLES[normalizeRole(item.role)] || ROLES.worker).stages
+      };
+    });
+    try { document.dispatchEvent(new CustomEvent('dkj:staff-loaded')); } catch (e) {}
+    return Promise.resolve(staffCache);
   }
 
   function loadUsers() {
-    if (!configured() || !state.token) return Promise.resolve({});
-    return request('system/users', 'GET').then(function (users) {
-      var rows = users || {};
+    var dir = getDirectory();
+    loadStaff();
+    if (!configured() || !state.token) return Promise.resolve(dir);
+    return request('system/users', 'GET').then(function (remoteUsers) {
+      var rows = remoteUsers || {};
       Object.keys(rows).forEach(function (uid) {
         var row = rows[uid] || {};
-        if (!staffCache) staffCache = {};
-        staffCache[String(row.empId || uid)] = {
-          name: row.name || '',
-          role: row.role || 'worker',
-          stages: (ROLES[normalizeRole(row.role)] || ROLES.worker).stages
-        };
+        var eid = normId(row.empId || uid);
+        if (eid && dir[eid]) {
+          if (row.name) dir[eid].name = row.name;
+          if (row.role && eid !== ADMIN_EMP_ID) dir[eid].role = row.role;
+        }
       });
-      try { document.dispatchEvent(new CustomEvent('dkj:staff-loaded')); } catch (e) {}
-      return rows;
+      saveDirectory(dir);
+      return dir;
+    }).catch(function () {
+      return dir;
     });
   }
 
   async function loadAssignedRole() {
+    var dir = getDirectory();
+    var localUser = dir[state.empId];
+    if (localUser && localUser.role) {
+      state.role = normalizeRole(localUser.role);
+    }
     if (!configured() || !state.uid) return state.role;
     try {
       var profile = await request('system/users/' + encodeURIComponent(state.uid), 'GET');
-      if (!profile) {
-        profile = {
-          uid: state.uid,
-          empId: state.empId,
-          name: state.name || '',
-          role: defaultRole(state.empId),
-          createdAt: new Date().toISOString(),
-          lastLoginAt: new Date().toISOString()
-        };
-        await request('system/users/' + encodeURIComponent(state.uid), 'PUT', profile);
-      } else {
-        profile.role = normalizeRole(profile.role);
-        profile.lastLoginAt = new Date().toISOString();
-        try { await request('system/users/' + encodeURIComponent(state.uid), 'PATCH', { lastLoginAt: profile.lastLoginAt }); } catch (e) {}
+      if (profile && profile.role) {
+        state.role = normalizeRole(profile.role);
       }
-      persist(state.empId, profile.name || state.name, state.token, null, state.uid, profile.role);
-    } catch (e) {
-      // Firebase 보안 규칙이 아직 게시되지 않은 초기 전환 기간에는 기본 역할로 화면을 연다.
-      // 역할 변경 저장만 막히며, 설정 화면에서 이유를 안내한다.
-      state.role = defaultRole(state.empId);
-    }
+    } catch (e) {}
     return state.role;
   }
 
   async function login(empId, password) {
-    if (!configured()) throw new Error('NOT_CONFIGURED');
-    var id = normId(empId), d = await signIn(id, password), name = d.displayName || '';
-    if (!name) {
-      try {
-        var st = await loadStaff();
-        if (st && st[id] && st[id].name) name = st[id].name;
-      } catch (e) {}
+    var id = normId(empId);
+    var dir = getDirectory();
+    var localUser = dir[id] || dir[empId];
+
+    // 1. 로컬 사용자 디렉터리 비밀번호 검증 (즉시 로그인)
+    if (localUser && (localUser.password === password || !localUser.password)) {
+      localUser.lastLoginAt = new Date().toISOString();
+      saveDirectory(dir);
+      persist(id, localUser.name || id, 'local-token-' + id, null, 'uid-' + id, localUser.role);
+      if (configured()) {
+        signIn(id, password).then(function (d) {
+          persist(id, localUser.name || d.displayName || id, d.idToken, d.refreshToken, d.localId, localUser.role);
+          if (global.DkjCloudSync) global.DkjCloudSync.start();
+        }).catch(function () {});
+      }
+      return user();
     }
-    persist(id, name || id, d.idToken, d.refreshToken, d.localId, defaultRole(id));
-    await loadAssignedRole();
-    if (global.DkjCloudSync) global.DkjCloudSync.start();
-    return user();
+
+    // 2. Firebase 원격 인증 시도
+    if (configured()) {
+      var d = await signIn(id, password);
+      var name = d.displayName || (localUser && localUser.name) || id;
+      persist(id, name, d.idToken, d.refreshToken, d.localId, (localUser && localUser.role) || defaultRole(id));
+      await loadAssignedRole();
+      if (global.DkjCloudSync) global.DkjCloudSync.start();
+      return user();
+    }
+
+    throw new Error('INVALID_LOGIN_CREDENTIALS');
   }
 
   async function resume() {
@@ -373,6 +460,7 @@
     configured: configured, user: user, token: function () { return state.token; }, role: function () { return state.role; },
     roleLabel: roleLabel, roles: function () { return ROLES; }, isSystemAdmin: isSystemAdmin,
     request: request, loadAssignedRole: loadAssignedRole, loadStaff: loadStaff, loadUsers: loadUsers, staff: function () { return staffCache; },
+    getDirectory: getDirectory, addUser: addUser, saveUser: saveUser, deleteUser: deleteUser,
     can: can, denyReason: denyReason
   };
 
