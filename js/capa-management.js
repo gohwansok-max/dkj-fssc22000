@@ -49,8 +49,48 @@
     return prefix + '-' + String(n).padStart(3, '0');
   }
   function blankState() {
-    var user = me();
-    return { recordType: 'capa', title: '이탈·시정조치(CAPA)', capaNo: newCapaNo(), foundDate: today(), severity: '중대', discovery: '공정·CCP 모니터링', item: '', lot: '', qty: '', unit: 'kg', isolation: '', description: '', containment: '', containmentOwner: (user && user.name) || '', rootMethod: '5 Why', actionOwner: '', dueDate: '', verificationDueDate: '', rootCause: '', actionPlan: '', status: 'containment', verifyDate: '', verifier: '', verificationResult: '', verificationDetail: '', evidence: '', closureDate: '', managementReview: '', writer: (user && user.name) || '', reviewer: '', approver: '', approvals: { writer: (user && user.name) || '', reviewer: '', approver: '' }, signoff: {}, audit: [], sourceForm: '', sourceId: '', sourceTitle: '', sourceSnapshot: {}, locked: false, createdAt: nowIso() };
+    return {
+      recordType: 'capa',
+      title: '이탈·시정조치(CAPA)',
+      capaNo: newCapaNo(),
+      foundDate: today(),
+      severity: '중대',
+      discovery: '공정·CCP 모니터링',
+      item: '',
+      lot: '',
+      qty: '',
+      unit: 'kg',
+      isolation: '',
+      description: '',
+      containment: '',
+      containmentOwner: '이다은',
+      rootMethod: '5 Why',
+      actionOwner: '권화선',
+      dueDate: '',
+      verificationDueDate: '',
+      rootCause: '',
+      actionPlan: '',
+      status: 'containment',
+      verifyDate: '',
+      verifier: '최민재',
+      verificationResult: '',
+      verificationDetail: '',
+      evidence: '',
+      closureDate: '',
+      managementReview: '',
+      writer: '이다은',
+      reviewer: '권화선',
+      approver: '최민재',
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
+      signoff: {},
+      audit: [],
+      sourceForm: '',
+      sourceId: '',
+      sourceTitle: '',
+      sourceSnapshot: {},
+      locked: false,
+      createdAt: nowIso()
+    };
   }
 
   function deadlineFor(r) {

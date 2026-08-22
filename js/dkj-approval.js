@@ -294,18 +294,21 @@
 
     select.setAttribute('data-dkj-staff-picker', 'true');
 
-    // 역할별 기본값 세팅 (신규 작성 시)
+    // 역할별 기본값 세팅 (신규 작성 시 또는 시스템 관리자 사번이 들어간 경우)
     var idLower = (select.id || '').toLowerCase();
     var defaultVal = '';
-    if (idLower === 'writer' || idLower === 'inspector' || idLower.indexOf('worker') !== -1) {
+    if (idLower === 'writer' || idLower === 'inspector' || idLower.indexOf('worker') !== -1 || idLower === 'containmentowner') {
       defaultVal = '이다은';
-    } else if (idLower === 'reviewer') {
+    } else if (idLower === 'reviewer' || idLower === 'actionowner' || idLower === 'reviewowner') {
       defaultVal = '권화선';
-    } else if (idLower === 'approver' || idLower === 'confirmer') {
+    } else if (idLower === 'approver' || idLower === 'confirmer' || idLower === 'verifier' || idLower === 'chairperson' || idLower === 'leader') {
       defaultVal = '최민재';
     }
 
-    var chosenVal = currentValue || defaultVal;
+    var chosenVal = currentValue;
+    if (!chosenVal || chosenVal === '4343' || chosenVal === '관리자' || chosenVal === 'admin' || chosenVal === 'system_admin') {
+      chosenVal = defaultVal || chosenVal;
+    }
 
     var html = '<option value="">등록 인원 선택</option>';
     options.forEach(function (o) {
@@ -406,8 +409,14 @@
     }
 
     function stageHtml(st, s) {
-      var sign = (s.signoff && s.signoff[st.key]) || null;
-      var name = (s.approvals && s.approvals[st.key]) || '';
+      var sign = (s && s.signoff && s.signoff[st.key]) || null;
+      var el = document.getElementById(st.key) || document.querySelector('[name="' + st.key + '"]');
+      var name = (s && s.approvals && s.approvals[st.key]) || (s && s[st.key]) || (el && el.value) || '';
+      if (!name) {
+        if (st.key === 'writer' || st.key === 'inspector' || st.key.indexOf('worker') !== -1) name = '이다은';
+        else if (st.key === 'reviewer') name = '권화선';
+        else if (st.key === 'approver' || st.key === 'confirmer') name = '최민재';
+      }
       var done = !!(sign && sign.at);
       // 로그인 서명이면 사번을 함께 보여 준다. 폼에 적힌 이름과 다르면 그 사실도 드러낸다.
       var shown = done ? (sign.empId ? sign.name + ' (' + sign.empId + ')' : sign.name) : (name || '—');
@@ -434,6 +443,16 @@
 
     function render() {
       var s = getState();
+      if (s) {
+        if (!s.approvals) s.approvals = {};
+        ['writer', 'reviewer', 'approver', 'inspector', 'confirmer'].forEach(function (k) {
+          var el = document.getElementById(k) || document.querySelector('[name="' + k + '"]');
+          if (el && el.value) {
+            s.approvals[k] = el.value;
+            if (s[k] !== undefined) s[k] = el.value;
+          }
+        });
+      }
       var v = verify(s);
       var audit = (s.audit || []).slice().reverse();
 
@@ -524,15 +543,39 @@
     document.addEventListener('dkj:auth-ready', attachStaffPickers);
 
     var onFieldChange = function (e) {
-      if (e && e.target && /^(writer|reviewer|approver|inspector|confirmer|monitorName)$/.test(e.target.id)) {
-        if (typeof getState === 'function') getState();
-        render();
+      if (e && e.target) {
+        var id = e.target.id || e.target.name || '';
+        if (/^(writer|reviewer|approver|inspector|confirmer|monitorName|owner|leader|drillWriter|drillReviewer)$/i.test(id) || e.target.getAttribute('data-dkj-staff-picker')) {
+          if (typeof getState === 'function') {
+            var curr = getState();
+            if (curr) {
+              if (!curr.approvals) curr.approvals = {};
+              if (/^(writer|reviewer|approver|inspector|confirmer)$/i.test(id)) {
+                curr.approvals[id] = e.target.value;
+                if (curr[id] !== undefined) curr[id] = e.target.value;
+              }
+            }
+          }
+          render();
+        }
       }
     };
     document.addEventListener('input', onFieldChange);
     document.addEventListener('change', onFieldChange);
     global.addEventListener('dkj:approval-changed', function () {
-      if (typeof getState === 'function') getState();
+      if (typeof getState === 'function') {
+        var curr = getState();
+        if (curr) {
+          if (!curr.approvals) curr.approvals = {};
+          ['writer', 'reviewer', 'approver', 'inspector', 'confirmer'].forEach(function (k) {
+            var el = document.getElementById(k) || document.querySelector('[name="' + k + '"]');
+            if (el && el.value) {
+              curr.approvals[k] = el.value;
+              if (curr[k] !== undefined) curr[k] = el.value;
+            }
+          });
+        }
+      }
       render();
     });
 

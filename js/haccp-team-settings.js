@@ -24,20 +24,19 @@
   }
 
   function blankState() {
-    var user = me();
     return {
       title: 'HACCP팀 위험·환경 설정',
       docDate: today(),
       revision: 'R1',
       effectiveDate: today(),
       nextReviewDate: '',
-      writer: (user && user.name) || '',
-      reviewer: '',
-      approver: '',
+      writer: '이다은',
+      reviewer: '권화선',
+      approver: '최민재',
       changeReason: '신규 제정',
       riskSettings: defaultRiskSettings(),
       samplingSites: [],
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
       signoff: {},
       audit: [],
       locked: false,
@@ -201,9 +200,9 @@
     var base = formState();
     current = {
       title: 'HACCP팀 위험·환경 설정', docDate: today(), revision: nextRevision(base.revision), effectiveDate: today(), nextReviewDate: '',
-      writer: (me() && me().name) || base.writer || '', reviewer: '', approver: '',
+      writer: '이다은', reviewer: '권화선', approver: '최민재',
       changeReason: '개정본 작성', riskSettings: clone(base.riskSettings), samplingSites: clone(base.samplingSites),
-      approvals: { writer: '', reviewer: '', approver: '' }, signoff: {}, audit: [], locked: false, status: 'draft'
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' }, signoff: {}, audit: [], locked: false, status: 'draft'
     };
     renderForm();
     if (approvalUi) approvalUi.render();

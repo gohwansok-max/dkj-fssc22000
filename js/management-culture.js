@@ -18,13 +18,12 @@
   function n(v) { var x = Number(v); return isFinite(x) ? x : 0; }
   function defaultScores() { var out = {}; dims.forEach(function (d) { out[d.key] = 3; }); return out; }
   function blank(type) {
-    var user = me();
     return {
       title: type === 'culture' ? '식품안전문화 평가·실행계획' : '경영검토 회의·후속조치',
-      recordType: type || 'management', docDate: today(), writer: (user && user.name) || '', reviewer: '', approver: '',
-      status: 'draft', locked: false, approvals: { writer: '', reviewer: '', approver: '' }, signoff: {}, audit: [],
-      reviewPeriod: '', meetingDate: today(), chairperson: '', attendees: '', meetingType: '정기 경영검토', managementInput: '', decisions: '', reviewAction: '', reviewOwner: '', reviewDue: '', resources: '', reviewVerification: '',
-      culturePeriod: '', cultureDate: today(), cultureTeam: '', cultureMethod: '현장관찰·면담·기록평가', cultureReviewDate: '', cultureScores: defaultScores(), cultureStrength: '', cultureGap: '', cultureOwner: '', cultureDue: '', culturePlan: '', cultureVerification: '', cultureEvidence: ''
+      recordType: type || 'management', docDate: today(), writer: '이다은', reviewer: '권화선', approver: '최민재',
+      status: 'draft', locked: false, approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' }, signoff: {}, audit: [],
+      reviewPeriod: '', meetingDate: today(), chairperson: '최민재', attendees: '최민재, 권화선, 이다은 외', meetingType: '정기 경영검토', managementInput: '', decisions: '', reviewAction: '', reviewOwner: '권화선', reviewDue: '', resources: '', reviewVerification: '',
+      culturePeriod: '', cultureDate: today(), cultureTeam: '식품안전팀', cultureMethod: '현장관찰·면담·기록평가', cultureReviewDate: '', cultureScores: defaultScores(), cultureStrength: '', cultureGap: '', cultureOwner: '이다은', cultureDue: '', culturePlan: '', cultureVerification: '', cultureEvidence: ''
     };
   }
   function allRecords() { return list(FORM_ID).sort(function (a, b) { return String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')); }); }

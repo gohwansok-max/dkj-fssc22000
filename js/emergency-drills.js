@@ -171,8 +171,8 @@
     return buildReport(data) + approvalTable(record);
   }
 
-  function currentApprovals() { return { writer:value('writer'), reviewer:value('reviewer'), approver:value('approver') }; }
-  function setApprovals(approvals) { approvals = approvals || {}; ['writer','reviewer','approver'].forEach(function (key) { if ($(key)) $(key).value = approvals[key] || ''; }); }
+  function currentApprovals() { return { writer:value('writer') || '이다은', reviewer:value('reviewer') || '권화선', approver:value('approver') || '최민재' }; }
+  function setApprovals(approvals) { approvals = approvals || {}; ['writer','reviewer','approver'].forEach(function (key) { if ($(key)) $(key).value = approvals[key] || (key === 'writer' ? '이다은' : key === 'reviewer' ? '권화선' : '최민재'); }); }
   function allSigned(record) { var sign = (record && record.signoff) || {}; return !!(sign.writer && sign.reviewer && sign.approver); }
   function approvalNamesValid() { var approvals = currentApprovals(); return !!(approvals.writer && approvals.reviewer && approvals.approver); }
   function lockedState() { return !!(current && (current.approvalRequested || current.locked)); }
