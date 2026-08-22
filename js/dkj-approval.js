@@ -193,58 +193,187 @@
   function staffOptions() {
     var rows = [];
     var seen = {};
-    function add(empId, name) {
+    function add(empId, name, role) {
       var label = String(name || '').trim();
       var id = String(empId || '').trim();
       if (!label && id) label = '사번 ' + id;
       if (!label || seen[label]) return;
       seen[label] = true;
-      rows.push({ value: label, label: label + (id ? ' (' + id + ')' : '') });
+      var roleText = role ? ' · ' + role : '';
+      rows.push({ value: label, label: label + (id ? ' (' + id + roleText + ')' : '') });
     }
+    // 기본 상주 인원
+    add('0001', '이다은', '작업자');
+    add('0002', '권화선', '관리자');
+    add('0003', '최민재', '책임자');
+    add('4343', '관리자', '시스템 관리자');
+
     try {
       var fixed = global.DkjAuth && global.DkjAuth.staff && global.DkjAuth.staff();
-      Object.keys(fixed || {}).forEach(function (id) { add(id, fixed[id].name); });
+      Object.keys(fixed || {}).forEach(function (id) {
+        var item = fixed[id] || {};
+        add(id, item.name, item.role);
+      });
     } catch (e) {}
     try {
       var current = me();
-      if (current) add(current.empId, current.name);
+      if (current) add(current.empId, current.name, current.role);
     } catch (e) {}
     return rows;
   }
 
-  function attachStaffPickers() {
-    var fields = ['writer', 'reviewer', 'approver', 'inspector', 'confirmer', 'monitorName'];
-    var options = staffOptions();
-    fields.forEach(function (id) {
-      var input = document.getElementById(id);
-      if (!input) return;
-      var currentValue = input.value || '';
-      var select = input;
-      if (input.tagName === 'INPUT') {
-        select = document.createElement('select');
-        select.id = input.id;
-        select.className = input.className;
-        select.required = input.required;
-        input.parentNode.replaceChild(select, input);
+  function isPersonnelInput(el) {
+    if (!el || el.tagName !== 'INPUT') return false;
+    var type = (el.type || 'text').toLowerCase();
+    if (type !== 'text' && type !== '' && type !== 'search') return false;
+    if (el.readOnly || el.disabled) return false;
+
+    var id = (el.id || '').toLowerCase();
+    var name = (el.name || '').toLowerCase();
+    var ph = (el.placeholder || '').toLowerCase();
+
+    var explicitIds = [
+      'writer', 'reviewer', 'approver', 'inspector', 'confirmer', 'monitorname',
+      'owner', 'containmentowner', 'correctiveowner', 'actionowner', 'verifier',
+      'drillwriter', 'drillreviewer', 'drillcorrectiveowner', 'leader', 'evaluator',
+      'chair', 'chairperson', 'reviewowner', 'cultureowner', 'trainer', 'worker',
+      'operator', 'contact', 'arcwriter', 'inspectorname', 'confirmername',
+      'workername', 'driller', 'auditor', 'cleaner', 'driver', 'immediateowner',
+      'actionmanager', 'personincharge', 'checkperson', 'workperson', 'author',
+      'surveyor', 'investigator', 'reporter'
+    ];
+
+    if (explicitIds.indexOf(id) !== -1 || explicitIds.indexOf(name) !== -1) return true;
+
+    if (ph.indexOf('성명') !== -1 || ph.indexOf('작성자') !== -1 || ph.indexOf('담당자') !== -1 || ph.indexOf('직책') !== -1) {
+      return true;
+    }
+
+    var label = null;
+    if (el.id) {
+      label = document.querySelector('label[for="' + el.id + '"]');
+    }
+    if (!label) {
+      var parent = el.closest('.field') || el.closest('label') || el.parentElement;
+      if (parent) {
+        label = parent.querySelector('label') || (parent.tagName === 'LABEL' ? parent : null);
       }
-      if (select.tagName !== 'SELECT') return;
-      select.setAttribute('data-dkj-staff-picker', 'true');
-      select.innerHTML = '<option value="">등록 인원 선택</option>' + options.map(function (o) {
-        return '<option value="' + esc(o.value) + '">' + esc(o.label) + '</option>';
-      }).join('');
-      if (currentValue) {
-        if (!options.some(function (o) { return o.value === currentValue; })) {
-          select.insertAdjacentHTML('beforeend', '<option value="' + esc(currentValue) + '">' + esc(currentValue) + '</option>');
+    }
+
+    if (label) {
+      var text = (label.textContent || '').replace(/\*/g, '').trim();
+      var excludeWords = ['일자', '시간', '장소', '상자', '하자', '자재', '자원', '의자', '상태', '결과', '내용', '내역', '사유', '기준', '장비', '단위', '수량', '위치', '방법', '주기', '품목', '공정', '번호', '기간', '서식', '사진', '파일', 'lot', '코드', '온도', '습도', '압력', '규격', '목표', '경로'];
+      if (excludeWords.some(function(w) { return text.toLowerCase().indexOf(w) !== -1; })) {
+        return false;
+      }
+      var personWords = ['작성자', '검토자', '승인자', '확인자', '점검자', '검사자', '담당자', '책임자', '작업자', '교육자', '평가자', '주재자', '조치자', '입고자', '출고자', '기록자', '실시자', '조사자', '입력자', '보고자', '총괄', '책임', '작성', '검토', '승인', '확인', '점검'];
+      if (personWords.some(function(w) { return text.indexOf(w) !== -1; })) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function transformInputToStaffSelect(input, options) {
+    if (!input) return null;
+    var currentValue = input.value || '';
+    var select = input;
+    if (input.tagName === 'INPUT') {
+      select = document.createElement('select');
+      select.id = input.id;
+      select.name = input.name;
+      select.className = input.className;
+      select.required = input.required;
+      if (input.dataset) {
+        for (var k in input.dataset) select.dataset[k] = input.dataset[k];
+      }
+      input.parentNode.replaceChild(select, input);
+    }
+    if (select.tagName !== 'SELECT') return select;
+
+    select.setAttribute('data-dkj-staff-picker', 'true');
+
+    // 역할별 기본값 세팅 (신규 작성 시)
+    var idLower = (select.id || '').toLowerCase();
+    var defaultVal = '';
+    if (idLower === 'writer' || idLower === 'inspector' || idLower.indexOf('worker') !== -1) {
+      defaultVal = '이다은';
+    } else if (idLower === 'reviewer') {
+      defaultVal = '권화선';
+    } else if (idLower === 'approver' || idLower === 'confirmer') {
+      defaultVal = '최민재';
+    }
+
+    var chosenVal = currentValue || defaultVal;
+
+    var html = '<option value="">등록 인원 선택</option>';
+    options.forEach(function (o) {
+      html += '<option value="' + esc(o.value) + '">' + esc(o.label) + '</option>';
+    });
+    html += '<option value="__custom__">직접 입력...</option>';
+    select.innerHTML = html;
+
+    if (chosenVal) {
+      if (!options.some(function (o) { return o.value === chosenVal; })) {
+        var customOpt = '<option value="' + esc(chosenVal) + '">' + esc(chosenVal) + ' (입력값)</option>';
+        var lastOpt = select.querySelector('option[value="__custom__"]');
+        if (lastOpt) lastOpt.insertAdjacentHTML('beforebegin', customOpt);
+      }
+      select.value = chosenVal;
+    }
+
+    if (!select.getAttribute('data-dkj-bound')) {
+      select.setAttribute('data-dkj-bound', 'true');
+      select._lastValue = select.value;
+      var handler = function () {
+        if (select.value === '__custom__') {
+          var inputName = prompt('성명을 직접 입력하세요:');
+          if (inputName && inputName.trim()) {
+            inputName = inputName.trim();
+            var opt = document.createElement('option');
+            opt.value = inputName;
+            opt.textContent = inputName + ' (직접입력)';
+            var customEl = select.querySelector('option[value="__custom__"]');
+            if (customEl) customEl.insertAdjacentElement('beforebegin', opt);
+            select.value = inputName;
+            select._lastValue = inputName;
+          } else {
+            select.value = select._lastValue || '';
+          }
+        } else {
+          select._lastValue = select.value;
         }
-        select.value = currentValue;
-      }
-      if (!select.getAttribute('data-dkj-bound')) {
-        select.setAttribute('data-dkj-bound', 'true');
-        var handler = function () {
-          global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
-        };
-        select.addEventListener('input', handler);
-        select.addEventListener('change', handler);
+        global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+      };
+      select.addEventListener('change', handler);
+      select.addEventListener('input', handler);
+    }
+    return select;
+  }
+
+  function attachStaffPickers() {
+    var options = staffOptions();
+    // 1. 명시적 인원 필드 ID
+    var explicitIds = [
+      'writer', 'reviewer', 'approver', 'inspector', 'confirmer', 'monitorName',
+      'owner', 'containmentOwner', 'correctiveOwner', 'actionOwner', 'verifier',
+      'drillWriter', 'drillReviewer', 'drillCorrectiveOwner', 'leader', 'evaluator',
+      'chair', 'chairperson', 'reviewOwner', 'cultureOwner', 'trainer', 'worker',
+      'operator', 'contact', 'arcWriter', 'inspectorName', 'confirmerName',
+      'workerName', 'driller', 'auditor', 'cleaner', 'driver', 'immediateOwner',
+      'actionManager', 'personInCharge', 'checkPerson', 'workPerson', 'author'
+    ];
+    explicitIds.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) transformInputToStaffSelect(el, options);
+    });
+
+    // 2. 동적 인원 관련 input 검색
+    var allInputs = document.querySelectorAll('input:not([data-dkj-staff-picker])');
+    Array.prototype.forEach.call(allInputs, function (input) {
+      if (isPersonnelInput(input)) {
+        transformInputToStaffSelect(input, options);
       }
     });
   }
@@ -416,8 +545,13 @@
     document.addEventListener('DOMContentLoaded', function () {
       installHook();
       installRemoveGuard();
+      attachStaffPickers();
     });
+  } else {
+    attachStaffPickers();
   }
+  global.addEventListener('load', attachStaffPickers);
+  document.addEventListener('dkj:record-loaded', attachStaffPickers);
 
   global.DkjApproval = {
     mount: mount,
@@ -425,6 +559,7 @@
     append: append,
     verify: verify,
     hash: hash,
-    STAGES: STAGES
+    STAGES: STAGES,
+    attachStaffPickers: attachStaffPickers
   };
 })(window);
