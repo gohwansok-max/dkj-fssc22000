@@ -369,3 +369,70 @@ img.brand-logo {
   .hub-page { background: #fff; }
   .ck-header { display: none !important; }
 }
+
+/* ---------- 공통 빠른 이동 플로팅 버튼 (이전 / 홈) ---------- */
+.dkj-quick-nav {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2147482000;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid rgba(0, 107, 63, .22);
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(12, 55, 33, .2);
+  font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+.dkj-quick-nav__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  background: #fff;
+  color: #17633f;
+  font: 800 13px/1 inherit;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.dkj-quick-nav__button + .dkj-quick-nav__button {
+  border-left: 1px solid #dbe8e0;
+}
+.dkj-quick-nav__button:hover,
+.dkj-quick-nav__button:focus-visible {
+  background: #edf8f1;
+  color: #005b35;
+  outline: none;
+}
+.dkj-quick-nav__icon {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+.dkj-quick-nav__home .dkj-quick-nav__icon {
+  font-size: 17px;
+}
+@media (max-width: 640px) {
+  .dkj-quick-nav {
+    right: 12px;
+    bottom: 12px;
+    border-radius: 12px;
+  }
+  .dkj-quick-nav__button {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}
+@media print {
+  .dkj-quick-nav {
+    display: none !important;
+  }
+}
