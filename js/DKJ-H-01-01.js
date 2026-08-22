@@ -323,6 +323,20 @@
         window.print();
       }
     });
+    if (window.DkjUtil) {
+      window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+        formId: FORM_ID,
+        hasChecks: false,
+        onClonePrev: function (cloned) {
+          if (state.locked) return;
+          state = Object.assign(emptyState(), cloned);
+          editingId = null;
+          writeForm();
+          scheduleDraft();
+        }
+      });
+      window.DkjUtil.attachChips(document);
+    }
   }
 
   function init() {
@@ -333,6 +347,11 @@
     renderHistory();
     mountApproval();
     refreshApproval();
+    if (window.DkjUtil) {
+      window.DkjUtil.autoFillUser(state, ['monitorName', 'confirmer', 'approver'], function () {
+        writeForm();
+      });
+    }
     setStatus('준비', false);
   }
 

@@ -505,6 +505,31 @@
           scheduleDraft();
         });
       }
+      if (global.DkjUtil) {
+        global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+          formId: FORM_ID,
+          hasChecks: true,
+          onAllPass: function () {
+            if (state.locked) return;
+            ROWS.forEach(function (r) {
+              state.checks[r.key] = new Array(N).fill('O');
+            });
+            renderMatrix();
+            renderSummary();
+            scheduleDraft();
+          },
+          onClonePrev: function (cloned) {
+            if (state.locked) return;
+            state = Object.assign(emptyState(spec), cloned);
+            state.weekStart = mondayOf(null);
+            state.days = buildDays(state.weekStart, N, spec.period === 'month' ? 7 : 1);
+            editingId = null;
+            writeForm();
+            scheduleDraft();
+          }
+        });
+        global.DkjUtil.attachChips(document);
+      }
     }
 
     function fillDayOptions() {
@@ -524,6 +549,11 @@
       bind();
       renderHistory();
       mountApproval();
+      if (global.DkjUtil) {
+        global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
+          writeForm();
+        });
+      }
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {

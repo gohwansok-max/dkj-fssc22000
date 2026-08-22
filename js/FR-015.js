@@ -353,6 +353,26 @@
       scheduleDraft();
     });
 
+    if (window.DkjUtil) {
+      window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+        formId: FORM_ID,
+        hasChecks: false,
+        onClonePrev: function (cloned) {
+          if (state.locked) return;
+          editingId = null;
+          state = Object.assign(emptyState(), cloned);
+          state.occurDate = today();
+          syncToForm();
+          renderReasons();
+          scheduleDraft();
+        }
+      });
+      window.DkjUtil.attachChips(document);
+      window.DkjUtil.autoFillUser(state, ['writer', 'reviewer', 'approver'], function () {
+        syncToForm();
+      });
+    }
+
     renderHistory();
   }
 

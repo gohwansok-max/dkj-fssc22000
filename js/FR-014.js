@@ -437,6 +437,33 @@
       scheduleDraft();
     }, state.linkedProduct);
 
+    if (window.DkjUtil) {
+      window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+        formId: FORM_ID,
+        hasChecks: true,
+        onAllPass: function () {
+          if (state.locked) return;
+          CHECK_ITEMS.forEach(function (it) { state.checks[it.key] = 'O'; });
+          state.judge = '적합';
+          renderCheckGrid();
+          renderJudgeButtons();
+          scheduleDraft();
+        },
+        onClonePrev: function (cloned) {
+          if (state.locked) return;
+          fillForm(cloned);
+          editingId = null;
+          state.receiveDate = today();
+          $('receiveDate').value = state.receiveDate;
+          scheduleDraft();
+        }
+      });
+      window.DkjUtil.attachChips(document);
+      window.DkjUtil.autoFillUser(state, ['inspector', 'confirmer'], function () {
+        fillForm(state);
+      });
+    }
+
     var params = new URLSearchParams(location.search);
     var loadId = params.get('id');
     if (loadId) {

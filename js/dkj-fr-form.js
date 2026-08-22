@@ -51,6 +51,7 @@
     (spec.sections || []).forEach(function (s) {
       st[s.id] = '';
     });
+    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['writer', 'reviewer', 'approver', 'inspector']);
     return st;
   }
 
@@ -304,6 +305,28 @@
           }
         });
       }
+      if (global.DkjUtil) {
+        global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+          formId: FORM_ID,
+          hasChecks: ITEMS.length > 0,
+          onAllPass: function () {
+            if (state.locked) return;
+            ITEMS.forEach(function (it) { state.checks[it.key] = 'O'; });
+            state.judge = '적합';
+            renderOxGrid();
+            renderJudge();
+            scheduleDraft();
+          },
+          onClonePrev: function (cloned) {
+            if (state.locked) return;
+            state = Object.assign(emptyState(spec), cloned);
+            editingId = null;
+            writeForm();
+            scheduleDraft();
+          }
+        });
+        global.DkjUtil.attachChips(document);
+      }
     }
 
     function init() {
@@ -314,6 +337,11 @@
       renderHistory();
       mountApproval();
       refreshApproval();
+      if (global.DkjUtil) {
+        global.DkjUtil.autoFillUser(state, ['writer', 'reviewer', 'approver', 'inspector'], function () {
+          writeForm();
+        });
+      }
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {
