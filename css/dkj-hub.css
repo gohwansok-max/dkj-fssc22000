@@ -58,7 +58,22 @@ img.brand-logo {
   align-items: center;
   gap: 2px;
   height: 100%;
-  margin-left: 8px;
+  margin-left: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.gnb::-webkit-scrollbar {
+  display: none;
+}
+
+.gnb-static,
+.gnb-trigger,
+.gnb-item {
+  flex: 0 0 auto;
 }
 
 .gnb-static,
@@ -737,8 +752,12 @@ img.brand-logo {
 
   .ck-brand {
     order: 1;
-    flex: 0 1 auto;
-    min-width: 0;
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+  }
+
+  .ck-tagline {
+    display: none !important;
   }
 
   .ck-header-right {
@@ -760,7 +779,7 @@ img.brand-logo {
     padding: 0 2px;
     overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-width: thin;
+    scrollbar-width: none;
   }
 
   .gnb-static,

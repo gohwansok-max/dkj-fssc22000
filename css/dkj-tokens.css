@@ -180,8 +180,9 @@
 .site-header .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-width: 0;
+  gap: 10px;
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
   color: inherit;
   text-decoration: none;
 }
@@ -227,7 +228,16 @@ img.brand-logo {
   letter-spacing: -.03em;
 }
 
-.ck-tagline { font-size: 12px; opacity: .85; white-space: nowrap; }
+.ck-tagline {
+  font-size: 12px;
+  opacity: .85;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1550px) {
+  .ck-tagline { display: none !important; }
+}
 
 .ck-header-right {
   margin-left: auto;
