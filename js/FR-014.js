@@ -37,11 +37,11 @@
       checks: checks,
       judge: '',
       action: '입고',
-      inspector: '',
-      confirmer: '',
+      inspector: '이다은',
+      confirmer: '권화선',
       remark: '',
       // 전자결재 — 검사자·확인자 2단
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '', approver: '권화선' },
       signoff: {},
       audit: []
     };
@@ -459,7 +459,7 @@
         }
       });
       window.DkjUtil.attachChips(document);
-      window.DkjUtil.autoFillUser(state, ['inspector'], function () {
+      window.DkjUtil.autoFillUser(state, ['inspector', 'confirmer'], function () {
         fillForm(state);
       });
     }

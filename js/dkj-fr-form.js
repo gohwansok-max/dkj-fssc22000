@@ -29,12 +29,12 @@
       checks: checks,
       judge: '',
       corrective: '',
-      writer: '',
-      reviewer: '',
-      approver: '',
+      writer: '이다은',
+      reviewer: '권화선',
+      approver: '최민재',
       // 결재 패널은 approvals(이름) / signoff(확정 서명)를 본다.
       // FR 서식은 writer·reviewer·approver 를 평면 필드로 갖고 있어 readForm 에서 미러링한다.
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
@@ -51,7 +51,7 @@
     (spec.sections || []).forEach(function (s) {
       st[s.id] = '';
     });
-    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['writer', 'inspector']);
+    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['writer', 'reviewer', 'approver', 'inspector', 'confirmer']);
     return st;
   }
 
@@ -343,7 +343,7 @@
       mountApproval();
       refreshApproval();
       if (global.DkjUtil) {
-        global.DkjUtil.autoFillUser(state, ['writer', 'inspector'], function () {
+        global.DkjUtil.autoFillUser(state, ['writer', 'reviewer', 'approver', 'inspector', 'confirmer'], function () {
           writeForm();
         });
       }

@@ -14,11 +14,11 @@
     "worker": { "label": "작업자", "stages": ["writer"] }
   },
   "staff": {
-    "0001": { "name": "", "role": "worker", "stages": ["writer"] },
-    "0002": { "name": "", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
-    "0003": { "name": "", "role": "manager", "stages": ["writer", "reviewer"] },
+    "0001": { "name": "이다은", "role": "worker", "stages": ["writer"] },
+    "0002": { "name": "권화선", "role": "manager", "stages": ["writer", "reviewer"] },
+    "0003": { "name": "최민재", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
     "0004": { "name": "", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
     "0005": { "name": "", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
-    "4343": { "name": "", "role": "system_admin", "stages": ["writer", "reviewer", "approver"], "admin": true }
+    "4343": { "name": "관리자", "role": "system_admin", "stages": ["writer", "reviewer", "approver"], "admin": true }
   }
 }

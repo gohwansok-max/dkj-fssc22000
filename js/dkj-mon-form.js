@@ -50,8 +50,8 @@
     var mode = spec.monMode || 'th';
     var st = {
       checkDate: today(),
-      inspector: '',
-      confirmer: '',
+      inspector: '이다은',
+      confirmer: '권화선',
       corrective: '',
       remark: '',
       locked: false,
@@ -63,6 +63,7 @@
       if (f.default !== undefined) st[f.id] = f.default;
       else st[f.id] = '';
     });
+    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['inspector', 'confirmer', 'writer']);
     return st;
   }
 
@@ -319,7 +320,7 @@
       bind();
       renderHistory();
       if (global.DkjUtil) {
-        global.DkjUtil.autoFillUser(state, ['inspector', 'writer'], function () {
+        global.DkjUtil.autoFillUser(state, ['inspector', 'confirmer', 'writer'], function () {
           writeForm();
         });
       }

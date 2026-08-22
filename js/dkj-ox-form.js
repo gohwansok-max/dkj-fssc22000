@@ -25,10 +25,10 @@
       checks: checks,
       judge: '',
       corrective: '',
-      inspector: '',
-      confirmer: '',
+      inspector: '이다은',
+      confirmer: '권화선',
       // O/X 일보는 점검자·확인자 2단이다. 결재 패널이 읽는 approvals 로 readForm 에서 미러링한다.
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '', approver: '권화선' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
@@ -45,7 +45,7 @@
     if (spec.defaults) {
       Object.keys(spec.defaults).forEach(function (k) { st[k] = spec.defaults[k]; });
     }
-    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['inspector', 'writer']);
+    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['inspector', 'confirmer', 'writer']);
     return st;
   }
 
@@ -344,7 +344,7 @@
       mountApproval();
       refreshApproval();
       if (global.DkjUtil) {
-        global.DkjUtil.autoFillUser(state, ['inspector', 'writer'], function () {
+        global.DkjUtil.autoFillUser(state, ['inspector', 'confirmer', 'writer'], function () {
           writeForm();
         });
       }

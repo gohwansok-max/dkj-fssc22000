@@ -23,17 +23,17 @@
       clMin: 50,
       clMax: 200,
       timeMin: 60,
-      monitorName: '',
+      monitorName: '이다은',
       rows: [emptyRow(), emptyRow(), emptyRow()],
       deviation: '',
       corrective: '',
-      confirmer: '',
-      approver: '',
+      confirmer: '권화선',
+      approver: '최민재',
       remark: '',
       // 전자결재 — 모니터링 담당(작성)·확인자(검토)·승인자(승인) 3단. 정본 인쇄
       // 서명란(signBox)도 작성/검토/승인 3칸이라 여기서도 맞춘다. audit 는 여기서
       // 만들어 둬야 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
       signoff: {},
       audit: [],
       locked: false,
@@ -351,7 +351,7 @@
     mountApproval();
     refreshApproval();
     if (window.DkjUtil) {
-      window.DkjUtil.autoFillUser(state, ['monitorName'], function () {
+      window.DkjUtil.autoFillUser(state, ['monitorName', 'confirmer', 'approver'], function () {
         writeForm();
       });
     }
