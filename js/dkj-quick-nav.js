@@ -45,7 +45,10 @@
       '</button>' +
       '<a class="dkj-quick-nav__button dkj-quick-nav__home" href="' + homeHref + '" title="업무 콘솔 홈으로 이동합니다." aria-label="홈으로 이동">' +
         '<span class="dkj-quick-nav__icon" aria-hidden="true">⌂</span><span>홈</span>' +
-      '</a>';
+      '</a>' +
+      '<button type="button" class="dkj-quick-nav__button dkj-quick-nav__reload" title="캐시 제거 후 강력 새로고침합니다." aria-label="강력 새로고침">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>' +
+      '</button>';
 
     var btnBack = nav.querySelector('.dkj-quick-nav__back');
     if (btnBack) {
@@ -55,6 +58,14 @@
         } else {
           global.location.href = homeHref;
         }
+      });
+    }
+
+    var btnReload = nav.querySelector('.dkj-quick-nav__reload');
+    if (btnReload) {
+      btnReload.addEventListener('click', function () {
+        btnReload.classList.add('is-spinning');
+        global.location.reload(true);
       });
     }
 

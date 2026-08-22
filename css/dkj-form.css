@@ -921,6 +921,21 @@
 .dkj-quick-nav__home .dkj-quick-nav__icon {
   font-size: 17px;
 }
+.dkj-quick-nav__reload {
+  padding: 0 10px;
+  color: #17633f;
+}
+.dkj-quick-nav__reload:hover {
+  color: #008744;
+  background: #eef8f2;
+}
+.dkj-quick-nav__reload.is-spinning svg {
+  animation: dkj-spin .6s linear infinite;
+}
+@keyframes dkj-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 @media (max-width: 640px) {
   .dkj-quick-nav {
     right: 12px;
@@ -932,6 +947,9 @@
     min-height: 38px;
     padding: 0 10px;
     font-size: 12px;
+  }
+  .dkj-quick-nav__reload {
+    padding: 0 8px;
   }
 }
 @media print {
