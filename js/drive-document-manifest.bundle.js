@@ -626,8 +626,8 @@ window.DKJ_DRIVE_DOCUMENTS={
       "relativePath": "02_절차서/DKJ-P-21_식품안전문화_절차서_Rev0_20260820.docx",
       "modifiedTime": "2026-08-20T00:00:00.000Z",
       "size": 59554,
-      "viewUrl": "doc-viewer.html?id=DKJ-P-21",
-      "previewUrl": "doc-viewer.html?id=DKJ-P-21",
+      "viewUrl": "docs/DKJ-P-21.html",
+      "previewUrl": "docs/DKJ-P-21.html",
       "downloadUrl": "data/excerpts/DKJ-P-21.txt"
     },
     {
