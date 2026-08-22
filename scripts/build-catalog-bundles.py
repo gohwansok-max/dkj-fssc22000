@@ -24,6 +24,9 @@ BUNDLES = [
     ("mdr-catalog.json", "mdr-catalog.bundle.js", "DKJ_MDR_CATALOG"),
     # Google Drive 정본 문서 매니페스트
     ("drive-document-manifest.json", "drive-document-manifest.bundle.js", "DKJ_DRIVE_DOCUMENTS"),
+    # PDF 및 문서 자산 매니페스트
+    ("pdf-manifest.json", "pdf-manifest.bundle.js", "DKJ_PDF_MANIFEST"),
+    ("doc-assets.json", "doc-assets.bundle.js", "DKJ_DOC_ASSETS"),
 ]
 
 
