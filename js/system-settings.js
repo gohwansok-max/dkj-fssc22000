@@ -70,7 +70,11 @@
     target.innerHTML = rows.map(function (row) {
       var isRootAdmin = String(row.empId) === '4343';
       return '<tr data-emp-id="' + esc(row.empId) + '">' +
-        '<td><strong>' + esc(row.empId) + '</strong>' + (isRootAdmin ? ' <span class="admin-lock">관리자</span>' : '') + '</td>' +
+        '<td>' +
+          (isRootAdmin
+            ? '<input type="text" class="user-id" maxlength="20" value="4343" disabled style="background:#edf6f0;font-weight:800;color:#006b3f;">'
+            : '<input type="text" class="user-id" maxlength="20" value="' + esc(row.empId) + '" placeholder="아이디/사번">') +
+        '</td>' +
         '<td><input type="text" class="user-name" maxlength="20" value="' + esc(row.name || '') + '" placeholder="성명"></td>' +
         '<td><select class="user-role"' + (isRootAdmin ? ' disabled' : '') + '>' + optionTags(row.role || 'worker') + '</select></td>' +
         '<td><input type="text" class="user-pw pw-input" maxlength="30" placeholder="새 비밀번호 입력 시 변경" value=""></td>' +
@@ -139,27 +143,32 @@
   }
 
   function saveRow(tr) {
-    var empId = tr.getAttribute('data-emp-id');
-    if (!empId) return;
+    var oldEmpId = tr.getAttribute('data-emp-id');
+    if (!oldEmpId) return;
+    var newEmpId = tr.querySelector('.user-id').value.trim();
     var name = tr.querySelector('.user-name').value.trim();
     var role = tr.querySelector('.user-role').value;
     var pw = tr.querySelector('.user-pw').value.trim();
 
+    if (!newEmpId) { setStatus('사번(아이디)을 입력하세요.', 'bad'); return; }
     if (!name) { setStatus('성명을 입력하세요.', 'bad'); return; }
 
     try {
-      var updateData = { name: name, role: role };
+      var updateData = { newEmpId: newEmpId, name: name, role: role };
       var detail = name + ' · ' + roles[role];
+      if (newEmpId !== oldEmpId) {
+        detail += ' · 아이디 변경(' + oldEmpId + '→' + newEmpId + ')';
+      }
       if (pw) {
         updateData.password = pw;
         detail += ' · 비밀번호 변경';
       }
 
-      window.DkjAuth.saveUser(empId, updateData);
-      addAudit('사용자 계정 정보 수정', empId, detail);
+      window.DkjAuth.saveUser(oldEmpId, updateData);
+      addAudit('사용자 계정 정보 수정', newEmpId, detail);
       tr.querySelector('.user-pw').value = '';
       renderUsers();
-      setStatus(empId + '번 사용자 (' + name + ') 계정 정보를 저장했습니다.', 'ok');
+      setStatus('사용자 ' + name + '(' + newEmpId + ') 계정 정보를 저장했습니다. 해당 아이디로 바로 로그인할 수 있습니다.', 'ok');
     } catch (e) {
       setStatus('저장 실패: ' + e.message, 'bad');
     }

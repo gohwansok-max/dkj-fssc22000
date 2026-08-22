@@ -220,18 +220,39 @@
   }
 
   function saveUser(empId, data) {
-    var id = normId(empId);
+    var oldId = normId(empId);
     var dir = getDirectory();
-    if (!dir[id]) throw new Error('사용자를 찾을 수 없습니다.');
-    var item = dir[id];
+    if (!dir[oldId]) throw new Error('사용자를 찾을 수 없습니다.');
+    var item = dir[oldId];
+
+    // ID(사번) 변경 처리
+    var newId = data.newEmpId || data.empId;
+    if (newId) {
+      newId = normId(newId);
+      if (newId !== oldId) {
+        if (oldId === ADMIN_EMP_ID) throw new Error('시스템 관리자(4343)의 아이디는 변경할 수 없습니다.');
+        if (dir[newId]) throw new Error('이미 사용 중인 아이디/사번입니다: ' + newId);
+        delete dir[oldId];
+        item.empId = newId;
+        item.uid = 'uid-' + newId;
+        dir[newId] = item;
+        if (state.empId === oldId) {
+          state.empId = newId;
+          persist(newId, item.name || newId, state.token, null, item.uid, item.role);
+        }
+      }
+    }
+
     if (data.name !== undefined) item.name = String(data.name).trim();
-    if (data.role !== undefined && id !== ADMIN_EMP_ID) item.role = normalizeRole(data.role);
+    if (data.role !== undefined && item.empId !== ADMIN_EMP_ID) item.role = normalizeRole(data.role);
     if (data.password) item.password = String(data.password).trim();
     item.updatedAt = new Date().toISOString();
-    dir[id] = item;
+
+    var currentId = item.empId || oldId;
+    dir[currentId] = item;
     saveDirectory(dir);
     if (configured() && state.token) {
-      request('system/users/' + encodeURIComponent(item.uid || ('uid-' + id)), 'PUT', item).catch(function () {});
+      request('system/users/' + encodeURIComponent(item.uid || ('uid-' + currentId)), 'PUT', item).catch(function () {});
     }
     return item;
   }
@@ -302,18 +323,20 @@
   }
 
   async function login(empId, password) {
-    var id = normId(empId);
+    var raw = String(empId == null ? '' : empId).trim();
+    var id = normId(raw);
     var dir = getDirectory();
-    var localUser = dir[id] || dir[empId];
+    var localUser = dir[raw] || dir[id] || dir[raw.toLowerCase()];
 
     // 1. 로컬 사용자 디렉터리 비밀번호 검증 (즉시 로그인)
     if (localUser && (localUser.password === password || !localUser.password)) {
+      var activeId = localUser.empId || id;
       localUser.lastLoginAt = new Date().toISOString();
       saveDirectory(dir);
-      persist(id, localUser.name || id, 'local-token-' + id, null, 'uid-' + id, localUser.role);
+      persist(activeId, localUser.name || activeId, 'local-token-' + activeId, null, 'uid-' + activeId, localUser.role);
       if (configured()) {
-        signIn(id, password).then(function (d) {
-          persist(id, localUser.name || d.displayName || id, d.idToken, d.refreshToken, d.localId, localUser.role);
+        signIn(activeId, password).then(function (d) {
+          persist(activeId, localUser.name || d.displayName || activeId, d.idToken, d.refreshToken, d.localId, localUser.role);
           if (global.DkjCloudSync) global.DkjCloudSync.start();
         }).catch(function () {});
       }
