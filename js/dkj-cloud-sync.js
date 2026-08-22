@@ -21,7 +21,12 @@
   var writingLocal = false, timers = {}, poller = null, started = false;
 
   function auth() { return global.DkjAuth; }
-  function ready() { return !!(CFG.apiKey && CFG.databaseURL && auth() && auth().token()); }
+  function hasRemoteToken() {
+    if (!auth() || !auth().token()) return false;
+    var t = String(auth().token() || '');
+    return !!t && t.indexOf('local-token-') !== 0;
+  }
+  function ready() { return !!(CFG.apiKey && CFG.databaseURL && hasRemoteToken()); }
   function isSyncKey(k) { return !!k && KEY_RE.test(k); }
   function formIdOf(key) {
     var m = String(key || '').match(KEY_RE);
@@ -52,6 +57,10 @@
   function same(a, b) { return JSON.stringify(a || null) === JSON.stringify(b || null); }
 
   function toast(msg, bad) {
+    if (bad) {
+      console.info('[DkjCloudSync] 기기에 안전하게 저장됨 (클라우드 대기):', msg);
+      return; // 오프라인/로컬 저장 시 사용자 화면에 불필요한 빨간 경고창을 띄우지 않음
+    }
     var el = document.getElementById('dkj-cloud-status');
     if (!el) {
       el = document.createElement('div');
@@ -61,7 +70,7 @@
       document.body.appendChild(el);
     }
     el.textContent = msg;
-    el.style.background = bad ? '#b91c1c' : '#009a44';
+    el.style.background = '#009a44';
     el.style.display = 'block';
     clearTimeout(el._t);
     el._t = setTimeout(function () { el.style.display = 'none'; }, 3500);
@@ -372,10 +381,13 @@
   }
 
   function queue(key) {
+    if (!ready()) return;
     clearTimeout(timers[key]);
     timers[key] = setTimeout(function () {
       syncKey(key).then(function () { toast('☁️ 저장·동기화 완료'); })
-        .catch(function () { toast('☁️ 동기화 실패 — 기기에는 저장됨', true); });
+        .catch(function (err) {
+          console.info('[DkjCloudSync] 기기에 안전하게 저장됨 (클라우드 동기화 대기):', err && err.message);
+        });
     }, 600);
   }
 
