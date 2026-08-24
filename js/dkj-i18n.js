@@ -1,9 +1,5 @@
 /**
- * 동김제농협 스마트 HACCP · FSSC22000 다국어(i18n) 통합 엔진
- * 
- * PC 및 모바일/태블릿 전 화면 실시간 베트남어(Tiếng Việt) 다국어 변환 지원
- * - 한국어 (ko, 기본)
- * - 베트남어 (vi, Tiếng Việt)
+ * 동김제농협 스마트 HACCP · FSSC22000 다국어(i18n) 통합 엔진 (74종 일지 전면 지원)
  */
 (function (global) {
   'use strict';
@@ -11,141 +7,370 @@
   var STORAGE_KEY = 'dkj:ui:lang:v1';
   var currentLang = 'ko';
 
-  // 광범위한 UI 및 서식 번역 딕셔너리
+  // 74종 일지 및 전 화면 통합 번역 딕셔너리 (360+ 항목)
   var DICTIONARY = {
     vi: {
-      // 1. 헤더 & GNB 메뉴
-      '오늘 할 일': 'Việc hôm nay',
-      '기록 검색': 'Tìm hồ sơ',
-      '품질 경보': 'Cảnh báo chất lượng',
-      '기록보관함': 'Lưu trữ hồ sơ',
-      '문서센터': 'Trung tâm tài liệu',
-      '전체 메뉴': 'Tất cả menu',
-      '핵심 업무': 'Nghiệp vụ chính',
-      '업무 콘솔': 'Bảng điều khiển',
-      '기록양식 작성': 'Lập biểu mẫu',
-      '품질 경보 현황': 'Tình trạng cảnh báo',
-      '정기 알림 관리': 'Quản lý thông báo định kỳ',
-      '문서 & 관리': 'Tài liệu & Quản lý',
-      '정본 열람실': 'Phòng đọc bản gốc',
-      '문서관리대장': 'Sổ quản lý tài liệu',
-      'CAPA 관리': 'Quản lý CAPA',
-      '품질 & 인증': 'Chất lượng & Chứng nhận',
-      '추적성·모의회수': 'Truy xuất & Thu hồi thử',
-      'FSSC 심사준비': 'Chuẩn bị đánh giá FSSC',
-      '경영검토·식품안전문화': 'Xem xét lãnh đạo & Văn hóa ATTP',
-      '설정 & 시스템': 'Cài đặt & Hệ thống',
-      'HACCP팀 설정': 'Thiết lập đội HACCP',
-      '임원 통합 현황': 'Báo cáo ban giám đốc',
-      '시스템 설정': 'Cài đặt hệ thống',
-      '회사소개서': 'Giới thiệu công ty',
-
-      // 2. 메인 화면 섹션 & 위젯
-      '오늘 작성할 일지': 'Nhật ký cần viết hôm nay',
-      '생산일 기준으로 작성 의무가 자동 계산됩니다': 'Tự động tính toán theo ngày sản xuất',
-      '작성 현황': 'Tình trạng lập nhật ký',
-      '저장된 기록에서 자동으로 계산합니다': 'Tự động tính từ hồ sơ đã lưu',
-      '주간 · 월간 점검': 'Kiểm tra tuần · tháng',
-      '주기가 긴 서식입니다': 'Các biểu mẫu có chu kỳ dài',
-      '발생 시 작성': 'Viết khi phát sinh',
-      '입고·부적합·불만 등 사건이 생겼을 때 작성합니다': 'Viết khi nhập kho, có lỗi hoặc khiếu nại',
-      '최근 저장된 기록': 'Hồ sơ lưu gần đây',
-      '최근 저장 기록을 검색·필터링합니다': 'Tìm kiếm & lọc hồ sơ gần đây',
-      '서식명·문서번호·내용 검색': 'Tìm theo tên, mã số, nội dung',
-      '전체 기록': 'Tất cả hồ sơ',
-      '오늘 저장': 'Lưu hôm nay',
-      '부적합만': 'Chỉ lỗi/không đạt',
-      '비생산일': 'Ngày không sản xuất',
-      '생산일': 'Ngày sản xuất',
-      '정상가동': 'Hoạt động bình thường',
-      '휴무/미가동': 'Nghỉ / Không chạy',
-
-      // 3. 버튼 및 공통 네비게이션
-      '홈': 'Trang chủ',
-      '이전': 'Trước',
-      '새로고침': 'Tải lại',
-      '닫기': 'Đóng',
-      '확인': 'Xác nhận',
-      '취소': 'Hủy',
-      '저장': 'Lưu',
-      '임시저장': 'Lưu tạm',
-      '작성완료': 'Hoàn thành',
-      '서명하기': 'Ký tên',
-      '인쇄': 'In',
-      '인쇄하기': 'In hồ sơ',
-      '초기화': 'Làm mới',
-      '검색': 'Tìm kiếm',
-      '목록': 'Danh sách',
-      '상세보기': 'Xem chi tiết',
-      '수정': 'Sửa',
-      '삭제': 'Xóa',
-      '추가': 'Thêm',
-      '다운로드': 'Tải xuống',
-      '본문으로 바로가기': 'Đến nội dung chính',
-
-      // 4. 로그인 & 인증
-      '사번': 'Mã NV',
-      '사번(숫자 4자리)': 'Mã NV (4 số)',
-      '비밀번호': 'Mật khẩu',
-      '비밀번호 입력': 'Nhập mật khẩu',
-      '로그인': 'Đăng nhập',
-      '로그아웃': 'Đăng xuất',
-      '작업자': 'Công nhân',
-      '관리자': 'Quản trị viên',
-      '품질관리자': 'QL Chất lượng',
-      '생산관리자': 'QL Sản xuất',
-      '책임자': 'Người phụ trách',
-      '대표자': 'Đại diện',
-
-      // 5. 서식 결재 상태 & 판정
-      '작성 중': 'Đang soạn',
-      '작성중': 'Đang soạn',
-      '검토대기': 'Chờ kiểm tra',
-      '검토완료': 'Đã kiểm tra',
-      '승인완료': 'Đã phê duyệt',
-      '결재완료': 'Đã duyệt',
-      '미작성': 'Chưa viết',
-      '완료': 'Hoàn thành',
-      '잠금': 'Đã khóa',
-      '적합': 'Đạt (OK)',
-      '부적합': 'Không đạt (NG)',
-      '양호': 'Tốt',
-      '불량': 'Hỏng',
-      '정상': 'Bình thường',
-      '이상': 'Bất thường',
-      '점검': 'Kiểm tra',
-      '온도': 'Nhiệt độ',
-      '농도': 'Nồng độ',
-      '중량': 'Trọng lượng',
-      '수량': 'Số lượng',
-      '시간': 'Thời gian',
-      '일자': 'Ngày',
-      '기록일자': 'Ngày ghi',
-      '작성자': 'Người lập',
-      '작성자 서명': 'Ký tên người lập',
-      '확인자': 'Người kiểm',
-      '확인자 서명': 'Ký tên người kiểm',
-      '승인자': 'Người duyệt',
-      '승인자 서명': 'Ký tên người duyệt',
-      '비고': 'Ghi chú',
-      '특이사항': 'Đặc điểm',
-      '조치사항': 'Biện pháp xử lý',
-      '조치내역': 'Nội dung xử lý',
-
-      // 6. 보조 위젯 & 챗봇
-      '글자 보통': 'Cỡ chữ chuẩn',
-      '글자 크게': 'Cỡ chữ lớn',
-      '글자 아주크게': 'Cỡ chữ rất lớn',
-      '📱 태블릿': '📱 Máy tính bảng',
-      '쉬운 도움': 'Hướng dẫn',
-      '💬 AI 도우미 & 불편접수': '💬 Trợ lý AI & Báo lỗi',
-      '불편사항 접수': 'Báo lỗi / Ý kiến',
-      '문의하기': 'Gửi câu hỏi',
-      '전송': 'Gửi',
-      '최신 업데이트가 배포되었습니다.': 'Đã có bản cập nhật mới.',
-      '지금 반영하기': 'Cập nhật ngay',
-      '오프라인 — 기록은 태블릿에 저장되고, 연결되면 자동으로 동기화됩니다.': 'Ngoại tuyến — Dữ liệu lưu trên máy và tự đồng bộ khi có mạng.'
-    }
+    "오늘 할 일": "Việc hôm nay",
+    "기록 검색": "Tìm hồ sơ",
+    "품질 경보": "Cảnh báo chất lượng",
+    "기록보관함": "Lưu trữ hồ sơ",
+    "문서센터": "Trung tâm tài liệu",
+    "전체 메뉴": "Tất cả menu",
+    "핵심 업무": "Nghiệp vụ chính",
+    "업무 콘솔": "Bảng điều khiển",
+    "기록양식 작성": "Lập biểu mẫu",
+    "품질 경보 현황": "Tình trạng cảnh báo",
+    "정기 알림 관리": "Quản lý thông báo định kỳ",
+    "문서 & 관리": "Tài liệu & Quản lý",
+    "정본 열람실": "Phòng đọc bản gốc",
+    "문서관리대장": "Sổ quản lý danh mục tài liệu",
+    "CAPA 관리": "Quản lý CAPA",
+    "품질 & 인증": "Chất lượng & Chứng nhận",
+    "추적성·모의회수": "Truy xuất & Thu hồi thử",
+    "FSSC 심사준비": "Chuẩn bị đánh giá FSSC",
+    "경영검토·식품안전문화": "Xem xét lãnh đạo & Văn hóa ATTP",
+    "설정 & 시스템": "Cài đặt & Hệ thống",
+    "HACCP팀 설정": "Thiết lập đội HACCP",
+    "임원 통합 현황": "Báo cáo ban giám đốc",
+    "시스템 설정": "Cài đặt hệ thống",
+    "회사소개서": "Giới thiệu công ty",
+    "오늘 작성할 일지": "Nhật ký cần viết hôm nay",
+    "생산일 기준으로 작성 의무가 자동 계산됩니다": "Tự động tính toán theo ngày sản xuất",
+    "작성 현황": "Tình trạng lập nhật ký",
+    "저장된 기록에서 자동으로 계산합니다": "Tự động tính từ hồ sơ đã lưu",
+    "주간 · 월간 점검": "Kiểm tra tuần · tháng",
+    "주기가 긴 서식입니다": "Các biểu mẫu có chu kỳ dài",
+    "발생 시 작성": "Viết khi phát sinh",
+    "입고·부적합·불만 등 사건이 생겼을 때 작성합니다": "Viết khi nhập kho, có lỗi hoặc khiếu nại",
+    "최근 저장된 기록": "Hồ sơ lưu gần đây",
+    "최근 저장 기록을 검색·필터링합니다": "Tìm kiếm & lọc hồ sơ gần đây",
+    "서식명·문서번호·내용 검색": "Tìm theo tên, mã số, nội dung",
+    "전체 기록": "Tất cả hồ sơ",
+    "오늘 저장": "Lưu hôm nay",
+    "부적합만": "Chỉ lỗi/không đạt",
+    "비생산일": "Ngày không sản xuất",
+    "생산일": "Ngày sản xuất",
+    "정상가동": "Hoạt động bình thường",
+    "휴무/미가동": "Nghỉ / Không chạy",
+    "서식별 최근 7일 작성률": "Tỷ lệ viết 7 ngày gần đây theo biểu mẫu",
+    "최근 7일 중 생산일에 작성 의무가 있던 날을 기준으로 계산합니다": "Tính trên các ngày sản xuất trong 7 ngày qua",
+    "최근 7일 완료 추이": "Xu hướng hoàn thành 7 ngày qua",
+    "생산일에 마쳐야 할 일지 대비 완료 건수": "Số lượng hoàn thành so với số nhật ký cần viết",
+    "우선 처리 경보": "Cảnh báo ưu tiên xử lý",
+    "긴급도 순서대로 처리하세요": "Vui lòng xử lý theo mức độ khẩn cấp",
+    "즉시 확인": "Kiểm tra ngay",
+    "오늘 미작성": "Chưa viết hôm nay",
+    "부적합 발생": "Phát sinh lỗi/NG",
+    "오늘 완료": "Đã xong hôm nay",
+    "월 기록 현황": "Tình hình ghi chép theo tháng",
+    "날짜를 누르면 그날 작성 상태를 볼 수 있습니다": "Nhấn vào ngày để xem tình trạng viết nhật ký",
+    "생산일에만 작성 의무를 계산합니다. 달력에서 날짜별 생산일·비생산일을 지정할 수 있습니다.": "Chỉ tính nghĩa vụ viết vào ngày sản xuất. Có thể chỉ định ngày sản xuất/nghỉ trên lịch.",
+    "이번 달": "Tháng này",
+    "홈": "Trang chủ",
+    "이전": "Trước",
+    "새로고침": "Tải lại",
+    "닫기": "Đóng",
+    "확인": "Xác nhận",
+    "취소": "Hủy",
+    "저장": "Lưu",
+    "임시저장": "Lưu tạm",
+    "작성완료": "Hoàn thành",
+    "서명하기": "Ký tên",
+    "인쇄": "In",
+    "인쇄하기": "In hồ sơ",
+    "인쇄(정본)": "In (Bản gốc)",
+    "새 주차": "Tuần mới",
+    "새 기록": "Tạo mới",
+    "초기화": "Làm mới",
+    "검색": "Tìm kiếm",
+    "목록": "Danh sách",
+    "상세보기": "Xem chi tiết",
+    "수정": "Sửa",
+    "삭제": "Xóa",
+    "추가": "Thêm",
+    "다운로드": "Tải xuống",
+    "본문으로 바로가기": "Đến nội dung chính",
+    "← 기록목록": "← Danh sách hồ sơ",
+    "일지 정본": "Bản gốc nhật ký",
+    "① 점검 주차 · 결재": "① Tuần kiểm tra · Phê duyệt",
+    "점검 주차 시작일(월) *": "Ngày bắt đầu tuần (Thứ 2) *",
+    "점검 기간": "Thời gian kiểm tra",
+    "작성 *": "Người lập *",
+    "검토": "Người kiểm tra",
+    "승인": "Người phê duyệt",
+    "② 위생점검": "② Kiểm tra vệ sinh",
+    "(셀을 누르면 ○ → × → — → 공란 순환)": "(Nhấn ô để chuyển ○ → × → — → trống)",
+    "해당일 미입력 전체 ○": "Điền ○ cho tất cả ô chưa nhập trong ngày",
+    "일괄 입력 대상일": "Ngày áp dụng điền hàng loạt",
+    "③ 이상 발생 내역": "③ Chi tiết sự cố bất thường",
+    "(× 판정 시 필수)": "(Bắt buộc ghi khi đánh giá × / lỗi)",
+    "전자결재 · 감사이력": "Phê duyệt điện tử · Lịch sử kiểm toán",
+    "④ 최근 저장": "④ Lịch sử lưu gần đây",
+    "준비": "Sẵn sàng",
+    "저장됨": "Đã lưu",
+    "서명 대기": "Chờ ký",
+    "서명 완료": "Đã ký",
+    "결재 요청": "Yêu cầu phê duyệt",
+    "서명 취소": "Hủy chữ ký",
+    "결재 승인": "Phê duyệt",
+    "반려": "Trả lại",
+    "구분": "Phân loại",
+    "점검항목": "Nội dung kiểm tra",
+    "점검 항목": "Nội dung kiểm tra",
+    "관리기준": "Tiêu chuẩn quản lý",
+    "이탈기준": "Tiêu chuẩn sai lệch",
+    "개선조치방법": "Biện pháp khắc phục",
+    "점검주기": "Chu kỳ kiểm tra",
+    "점검방법": "Phương pháp kiểm tra",
+    "기준": "Tiêu chuẩn",
+    "점검결과": "Kết quả kiểm tra",
+    "판정": "Đánh giá",
+    "측정치": "Giá trị đo",
+    "품목명": "Tên sản phẩm",
+    "품목": "Sản phẩm",
+    "로트번호": "Số LOT",
+    "로트번호(LOT)": "Số LOT",
+    "LOT번호": "Số LOT",
+    "온도(℃)": "Nhiệt độ (℃)",
+    "온도": "Nhiệt độ",
+    "유효염소농도(ppm)": "Nồng độ Clo (ppm)",
+    "농도(ppm)": "Nồng độ (ppm)",
+    "농도": "Nồng độ",
+    "이물검출": "Phát hiện dị vật",
+    "금속검출": "Dò kim loại",
+    "금속검출기": "Máy dò kim loại",
+    "세척소독": "Rửa & Khử trùng",
+    "개인위생": "Vệ sinh cá nhân",
+    "작업장 위생": "Vệ sinh nhà xưởng",
+    "작업자명": "Tên công nhân",
+    "조치내역": "Nội dung xử lý",
+    "조치사항": "Biện pháp xử lý",
+    "조치내용": "Nội dung xử lý",
+    "특이사항": "Đặc điểm / Lưu ý",
+    "비고": "Ghi chú",
+    "발생일시": "Thời gian phát sinh",
+    "발생위치": "Vị trí phát sinh",
+    "발생내용": "Nội dung phát sinh",
+    "원인분석": "Phân tích nguyên nhân",
+    "조치자": "Người xử lý",
+    "확인자": "Người xác nhận",
+    "작성일자": "Ngày lập",
+    "기록일자": "Ngày ghi",
+    "작성자": "Người lập",
+    "검토자": "Người kiểm tra",
+    "승인자": "Người duyệt",
+    "서명": "Chữ ký",
+    "사번": "Mã NV",
+    "사번(숫자 4자리)": "Mã NV (4 số)",
+    "비밀번호": "Mật khẩu",
+    "비밀번호 입력": "Nhập mật khẩu",
+    "로그인": "Đăng nhập",
+    "로그아웃": "Đăng xuất",
+    "작업자": "Công nhân",
+    "관리자": "Quản trị viên",
+    "품질관리자": "QL Chất lượng",
+    "생산관리자": "QL Sản xuất",
+    "책임자": "Người phụ trách",
+    "대표자": "Đại diện",
+    "작성 중": "Đang soạn",
+    "작성중": "Đang soạn",
+    "검토대기": "Chờ kiểm tra",
+    "검토완료": "Đã kiểm tra",
+    "승인완료": "Đã phê duyệt",
+    "결재완료": "Đã duyệt",
+    "미작성": "Chưa viết",
+    "완료": "Hoàn thành",
+    "잠금": "Đã khóa",
+    "적합": "Đạt (OK)",
+    "부적합": "Không đạt (NG)",
+    "양호": "Tốt",
+    "불량": "Hỏng / Lỗi",
+    "정상": "Bình thường",
+    "이상": "Bất thường",
+    "합격": "Đạt",
+    "불합격": "Không đạt",
+    "작업장 바닥, 배수로, 벽, 천정 청결 상태": "Vệ sinh sàn, cống, tường, trần nhà xưởng",
+    "방충망, 포충등 정상 작동 및 청결 상태": "Lưới chắn côn trùng, đèn bắt muỗi hoạt động tốt",
+    "손 세척기, 손 소독기, 에어샤워 정상 작동": "Máy rửa tay, khử trùng, phòng thổi khí hoạt động tốt",
+    "위생복, 위생모, 위생화 착용 및 청결 상태": "Mặc bảo hộ, mũ, ủng sạch sẽ và đúng quy định",
+    "장신구 착용 금지 및 매니큐어 여부": "Không đeo trang sức và không sơn móng tay",
+    "건강 상태(발열, 설사, 피부질환, 상처 등)": "Sức khỏe (không sốt, tiêu chảy, vết thương hở...)",
+    "냉장/냉동 창고 설정 온도 유지 여부": "Duy trì đúng nhiệt độ kho lạnh / kho đông",
+    "소독액 유효염소농도(ppm) 기준 준수": "Nồng độ clo khử trùng (ppm) đạt chuẩn",
+    "금속검출기 Fe, Sus 테스트 피스 감지 여부": "Máy dò kim loại phát hiện mẫu Fe, Sus chuẩn xác",
+    "글자 보통": "Cỡ chữ chuẩn",
+    "글자 크게": "Cỡ chữ lớn",
+    "글자 아주크게": "Cỡ chữ rất lớn",
+    "📱 태블릿": "📱 Máy tính bảng",
+    "쉬운 도움": "Hướng dẫn",
+    "💬 AI 도우미 & 불편접수": "💬 Trợ lý AI & Báo lỗi",
+    "불편사항 접수": "Báo lỗi / Ý kiến",
+    "문의하기": "Gửi câu hỏi",
+    "전송": "Gửi",
+    "최신 업데이트가 배포되었습니다.": "Đã có bản cập nhật mới.",
+    "지금 반영하기": "Cập nhật ngay",
+    "오프라인 — 기록은 태블릿에 저장되고, 연결되면 자동으로 동기화됩니다.": "Ngoại tuyến — Dữ liệu lưu trên máy và tự đồng bộ khi có mạng.",
+    "CCP-1BC 소독·헹굼공정 점검표": "Bảng kiểm tra CCP-1BC Khử trùng · Tráng",
+    "DKJ-H-01-01 CCP-1BC 소독·헹굼공정 점검표": "DKJ-H-01-01 Bảng kiểm tra CCP-1BC Khử trùng · Tráng",
+    "CCP-2P 금속검출공정 점검표": "Bảng kiểm tra CCP-2P Dò kim loại",
+    "DKJ-H-01-02 CCP-2P 금속검출공정 점검표": "DKJ-H-01-02 Bảng kiểm tra CCP-2P Dò kim loại",
+    "HACCP 연간검증계획서": "Kế hoạch thẩm tra HACCP hàng năm",
+    "DKJ-H-01-06 HACCP 연간검증계획서": "DKJ-H-01-06 Kế hoạch thẩm tra HACCP hàng năm",
+    "HACCP 검증결과 보고서": "Báo cáo kết quả thẩm tra HACCP",
+    "DKJ-H-01-07 HACCP 검증결과 보고서": "DKJ-H-01-07 Báo cáo kết quả thẩm tra HACCP",
+    "HACCP 검증 개선조치 요구서": "Yêu cầu hành động khắc phục thẩm tra HACCP",
+    "DKJ-H-01-08 HACCP 검증 개선조치 요구서": "DKJ-H-01-08 Yêu cầu hành động khắc phục thẩm tra HACCP",
+    "HACCP팀 회의록": "Biên bản họp đội HACCP",
+    "DKJ-H-01-09 HACCP팀 회의록": "DKJ-H-01-09 Biên bản họp đội HACCP",
+    "HACCP 교육훈련 계획서": "Kế hoạch đào tạo · huấn luyện HACCP",
+    "DKJ-H-01-10 HACCP 교육훈련 계획서": "DKJ-H-01-10 Kế hoạch đào tạo · huấn luyện HACCP",
+    "HACCP 교육훈련 일지": "Nhật ký đào tạo · huấn luyện HACCP",
+    "DKJ-H-01-11 HACCP 교육훈련 일지": "DKJ-H-01-11 Nhật ký đào tạo · huấn luyện HACCP",
+    "HACCP 교육훈련 평가표": "Bảng đánh giá kết quả đào tạo HACCP",
+    "DKJ-H-01-12 HACCP 교육훈련 평가표": "DKJ-H-01-12 Bảng đánh giá kết quả đào tạo HACCP",
+    "작업장 위생점검 일지": "Nhật ký kiểm tra vệ sinh nhà xưởng",
+    "DKJ-S-02-01 작업장 위생점검 일지": "DKJ-S-02-01 Nhật ký kiểm tra vệ sinh nhà xưởng",
+    "조도 점검표": "Bảng kiểm tra độ rọi ánh sáng",
+    "DKJ-S-02-02 조도 점검표": "DKJ-S-02-02 Bảng kiểm tra độ rọi ánh sáng",
+    "개인위생 점검 일지": "Nhật ký kiểm tra vệ sinh cá nhân",
+    "DKJ-S-02-03 개인위생 점검 일지": "DKJ-S-02-03 Nhật ký kiểm tra vệ sinh cá nhân",
+    "이물관리 점검표": "Bảng kiểm tra kiểm soát dị vật",
+    "DKJ-S-02-04 이물관리 점검표": "DKJ-S-02-04 Bảng kiểm tra kiểm soát dị vật",
+    "작업장 온도 관리표": "Bảng quản lý nhiệt độ nhà xưởng",
+    "DKJ-S-02-05 작업장 온도 관리표": "DKJ-S-02-05 Bảng quản lý nhiệt độ nhà xưởng",
+    "환기시설 점검표": "Bảng kiểm tra hệ thống thông gió",
+    "DKJ-S-02-06 환기시설 점검표": "DKJ-S-02-06 Bảng kiểm tra hệ thống thông gió",
+    "방충방서 점검표": "Bảng kiểm tra phòng chống côn trùng & gặm nhấm",
+    "DKJ-S-02-07 방충방서 점검표": "DKJ-S-02-07 Bảng kiểm tra phòng chống côn trùng & gặm nhấm",
+    "폐기물 관리 일지": "Nhật ký quản lý chất thải",
+    "DKJ-S-02-08 폐기물 관리 일지": "DKJ-S-02-08 Nhật ký quản lý chất thải",
+    "세척소독제 관리 일지": "Nhật ký quản lý chất tẩy rửa & khử trùng",
+    "DKJ-S-02-09 세척소독제 관리 일지": "DKJ-S-02-09 Nhật ký quản lý chất tẩy rửa & khử trùng",
+    "제조시설 세척소독 일지": "Nhật ký vệ sinh & khử trùng thiết bị sản xuất",
+    "DKJ-S-02-10 제조시설 세척소독 일지": "DKJ-S-02-10 Nhật ký vệ sinh & khử trùng thiết bị sản xuất",
+    "부대시설 세척소독 일지": "Nhật ký vệ sinh & khử trùng khu vực phụ trợ",
+    "DKJ-S-02-11 부대시설 세척소독 일지": "DKJ-S-02-11 Nhật ký vệ sinh & khử trùng khu vực phụ trợ",
+    "용수 관리표": "Bảng quản lý nguồn nước sử dụng",
+    "DKJ-S-02-12 용수 관리표": "DKJ-S-02-12 Bảng quản lý nguồn nước sử dụng",
+    "저수조 관리 일지": "Nhật ký quản lý bồn chứa nước",
+    "DKJ-S-02-13 저수조 관리 일지": "DKJ-S-02-13 Nhật ký quản lý bồn chứa nước",
+    "원부재료 입고검사 대장": "Sổ kiểm tra nhập nguyên/phụ liệu",
+    "DKJ-S-02-14 원부재료 입고검사 대장": "DKJ-S-02-14 Sổ kiểm tra nhập nguyên/phụ liệu",
+    "부자재 입고검사 대장": "Sổ kiểm tra nhập bao bì/vật tư phụ",
+    "DKJ-S-02-15 부자재 입고검사 대장": "DKJ-S-02-15 Sổ kiểm tra nhập bao bì/vật tư phụ",
+    "협력업체 점검표": "Bảng kiểm tra đánh giá nhà cung cấp",
+    "DKJ-S-02-16 협력업체 점검표": "DKJ-S-02-16 Bảng kiểm tra đánh giá nhà cung cấp",
+    "차량 위생점검 일지": "Nhật ký kiểm tra vệ sinh phương tiện vận chuyển",
+    "DKJ-S-02-17 차량 위생점검 일지": "DKJ-S-02-17 Nhật ký kiểm tra vệ sinh phương tiện vận chuyển",
+    "창고 입출고 관리대장": "Sổ quản lý xuất nhập tồn kho",
+    "DKJ-S-02-18 창고 입출고 관리대장": "DKJ-S-02-18 Sổ quản lý xuất nhập tồn kho",
+    "부적합품 관리대장": "Sổ theo dõi xử lý hàng không đạt",
+    "DKJ-S-02-19 부적합품 관리대장": "DKJ-S-02-19 Sổ quản lý sản phẩm không phù hợp (NG)",
+    "고객불만 처리대장": "Sổ tiếp nhận & xử lý khiếu nại khách hàng",
+    "DKJ-S-02-20 고객불만 처리대장": "DKJ-S-02-20 Sổ tiếp nhận & xử lý khiếu nại khách hàng",
+    "회수 관리대장": "Sổ quản lý thu hồi sản phẩm",
+    "DKJ-S-02-21 회수 관리대장": "DKJ-S-02-21 Sổ quản lý thu hồi sản phẩm",
+    "계측기기 관리대장": "Sổ quản lý thiết bị đo lường & hiệu chuẩn",
+    "DKJ-S-02-22 계측기기 관리대장": "DKJ-S-02-22 Sổ quản lý thiết bị đo lường & hiệu chuẩn",
+    "검교정 관리대장": "Sổ quản lý kiểm định & hiệu chuẩn",
+    "DKJ-S-02-23 검교정 관리대장": "DKJ-S-02-23 Sổ quản lý kiểm định & hiệu chuẩn",
+    "제조설비 이력카드": "Hồ sơ lý lịch thiết bị sản xuất",
+    "DKJ-S-02-24 제조설비 이력카드": "DKJ-S-02-24 Hồ sơ lý lịch thiết bị sản xuất",
+    "설비 정기점검표": "Bảng kiểm tra định kỳ thiết bị máy móc",
+    "DKJ-S-02-25 설비 정기점검표": "DKJ-S-02-25 Bảng kiểm tra định kỳ thiết bị máy móc",
+    "설비 수리·보수 내역서": "Biên bản sửa chữa & bảo dưỡng thiết bị",
+    "DKJ-S-02-26 설비 수리·보수 내역서": "DKJ-S-02-26 Biên bản sửa chữa & bảo dưỡng thiết bị",
+    "식품안전 내부심사 계획서": "Kế hoạch đánh giá nội bộ ATTP",
+    "DKJ-S-02-27 식품안전 내부심사 계획서": "DKJ-S-02-27 Kế hoạch đánh giá nội bộ ATTP",
+    "식품안전 내부심사 체크리스트": "Bảng kiểm tra đánh giá nội bộ ATTP",
+    "DKJ-S-02-28 식품안전 내부심사 체크리스트": "DKJ-S-02-28 Bảng kiểm tra đánh giá nội bộ ATTP",
+    "식품안전 내부심사 보고서": "Báo cáo kết quả đánh giá nội bộ ATTP",
+    "DKJ-S-02-29 식품안전 내부심사 보고서": "DKJ-S-02-29 Báo cáo kết quả đánh giá nội bộ ATTP",
+    "시정 및 예방조치(CAPA) 요구서": "Yêu cầu hành động khắc phục & phòng ngừa (CAPA)",
+    "DKJ-S-02-30 시정 및 예방조치(CAPA) 요구서": "DKJ-S-02-30 Yêu cầu hành động khắc phục & phòng ngừa (CAPA)",
+    "이물 관리대장": "Sổ theo dõi & quản lý dị vật",
+    "DKJ-S-02-31 이물 관리대장": "DKJ-S-02-31 Sổ theo dõi & quản lý dị vật",
+    "원료 입고 관리대장": "Sổ quản lý nhập nguyên liệu thô",
+    "DKJ-STORE-01 원료 입고 관리대장": "DKJ-STORE-01 Sổ quản lý nhập nguyên liệu thô",
+    "문서 제정·개정·폐지 신청서": "Đơn xin ban hành · sửa đổi · hủy bỏ tài liệu",
+    "FR-001 문서 제정·개정·폐지 신청서": "FR-001 Đơn xin ban hành · sửa đổi · hủy bỏ tài liệu",
+    "FR-002 문서관리대장": "FR-002 Sổ quản lý danh mục tài liệu",
+    "문서 배포·회수 관리대장": "Sổ phân phối & thu hồi tài liệu",
+    "FR-003 문서 배포·회수 관리대장": "FR-003 Sổ phân phối & thu hồi tài liệu",
+    "기록관리대장": "Sổ quản lý hồ sơ lưu trữ",
+    "FR-004 기록관리대장": "FR-004 Sổ quản lý hồ sơ lưu trữ",
+    "사외문서 관리대장": "Sổ quản lý tài liệu bên ngoài",
+    "FR-005 사외문서 관리대장": "FR-005 Sổ quản lý tài liệu bên ngoài",
+    "도면 관리대장": "Sổ quản lý bản vẽ thiết kế",
+    "FR-006 도면 관리대장": "FR-006 Sổ quản lý bản vẽ thiết kế",
+    "문서 폐기 확인서": "Biên bản xác nhận tiêu hủy tài liệu",
+    "FR-007 문서 폐기 확인서": "FR-007 Biên bản xác nhận tiêu hủy tài liệu",
+    "연간 교육훈련 계획서": "Kế hoạch đào tạo huấn luyện năm",
+    "FR-008 연간 교육훈련 계획서": "FR-008 Kế hoạch đào tạo huấn luyện năm",
+    "교육훈련 실시결과 보고서": "Báo cáo kết quả thực hiện đào tạo",
+    "FR-009 교육훈련 실시결과 보고서": "FR-009 Báo cáo kết quả thực hiện đào tạo",
+    "개인별 교육훈련 이력카드": "Hồ sơ lý lịch đào tạo cá nhân",
+    "FR-010 개인별 교육훈련 이력카드": "FR-010 Hồ sơ lý lịch đào tạo cá nhân",
+    "협력업체 등록 평가표": "Bảng đánh giá đăng ký nhà cung cấp",
+    "FR-011 협력업체 등록 평가표": "FR-011 Bảng đánh giá đăng ký nhà cung cấp",
+    "협력업체 사후 평가표": "Bảng đánh giá định kỳ nhà cung cấp",
+    "FR-012 협력업체 사후 평가표": "FR-012 Bảng đánh giá định kỳ nhà cung cấp",
+    "협력업체 관리대장": "Sổ danh bạ quản lý nhà cung cấp",
+    "FR-013 협력업체 관리대장": "FR-013 Sổ danh bạ quản lý nhà cung cấp",
+    "원부자재 입고검사 성적서": "Phiếu kết quả kiểm tra nhập nguyên vật liệu",
+    "FR-014 원부자재 입고검사 성적서": "FR-014 Phiếu kết quả kiểm tra nhập nguyên vật liệu",
+    "원부자재 입고·검사 대장": "Sổ tổng hợp nhập & kiểm tra nguyên vật liệu",
+    "FR-015 원부자재 입고·검사 대장": "FR-015 Sổ tổng hợp nhập & kiểm tra nguyên vật liệu",
+    "제품 회수 보고서": "Báo cáo thu hồi sản phẩm",
+    "FR-016 제품 회수 보고서": "FR-016 Báo cáo thu hồi sản phẩm",
+    "모의회수 훈련 보고서": "Báo cáo diễn tập thu hồi thử nghiệm",
+    "FR-017 모의회수 훈련 보고서": "FR-017 Báo cáo diễn tập thu hồi thử nghiệm",
+    "식품사기 취약성 평가표": "Bảng đánh giá tính dễ bị tổn thương gian lận thực phẩm (Food Fraud)",
+    "FR-018 식품사기 취약성 평가표": "FR-018 Bảng đánh giá tính dễ bị tổn thương gian lận thực phẩm (Food Fraud)",
+    "식품방어 취약성 평가표": "Bảng đánh giá tính dễ bị tổn thương phòng vệ thực phẩm (Food Defense)",
+    "FR-019 식품방어 취약성 평가표": "FR-019 Bảng đánh giá tính dễ bị tổn thương phòng vệ thực phẩm (Food Defense)",
+    "알레르겐 관리 점검표": "Bảng kiểm tra quản lý chất gây dị ứng (Allergen)",
+    "FR-020 알레르겐 관리 점검표": "FR-020 Bảng kiểm tra quản lý chất gây dị ứng (Allergen)",
+    "공정능력 평가표": "Bảng đánh giá năng lực quá trình sản xuất",
+    "FR-021 공정능력 평가표": "FR-021 Bảng đánh giá năng lực quá trình sản xuất",
+    "생산일보": "Báo cáo sản xuất hàng ngày (Nhật ký sản xuất)",
+    "FR-022 생산일보": "FR-022 Báo cáo sản xuất hàng ngày (Nhật ký sản xuất)",
+    "공정품질 점검표": "Bảng kiểm tra chất lượng công đoạn",
+    "FR-023 공정품질 점검표": "FR-023 Bảng kiểm tra chất lượng công đoạn",
+    "완제품 검사 성적서": "Phiếu kết quả kiểm tra thành phẩm",
+    "FR-024 완제품 검사 성적서": "FR-024 Phiếu kết quả kiểm tra thành phẩm",
+    "제품 출고 검사대장": "Sổ kiểm tra xuất kho thành phẩm",
+    "FR-025 제품 출고 검사대장": "FR-025 Sổ kiểm tra xuất kho thành phẩm",
+    "완제품 출고·배송 일지": "Nhật ký xuất hàng & giao nhận thành phẩm",
+    "FR-026 완제품 출고·배송 일지": "FR-026 Nhật ký xuất hàng & giao nhận thành phẩm",
+    "시험검사 의뢰서": "Phiếu yêu cầu xét nghiệm mẫu",
+    "FR-027 시험검사 의뢰서": "FR-027 Phiếu yêu cầu xét nghiệm mẫu",
+    "시험검사 관리대장": "Sổ theo dõi kết quả xét nghiệm",
+    "FR-028 시험검사 관리대장": "FR-028 Sổ theo dõi kết quả xét nghiệm",
+    "부적합품 발생 보고서": "Báo cáo phát sinh sản phẩm không phù hợp",
+    "FR-029 부적합품 발생 보고서": "FR-029 Báo cáo phát sinh sản phẩm không phù hợp",
+    "부적합품 격리·폐기 대장": "Sổ cách ly & tiêu hủy hàng không phù hợp",
+    "FR-030 부적합품 격리·폐기 대장": "FR-030 Sổ cách ly & tiêu hủy hàng không phù hợp",
+    "식품방어 일일 점검표": "Bảng kiểm tra hàng ngày phòng vệ thực phẩm",
+    "FR-031 식품방어 일일 점검표": "FR-031 Bảng kiểm tra hàng ngày phòng vệ thực phẩm",
+    "출입자 관리대장": "Sổ quản lý khách ra vào nhà máy",
+    "FR-032 출입자 관리대장": "FR-032 Sổ quản lý khách ra vào nhà máy",
+    "식품방어 점검표": "Bảng kiểm tra định kỳ phòng vệ thực phẩm",
+    "FR-033 식품방어 점검표": "FR-033 Bảng kiểm tra định kỳ phòng vệ thực phẩm",
+    "식품사기 점검표": "Bảng kiểm tra phòng chống gian lận thực phẩm",
+    "FR-034 식품사기 점검표": "FR-034 Bảng kiểm tra phòng chống gian lận thực phẩm",
+    "알레르겐 점검표": "Bảng kiểm tra kiểm soát chất gây dị ứng",
+    "FR-035 알레르겐 점검표": "FR-035 Bảng kiểm tra kiểm soát chất gây dị ứng",
+    "알레르겐 세척 검증표": "Bảng thẩm tra vệ sinh chất gây dị ứng",
+    "FR-036 알레르겐 세척 검증표": "FR-036 Bảng thẩm tra vệ sinh chất gây dị ứng",
+    "환경모니터링 계획서": "Kế hoạch giám sát môi trường vi sinh",
+    "FR-037 환경모니터링 계획서": "FR-037 Kế hoạch giám sát môi trường vi sinh",
+    "환경모니터링 점검표": "Bảng kiểm tra giám sát môi trường nhà xưởng",
+    "FR-038 환경모니터링 점검표": "FR-038 Bảng kiểm tra giám sát môi trường nhà xưởng",
+    "FR-039 부적합품 관리대장": "FR-039 Sổ theo dõi xử lý hàng không đạt",
+    "추적성 점검표": "Bảng kiểm tra khả năng truy xuất nguồn gốc (Traceability)",
+    "FR-040 추적성 점검표": "FR-040 Bảng kiểm tra khả năng truy xuất nguồn gốc (Traceability)"
+}
   };
 
   function getSavedLang() {
@@ -165,7 +390,6 @@
     document.documentElement.lang = currentLang;
     document.body.classList.toggle('dkj-lang-vi', currentLang === 'vi');
     
-    // 헤더 및 툴바 버튼 UI 동기화
     var btnHeader = document.getElementById('btnHeaderLang');
     if (btnHeader) {
       btnHeader.textContent = (currentLang === 'vi') ? '🇰🇷 KO' : '🇻🇳 VN';
@@ -203,13 +427,18 @@
     if (!text || currentLang === 'ko') return text;
     var dict = DICTIONARY[currentLang] || {};
     var clean = String(text).trim();
-    return dict[clean] || text;
+    if (dict[clean]) return dict[clean];
+    
+    var m = clean.match(/^([A-Z0-9-]+)\\s+(.+)$/);
+    if (m && dict[m[2]]) {
+      return m[1] + ' ' + dict[m[2]];
+    }
+    return text;
   }
 
   function translateElement(el, dict, isVi) {
     if (!el || el.nodeType !== 1) return;
 
-    // 텍스트 변환 대상 (자식 텍스트가 1개인 경우)
     if (el.childNodes.length === 1 && el.childNodes[0].nodeType === 3) {
       var text = el.childNodes[0].nodeValue.trim();
       if (!text) return;
@@ -217,35 +446,49 @@
         el.setAttribute('data-original-ko', text);
       }
       var orig = el.getAttribute('data-original-ko');
-      if (isVi && dict[orig]) {
-        el.childNodes[0].nodeValue = dict[orig];
+      var translated = t(orig);
+      if (isVi && translated !== orig) {
+        el.childNodes[0].nodeValue = translated;
       } else if (!isVi && orig) {
         el.childNodes[0].nodeValue = orig;
       }
     }
 
-    // Placeholder 변환
+    if (/^(H1|H2|H3|H4|LABEL|TH|TD|P|A|SPAN|DIV|BUTTON)$/.test(el.tagName) && el.children.length > 0) {
+      for (var i = 0; i < el.childNodes.length; i++) {
+        var node = el.childNodes[i];
+        if (node.nodeType === 3) {
+          var nodeText = node.nodeValue.trim();
+          if (nodeText && (dict[nodeText] || t(nodeText) !== nodeText)) {
+            if (!node._origKo) node._origKo = nodeText;
+            node.nodeValue = isVi ? t(node._origKo) : node._origKo;
+          }
+        }
+      }
+    }
+
     if (el.placeholder) {
       if (!el.getAttribute('data-original-placeholder')) {
         el.setAttribute('data-original-placeholder', el.placeholder);
       }
       var origP = el.getAttribute('data-original-placeholder');
-      if (isVi && dict[origP]) {
-        el.placeholder = dict[origP];
+      var trP = t(origP);
+      if (isVi && trP !== origP) {
+        el.placeholder = trP;
       } else if (!isVi && origP) {
         el.placeholder = origP;
       }
     }
 
-    // Option 텍스트 변환
     if (el.tagName === 'OPTION') {
       var optText = el.textContent.trim();
       if (!el.getAttribute('data-original-ko')) {
         el.setAttribute('data-original-ko', optText);
       }
       var origO = el.getAttribute('data-original-ko');
-      if (isVi && dict[origO]) {
-        el.textContent = dict[origO];
+      var trO = t(origO);
+      if (isVi && trO !== origO) {
+        el.textContent = trO;
       } else if (!isVi && origO) {
         el.textContent = origO;
       }
@@ -256,9 +499,8 @@
     var dict = DICTIONARY[currentLang] || {};
     var isVi = (currentLang === 'vi');
 
-    // 화면 내의 모든 주요 텍스트 태그 검색
     var targets = document.querySelectorAll(
-      'button, a, h1, h2, h3, h4, label, th, td, p, span, .badge, .status, .pill-btn, .tab-btn, .ck-chip, .gnb-btn, .ck-hbtn, .ck-count, option, input[placeholder], textarea[placeholder]'
+      'h1, h2, h3, h4, th, td, label, p, span, a, button, .ck-title, .ck-desc, .ck-chip, .badge, .status, .pill-btn, .tab-btn, .gnb-btn, .ck-hbtn, .ck-count, option, input[placeholder], textarea[placeholder]'
     );
 
     targets.forEach(function (el) {
@@ -267,7 +509,6 @@
   }
 
   function setupObserver() {
-    // 동적으로 생성되는 카드/타일/모달 감시 및 자동 번역
     if (!window.MutationObserver) return;
     var observer = new MutationObserver(function (mutations) {
       if (currentLang === 'vi') {
@@ -277,7 +518,7 @@
             m.addedNodes.forEach(function (node) {
               if (node.nodeType === 1) {
                 translateElement(node, dict, true);
-                var children = node.querySelectorAll('button, a, h1, h2, h3, h4, label, th, td, p, span, .badge, .status, .pill-btn, .tab-btn, .ck-chip, .ck-hbtn, option, input[placeholder], textarea[placeholder]');
+                var children = node.querySelectorAll('h1, h2, h3, h4, th, td, label, p, span, a, button, .ck-title, .ck-desc, .ck-chip, .badge, .status, .pill-btn, .tab-btn, .ck-hbtn, option, input[placeholder], textarea[placeholder]');
                 children.forEach(function (c) { translateElement(c, dict, true); });
               }
             });
@@ -305,6 +546,7 @@
   global.DkjI18n = {
     getLanguage: function () { return currentLang; },
     setLanguage: setLanguage,
+    toggleLanguage: toggleLanguage,
     t: t,
     translatePage: translatePage
   };
