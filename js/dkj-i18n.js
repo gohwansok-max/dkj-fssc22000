@@ -165,11 +165,38 @@
     document.documentElement.lang = currentLang;
     document.body.classList.toggle('dkj-lang-vi', currentLang === 'vi');
     
+    // 헤더 및 툴바 버튼 UI 동기화
+    var btnHeader = document.getElementById('btnHeaderLang');
+    if (btnHeader) {
+      btnHeader.textContent = (currentLang === 'vi') ? '🇰🇷 KO' : '🇻🇳 VN';
+      btnHeader.style.background = (currentLang === 'vi') ? '#ca8a04' : '#fef9c3';
+      btnHeader.style.color = (currentLang === 'vi') ? '#ffffff' : '#78350f';
+    }
+
+    var btnAssist = document.querySelector('.dkj-assist-lang');
+    if (btnAssist) {
+      btnAssist.textContent = (currentLang === 'vi') ? '🇰🇷 KO' : '🇻🇳 VN';
+      btnAssist.classList.toggle('is-active', currentLang === 'vi');
+    }
+
     translatePage();
     
     try {
       document.dispatchEvent(new CustomEvent('dkj:lang-changed', { detail: { lang: currentLang } }));
     } catch (e) {}
+  }
+
+  function toggleLanguage() {
+    var next = (currentLang === 'vi') ? 'ko' : 'vi';
+    setLanguage(next);
+  }
+
+  function bindEvents() {
+    var btnHeader = document.getElementById('btnHeaderLang');
+    if (btnHeader && !btnHeader._hasLangListener) {
+      btnHeader._hasLangListener = true;
+      btnHeader.addEventListener('click', toggleLanguage);
+    }
   }
 
   function t(text) {
@@ -265,9 +292,8 @@
   function init() {
     currentLang = getSavedLang();
     setupObserver();
-    if (currentLang === 'vi') {
-      setLanguage('vi');
-    }
+    bindEvents();
+    setLanguage(currentLang);
   }
 
   if (document.readyState === 'loading') {
