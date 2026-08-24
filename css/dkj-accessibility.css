@@ -2,6 +2,8 @@
 .dkj-assist{position:fixed;left:14px;bottom:16px;z-index:1001;display:flex;align-items:center;gap:6px;padding:7px;border:1px solid #bdd8ce;border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(8,65,41,.16);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
 .dkj-assist button{min-width:44px;min-height:44px;padding:0 10px;border:1px solid #86b9a3;border-radius:10px;background:#f4fbf7;color:#075c34;font:800 13px/1 inherit;cursor:pointer}
 .dkj-assist button:hover,.dkj-assist button:focus-visible{outline:none;border-color:#007a3d;background:#e1f5e9;box-shadow:0 0 0 3px rgba(0,154,68,.17)}
+.dkj-assist .dkj-assist-lang{min-width:54px;color:#854d0e;border-color:#fde047;background:#fefce8;font-weight:900}
+.dkj-assist .dkj-assist-lang.is-active{background:#ca8a04;color:#ffffff;border-color:#854d0e}
 .dkj-assist .dkj-assist-tablet{min-width:64px;color:#005b35;border-color:#86b9a3;background:#eef9f2}
 .dkj-assist .dkj-assist-tablet.is-active{background:#007a35;color:#ffffff;border-color:#005b35}
 
