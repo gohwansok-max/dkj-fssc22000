@@ -15,23 +15,23 @@
   --dkj-cb-shadow: 0 12px 36px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* 1. 플로팅 트리거 버튼 */
+/* 1. 플로팅 트리거 버튼 (우측 하단 네비게이션 버튼 위쪽에 배치) */
 .dkj-chatbot-trigger {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 2147482000;
+  bottom: 70px;
+  right: 18px;
+  z-index: 2147482001;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 18px;
+  padding: 10px 16px;
   background: linear-gradient(135deg, #009a44 0%, #00682e 100%);
   color: #ffffff;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
-  box-shadow: 0 6px 20px rgba(0, 154, 68, 0.4), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px rgba(0, 154, 68, 0.4), 0 2px 6px rgba(0, 0, 0, 0.12);
   font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -50,8 +50,8 @@
 }
 
 .dkj-chatbot-trigger__icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,8 +59,8 @@
 }
 
 .dkj-chatbot-trigger__icon svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   fill: currentColor;
 }
 
@@ -68,8 +68,8 @@
   position: absolute;
   top: -4px;
   right: -4px;
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   background-color: #ff3b30;
   border: 2px solid #ffffff;
   border-radius: 50%;
@@ -89,13 +89,13 @@
 /* 2. 챗봇 대화 패널 */
 .dkj-chatbot-panel {
   position: fixed;
-  bottom: 84px;
-  right: 24px;
-  z-index: 2147482001;
+  bottom: 125px;
+  right: 18px;
+  z-index: 2147482002;
   width: 390px;
-  height: 600px;
+  height: 580px;
   max-width: calc(100vw - 32px);
-  max-height: calc(100vh - 110px);
+  max-height: calc(100vh - 145px);
   background: var(--dkj-cb-bg);
   border-radius: 20px;
   box-shadow: var(--dkj-cb-shadow);
@@ -544,10 +544,10 @@
 /* 모바일 반응형 처리 */
 @media (max-width: 640px) {
   .dkj-chatbot-trigger {
-    bottom: 16px;
-    right: 16px;
-    padding: 10px 14px;
-    font-size: 13px;
+    bottom: 60px;
+    right: 12px;
+    padding: 9px 13px;
+    font-size: 12.5px;
   }
   
   .dkj-chatbot-panel {
@@ -555,9 +555,9 @@
     right: 0;
     left: 0;
     width: 100vw;
-    height: 90vh;
+    height: 85vh;
     max-width: 100vw;
-    max-height: 90vh;
+    max-height: 85vh;
     border-radius: 20px 20px 0 0;
     border-bottom: none;
   }
