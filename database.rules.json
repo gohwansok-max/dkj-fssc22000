@@ -45,11 +45,17 @@
       },
       "system": {
         "users": {
-          ".read": "auth != null",
+          ".read": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'",
           "$uid": {
             ".read": "auth != null && ($uid === auth.uid || auth.token.email === 'emp4343@dkj-fssc.internal')",
             ".write": "auth != null && (auth.token.email === 'emp4343@dkj-fssc.internal' || (!data.exists() && $uid === auth.uid && newData.child('uid').val() === auth.uid && newData.child('role').val() === 'worker'))",
             ".validate": "newData.hasChildren(['uid', 'empId', 'role']) && newData.child('uid').val() === $uid && newData.child('empId').isString() && (newData.child('role').val() === 'system_admin' || newData.child('role').val() === 'responsible' || newData.child('role').val() === 'manager' || newData.child('role').val() === 'worker')"
+          }
+        },
+        "settings": {
+          "telegram": {
+            ".read": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'",
+            ".write": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'"
           }
         },
         "role_audit": {

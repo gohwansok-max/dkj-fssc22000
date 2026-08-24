@@ -162,12 +162,7 @@
   }
   var DIRECTORY_KEY = 'dkj:auth:directory:v3';
   var DEFAULT_DIRECTORY = {
-    '4343': { empId: '4343', name: '고환석', role: 'system_admin', password: '4343', createdAt: '2026-08-01T00:00:00.000Z' },
-    '0001': { empId: '0001', name: '이다은', role: 'worker', password: '0001', createdAt: '2026-08-01T00:00:00.000Z' },
-    '0002': { empId: '0002', name: '권화선', role: 'manager', password: '0002', createdAt: '2026-08-01T00:00:00.000Z' },
-    '0003': { empId: '0003', name: '최민재', role: 'responsible', password: '0003', createdAt: '2026-08-01T00:00:00.000Z' },
-    '0004': { empId: '0004', name: '임석용', role: 'responsible', password: '0004', createdAt: '2026-08-01T00:00:00.000Z' },
-    '0005': { empId: '0005', name: '최재원', role: 'responsible', password: '0005', createdAt: '2026-08-01T00:00:00.000Z' }
+    '4343': { empId: '4343', name: '고환석', role: 'system_admin', password: '4343', createdAt: '2026-08-01T00:00:00.000Z' }
   };
 
   function getDirectory() {
@@ -293,10 +288,23 @@
       var rows = remoteUsers || {};
       Object.keys(rows).forEach(function (uid) {
         var row = rows[uid] || {};
-        var eid = normId(row.empId || uid);
-        if (eid && dir[eid]) {
+        var eid = normId(row.empId || uid.replace(/^uid-/, ''));
+        if (!eid) return;
+        if (!dir[eid]) {
+          dir[eid] = {
+            uid: uid,
+            empId: eid,
+            name: row.name || eid,
+            role: row.role || 'worker',
+            password: row.password || eid,
+            createdAt: row.createdAt || new Date().toISOString(),
+            lastLoginAt: row.lastLoginAt || ''
+          };
+        } else {
           if (row.name) dir[eid].name = row.name;
           if (row.role && eid !== ADMIN_EMP_ID) dir[eid].role = row.role;
+          if (row.password) dir[eid].password = row.password;
+          if (row.lastLoginAt) dir[eid].lastLoginAt = row.lastLoginAt;
         }
       });
       saveDirectory(dir);
