@@ -12,12 +12,15 @@ const { initializeApp } = require('firebase-admin/app');
 const { getDatabase } = require('firebase-admin/database');
 const { logger } = require('firebase-functions');
 const { defineSecret } = require('firebase-functions/params');
+const { onRequest } = require('firebase-functions/v2/https');
 const { onValueWritten } = require('firebase-functions/v2/database');
 
 initializeApp();
 
 const MAKE_WEBHOOK_URL = defineSecret('DKJ_ALERT_WEBHOOK_URL');
 const MAKE_WEBHOOK_SECRET = defineSecret('DKJ_ALERT_WEBHOOK_SECRET');
+const TELEGRAM_BOT_TOKEN = defineSecret('DKJ_TELEGRAM_BOT_TOKEN');
+const TELEGRAM_CHAT_ID = defineSecret('DKJ_TELEGRAM_CHAT_ID');
 const ROOT = 'dkj-fssc22000';
 const INSTANCE = 'dkj-fssc22000-default-rtdb';
 const REGION = 'asia-southeast1';
@@ -364,6 +367,91 @@ exports.dispatchPeriodicEmailAlert = onSchedule({
   });
   logger.info('정기 관리 이메일 알림을 외부 발송 흐름으로 전달했습니다.', { recipientCount: recipients.length, alertCount: alerts.length, dispatchTime: config.dispatchTime });
   return null;
+});
+
+/**
+ * 텔레그램 알림 발송 HTTP 함수 (클라이언트 토큰 은닉)
+ */
+exports.sendTelegramAlert = onRequest({
+  region: REGION,
+  cors: true,
+  secrets: [TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID],
+  timeoutSeconds: 30,
+  memory: '256MiB'
+}, async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).json({ ok: false, error: 'METHOD_NOT_ALLOWED' });
+    return;
+  }
+
+  try {
+    const { category, message, user, pageTitle, pageUrl } = req.body || {};
+    if (!message) {
+      res.status(400).json({ ok: false, error: 'MESSAGE_REQUIRED' });
+      return;
+    }
+
+    let botToken = '';
+    let chatId = '';
+
+    try {
+      botToken = TELEGRAM_BOT_TOKEN.value();
+      chatId = TELEGRAM_CHAT_ID.value();
+    } catch (e) {}
+
+    if (!botToken || !chatId) {
+      const db = getDatabase();
+      const cfgSnap = await db.ref(`${ROOT}/system/settings/telegram`).get();
+      if (cfgSnap.exists()) {
+        const cfg = cfgSnap.val() || {};
+        botToken = botToken || cfg.botToken;
+        chatId = chatId || cfg.chatId;
+      }
+    }
+
+    if (!botToken || !chatId) {
+      res.status(500).json({ ok: false, error: 'TELEGRAM_CONFIG_MISSING' });
+      return;
+    }
+
+    const now = new Date();
+    const timeStr = now.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
+    const u = user || { empId: '미로그인', name: '현장직원', roleLabel: '작업자' };
+
+    const escapeHtml = (str) => String(str == null ? '' : str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    const text = '🚨 <b>[동김제농협 스마트 HACCP] ' + escapeHtml(category || '불편사항 접수') + '</b>\n' +
+      '━━━━━━━━━━━━━━━━━━━━\n' +
+      '👤 <b>접수자:</b> ' + escapeHtml(u.name || u.empId) + ' (사번: ' + escapeHtml(u.empId) + ' / ' + escapeHtml(u.roleLabel || u.role || '작업자') + ')\n' +
+      '📍 <b>발생화면:</b> ' + escapeHtml(pageTitle || '업무 화면') + '\n' +
+      '🔗 <b>페이지 URL:</b> ' + escapeHtml(pageUrl || '-') + '\n' +
+      '🕒 <b>접수시각:</b> ' + timeStr + '\n' +
+      '━━━━━━━━━━━━━━━━━━━━\n' +
+      '📝 <b>[상세 내용]</b>\n' +
+      escapeHtml(message) + '\n' +
+      '━━━━━━━━━━━━━━━━━━━━';
+
+    const tgRes = await fetch(`https://api.telegram.org/bot${encodeURIComponent(botToken.trim())}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId.trim(),
+        text,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      })
+    });
+
+    const tgData = await tgRes.json();
+    if (tgData.ok) {
+      res.status(200).json({ ok: true, message: 'SENT_SUCCESSFULLY' });
+    } else {
+      res.status(502).json({ ok: false, error: tgData.description || 'TELEGRAM_SEND_FAILED' });
+    }
+  } catch (err) {
+    logger.error('Telegram alert dispatch error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 exports._test.periodicAlertItems = periodicAlertItems;

@@ -120,7 +120,30 @@
       '━━━━━━━━━━━━━━━━━━━━';
 
     var apiUrl = 'https://api.telegram.org/bot' + encodeURIComponent(botToken.trim()) + '/sendMessage';
+    var functionUrl = 'https://asia-southeast1-dkj-fssc22000.cloudfunctions.net/sendTelegramAlert';
 
+    // 1. Cloud Function 안전 전송 시도 (토큰 은닉)
+    try {
+      var fnRes = await fetch(functionUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: category,
+          message: content,
+          user: user,
+          pageTitle: pageTitle,
+          pageUrl: pageUrl
+        })
+      });
+      if (fnRes.ok) {
+        var fnData = await fnRes.json();
+        if (fnData.ok) return { success: true, message: '텔레그램으로 성공적으로 전송되었습니다.' };
+      }
+    } catch (e) {
+      // Cloud Function 미배포 또는 네트워크 문제 시 아래 클라이언트 직접 전송으로 fallback
+    }
+
+    // 2. 클라이언트 직접 발송 Fallback
     try {
       var response = await fetch(apiUrl, {
         method: 'POST',
