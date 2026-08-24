@@ -1,0 +1,572 @@
+/* 동김제농협 스마트 HACCP · FSSC22000 — AI 챗봇 & 실시간 불편접수 위젯 스타일 */
+
+:root {
+  --dkj-cb-primary: #009a44;
+  --dkj-cb-primary-dark: #007a35;
+  --dkj-cb-primary-light: #e6f6ec;
+  --dkj-cb-accent: #ffb800;
+  --dkj-cb-danger: #e53e3e;
+  --dkj-cb-danger-bg: #fff5f5;
+  --dkj-cb-text: #1e293b;
+  --dkj-cb-muted: #64748b;
+  --dkj-cb-bg: #ffffff;
+  --dkj-cb-panel-bg: #f8fafc;
+  --dkj-cb-border: #e2e8f0;
+  --dkj-cb-shadow: 0 12px 36px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 1. 플로팅 트리거 버튼 */
+.dkj-chatbot-trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147482000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #009a44 0%, #00682e 100%);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 154, 68, 0.4), 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+  outline: none;
+}
+
+.dkj-chatbot-trigger:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 25px rgba(0, 154, 68, 0.5), 0 4px 10px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, #00ab4c 0%, #007a36 100%);
+}
+
+.dkj-chatbot-trigger:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.dkj-chatbot-trigger__icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.dkj-chatbot-trigger__icon svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.dkj-chatbot-trigger__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  background-color: #ff3b30;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: dkj-cb-pulse 2s infinite;
+}
+
+.dkj-chatbot-trigger__text {
+  letter-spacing: -0.2px;
+}
+
+@keyframes dkj-cb-pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(255, 59, 48, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+}
+
+/* 2. 챗봇 대화 패널 */
+.dkj-chatbot-panel {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  z-index: 2147482001;
+  width: 390px;
+  height: 600px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 110px);
+  background: var(--dkj-cb-bg);
+  border-radius: 20px;
+  box-shadow: var(--dkj-cb-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  border: 1px solid var(--dkj-cb-border);
+  opacity: 0;
+  transform: translateY(20px) scale(0.96);
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dkj-chatbot-panel.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* 헤더 */
+.dkj-chatbot-header {
+  background: linear-gradient(135deg, #007a35 0%, #005a26 100%);
+  color: #ffffff;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.dkj-chatbot-header__info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dkj-chatbot-header__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.dkj-chatbot-header__avatar img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.dkj-chatbot-header__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+
+.dkj-chatbot-header__status {
+  font-size: 11.5px;
+  opacity: 0.88;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.dkj-chatbot-header__dot {
+  width: 6.5px;
+  height: 6.5px;
+  background-color: #4ade80;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dkj-chatbot-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dkj-chatbot-header__btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #ffffff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dkj-chatbot-header__btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 대화 메시지 영역 */
+.dkj-chatbot-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: var(--dkj-cb-panel-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+
+/* 스크롤바 */
+.dkj-chatbot-body::-webkit-scrollbar {
+  width: 5px;
+}
+.dkj-chatbot-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* 메시지 버블 */
+.dkj-cb-msg {
+  display: flex;
+  gap: 8px;
+  max-width: 88%;
+  font-size: 13.5px;
+  line-height: 1.5;
+  animation: dkj-cb-fade-in 0.2s ease-out;
+}
+
+@keyframes dkj-cb-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dkj-cb-msg--bot {
+  align-self: flex-start;
+}
+
+.dkj-cb-msg--user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.dkj-cb-msg__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--dkj-cb-primary-light);
+  color: var(--dkj-cb-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dkj-cb-msg__content {
+  background: #ffffff;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border-top-left-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--dkj-cb-border);
+  color: var(--dkj-cb-text);
+  word-break: break-word;
+}
+
+.dkj-cb-msg--user .dkj-cb-msg__content {
+  background: linear-gradient(135deg, #009a44 0%, #007a35 100%);
+  color: #ffffff;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 3px;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 154, 68, 0.25);
+}
+
+.dkj-cb-msg__time {
+  font-size: 10px;
+  color: var(--dkj-cb-muted);
+  margin-top: 4px;
+  text-align: right;
+}
+
+.dkj-cb-msg--user .dkj-cb-msg__time {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* 빠른 액션 칩 (Chips) */
+.dkj-cb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.dkj-cb-chip {
+  background: #ffffff;
+  color: var(--dkj-cb-primary-dark);
+  border: 1px solid #bfe7cc;
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dkj-cb-chip:hover {
+  background: var(--dkj-cb-primary-light);
+  border-color: var(--dkj-cb-primary);
+  transform: translateY(-1px);
+}
+
+.dkj-cb-chip.danger {
+  color: var(--dkj-cb-danger);
+  border-color: #fed7d7;
+  background: #fffafa;
+}
+
+.dkj-cb-chip.danger:hover {
+  background: var(--dkj-cb-danger-bg);
+  border-color: var(--dkj-cb-danger);
+}
+
+/* 폼 카드 (불편사항 접수 전용) */
+.dkj-cb-form-card {
+  background: #ffffff;
+  border: 1.5px solid #bfe7cc;
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 6px;
+  box-shadow: 0 3px 10px rgba(0, 107, 63, 0.08);
+}
+
+.dkj-cb-form-card h4 {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  color: #007a35;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dkj-cb-form-group {
+  margin-bottom: 10px;
+}
+
+.dkj-cb-form-group label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.dkj-cb-form-group select,
+.dkj-cb-form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.dkj-cb-form-group select:focus,
+.dkj-cb-form-group textarea:focus {
+  outline: none;
+  border-color: var(--dkj-cb-primary);
+  box-shadow: 0 0 0 2px rgba(0, 154, 68, 0.15);
+  background: #ffffff;
+}
+
+.dkj-cb-form-group textarea {
+  resize: vertical;
+  min-height: 70px;
+  line-height: 1.4;
+}
+
+.dkj-cb-meta-preview {
+  font-size: 11px;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 6px 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.dkj-cb-btn-submit {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #009a44 0%, #007a35 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.dkj-cb-btn-submit:hover {
+  opacity: 0.94;
+}
+
+.dkj-cb-btn-submit:active {
+  transform: scale(0.99);
+}
+
+.dkj-cb-btn-submit:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* 성공 알림 카드 */
+.dkj-cb-success-card {
+  background: #edf9f1;
+  border: 1px solid #a3e0b8;
+  border-radius: 12px;
+  padding: 12px;
+  color: #0f5132;
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.dkj-cb-success-card b {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #007a35;
+}
+
+/* 푸터 / 입력 영역 */
+.dkj-chatbot-footer {
+  padding: 12px 14px;
+  background: var(--dkj-cb-bg);
+  border-top: 1px solid var(--dkj-cb-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dkj-chatbot-input-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dkj-chatbot-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  padding-right: 36px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-family: inherit;
+  background: #f8fafc;
+  outline: none;
+  transition: all 0.15s;
+}
+
+.dkj-chatbot-input:focus {
+  border-color: var(--dkj-cb-primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 154, 68, 0.12);
+}
+
+.dkj-chatbot-send-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--dkj-cb-primary);
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.dkj-chatbot-send-btn:hover {
+  background: var(--dkj-cb-primary-dark);
+}
+
+.dkj-chatbot-send-btn:active {
+  transform: scale(0.95);
+}
+
+.dkj-chatbot-send-btn svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+  margin-left: 2px;
+}
+
+/* 로딩 스피너 애니메이션 */
+.dkj-cb-typing {
+  display: flex;
+  gap: 4px;
+  padding: 6px 4px;
+}
+
+.dkj-cb-typing span {
+  width: 6px;
+  height: 6px;
+  background: #94a3b8;
+  border-radius: 50%;
+  animation: dkj-cb-bounce 1.2s infinite ease-in-out;
+}
+
+.dkj-cb-typing span:nth-child(1) { animation-delay: -0.32s; }
+.dkj-cb-typing span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes dkj-cb-bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}
+
+/* 모바일 반응형 처리 */
+@media (max-width: 640px) {
+  .dkj-chatbot-trigger {
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .dkj-chatbot-panel {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100vw;
+    height: 90vh;
+    max-width: 100vw;
+    max-height: 90vh;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+  }
+}
+
+/* 인쇄 시 챗봇 숨김 */
+@media print {
+  .dkj-chatbot-trigger,
+  .dkj-chatbot-panel {
+    display: none !important;
+  }
+}

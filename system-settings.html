@@ -172,6 +172,44 @@
         <p class="note">등록 사용자 수: <strong id="registeredCount">0</strong>명. 수정한 뒤 <strong>[저장]</strong>을 누르면 즉시 반영됩니다.</p>
       </section>
 
+      <!-- 텔레그램 알림 & AI 챗봇 설정 (관리자 전용) -->
+      <section class="card" id="telegramConfigCard">
+        <h2>📱 텔레그램 알림 &amp; AI 챗봇 실시간 연동 <span class="admin-lock">4343 관리자 전용</span></h2>
+        <p class="desc">직원들이 화면 우측 하단의 [AI 도우미 &amp; 불편접수] 챗봇을 통해 오류나 불편사항을 접수하면, 관리자 텔레그램으로 즉시 알림이 발송됩니다.</p>
+        
+        <div style="background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:12px;padding:18px;margin-bottom:16px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:14px;margin-bottom:14px;">
+            <div class="form-group">
+              <label for="tgBotToken">텔레그램 봇 토큰 (Bot Token) *</label>
+              <input type="text" id="tgBotToken" placeholder="예: 7123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" style="font-family:monospace;">
+            </div>
+            <div class="form-group">
+              <label for="tgChatId">텔레그램 수신 Chat ID (사용자 또는 그룹 ID) *</label>
+              <input type="text" id="tgChatId" placeholder="예: 123456789 또는 -100123456789" style="font-family:monospace;">
+            </div>
+          </div>
+          
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;">
+            <button type="button" id="btnSaveTelegram" class="btn-create" style="height:40px;background:#006b3f;">💾 텔레그램 설정 저장</button>
+            <button type="button" id="btnTestTelegram" class="btn-save" style="height:40px;padding:0 18px;background:#0284c7;color:#fff;border-color:#0284c7;">🔔 테스트 메시지 즉시 발송</button>
+            <span id="tgStatusMsg" style="font-size:13px;font-weight:700;color:#006b3f;"></span>
+          </div>
+        </div>
+
+        <details style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;font-size:13px;color:#166534;">
+          <summary style="font-weight:700;cursor:pointer;user-select:none;">💡 텔레그램 봇 토큰 및 Chat ID 확인 방법 (1분 완성 가이드)</summary>
+          <div style="margin-top:10px;line-height:1.7;">
+            <strong>1. 텔레그램 봇 생성 (Bot Token 발급):</strong><br>
+            • 텔레그램 검색창에 <code>@BotFather</code> 검색 후 대화 시작 (<code>/start</code>)<br>
+            • <code>/newbot</code> 입력 → 봇 이름 및 아이디 설정 (예: <code>dkj_haccp_bot</code>)<br>
+            • 생성 완료 시 주어지는 <code>Use this token to access the HTTP API:</code> 뒤의 긴 토큰 복사 후 위 [봇 토큰] 란에 붙여넣기<br><br>
+            <strong>2. 내 Chat ID 확인:</strong><br>
+            • 텔레그램 검색창에 <code>@userinfobot</code> 검색 후 <code>/start</code>를 누르면 본인의 <code>Id: 123456789</code> 숫자가 나옵니다.<br>
+            • 또는 위에서 만든 봇에게 먼저 아무 말(예: <code>/start</code> 또는 <code>안녕</code>)이나 보낸 후 Chat ID를 입력하고 <strong>[테스트 메시지 즉시 발송]</strong>을 눌러보세요!
+          </div>
+        </details>
+      </section>
+
       <!-- 4단계 역할 기준 -->
       <section class="card">
         <h2>4단계 역할 기준</h2>
@@ -196,9 +234,11 @@
   <script src="js/dkj-firebase-config.js?v=56"></script>
   <script src="js/dkj-auth.js?v=56"></script>
   <script src="js/dkj-cloud-sync.js?v=56"></script>
+  <script src="js/dkj-telegram-config.js?v=56"></script>
   <script src="js/menu-catalog.bundle.js?v=56"></script>
   <script src="js/dkj-nav.js?v=56"></script>
   <script src="js/system-settings.js?v=56"></script>
+  <script src="js/dkj-chatbot.js?v=56"></script>
   <script src="js/dkj-pwa.js?v=56"></script>
   <script src="js/dkj-accessibility.js?v=56"></script>
 </body>

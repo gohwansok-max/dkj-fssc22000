@@ -22,6 +22,25 @@
     bar.querySelector('.dkj-assist-help').addEventListener('click',function(){dialog.showModal();});
     dialog.querySelector('.dkj-help-close').addEventListener('click',close);
     dialog.addEventListener('click',function(e){if(e.target===dialog)close();});
+    
+    // AI 챗봇 및 텔레그램 모듈 자동 연동 확인
+    ensureChatbot(root());
   }
+
+  function ensureChatbot(base) {
+    if (!window.DkjTelegram && !document.getElementById('dkj-telegram-script')) {
+      var s1 = document.createElement('script');
+      s1.id = 'dkj-telegram-script';
+      s1.src = (base || '') + 'js/dkj-telegram-config.js?v=55';
+      document.body.appendChild(s1);
+    }
+    if (!window.DkjChatbot && !document.getElementById('dkj-chatbot-script')) {
+      var s2 = document.createElement('script');
+      s2.id = 'dkj-chatbot-script';
+      s2.src = (base || '') + 'js/dkj-chatbot.js?v=55';
+      document.body.appendChild(s2);
+    }
+  }
+
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);else render();
 })();

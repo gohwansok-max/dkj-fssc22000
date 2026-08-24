@@ -213,6 +213,85 @@
     }
   }
 
+  function loadTelegramConfig() {
+    if (!window.DkjTelegram) return;
+    var cfg = window.DkjTelegram.getConfig();
+    if ($('tgBotToken')) $('tgBotToken').value = cfg.botToken || '';
+    if ($('tgChatId')) $('tgChatId').value = cfg.chatId || '';
+  }
+
+  function handleSaveTelegram() {
+    if (!window.DkjTelegram) return;
+    var botToken = $('tgBotToken').value.trim();
+    var chatId = $('tgChatId').value.trim();
+    var statusEl = $('tgStatusMsg');
+
+    window.DkjTelegram.saveConfig({
+      botToken: botToken,
+      chatId: chatId
+    });
+
+    if (statusEl) {
+      statusEl.textContent = '✅ 텔레그램 설정이 성공적으로 저장되었습니다.';
+      statusEl.style.color = '#006b3f';
+      setTimeout(function () { statusEl.textContent = ''; }, 4000);
+    }
+    addAudit('텔레그램 알림 설정 변경', '시스템', 'Bot Token 및 Chat ID 갱신');
+  }
+
+  async function handleTestTelegram() {
+    if (!window.DkjTelegram) return;
+    var botToken = $('tgBotToken').value.trim();
+    var chatId = $('tgChatId').value.trim();
+    var statusEl = $('tgStatusMsg');
+    var btnTest = $('btnTestTelegram');
+
+    if (!botToken || !chatId) {
+      alert('봇 토큰과 Chat ID를 모두 입력한 후 테스트를 진행해주세요.');
+      return;
+    }
+
+    if (btnTest) {
+      btnTest.disabled = true;
+      btnTest.textContent = '⏳ 발송 중...';
+    }
+    if (statusEl) {
+      statusEl.textContent = '텔레그램으로 테스트 메시지를 전송하고 있습니다...';
+      statusEl.style.color = '#0284c7';
+    }
+
+    try {
+      var res = await window.DkjTelegram.sendMessage({
+        botToken: botToken,
+        chatId: chatId,
+        category: '🔔 관리자 연동 테스트 알림',
+        message: '동김제농협 스마트 HACCP · FSSC22000 시스템과 텔레그램 연동이 성공적으로 완료되었습니다! 🎉\n직원들이 챗봇으로 접수한 불편사항이 이 채팅방으로 실시간 전송됩니다.'
+      });
+
+      if (res.success) {
+        if (statusEl) {
+          statusEl.textContent = '🎉 테스트 메시지 발송 성공! 텔레그램 앱에서 확인하세요.';
+          statusEl.style.color = '#006b3f';
+        }
+      } else {
+        if (statusEl) {
+          statusEl.textContent = '❌ 발송 실패: ' + res.message;
+          statusEl.style.color = '#b42318';
+        }
+      }
+    } catch (e) {
+      if (statusEl) {
+        statusEl.textContent = '❌ 오류: ' + e.message;
+        statusEl.style.color = '#b42318';
+      }
+    } finally {
+      if (btnTest) {
+        btnTest.disabled = false;
+        btnTest.textContent = '🔔 테스트 메시지 즉시 발송';
+      }
+    }
+  }
+
   async function loadData() {
     var auth = window.DkjAuth;
     var me = auth && auth.user ? auth.user() : null;
@@ -239,12 +318,21 @@
 
     renderUsers();
     renderAudit();
+    loadTelegramConfig();
   }
 
   function boot() {
     var btnCreate = $('btnCreateUser');
     if (btnCreate) {
       btnCreate.addEventListener('click', handleCreateUser);
+    }
+    var btnSaveTg = $('btnSaveTelegram');
+    if (btnSaveTg) {
+      btnSaveTg.addEventListener('click', handleSaveTelegram);
+    }
+    var btnTestTg = $('btnTestTelegram');
+    if (btnTestTg) {
+      btnTestTg.addEventListener('click', handleTestTelegram);
     }
     document.addEventListener('dkj:auth-ready', loadData);
     if (window.DkjAuth && window.DkjAuth.user && window.DkjAuth.user()) {
