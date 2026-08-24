@@ -2,7 +2,9 @@
 .dkj-assist{position:fixed;left:14px;bottom:16px;z-index:1001;display:flex;align-items:center;gap:6px;padding:7px;border:1px solid #bdd8ce;border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(8,65,41,.16);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
 .dkj-assist button{min-width:44px;min-height:44px;padding:0 10px;border:1px solid #86b9a3;border-radius:10px;background:#f4fbf7;color:#075c34;font:800 13px/1 inherit;cursor:pointer}
 .dkj-assist button:hover,.dkj-assist button:focus-visible{outline:none;border-color:#007a3d;background:#e1f5e9;box-shadow:0 0 0 3px rgba(0,154,68,.17)}
-.dkj-assist .dkj-assist-help{min-width:64px;color:#174a57;border-color:#a7cbd3;background:#f1fafc}
+.dkj-assist .dkj-assist-tablet{min-width:64px;color:#005b35;border-color:#86b9a3;background:#eef9f2}
+.dkj-assist .dkj-assist-tablet.is-active{background:#007a35;color:#ffffff;border-color:#005b35}
+
 .dkj-help-dialog{width:min(520px,calc(100vw - 28px));max-height:min(720px,calc(100vh - 28px));padding:0;border:0;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.32);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
 .dkj-help-dialog::backdrop{background:rgba(8,35,26,.46)}
 .dkj-help-inner{padding:22px 22px 20px;background:#fff;color:#173941}
@@ -11,7 +13,55 @@
 .dkj-help-close{flex:0 0 auto;width:40px;height:40px;border:1px solid #bdd8ce;border-radius:10px;background:#fff;color:#174a57;font-size:22px;cursor:pointer}
 .dkj-help-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dkj-help-box{padding:12px;border:1px solid #d6e8df;border-radius:12px;background:#f7fcf9}.dkj-help-box b{display:block;color:#075c34;font-size:14px}.dkj-help-box p{margin:6px 0 0;color:#466068;font-size:13px;line-height:1.6}
 .dkj-help-tip{margin:12px 0 0;padding:11px 12px;border-left:4px solid #009a44;border-radius:8px;background:#edf9f2;color:#245745;font-size:13px;line-height:1.65}.dkj-help-link{display:inline-flex;align-items:center;min-height:40px;margin-top:12px;padding:0 12px;border-radius:9px;background:#007a3d;color:#fff;text-decoration:none;font-size:13px;font-weight:800}
-body.dkj-large-text{font-size:18px!important}body.dkj-large-text p,body.dkj-large-text li,body.dkj-large-text td,body.dkj-large-text th,body.dkj-large-text input,body.dkj-large-text select,body.dkj-large-text textarea,body.dkj-large-text button{font-size:1.08em!important;line-height:1.7!important}body.dkj-large-text .gnb-static,body.dkj-large-text .gnb-trigger{font-size:16px!important}
+
+/* 글자 크기 조절 (보통/크게/아주크게) */
+body.dkj-font-size-2{font-size:17px!important}
+body.dkj-font-size-2 p,body.dkj-font-size-2 li,body.dkj-font-size-2 td,body.dkj-font-size-2 th,body.dkj-font-size-2 input,body.dkj-font-size-2 select,body.dkj-font-size-2 textarea{font-size:1.06em!important;line-height:1.65!important}
+
+body.dkj-font-size-3,body.dkj-large-text{font-size:19px!important}
+body.dkj-font-size-3 p,body.dkj-font-size-3 li,body.dkj-font-size-3 td,body.dkj-font-size-3 th,body.dkj-font-size-3 input,body.dkj-font-size-3 select,body.dkj-font-size-3 textarea,body.dkj-font-size-3 button,
+body.dkj-large-text p,body.dkj-large-text li,body.dkj-large-text td,body.dkj-large-text th,body.dkj-large-text input,body.dkj-large-text select,body.dkj-large-text textarea,body.dkj-large-text button{font-size:1.15em!important;line-height:1.75!important}
+body.dkj-font-size-3 .gnb-static,body.dkj-font-size-3 .gnb-trigger,body.dkj-large-text .gnb-static,body.dkj-large-text .gnb-trigger{font-size:16px!important}
+
+/* 📱 태블릿 전용 선명·확대 모드 (Tablet Clarity Mode) */
+body.dkj-tablet-mode {
+  font-size: 17.5px !important;
+  line-height: 1.7 !important;
+}
+body.dkj-tablet-mode table,
+body.dkj-tablet-mode .mon-table,
+body.dkj-tablet-mode .ck-card,
+body.dkj-tablet-mode .dkj-panel {
+  border-width: 1.5px !important;
+  border-color: #94a3b8 !important;
+}
+body.dkj-tablet-mode th,
+body.dkj-tablet-mode td {
+  padding: 12px 10px !important;
+  font-size: 15.5px !important;
+}
+body.dkj-tablet-mode input,
+body.dkj-tablet-mode select,
+body.dkj-tablet-mode textarea {
+  min-height: 46px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-width: 1.8px !important;
+  border-color: #64748b !important;
+}
+body.dkj-tablet-mode input:focus,
+body.dkj-tablet-mode select:focus,
+body.dkj-tablet-mode textarea:focus {
+  border-color: #007a35 !important;
+  box-shadow: 0 0 0 4px rgba(0, 122, 53, 0.25) !important;
+}
+body.dkj-tablet-mode .pill-btn,
+body.dkj-tablet-mode .btn,
+body.dkj-tablet-mode button {
+  min-height: 46px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
 
 /* 색맹 지원 - 색상과 아이콘 조합 */
 .ck-tile.is-done .ck-chip::before { content: "✓"; }

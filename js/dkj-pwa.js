@@ -140,22 +140,50 @@
 
     global.navigator.serviceWorker.register(root + 'sw.js', {
       scope: root,
-      // GitHub Pages 는 정적 파일에 10분짜리 캐시 헤더를 붙인다. 기본값이면
-      // sw.js 가 importScripts 하는 sw-precache.js 를 그 캐시에서 받아
-      // 배포가 최대 10분 늦게 반영된다. 갱신 확인은 항상 서버에 묻는다.
       updateViaCache: 'none'
     }).then(function (reg) {
       watchForUpdates(reg);
+
+      // 이미 대기 중인 새 서비스워커가 있는 경우 즉시 알림
+      if (reg.waiting && hadController) {
+        showUpdateBanner(reg);
+      }
+
+      // 새 서비스워커 다운로드 감지
+      reg.addEventListener('updatefound', function () {
+        var newWorker = reg.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', function () {
+          if (newWorker.state === 'installed' && global.navigator.serviceWorker.controller) {
+            showUpdateBanner(reg);
+          }
+        });
+      });
     })['catch'](function (err) {
       console.warn('[dkj-pwa] 서비스워커 등록 실패:', err && err.message);
     });
 
-    // 새 서비스워커가 제어권을 넘겨받으면 = 새 버전이 깔린 것
+    // 새 서비스워커가 제어권을 넘겨받으면 알림
     global.navigator.serviceWorker.addEventListener('controllerchange', function () {
-      if (!hadController) return;   // 첫 설치는 알릴 것이 없다
-      bar('dkjPwaUpdate', 'update', '새 버전이 준비됐습니다.', '새로고침', function () {
+      if (!hadController) return;
+      showUpdateBanner();
+    });
+  }
+
+  function showUpdateBanner(reg) {
+    bar('dkjPwaUpdate', 'update', '🎉 최신 업데이트가 배포되었습니다.', '지금 반영하기', function () {
+      if (reg && reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      if ('caches' in global) {
+        caches.keys().then(function (names) {
+          return Promise.all(names.map(function (n) { return caches.delete(n); }));
+        }).finally(function () {
+          global.location.reload();
+        });
+      } else {
         global.location.reload();
-      });
+      }
     });
   }
 
