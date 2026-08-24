@@ -31,7 +31,10 @@
     applyFontLevel(fontLevel);
 
     var isTablet = false;
-    try { isTablet = localStorage.getItem(KEY_TABLET) === '1'; } c    var currentLang = (window.DkjI18n ? window.DkjI18n.getLanguage() : (localStorage.getItem('dkj:ui:lang:v1') || 'ko'));
+    try { isTablet = localStorage.getItem(KEY_TABLET) === '1'; } catch(e){}
+    applyTabletMode(isTablet);
+
+    var currentLang = (window.DkjI18n ? window.DkjI18n.getLanguage() : (localStorage.getItem('dkj:ui:lang:v1') || 'ko'));
     var isVi = (currentLang === 'vi');
 
     var bar=document.createElement('div');bar.id='dkjAssist';bar.className='dkj-assist';bar.setAttribute('aria-label','화면 사용 보조');
