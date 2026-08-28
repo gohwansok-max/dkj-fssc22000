@@ -20,7 +20,7 @@
     var link = document.createElement('link');
     link.id = 'dkj-chatbot-css';
     link.rel = 'stylesheet';
-    link.href = getBaseHref() + 'css/dkj-chatbot.css?v=55';
+    link.href = getBaseHref() + 'css/dkj-chatbot.css?v=57';
     document.head.appendChild(link);
   }
 

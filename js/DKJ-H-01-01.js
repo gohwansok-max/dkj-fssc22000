@@ -20,6 +20,7 @@
       disinfectant: 'NaOCl',
       productName: '',
       lot: '',
+      waterChangeTimes: '',
       clMin: 50,
       clMax: 200,
       timeMin: 60,
@@ -164,6 +165,7 @@
     state.disinfectant = $('disinfectant').value;
     state.productName = $('productName').value;
     state.lot = $('lot').value;
+    state.waterChangeTimes = $('waterChangeTimes').value;
     state.clMin = Number($('clMin').value) || 0;
     state.clMax = Number($('clMax').value) || 0;
     state.timeMin = Number($('timeMin').value) || 0;
@@ -181,6 +183,7 @@
     $('disinfectant').value = state.disinfectant || 'NaOCl';
     $('productName').value = state.productName || '';
     $('lot').value = state.lot || '';
+    $('waterChangeTimes').value = state.waterChangeTimes || '';
     $('clMin').value = state.clMin;
     $('clMax').value = state.clMax;
     $('timeMin').value = state.timeMin;
@@ -281,7 +284,7 @@
   }
 
   function bind() {
-    ['workDate', 'disinfectant', 'productName', 'lot', 'clMin', 'clMax', 'timeMin',
+    ['workDate', 'disinfectant', 'productName', 'lot', 'waterChangeTimes', 'clMin', 'clMax', 'timeMin',
       'monitorName', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var el = $(id);
       var onFieldInput = function () {

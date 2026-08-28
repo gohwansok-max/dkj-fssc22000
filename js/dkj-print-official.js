@@ -318,7 +318,7 @@
     var methodHtml =
       '* 작업시작 전 소독액 유효염소농도(시험지) 측정 및 침지시간·헹굼상태 확인<br>' +
       '* 작업 중 LOT별(또는 2시간 이내) 유효염소농도, 침지시간, 헹굼 상태 확인<br>' +
-      '* 소독액 교체 시 농도 재측정 후 기록<br>' +
+      '* 소독액·헹굼수는 3시간마다 교체하고 교체 시각 및 교체 후 유효염소농도 기록<br>' +
       '* 품목 변경·작업종료 시 재측정·기록<br>' +
       '* 판정 : 적합 - ○ , 부적합 - × , 해당 없음 -';
 
@@ -367,8 +367,10 @@
       '<tr><th class="lab">모니터링<br>방법</th>' +
       '<td class="l tiny" colspan="3">' + methodHtml + '</td></tr>' +
       '<tr><th class="lab">품명/LOT</th>' +
-      '<td class="l" colspan="3">' + esc(prod) + ' / ' + esc(state.lot || '') +
-      ' · 소독제: ' + esc(state.disinfectant || 'NaOCl') + '</td></tr>' +
+      '<td class="l">' + esc(prod) + ' / ' + esc(state.lot || '') +
+      ' · 소독제: ' + esc(state.disinfectant || 'NaOCl') + '</td>' +
+      '<th class="lab">교체 시각<br>(3시간마다)</th>' +
+      '<td class="l">' + esc(state.waterChangeTimes || '') + '</td></tr>' +
       '</table>' +
 
       '<div class="off-sec">● 소독·헹굼공정(CCP-1BC) 모니터링 결과 ●</div>' +
