@@ -191,16 +191,22 @@
   }
 
   function staffOptions() {
-    var rows = [];
-    var seen = {};
+    // 사번(empId) 기준으로 중복 제거한다 — 같은 사번이라도 하드코딩 기본값·
+    // 등록 사용자 데이터·현재 로그인 세션의 표시이름이 서로 다를 수 있어
+    // (예: 4343 사번이 "관리자"/"4343"/실제 로그인한 사람 이름으로 제각각) 이름으로
+    // 중복 제거하면 같은 사람이 여러 줄로 나온다. 뒤에 add() 한 값이 앞 값을
+    // 덮어쓰므로 기본값 → 등록 데이터 → 현재 세션 순으로 우선순위가 자연히 매겨진다.
+    var byId = {};
+    var order = [];
     function add(empId, name, role) {
-      var label = String(name || '').trim();
       var id = String(empId || '').trim();
+      var label = String(name || '').trim();
       if (!label && id) label = '사번 ' + id;
-      if (!label || seen[label]) return;
-      seen[label] = true;
+      if (!label) return;
+      var key = id || ('name:' + label);
+      if (!byId[key]) order.push(key);
       var roleText = role ? ' · ' + role : '';
-      rows.push({ value: label, label: label + (id ? ' (' + id + roleText + ')' : '') });
+      byId[key] = { value: label, label: label + (id ? ' (' + id + roleText + ')' : '') };
     }
     // 기본 상주 인원
     add('0001', '이다은', '작업자');
@@ -219,7 +225,7 @@
       var current = me();
       if (current) add(current.empId, current.name, current.role);
     } catch (e) {}
-    return rows;
+    return order.map(function (key) { return byId[key]; });
   }
 
   function isPersonnelInput(el) {
