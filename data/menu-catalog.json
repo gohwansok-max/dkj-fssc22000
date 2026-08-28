@@ -1,6 +1,6 @@
 {
   "updatedAt": "2026-07-16",
-  "site": "동김제농협 가공센터",
+  "site": "동김제농협 산지유통센터",
   "certification": "FSSC22000 V6",
   "source": "최종본260714",
   "gnb": [
@@ -22,6 +22,10 @@
             {
               "label": "MDR 등록대장",
               "href": "mdr-register.html"
+            },
+            {
+              "label": "정본 문서 열람실",
+              "href": "official-documents.html"
             },
             {
               "label": "문서번호체계",
@@ -71,6 +75,10 @@
             {
               "label": "DKJ-P-10 계측기 검교정 관리 절차서",
               "href": "doc-viewer.html?id=DKJ-P-10"
+            },
+            {
+              "label": "DKJ-P-21 식품안전문화 절차서",
+              "href": "doc-viewer.html?id=DKJ-P-21"
             }
           ]
         }
@@ -175,6 +183,42 @@
         {
           "title": "CCP·검증",
           "links": [
+            {
+              "label": "추적성 검증·모의회수",
+              "href": "traceability.html"
+            },
+            {
+              "label": "비상·식품방어 모의훈련",
+              "href": "emergency-drills.html"
+            },
+            {
+              "label": "FSSC 추가요건 심사준비",
+              "href": "fssc-audit-readiness.html"
+            },
+            {
+              "label": "HACCP팀 위험·환경 설정",
+              "href": "haccp-team-settings.html"
+            },
+            {
+              "label": "이탈·시정조치(CAPA) 관리",
+              "href": "capa-management.html"
+            },
+            {
+              "label": "임원 통합 현황",
+              "href": "executive-dashboard.html"
+            },
+            {
+              "label": "종합 품질 대시보드",
+              "href": "quality-dashboard.html"
+            },
+            {
+              "label": "경영검토·식품안전문화",
+              "href": "management-culture.html"
+            },
+            {
+              "label": "전자결재·감사이력 관리자",
+              "href": "audit-trail.html"
+            },
             {
               "label": "DKJ-H-01-01 중요관리점(CCP 1BC) 점검표 소독·헹굼공정",
               "href": "doc-viewer.html?id=DKJ-H-01-01"
@@ -365,6 +409,25 @@
       ]
     },
     {
+      "id": "company",
+      "label": "센터소개",
+      "columns": [
+        {
+          "title": "동김제농협 산지가공센터",
+          "links": [
+            {
+              "label": "회사소개서·제안서 보기",
+              "href": "company-profile.html"
+            },
+            {
+              "label": "회사소개서 PDF 다운로드",
+              "href": "assets/company/dkj-company-profile-2026.pdf"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "audit_edu",
       "label": "교육·심사",
       "columns": [
@@ -435,6 +498,10 @@
   ],
   "quickLinks": [
     {
+      "label": "회사소개서",
+      "href": "company-profile.html"
+    },
+    {
       "label": "문서센터",
       "href": "docs-center.html"
     },
@@ -449,6 +516,26 @@
     {
       "label": "CCP·HACCP",
       "href": "docs-center.html?cat=haccp"
+    },
+    {
+      "label": "FSSC 심사준비",
+      "href": "fssc-audit-readiness.html"
+    },
+    {
+      "label": "HACCP팀 설정",
+      "href": "haccp-team-settings.html"
+    },
+    {
+      "label": "CAPA 관리",
+      "href": "capa-management.html"
+    },
+    {
+      "label": "품질 대시보드",
+      "href": "quality-dashboard.html"
+    },
+    {
+      "label": "경영검토·안전문화",
+      "href": "management-culture.html"
     },
     {
       "label": "PRP",

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#006b3f">
+  <title>정기 관리 알림 | 동김제농협 산지유통센터</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=57">
+  <link rel="stylesheet" href="css/dkj-hub.css?v=57">
+  <link rel="stylesheet" href="css/dkj-periodic-alerts.css?v=57">
+  <link rel="manifest" href="manifest.json?v=57">
+  <link rel="stylesheet" href="css/dkj-accessibility.css?v=57">
+</head>
+<body class="pa-page hub-page">
+  <header class="ck-header">
+    <a class="ck-brand" href="index.html" aria-label="업무 콘솔로">
+      <span class="ck-wordmark">
+        <img class="ck-wordmark-symbol" src="assets/brand/nh-symbol.svg" alt="">
+        <span class="ck-wordmark-name"><b>동김제농협</b><b>산지유통센터</b></span>
+      </span>
+      <span class="ck-tagline">스마트 HACCP · FSSC22000 V6</span>
+    </a>
+    <nav class="gnb" id="gnb" data-dkj-nav data-active="periodic-alerts" data-base="" aria-label="주요 메뉴"></nav>
+    <div class="ck-header-right">
+      <a class="ck-hbtn" href="index.html">업무 콘솔</a>
+      <a class="ck-hbtn" href="records-archive.html">기록보관함</a>
+      <a class="ck-hbtn on" href="periodic-alerts.html" aria-current="page">정기 알림</a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="gnb"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main class="pa-main">
+    <section class="pa-hero">
+      <div>
+        <p class="pa-eyebrow">PERIODIC CONTROL · PRE-ALERT</p>
+        <h1>정기 관리 알림</h1>
+        <p>계측기 검교정, 자가품질검사, 환경모니터링, 작업자 보건증의 다음 예정일을 관리합니다. <strong>기본값은 7일 전</strong>부터 경보로 표시합니다.</p>
+      </div>
+      <div class="pa-hero-actions">
+        <button type="button" class="pa-btn light" id="paRefresh">새로 확인</button>
+        <button type="button" class="pa-btn primary" id="paAdd">관리 항목 등록</button>
+      </div>
+    </section>
+
+    <section class="pa-status" id="paStatus" aria-live="polite"></section>
+
+    <section class="pa-summary" aria-label="정기 관리 알림 요약">
+      <article class="pa-kpi overdue"><b id="paOverdueCount">0</b><span>기한 지남</span></article>
+      <article class="pa-kpi today"><b id="paTodayCount">0</b><span>오늘 실시</span></article>
+      <article class="pa-kpi soon"><b id="paSoonCount">0</b><span>7일 이내</span></article>
+      <article class="pa-kpi total"><b id="paManagedCount">0</b><span>관리 항목</span></article>
+    </section>
+
+    <section class="pa-card pa-live-card">
+      <div class="pa-section-head">
+        <div>
+          <h2>사전 알림 설정</h2>
+          <p>이 화면을 열어 둔 상태에서는 30초마다 예정일을 확인합니다. 브라우저 알림을 허용하면 새 경보도 표시합니다.</p>
+        </div>
+        <div class="pa-live-controls">
+          <label class="pa-switch"><input type="checkbox" id="paBrowserEnabled"><span>브라우저 알림</span></label>
+          <button type="button" class="pa-btn outline" id="paRequestPermission">알림 권한 확인</button>
+        </div>
+      </div>
+      <div class="pa-live-info" id="paLiveInfo"></div>
+    </section>
+
+    <section class="pa-card pa-email-card">
+      <div class="pa-section-head">
+        <div>
+          <h2>브라우저 종료 후 이메일 자동 발송</h2>
+          <p>매일 지정 시각에 서버가 예정일을 확인하고, 기한 경과·당일·사전 알림 항목을 등록된 모든 수신자에게 이메일로 자동 전송합니다.</p>
+        </div>
+        <div class="pa-hero-actions">
+          <button type="button" class="pa-btn outline" id="paTestEmailDispatch">✉️ 발송 대상 미리보기</button>
+          <button type="button" class="pa-btn primary" id="paSaveEmailSettings">이메일 설정 저장</button>
+        </div>
+      </div>
+
+      <!-- 이메일 수신자 추가 및 관리 박스 -->
+      <div class="pa-recipients-box">
+        <div class="pa-recipients-head">
+          <span>등록된 알림 수신자 목록 (<b id="paRecipientCount">0</b>명)</span>
+          <span style="font-size:12px;color:#60756b;font-weight:normal;">* 아래 등록된 모든 이메일로 동시에 알림이 발송됩니다.</span>
+        </div>
+        <div class="pa-recipients-list" id="paRecipientsList">
+          <span class="pa-recipient-empty">등록된 수신 이메일이 없습니다. 아래에서 이메일을 추가해 주세요.</span>
+        </div>
+        <div class="pa-recipient-add-bar">
+          <input type="email" id="paNewRecipientInput" placeholder="추가할 수신자 이메일 주소 입력 (예: user@example.com)" maxlength="100">
+          <button type="button" class="pa-btn primary" id="paAddRecipientBtn">+ 이메일 추가</button>
+        </div>
+        <input type="hidden" id="paEmailRecipients">
+        <div class="pa-quick-staff" id="paQuickStaff">
+          <span>💡 간편 빠른 추가:</span>
+        </div>
+      </div>
+
+      <div class="pa-email-grid">
+        <label>매일 자동 발송 시각 <span>*</span><input type="time" id="paEmailDispatchTime" step="900" value="08:30" required></label>
+        <label class="pa-check"><input type="checkbox" id="paEmailEnabled" checked><span>서버 이메일 발송 사용</span></label>
+        <fieldset class="pa-email-levels"><legend>발송 대상</legend><label><input type="checkbox" id="paEmailOverdue" checked> 기한 경과</label><label><input type="checkbox" id="paEmailToday" checked> 오늘 실시</label><label><input type="checkbox" id="paEmailSoon" checked> 사전 알림</label></fieldset>
+      </div>
+      <div class="pa-email-status" id="paEmailStatus">수신자와 발송 시각을 저장하면 서버 자동 발송 대상이 됩니다.</div>
+    </section>
+
+    <section class="pa-grid">
+      <section class="pa-card pa-alert-card">
+        <div class="pa-section-head">
+          <div><h2>알림 창</h2><p>기한 경과, 당일, 7일 이내 순으로 표시합니다.</p></div>
+          <button type="button" class="pa-btn outline" id="paOpenModal">알림 창 열기</button>
+        </div>
+        <div class="pa-alert-list" id="paAlertList"></div>
+      </section>
+
+      <section class="pa-card pa-guide-card">
+        <h2>등록 순서</h2>
+        <ol>
+          <li>관리 항목별로 <strong>다음 예정일</strong>과 <strong>관리 주기</strong>를 등록합니다.</li>
+          <li>보건증은 작업자별로 각각 등록합니다.</li>
+          <li>실시 후 <strong>완료 처리</strong>하면 주기에 맞춰 다음 예정일이 자동 계산됩니다.</li>
+        </ol>
+        <p class="pa-note">법정·고객 요구 주기는 사업장 기준에 따라 다를 수 있으므로, 실제 승인 기준을 등록해 관리하세요.</p>
+      </section>
+    </section>
+
+    <section class="pa-card pa-excel-card">
+      <div class="pa-section-head">
+        <div>
+          <h2>엑셀 일괄 관리</h2>
+          <p>관리 ID가 같은 행은 수정하고, ID가 비어 있는 행은 새로 등록합니다. 필수값·형식·중복·수식을 검사하며 오류가 한 건이라도 있으면 전체 반영을 차단합니다.</p>
+        </div>
+        <div class="pa-excel-actions">
+          <button type="button" class="pa-btn outline" id="paDownloadTemplate">엑셀 양식</button>
+          <button type="button" class="pa-btn outline" id="paDownloadItems">항목 다운로드</button>
+          <button type="button" class="pa-btn primary" id="paUploadItems">엑셀 업로드</button>
+          <button type="button" class="pa-btn outline" id="paDownloadErrorReport" hidden>오류 목록 다운로드</button>
+          <input type="file" id="paExcelFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+        </div>
+      </div>
+      <div class="pa-excel-status" id="paExcelStatus" role="status" aria-live="polite">엑셀 양식을 내려받아 작성한 뒤 업로드하세요.</div>
+      <div class="pa-excel-errors" id="paExcelErrors" hidden aria-live="assertive"></div>
+    </section>
+
+    <section class="pa-card">
+      <div class="pa-section-head">
+        <div>
+          <h2>관리 항목 목록</h2>
+          <p>초기 목록에는 요청하신 7개 관리영역을 준비했습니다. 설비·작업자별 상세 항목은 추가 등록하세요.</p>
+        </div>
+        <div class="pa-filters" role="group" aria-label="관리 항목 필터">
+          <select id="paTypeFilter" aria-label="관리 유형 필터">
+            <option value="all">전체 유형</option>
+            <option value="calibration">계측기 검교정</option>
+            <option value="self-quality">자가품질검사</option>
+            <option value="environment">환경모니터링</option>
+            <option value="health-certificate">보건증</option>
+          </select>
+          <select id="paStateFilter" aria-label="예정 상태 필터">
+            <option value="all">전체 상태</option>
+            <option value="overdue">기한 지남</option>
+            <option value="today">오늘 실시</option>
+            <option value="soon">7일 이내</option>
+            <option value="scheduled">예정</option>
+            <option value="date-missing">예정일 미등록</option>
+          </select>
+        </div>
+      </div>
+      <div class="pa-table-wrap">
+        <table class="pa-table">
+          <thead>
+            <tr><th>유형</th><th>관리 항목</th><th>대상·담당</th><th>다음 예정일</th><th>주기</th><th>상태</th><th>관리</th></tr>
+          </thead>
+          <tbody id="paRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="pa-dialog" id="paEditorDialog" aria-labelledby="paEditorTitle">
+    <form method="dialog" class="pa-dialog-form" id="paEditorForm">
+      <div class="pa-dialog-head"><div><p class="pa-eyebrow">PERIODIC CONTROL ITEM</p><h2 id="paEditorTitle">관리 항목 등록</h2></div><button class="pa-icon-btn" value="cancel" aria-label="닫기">×</button></div>
+      <input type="hidden" id="paItemId">
+      <div class="pa-form-grid">
+        <label>관리 유형 <span>*</span><select id="paItemType" required><option value="calibration">계측기 검교정</option><option value="self-quality">자가품질검사</option><option value="environment">환경모니터링</option><option value="health-certificate">보건증</option></select></label>
+        <label>세부 관리 항목 <span>*</span><input id="paItemName" maxlength="80" required placeholder="예: pH 미터 검교정"></label>
+        <label>대상·설비·작업자명 <input id="paItemTarget" maxlength="80" placeholder="예: 생산팀 홍길동"></label>
+        <label>담당자 <input id="paItemOwner" maxlength="40" placeholder="예: 품질관리팀"></label>
+        <label>다음 예정일 <span>*</span><input type="date" id="paItemDueDate" required></label>
+        <label>관리 주기(일) <span>*</span><input type="number" id="paItemCycleDays" required min="1" max="3650" placeholder="예: 365"></label>
+        <label>사전 알림(일) <span>*</span><input type="number" id="paItemLeadDays" required min="0" max="365" value="7"></label>
+        <label>관련 화면 링크 <input type="text" id="paItemLink" maxlength="200" placeholder="예: records/FR-027.html"></label>
+        <label class="pa-wide">비고 <textarea id="paItemMemo" maxlength="400" placeholder="검사기관, 관리번호, 기준 등 필요한 메모를 입력하세요."></textarea></label>
+        <label class="pa-check pa-wide"><input type="checkbox" id="paItemActive" checked><span>알림 관리에 포함</span></label>
+      </div>
+      <div class="pa-dialog-actions"><button type="button" class="pa-btn danger" id="paDeleteItem">삭제</button><span class="pa-dialog-spacer"></span><button type="button" class="pa-btn outline" id="paCancelEdit">취소</button><button type="submit" class="pa-btn primary">저장</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="pa-dialog pa-alert-dialog" id="paAlertDialog" aria-labelledby="paAlertDialogTitle">
+    <form method="dialog" class="pa-dialog-form">
+      <div class="pa-dialog-head"><div><p class="pa-eyebrow">PRE-ALERT WINDOW</p><h2 id="paAlertDialogTitle">정기 관리 사전 알림</h2></div><button class="pa-icon-btn" value="cancel" aria-label="닫기">×</button></div>
+      <p class="pa-modal-desc" id="paAlertDialogDesc">예정일을 확인하세요.</p>
+      <div class="pa-modal-alerts" id="paModalAlerts"></div>
+      <div class="pa-dialog-actions"><span class="pa-dialog-spacer"></span><button type="button" class="pa-btn outline" id="paDismissModal">닫기</button></div>
+    </form>
+  </dialog>
+
+  <div class="pa-toast" id="paToast" role="status" aria-live="polite"></div>
+
+  <script src="js/dkj-util.js?v=57"></script>
+  <script src="js/dkj-firebase-config.js?v=57"></script>
+  <script src="js/dkj-auth.js?v=57"></script>
+  <script src="js/dkj-record-store.js?v=57"></script>
+  <script src="js/dkj-cloud-sync.js?v=57"></script>
+  <script src="js/menu-catalog.bundle.js?v=57"></script>
+  <script src="js/dkj-links.js?v=57"></script>
+  <script src="js/dkj-nav.js?v=57"></script>
+  <script src="js/periodic-alert-excel.js?v=57"></script>
+  <script src="js/periodic-alerts.js?v=57"></script>
+  <script src="js/dkj-pwa.js?v=57"></script>
+  <script src="js/dkj-accessibility.js?v=57"></script>
+</body>
+</html>

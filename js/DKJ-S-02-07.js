@@ -7,7 +7,7 @@
   "rev": "1",
   "enactDate": "2026. 02. 13",
   "reviseDate": "-",
-  "orgName": "동김제농협 가공센터",
+  "orgName": "동김제농협 산지유통센터",
   "pattern": "ledger",
   "code": "DKJ-S-02-07",
   "title": "방충방서 점검일지",
@@ -32,14 +32,14 @@
     {
       "key": "device",
       "label": "설비명",
-      "width": "11%",
+      "width": "12%",
       "readonly": true,
       "align": "left"
     },
     {
       "key": "zone",
       "label": "청정도 구분",
-      "width": "8%",
+      "width": "7%",
       "readonly": true
     },
     {
@@ -52,105 +52,105 @@
     {
       "key": "fly",
       "label": "파리",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "비래 해충"
     },
     {
       "key": "moth",
-      "label": "나 방",
-      "width": "5%",
+      "label": "나방",
+      "width": "4.6%",
       "type": "num",
       "group": "비래 해충"
     },
     {
       "key": "mosq",
       "label": "모기",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "비래 해충"
     },
     {
       "key": "fruitfly",
       "label": "날파리",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "비래 해충"
     },
     {
       "key": "drain",
       "label": "나방파리",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "비래 해충"
     },
     {
       "key": "etc1",
       "label": "기타",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "비래 해충"
     },
     {
       "key": "sum1",
       "label": "합계",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "비래 해충"
     },
     {
       "key": "roach",
       "label": "바퀴",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "보행해충"
     },
     {
       "key": "spider",
       "label": "거미",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "보행해충"
     },
     {
       "key": "ant",
       "label": "개미",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "보행해충"
     },
     {
       "key": "etc2",
       "label": "기타",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "보행해충"
     },
     {
       "key": "sum2",
       "label": "합계",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "보행해충"
     },
     {
       "key": "rat",
       "label": "쥐",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "설치류"
     },
     {
       "key": "etc3",
       "label": "기타",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "설치류"
     },
     {
       "key": "sum3",
       "label": "합계",
-      "width": "5%",
+      "width": "4.6%",
       "type": "num",
       "group": "설치류"
     }

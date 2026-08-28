@@ -87,7 +87,7 @@
   ],
   "print": {
     "layout": "official-fr-generic",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "FR-002",
     "title": "문서배포대장",
     "subtitle": "FSSC22000 · 이슈",

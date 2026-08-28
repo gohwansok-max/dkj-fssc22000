@@ -76,9 +76,12 @@
   font-size: 14.5px;
   font-weight: 700;
   font-family: inherit;
+  line-height: 1;
   border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
+  box-sizing: border-box;
+  vertical-align: middle;
   transition: filter .12s ease, border-color .12s ease;
 }
 
@@ -160,9 +163,10 @@
 .console-page *,
 .hub-page * { box-sizing: border-box; }
 
-/* ---------- 헤더 ---------- */
-.ck-header {
-  background: var(--nh-green);
+/* ---------- 헤더 공통 (.ck-header, .site-header) ---------- */
+.ck-header,
+.site-header {
+  background: var(--nh-green, #009a44);
   color: #fff;
   padding: 0 24px;
   height: 72px;
@@ -172,46 +176,241 @@
   position: sticky;
   top: 0;
   z-index: 40;
+  box-sizing: border-box;
 }
 
-.ck-brand {
+.ck-brand,
+.site-header .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-width: 0;
+  gap: 10px;
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
   color: inherit;
   text-decoration: none;
 }
 
-.ck-symbol {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
+.site-header .brand > img,
+.site-header img,
+.ck-wordmark-symbol,
+img.brand-logo {
+  width: 32px;
+  height: 32px;
+  max-width: 32px;
+  max-height: 32px;
+  flex: 0 0 32px;
   object-fit: contain;
+}
+
+/* 워드마크 — 녹색 심볼 + 사업장명을 흰 타일에 얹은 락업.
+   헤더 바탕이 녹색(--nh-green)이라 녹색 로고를 그대로 올릴 수 없어 흰 타일을 깐다.
+   글자는 이미지가 아니라 실제 텍스트다 — <img> 로 불러오는 SVG 는 페이지의 웹폰트
+   (Noto Sans KR)를 물려받지 못해 기기마다 다른 글꼴로 튀기 때문이다. 텍스트로 두면
+   어느 기기에서나 같은 글꼴로 나오고, 확대·복사·스크린리더에도 그대로 걸린다. */
+.ck-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex: 0 0 auto;
   background: #fff;
   border-radius: 10px;
-  padding: 5px;
+  padding: 6px 13px 6px 9px;
 }
 
-/* 로고 파일이 없을 때 쓰는 대체 마크 */
-.ck-symbol-fallback {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  border-radius: 10px;
-  background: var(--nh-yellow);
-  color: var(--nh-green-ink);
+.ck-wordmark-name {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.12;
+  white-space: nowrap;
+}
+
+.ck-wordmark-name b {
+  color: var(--nh-green);
+  font-size: 14px;
   font-weight: 800;
-  font-size: 17px;
+  letter-spacing: -.03em;
+}
+
+.ck-tagline {
+  display: none !important;
+}
+
+/* ---------- GNB 메가메뉴 드롭다운 공통 스타일 ---------- */
+.ck-header,
+.site-header {
+  overflow: visible !important;
+  z-index: 1000 !important;
+}
+
+.gnb {
   display: flex;
   align-items: center;
-  justify-content: center;
-  letter-spacing: -.04em;
+  gap: 2px;
+  height: 100%;
+  margin-left: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: visible !important;
 }
 
-.ck-title { line-height: 1.2; }
-.ck-title strong { display: block; font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
-.ck-title span { display: block; font-size: 12px; opacity: .85; margin-top: 2px; }
+.gnb-item {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: visible !important;
+  flex: 0 0 auto;
+}
+
+.gnb-static,
+.gnb-trigger {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.gnb-static:hover,
+.gnb-trigger:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.gnb-static.active,
+.gnb-item.active .gnb-trigger {
+  background: #fff;
+  color: var(--nh-green-dark, #006b3f);
+  font-weight: 800;
+}
+
+.gnb-trigger::after {
+  content: "▾";
+  margin-left: 6px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.mega-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 580px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 84px);
+  overflow-y: auto;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #dbe7df;
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(0, 40, 20, 0.22);
+  z-index: 9999;
+}
+
+/* 마우스 이동 시 닫히지 않도록 투명 연결 브릿지 영역 생성 */
+.mega-menu::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: 0;
+  right: 0;
+  height: 18px;
+  display: block;
+}
+
+.gnb-item.open .mega-menu,
+.gnb-item:hover .mega-menu,
+.gnb-item:focus-within .mega-menu {
+  display: block !important;
+}
+
+.gnb-item:nth-last-of-type(-n+2) .mega-menu {
+  left: auto;
+  right: 0;
+}
+
+.mega-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.mega-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mega-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--nh-green-dark, #006b3f);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #eef3f0;
+}
+
+.mega-col a {
+  display: block;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: #334155;
+  font-size: 13px;
+  text-decoration: none;
+  line-height: 1.4;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mega-col a:hover {
+  background: #eef8f2;
+  color: var(--nh-green-dark, #006b3f);
+  font-weight: 600;
+}
+
+.mega-foot {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #eef3f0;
+}
+
+.mega-foot a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #f1f8f4;
+  color: var(--nh-green-dark, #006b3f);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mega-foot a:hover {
+  background: #e1f2e8;
+}
+
+.mega-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.mega-backdrop.show {
+  display: block;
+}
 
 .ck-header-right {
   margin-left: auto;
@@ -242,6 +441,9 @@
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  /* 폭이 모자랄 때 '기 록 목 록'처럼 글자가 세로로 쪼개지는 것을 막는다 */
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .ck-hbtn:hover { background: rgba(255, 255, 255, .2); }
@@ -307,10 +509,125 @@
 @media (max-width: 820px) {
   .ck-header { padding: 0 14px; }
   .ck-main { padding: 16px 14px 40px; }
+  /* 태블릿 가로폭에서는 워드마크와 메뉴가 먼저다 — 부제는 접는다 */
+  .ck-tagline { display: none; }
+}
+
+/* 태블릿·휴대폰 — 헤더를 여러 줄로 접는다.
+   한 줄에 로고·날짜·메뉴를 다 밀어넣으면 버튼이 눌려 글자가 세로로 쪼개지고
+   워드마크와 날짜가 겹친다(2026-08 현장 갤럭시에서 확인). 줄바꿈을 허용하고
+   고정 높이(72px)를 풀어 내용만큼 늘어나게 한다. */
+@media (max-width: 1360px) {
+  .ck-header {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .ck-brand { flex: 1 1 100%; }
+
+  .ck-header-right {
+    margin-left: 0;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .ck-today { font-size: 12.5px; padding: 6px 12px; }
+  .ck-today-year { display: none; }     /* '2026년' 은 접는다 — 폭이 아깝다 */
+
+  .ck-hbtn { height: 40px; padding: 0 12px; font-size: 13px; }
 }
 
 @media print {
   .console-page,
   .hub-page { background: #fff; }
   .ck-header { display: none !important; }
+}
+
+/* ---------- 공통 빠른 이동 플로팅 버튼 (이전 / 홈) ---------- */
+.dkj-quick-nav {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2147482000;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid rgba(0, 107, 63, .22);
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(12, 55, 33, .2);
+  font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+.dkj-quick-nav__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  background: #fff;
+  color: #17633f;
+  font: 800 13px/1 inherit;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.dkj-quick-nav__button + .dkj-quick-nav__button {
+  border-left: 1px solid #dbe8e0;
+}
+.dkj-quick-nav__button:hover,
+.dkj-quick-nav__button:focus-visible {
+  background: #edf8f1;
+  color: #005b35;
+  outline: none;
+}
+.dkj-quick-nav__icon {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+.dkj-quick-nav__home .dkj-quick-nav__icon {
+  font-size: 17px;
+}
+.dkj-quick-nav__reload {
+  padding: 0 10px;
+  color: #17633f;
+}
+.dkj-quick-nav__reload:hover {
+  color: #008744;
+  background: #eef8f2;
+}
+.dkj-quick-nav__reload.is-spinning svg {
+  animation: dkj-spin .6s linear infinite;
+}
+@keyframes dkj-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@media (max-width: 640px) {
+  .dkj-quick-nav {
+    right: 12px;
+    bottom: 12px;
+    border-radius: 12px;
+  }
+  .dkj-quick-nav__button {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .dkj-quick-nav__reload {
+    padding: 0 8px;
+  }
+}
+@media print {
+  .dkj-quick-nav {
+    display: none !important;
+  }
 }

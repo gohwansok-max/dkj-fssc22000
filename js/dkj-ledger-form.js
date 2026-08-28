@@ -7,13 +7,10 @@
 
   function $(id) { return document.getElementById(id); }
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
-
-  function today() { return new Date().toISOString().slice(0, 10); }
 
   function emptyRow(spec) {
     var r = {};
@@ -47,7 +44,7 @@
       info: info,
       rows: rows,
       incidents: incidents,
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
@@ -119,8 +116,10 @@
         var v = state.info[f.id] || '';
         var input = f.type === 'date'
           ? '<input type="date" data-info="' + f.id + '" value="' + esc(v) + '">'
-          : '<input type="text" data-info="' + f.id + '" value="' + esc(v) + '" placeholder="' +
-            esc(f.placeholder || '') + '">';
+          : f.type === 'month'
+            ? '<input type="month" data-info="' + f.id + '" value="' + esc(v) + '">'
+            : '<input type="text" data-info="' + f.id + '" value="' + esc(v) + '" placeholder="' +
+              esc(f.placeholder || '') + '">';
         return '<div class="dkj-field"><label>' + esc(f.label) + '</label>' + input + '</div>';
       }).join('');
       host.querySelectorAll('[data-info]').forEach(function (el) {
@@ -196,7 +195,9 @@
       }).join('') + '</tr>';
       var body = state.incidents.map(function (r, i) {
         return '<tr>' + cols.map(function (c) {
-          return '<td><input type="text" data-inc="' + i + '" data-ck="' + c.key +
+          var isStaff = c.key === 'actor' || c.key === 'confirmer' || c.key === 'writer';
+          return '<td><input type="text"' + (isStaff ? ' list="dkjStaffList" placeholder="선택/입력"' : '') +
+            ' data-inc="' + i + '" data-ck="' + c.key +
             '" value="' + esc(r[c.key] || '') + '"></td>';
         }).join('') + '</tr>';
       }).join('');
@@ -216,12 +217,26 @@
       host.querySelectorAll('#ledgerGrid input, #ledgerGrid select, #ledgerGrid button, '
         + '#infoFields input, #incidentGrid input')
         .forEach(function (el) { el.disabled = !!state.locked; });
+      ['btnBulkOk', 'btnBulkNg'].forEach(function (id) {
+        if ($(id)) $(id).disabled = !!state.locked;
+      });
     }
 
     function filledRows() {
       return state.rows.filter(function (r) {
         return COLS.some(function (c) { return String(r[c.key] || '').trim(); });
       });
+    }
+
+    function applyBulkChoice(value) {
+      var keys = spec.bulkChoiceKeys || [];
+      if (state.locked || !keys.length) return;
+      state.rows.forEach(function (row) {
+        keys.forEach(function (key) { row[key] = value; });
+      });
+      renderGrid();
+      scheduleDraft();
+      setStatus('냉장창고 적/부 전체 ' + value + ' 입력됨', false);
     }
 
     function validate() {
@@ -311,9 +326,15 @@
 
     function bind() {
       ['writer', 'reviewer', 'approver'].forEach(function (k) {
-        if ($(k)) $(k).addEventListener('input', function () {
-          state.approvals[k] = this.value; scheduleDraft();
-        });
+        if ($(k)) {
+          var onAppChange = function () {
+            state.approvals[k] = this.value;
+            scheduleDraft();
+            global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+          };
+          $(k).addEventListener('input', onAppChange);
+          $(k).addEventListener('change', onAppChange);
+        }
       });
       if ($('remark')) $('remark').addEventListener('input', function () {
         state.remark = this.value; scheduleDraft();
@@ -324,21 +345,42 @@
         renderGrid();
         scheduleDraft();
       });
+      if ($('btnBulkOk')) $('btnBulkOk').addEventListener('click', function () { applyBulkChoice('적'); });
+      if ($('btnBulkNg')) $('btnBulkNg').addEventListener('click', function () { applyBulkChoice('부'); });
       if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
       if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
       if ($('btnNew')) $('btnNew').addEventListener('click', function () {
         editingId = null; state = emptyState(spec); writeForm(); setStatus('새 시트', false);
       });
       if ($('btnPrint')) $('btnPrint').addEventListener('click', doPrint);
+      if (global.DkjUtil) {
+        global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+          formId: FORM_ID,
+          hasChecks: false,
+          onClonePrev: function (cloned) {
+            if (state.locked) return;
+            state = Object.assign(emptyState(spec), cloned);
+            editingId = null;
+            writeForm();
+            scheduleDraft();
+          }
+        });
+        global.DkjUtil.attachChips(document);
+      }
     }
 
     function init() {
       var draft = DkjRecordStore.loadDraft(FORM_ID);
       if (draft) state = Object.assign(emptyState(spec), draft);
       writeForm();
+      mountApproval();
       bind();
       renderHistory();
-      mountApproval();
+      if (global.DkjUtil) {
+        global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
+          writeForm();
+        });
+      }
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {

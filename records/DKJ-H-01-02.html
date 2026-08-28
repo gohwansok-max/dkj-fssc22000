@@ -7,10 +7,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>DKJ-H-01-02 CCP-2P 금속검출 | 동김제농협</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/dkj-tokens.css?v=13">
-  <link rel="stylesheet" href="../css/dkj-form.css?v=13">
-  <link rel="stylesheet" href="../css/dkj-print.css?v=13">
-  <link rel="manifest" href="../manifest.json?v=13">
+  <link rel="stylesheet" href="../css/dkj-tokens.css?v=57">
+  <link rel="stylesheet" href="../css/dkj-form.css?v=57">
+  <link rel="stylesheet" href="../css/dkj-print.css?v=57">
+  <link rel="manifest" href="../manifest.json?v=57">
+  <link rel="stylesheet" href="../css/dkj-quick-nav.css?v=57">
+  <link rel="stylesheet" href="../css/dkj-accessibility.css?v=57">
 </head>
 <body class="dkj-form-page">
   <div class="screen-only">
@@ -39,7 +41,8 @@
 
     <div class="viewer-notice" style="margin-bottom:14px;background:#e3f2fd;border-color:#90caf9;color:#0d47a1;">
       <strong>한계기준(임시 운영값)</strong> — HACCP관리기준서 확정값으로 교체하세요.<br>
-      표준시편 <strong>Fe Ø1.5㎜ · SUS Ø2.0㎜</strong> → 모두 <strong>검출(O)</strong> · 제품만 통과 시 오검출 없음
+      표준시편 <strong>Fe Ø1.5㎜ · SUS Ø2.0㎜</strong> → 모두 <strong>검출(O)</strong> · 제품만 통과 시 오검출 없음<br>
+      물성보정·안정도는 <strong>중량구간</strong> 선택에 따라 자동으로 채워집니다(정본 하단 한계기준표 참고, 값 자체도 임시).
     </div>
 
     <section class="dkj-panel">
@@ -70,6 +73,16 @@
           <input type="text" id="susSize" value="2.0">
         </div>
         <div class="dkj-field">
+          <label for="weightClass">중량구간 (물성보정·안정도 자동)</label>
+          <select id="weightClass">
+            <option value="fresh500">신선편의식품 500g 이하</option>
+            <option value="fresh1kg">신선편의식품 500g~1kg</option>
+            <option value="freshOver1kg">신선편의식품 1kg 이상</option>
+            <option value="material">부재료(기타가공품)</option>
+          </select>
+          <small id="weightClassHint" style="display:block;color:#888;margin-top:4px;"></small>
+        </div>
+        <div class="dkj-field">
           <label for="monitorName">모니터링 담당 *</label>
           <input type="text" id="monitorName" placeholder="성명">
         </div>
@@ -85,17 +98,18 @@
     </section>
 
     <section class="dkj-panel">
-      <h2>② 모니터링 결과 <span style="font-weight:500;color:#888;font-size:12px;">(검샬 O · 불검출 X)</span></h2>
+      <h2>② 모니터링 결과 <span style="font-weight:500;color:#888;font-size:12px;">(검출 O · 불검출 X)</span></h2>
       <div class="mon-toolbar">
-        <button type="button" class="pill-btn green" id="btnAddRow">＋ 측젔행 추가</button>
-        <button type="button" class="pill-btn ghost" id="btnNow">지금싔각 채우기</button>
+        <button type="button" class="pill-btn green" id="btnAddRow">＋ 측정행 추가</button>
+        <button type="button" class="pill-btn ghost" id="btnNow">지금시각 채우기</button>
       </div>
       <div class="mon-table-wrap">
         <table class="mon-table" id="monTable">
           <thead>
             <tr>
               <th rowspan="2">시각</th>
-              <th colspan="2">시편짌</th>
+              <th colspan="2">시편만</th>
+              <th rowspan="2">제품만</th>
               <th colspan="2">제품+시편</th>
               <th rowspan="2">판정</th>
               <th rowspan="2"></th>
@@ -127,8 +141,12 @@
           <textarea id="corrective" placeholder="이탈 시 필수 · SOP DKJ-W-007 절차 준수"></textarea>
         </div>
         <div class="dkj-field">
-          <label for="confirmer">확인자 (HACCP팀장)</label>
+          <label for="confirmer">확인자 (HACCP팀장) · 검토</label>
           <input type="text" id="confirmer" placeholder="성명">
+        </div>
+        <div class="dkj-field">
+          <label for="approver">승인자</label>
+          <input type="text" id="approver" placeholder="성명">
         </div>
         <div class="dkj-field">
           <label for="remark">비고</label>
@@ -158,16 +176,19 @@
   <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
 
 
-  <script src="../js/dkj-firebase-config.js?v=13"></script>
-  <script src="../js/dkj-auth.js?v=13"></script>
-  <script src="../js/dkj-cloud-sync.js?v=13"></script>
-  <script src="../js/dkj-nav-bar.js?v=13"></script>
-  <script src="../js/dkj-record-store.js?v=13"></script>
-  <script src="../js/dkj-deeplink.js?v=13"></script>
-  <script src="../js/dkj-approval.js?v=13"></script>
-  <script src="../js/dkj-print-form.js?v=13"></script>
-  <script src="../js/dkj-print-official.js?v=13"></script>
-  <script src="../js/DKJ-H-01-02.js?v=13"></script>
-  <script src="../js/dkj-pwa.js?v=13"></script>
+  <script src="../js/dkj-util.js?v=57"></script>
+  <script src="../js/dkj-firebase-config.js?v=57"></script>
+  <script src="../js/dkj-auth.js?v=57"></script>
+  <script src="../js/dkj-cloud-sync.js?v=57"></script>
+  <script src="../js/dkj-nav-bar.js?v=57"></script>
+  <script src="../js/dkj-record-store.js?v=57"></script>
+  <script src="../js/dkj-deeplink.js?v=57"></script>
+  <script src="../js/dkj-approval.js?v=57"></script>
+  <script src="../js/dkj-print-form.js?v=57"></script>
+  <script src="../js/dkj-print-official.js?v=57"></script>
+  <script src="../js/DKJ-H-01-02.js?v=57"></script>
+  <script src="../js/dkj-pwa.js?v=57"></script>
+  <script src="../js/dkj-quick-nav.js?v=57"></script>
+  <script src="../js/dkj-accessibility.js?v=57"></script>
 </body>
 </html>

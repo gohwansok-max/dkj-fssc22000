@@ -13,14 +13,6 @@
     return document.getElementById(id);
   }
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   function pad(n) {
     return (n < 10 ? '0' : '') + n;
   }
@@ -83,7 +75,7 @@
       notes: notes,
       signs: new Array(n).fill(''),
       incidents: incidents,
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
@@ -234,8 +226,8 @@
 
       var signCells = '';
       for (var s = 0; s < N; s++) {
-        signCells += '<td class="mxf-cellwrap"><input type="text" class="mxf-sign" data-sign="' +
-          s + '" value="' + esc(state.signs[s] || '') + '"></td>';
+        signCells += '<td class="mxf-cellwrap"><input type="text" class="mxf-sign" list="dkjStaffList" data-sign="' +
+          s + '" value="' + esc(state.signs[s] || '') + '" placeholder="선택/입력"></td>';
       }
       var foot =
         '<tr class="mxf-signrow"><th colspan="' + (LEAD ? LEAD.length : LV + 1 + (HAS_FREQ ? 1 : 0)) + '">' +
@@ -284,7 +276,9 @@
       }).join('') + '</tr>';
       var body = state.incidents.map(function (r, i) {
         return '<tr>' + cols.map(function (c) {
-          return '<td><input type="text" data-inc="' + i + '" data-ck="' + c.key +
+          var isStaff = c.key === 'actor' || c.key === 'confirmer' || c.key === 'writer';
+          return '<td><input type="text"' + (isStaff ? ' list="dkjStaffList" placeholder="선택/입력"' : '') +
+            ' data-inc="' + i + '" data-ck="' + c.key +
             '" value="' + esc(r[c.key] || '') + '"></td>';
         }).join('') + '</tr>';
       }).join('');
@@ -477,10 +471,13 @@
       }
       ['writer', 'reviewer', 'approver'].forEach(function (k) {
         if ($(k)) {
-          $(k).addEventListener('input', function () {
+          var onAppChange = function () {
             state.approvals[k] = this.value;
             scheduleDraft();
-          });
+            global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+          };
+          $(k).addEventListener('input', onAppChange);
+          $(k).addEventListener('change', onAppChange);
         }
       });
       if ($('remark')) {
@@ -513,6 +510,31 @@
           scheduleDraft();
         });
       }
+      if (global.DkjUtil) {
+        global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+          formId: FORM_ID,
+          hasChecks: true,
+          onAllPass: function () {
+            if (state.locked) return;
+            ROWS.forEach(function (r) {
+              state.checks[r.key] = new Array(N).fill('O');
+            });
+            renderMatrix();
+            renderSummary();
+            scheduleDraft();
+          },
+          onClonePrev: function (cloned) {
+            if (state.locked) return;
+            state = Object.assign(emptyState(spec), cloned);
+            state.weekStart = mondayOf(null);
+            state.days = buildDays(state.weekStart, N, spec.period === 'month' ? 7 : 1);
+            editingId = null;
+            writeForm();
+            scheduleDraft();
+          }
+        });
+        global.DkjUtil.attachChips(document);
+      }
     }
 
     function fillDayOptions() {
@@ -532,6 +554,11 @@
       bind();
       renderHistory();
       mountApproval();
+      if (global.DkjUtil) {
+        global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
+          writeForm();
+        });
+      }
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {

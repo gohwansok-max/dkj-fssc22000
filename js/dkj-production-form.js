@@ -100,44 +100,9 @@
     var CALC = global.DkjProductionCalc;
     var master = null, state = null, editingId = null, draftTimer = null;
     var apvUi = null;
-    var STAFF_NAMES = [];
     var PRODUCTS = [];
     var PRODUCTS_BOM_NOTE = '';
-    var APPROVAL_LABELS = { writer: '작성자', reviewer: '검토자', approver: '승인자' };
     var REMARK_PRESETS = ['정상 — 특이사항 없음', '설비 고장/점검', '정전', '원료 입고 지연·결품', '이물 발견', '인력 부족', '포장재 부족'];
-
-    function loadStaffNames() {
-      return (global.DkjMaster && DkjMaster.loadStaff ? DkjMaster.loadStaff() : Promise.resolve({ staff: [] }))
-        .then(function (d) {
-          return (d.staff || []).map(function (s) { return typeof s === 'string' ? s : (s && s.name) || ''; }).filter(Boolean);
-        }).catch(function () { return []; });
-    }
-
-    /* 작성자/검토자/승인자 — 등록된 직원 목록(staff.json)에서 고른다. 목록에 없으면 + 직접입력. */
-    function renderApproverFields() {
-      ['writer', 'reviewer', 'approver'].forEach(function (k) {
-        var host = $(k + 'Field'); if (!host) return;
-        var value = state.approvals[k] || '';
-        var opts = STAFF_NAMES.map(function (n) {
-          return '<option value="' + esc(n) + '"' + (n === value ? ' selected' : '') + '>' + esc(n) + '</option>';
-        }).join('');
-        var customOpt = (value && STAFF_NAMES.indexOf(value) === -1)
-          ? '<option value="' + esc(value) + '" selected>' + esc(value) + '</option>' : '';
-        host.innerHTML = '<select data-approver="' + k + '"><option value="">선택</option>' + customOpt + opts + '<option value="__custom__">+ 직접입력</option></select>';
-        host.querySelector('select').addEventListener('change', function () {
-          if (state.locked) return;
-          var v = this.value;
-          if (v === '__custom__') {
-            var name = prompt(APPROVAL_LABELS[k] + ' 이름을 입력하세요.', '');
-            state.approvals[k] = name ? name.trim() : '';
-            renderApproverFields();
-          } else {
-            state.approvals[k] = v;
-          }
-          scheduleDraft();
-        });
-      });
-    }
 
     /* 특이사항 — 자주 쓰는 항목을 선택. 목록에 없으면 + 직접입력. */
     function renderRemarkField() {
@@ -767,7 +732,7 @@
 
       sheet.innerHTML =
         '<div class="ps-page prod-print-page">' +
-        '<div class="ps-org">동김제농협 가공센터</div>' +
+        '<div class="ps-org">동김제농협 산지유통센터</div>' +
         '<table class="ps-meta"><tr>' +
         '<td class="ps-title-cell" rowspan="2"><div class="ps-docno">문서번호: DKJ-F-053</div><div class="ps-title">생산일지</div></td>' +
         '<th class="ps-apv-lab" rowspan="2">결재</th>' + apvHead +
@@ -783,7 +748,7 @@
         '<div><strong>완제품 물질수지:</strong> ' + esc(fin.judge) + '</div>' +
         '<div><strong>특이사항:</strong> ' + esc(state.note || '') + '</div>' +
         '</div>' +
-        '<div class="ps-brand">동김제농협 가공센터 · DKJ-F-053 · FSSC22000</div>' +
+        '<div class="ps-brand">동김제농협 산지유통센터 · DKJ-F-053 · FSSC22000</div>' +
         '</div>';
       setTimeout(function () { window.print(); }, 120);
     }
@@ -798,7 +763,7 @@
     function refreshApproval() { if (apvUi) apvUi.render(); }
 
     function writeForm() {
-      renderApproverFields();
+      ['writer', 'reviewer', 'approver'].forEach(function (k) { if ($(k)) $(k).value = state.approvals[k] || ''; });
       renderRemarkField();
       renderInfoFields();
       renderMaterialTable();
@@ -811,7 +776,20 @@
       refreshApproval();
     }
 
+    function syncApprovalFields() {
+      ['writer', 'reviewer', 'approver'].forEach(function (k) {
+        if ($(k)) state.approvals[k] = $(k).value;
+      });
+      scheduleDraft();
+    }
+
     function bind() {
+      ['writer', 'reviewer', 'approver'].forEach(function (k) {
+        if ($(k)) $(k).addEventListener('input', function () { state.approvals[k] = this.value; scheduleDraft(); });
+      });
+      /* dkj-approval.js 의 attachStaffPickers() 가 입력칸을 드롭다운으로 바꾸면서
+         이 이벤트를 쏜다 — 서식마다 인원란 id 가 달라 개별 change 대신 이걸로 받는다. */
+      global.addEventListener('dkj:approval-changed', syncApprovalFields);
       if ($('btnAddMaterialRow')) $('btnAddMaterialRow').addEventListener('click', function () {
         if (state.locked) return;
         state.materialRows.push(emptyMaterialRow());
@@ -831,11 +809,10 @@
     }
 
     function init() {
-      Promise.all([DkjMaster.loadProductionMaster(), loadStaffNames(), DkjMaster.loadProducts()]).then(function (results) {
+      Promise.all([DkjMaster.loadProductionMaster(), DkjMaster.loadProducts()]).then(function (results) {
         master = results[0];
-        STAFF_NAMES = results[1];
-        PRODUCTS = (results[2] && results[2].finishedProducts) || [];
-        PRODUCTS_BOM_NOTE = (results[2] && results[2].bomNote) || '';
+        PRODUCTS = (results[1] && results[1].finishedProducts) || [];
+        PRODUCTS_BOM_NOTE = (results[1] && results[1].bomNote) || '';
         var draft = DkjRecordStore.loadDraft(FORM_ID);
         state = draft ? Object.assign(emptyState(master, PRODUCTS), draft) : buildNextState();
         writeForm();

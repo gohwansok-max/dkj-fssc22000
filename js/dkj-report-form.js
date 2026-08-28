@@ -7,13 +7,10 @@
 
   function $(id) { return document.getElementById(id); }
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
-
-  function today() { return new Date().toISOString().slice(0, 10); }
 
   function emptyTableRow(b) {
     var r = {};
@@ -42,7 +39,7 @@
     return {
       values: values,
       tables: tables,
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
@@ -302,9 +299,15 @@
 
     function bind() {
       ['writer', 'reviewer', 'approver'].forEach(function (k) {
-        if ($(k)) $(k).addEventListener('input', function () {
-          state.approvals[k] = this.value; scheduleDraft();
-        });
+        if ($(k)) {
+          var onAppChange = function () {
+            state.approvals[k] = this.value;
+            scheduleDraft();
+            global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+          };
+          $(k).addEventListener('input', onAppChange);
+          $(k).addEventListener('change', onAppChange);
+        }
       });
       if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
       if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
@@ -312,6 +315,20 @@
         editingId = null; state = emptyState(spec); writeForm(); setStatus('새 보고서', false);
       });
       if ($('btnPrint')) $('btnPrint').addEventListener('click', doPrint);
+      if (global.DkjUtil) {
+        global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+          formId: FORM_ID,
+          hasChecks: false,
+          onClonePrev: function (cloned) {
+            if (state.locked) return;
+            state = Object.assign(emptyState(spec), cloned);
+            editingId = null;
+            writeForm();
+            scheduleDraft();
+          }
+        });
+        global.DkjUtil.attachChips(document);
+      }
     }
 
     function init() {
@@ -321,6 +338,11 @@
       bind();
       renderHistory();
       mountApproval();
+      if (global.DkjUtil) {
+        global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
+          writeForm();
+        });
+      }
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {

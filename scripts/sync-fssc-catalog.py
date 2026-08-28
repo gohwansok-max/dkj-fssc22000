@@ -2,7 +2,7 @@
 """
 동김제 FSSC22000 V6 최종본 → doc-catalog.json / menu-catalog.json 동기화
 
-Usage (from tenants/dkj):
+Usage (저장소 루트에서 실행):
   python scripts/sync-fssc-catalog.py
 """
 from __future__ import annotations
@@ -485,7 +485,7 @@ def build_menu(docs: list[dict]) -> dict:
 
     return {
         "updatedAt": date.today().isoformat(),
-        "site": "동김제농협 가공센터",
+        "site": "동김제농협 산지유통센터",
         "certification": "FSSC22000 V6",
         "source": "최종본260714",
         "gnb": gnb,
@@ -518,7 +518,7 @@ def main():
 
     catalog = {
         "updatedAt": date.today().isoformat(),
-        "site": "동김제농협 가공센터",
+        "site": "동김제농협 산지유통센터",
         "certification": "FSSC22000 V6",
         "sourceLabel": "최종본260714",
         "fsscRootNote": str(root),

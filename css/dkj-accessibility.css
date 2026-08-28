@@ -1,0 +1,123 @@
+/* 동김제농협 스마트 HACCP — 쉬운 사용·다국어 안내 공통 보조 도구 */
+.dkj-assist{position:fixed;left:18px;bottom:18px;z-index:2147481999;display:flex;align-items:center;gap:6px;padding:8px;border:2px solid #007a3d;border-radius:14px;background:#ffffff;box-shadow:0 8px 30px rgba(0,0,0,.25);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
+.dkj-assist button{min-width:44px;min-height:44px;padding:0 12px;border:1.5px solid #86b9a3;border-radius:10px;background:#f4fbf7;color:#075c34;font:800 13.5px/1 inherit;cursor:pointer}
+.dkj-assist button:hover,.dkj-assist button:focus-visible{outline:none;border-color:#007a3d;background:#e1f5e9;box-shadow:0 0 0 3px rgba(0,154,68,.25)}
+.dkj-assist .dkj-assist-lang{min-width:60px;color:#78350f;border-color:#eab308;background:#fef9c3;font-weight:900}
+.dkj-assist .dkj-assist-lang.is-active{background:#ca8a04;color:#ffffff;border-color:#78350f}
+.dkj-assist .dkj-assist-tablet{min-width:68px;color:#005b35;border-color:#86b9a3;background:#eef9f2}
+.dkj-assist .dkj-assist-tablet.is-active{background:#007a35;color:#ffffff;border-color:#005b35}
+
+.dkj-help-dialog{width:min(520px,calc(100vw - 28px));max-height:min(720px,calc(100vh - 28px));padding:0;border:0;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.32);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
+.dkj-help-dialog::backdrop{background:rgba(8,35,26,.46)}
+.dkj-help-inner{padding:22px 22px 20px;background:#fff;color:#173941}
+.dkj-help-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:13px}
+.dkj-help-head h2{margin:0;font-size:20px;line-height:1.35;color:#075c34}.dkj-help-head p{margin:4px 0 0;color:#587177;font-size:13px}
+.dkj-help-close{flex:0 0 auto;width:40px;height:40px;border:1px solid #bdd8ce;border-radius:10px;background:#fff;color:#174a57;font-size:22px;cursor:pointer}
+.dkj-help-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dkj-help-box{padding:12px;border:1px solid #d6e8df;border-radius:12px;background:#f7fcf9}.dkj-help-box b{display:block;color:#075c34;font-size:14px}.dkj-help-box p{margin:6px 0 0;color:#466068;font-size:13px;line-height:1.6}
+.dkj-help-tip{margin:12px 0 0;padding:11px 12px;border-left:4px solid #009a44;border-radius:8px;background:#edf9f2;color:#245745;font-size:13px;line-height:1.65}.dkj-help-link{display:inline-flex;align-items:center;min-height:40px;margin-top:12px;padding:0 12px;border-radius:9px;background:#007a3d;color:#fff;text-decoration:none;font-size:13px;font-weight:800}
+
+/* 글자 크기 조절 (보통/크게/아주크게) */
+body.dkj-font-size-2{font-size:17px!important}
+body.dkj-font-size-2 p,body.dkj-font-size-2 li,body.dkj-font-size-2 td,body.dkj-font-size-2 th,body.dkj-font-size-2 input,body.dkj-font-size-2 select,body.dkj-font-size-2 textarea{font-size:1.06em!important;line-height:1.65!important}
+
+body.dkj-font-size-3,body.dkj-large-text{font-size:19px!important}
+body.dkj-font-size-3 p,body.dkj-font-size-3 li,body.dkj-font-size-3 td,body.dkj-font-size-3 th,body.dkj-font-size-3 input,body.dkj-font-size-3 select,body.dkj-font-size-3 textarea,body.dkj-font-size-3 button,
+body.dkj-large-text p,body.dkj-large-text li,body.dkj-large-text td,body.dkj-large-text th,body.dkj-large-text input,body.dkj-large-text select,body.dkj-large-text textarea,body.dkj-large-text button{font-size:1.15em!important;line-height:1.75!important}
+body.dkj-font-size-3 .gnb-static,body.dkj-font-size-3 .gnb-trigger,body.dkj-large-text .gnb-static,body.dkj-large-text .gnb-trigger{font-size:16px!important}
+
+/* 📱 태블릿 전용 선명·확대 모드 (Tablet Clarity Mode) */
+body.dkj-tablet-mode {
+  font-size: 17.5px !important;
+  line-height: 1.7 !important;
+}
+body.dkj-tablet-mode table,
+body.dkj-tablet-mode .mon-table,
+body.dkj-tablet-mode .ck-card,
+body.dkj-tablet-mode .dkj-panel {
+  border-width: 1.5px !important;
+  border-color: #94a3b8 !important;
+}
+body.dkj-tablet-mode th,
+body.dkj-tablet-mode td {
+  padding: 12px 10px !important;
+  font-size: 15.5px !important;
+}
+body.dkj-tablet-mode input,
+body.dkj-tablet-mode select,
+body.dkj-tablet-mode textarea {
+  min-height: 46px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-width: 1.8px !important;
+  border-color: #64748b !important;
+}
+body.dkj-tablet-mode input:focus,
+body.dkj-tablet-mode select:focus,
+body.dkj-tablet-mode textarea:focus {
+  border-color: #007a35 !important;
+  box-shadow: 0 0 0 4px rgba(0, 122, 53, 0.25) !important;
+}
+body.dkj-tablet-mode .pill-btn,
+body.dkj-tablet-mode .btn,
+body.dkj-tablet-mode button {
+  min-height: 46px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+/* 색맹 지원 - 색상과 아이콘 조합 */
+.ck-tile.is-done .ck-chip::before { content: "✓"; }
+.ck-tile.is-ng .ck-chip::before { content: "✗"; }
+.ck-tile.is-todo .ck-chip::before { content: "!"; }
+.ck-tile.is-part .ck-chip::before { content: "◐"; }
+.ck-tile.is-off .ck-chip::before { content: "○"; }
+
+/* 포커스 가시성 향상 */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #009a44 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(0, 154, 68, 0.2) !important;
+}
+
+/* 스킵 네비게이션 */
+.skip-nav {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--nh-green);
+  color: #fff;
+  padding: 12px 24px;
+  text-decoration: none;
+  font-weight: 700;
+  z-index: 10000;
+}
+.skip-nav:focus {
+  top: 0;
+}
+
+/* 움직임 감소 선호 사용자 지원 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ck-alert-banner {
+    animation: none !important;
+  }
+
+  .ck-alert-banner-icon {
+    animation: none !important;
+  }
+}
+
+@media(max-width:620px){.dkj-assist{left:10px;bottom:10px;padding:5px}.dkj-assist button{min-width:42px;min-height:42px}.dkj-assist .dkj-assist-help{min-width:42px;font-size:0}.dkj-assist .dkj-assist-help::before{content:"?";font-size:19px}.dkj-help-grid{grid-template-columns:1fr}.dkj-help-inner{padding:18px 16px}.dkj-help-head h2{font-size:18px}}
+@media print{.dkj-assist,.dkj-help-dialog{display:none!important}}

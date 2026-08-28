@@ -98,7 +98,7 @@
   ],
   "print": {
     "layout": "official-fr-generic",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "FR-036",
     "title": "알레르겐 전환 세척 점검기록",
     "subtitle": "FSSC22000 · 이슈",

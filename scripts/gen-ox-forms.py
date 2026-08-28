@@ -780,7 +780,7 @@ def build_print(spec: dict) -> dict:
         return {
             "layout": "mon-lux" if spec.get("monMode") == "lux" else "mon-th",
             "monMode": spec.get("monMode") or "th",
-            "orgName": "동김제농협 가공센터",
+            "orgName": "동김제농협 산지유통센터",
             "docNo": code,
             "title": spec["title"],
             "rev": "0",
@@ -805,7 +805,7 @@ def build_print(spec: dict) -> dict:
     return {
         "layout": "ox",
         "columnMode": "ampm" if ampm else "result",
-        "orgName": "동김제농협 가공센터",
+        "orgName": "동김제농협 산지유통센터",
         "docNo": code,
         "title": spec["title"],
         "rev": "0",

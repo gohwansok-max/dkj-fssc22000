@@ -18,8 +18,17 @@ BUNDLES = [
     # 마스터 데이터 (js/dkj-master-data.js)
     ("products.json", "products.bundle.js", "DKJ_PRODUCTS"),
     ("process-line.json", "process-line.bundle.js", "DKJ_PROCESS_LINE"),
+    # 생산일지(DKJ-F-053) 기준설정 — js/dkj-master-data.js 가 읽는다
     ("production-master.json", "production-master.bundle.js", "DKJ_PRODUCTION_MASTER"),
-    ("staff.json", "staff.bundle.js", "DKJ_STAFF"),
+    # 직원별 결재 권한 — js/dkj-auth.js 가 읽는다
+    ("staff-roles.json", "staff-roles.bundle.js", "DKJ_STAFF_ROLES"),
+    # MDR 카탈로그
+    ("mdr-catalog.json", "mdr-catalog.bundle.js", "DKJ_MDR_CATALOG"),
+    # Google Drive 정본 문서 매니페스트
+    ("drive-document-manifest.json", "drive-document-manifest.bundle.js", "DKJ_DRIVE_DOCUMENTS"),
+    # PDF 및 문서 자산 매니페스트
+    ("pdf-manifest.json", "pdf-manifest.bundle.js", "DKJ_PDF_MANIFEST"),
+    ("doc-assets.json", "doc-assets.bundle.js", "DKJ_DOC_ASSETS"),
 ]
 
 

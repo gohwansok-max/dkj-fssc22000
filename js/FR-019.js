@@ -104,7 +104,7 @@
   ],
   "print": {
     "layout": "official-fr-generic",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "FR-019",
     "title": "내부심사 체크리스트",
     "subtitle": "FSSC22000 · 이슈",

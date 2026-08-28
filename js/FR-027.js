@@ -103,7 +103,7 @@
   ],
   "print": {
     "layout": "official-fr-generic",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "FR-027",
     "title": "검교정 계획 및 결과표",
     "subtitle": "FSSC22000 · 이슈",

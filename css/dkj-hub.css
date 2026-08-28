@@ -12,7 +12,44 @@
    주의 — 목록 DOM은 docs-center.js / records-center.js / mdr-register.js 가
    문자열로 만든다. 아래 선택자(.doc-row, .cat-status, .status-pill 등)는
    그 JS가 내보내는 클래스명이므로 이름을 바꾸면 스타일이 끊긴다.
-   ============================================================ */
+/* ---------- 헤더 공통 및 브랜드 로고 크기 고정 ---------- */
+.site-header,
+.ck-header {
+  background: var(--nh-green, #009a44) !important;
+  color: #fff !important;
+  padding: 0 24px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-sizing: border-box;
+}
+
+.site-header .brand,
+.ck-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.site-header .brand img,
+.site-header img,
+.brand img,
+.ck-wordmark-symbol,
+img.brand-logo {
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  flex: 0 0 32px !important;
+  object-fit: contain;
+}
 
 /* ---------- 헤더 안 메가메뉴 (dkj-nav.js) ---------- */
 
@@ -21,7 +58,16 @@
   align-items: center;
   gap: 2px;
   height: 100%;
-  margin-left: 8px;
+  margin-left: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: visible !important;
+}
+
+.gnb-static,
+.gnb-trigger,
+.gnb-item {
+  flex: 0 0 auto;
 }
 
 .gnb-static,
@@ -59,27 +105,40 @@
   opacity: .8;
 }
 
-.gnb-item { position: relative; height: 100%; display: flex; align-items: center; }
+.gnb-item { position: relative; height: 100%; display: flex; align-items: center; overflow: visible !important; }
 
 .mega-menu {
   display: none;
   position: absolute;
-  top: calc(100% + 6px);
+  top: 100%;
   left: 0;
-  min-width: 560px;
+  min-width: 580px;
   max-width: calc(100vw - 24px);
   /* 항목이 많은 메뉴(선행요건관리)는 800px 세로에서 아래가 잘린다 — 스크롤로 처리 */
   max-height: calc(100vh - 92px);
   overflow-y: auto;
   padding: 18px;
-  background: var(--card);
+  background: #ffffff;
   border: 1px solid var(--line);
   border-radius: var(--r-l);
-  box-shadow: 0 12px 32px rgba(5, 67, 31, .18);
-  z-index: 60;
+  box-shadow: 0 16px 36px rgba(5, 67, 31, .22);
+  z-index: 9999;
 }
 
-.gnb-item.open .mega-menu { display: block; }
+/* 마우스 이동 시 닫히지 않도록 투명 연결 브릿지 영역 생성 */
+.mega-menu::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: 0;
+  right: 0;
+  height: 18px;
+  display: block;
+}
+
+.gnb-item.open .mega-menu,
+.gnb-item:hover .mega-menu,
+.gnb-item:focus-within .mega-menu { display: block !important; }
 
 /* 오른쪽 끝 메뉴는 왼쪽 기준으로 펼치면 화면 밖으로 잘린다(1280 태블릿에서 실측).
    뒤쪽 두 개만 오른쪽 기준으로 뒤집는다. */
@@ -453,6 +512,17 @@
   color: var(--nh-green-dark);
 }
 
+/* 문서관리대장의 '완료'와는 다른 축 — 시스템에 정본 원문이 올라와 있는지 */
+.badge.pdf-ok {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.badge.pdf-none {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .docs-empty {
   padding: 40px 20px;
   text-align: center;
@@ -671,4 +741,83 @@
 
   .viewer-panel,
   .doc-row { box-shadow: none; }
+}
+
+/* ---------- 공용 메뉴 폭 보호 (2026-08) ----------
+   헤더에 브랜드·메가메뉴·바로가기 버튼을 한 줄에 모두 배치하면
+   14~18인치 크롬 창에서도 메뉴 항목이 브랜드 위로 밀려 겹칠 수 있다.
+   브랜드/바로가기와 전체 메뉴를 독립 행으로 분리해 모든 항목의 글자 폭을 보존한다. */
+@media (max-width: 1800px) {
+  .ck-header {
+    height: auto;
+    min-height: 72px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 16px;
+  }
+
+  .ck-brand {
+    order: 1;
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+  }
+
+  .ck-tagline {
+    display: none !important;
+  }
+
+  .ck-header-right {
+    order: 2;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    margin-left: auto;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .gnb {
+    order: 3;
+    flex: 1 1 100%;
+    min-width: 0;
+    margin-left: 0;
+    padding: 0 2px;
+    overflow: visible;
+  }
+
+  .gnb-static,
+  .gnb-trigger,
+  .gnb-item { flex: 0 0 auto; }
+}
+
+@media (max-width: 1024px) {
+  .ck-header {
+    flex-wrap: nowrap;
+    min-height: 64px;
+    padding: 10px 14px;
+  }
+
+  .ck-brand { flex: 1 1 auto; }
+
+  .ck-header-right {
+    flex: 0 0 auto;
+    width: auto;
+    margin-left: auto;
+  }
+
+  .ck-header-right .ck-hbtn { display: none; }
+
+  .gnb {
+    order: initial;
+    overflow: visible;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 560px) {
+  .ck-wordmark { padding-right: 9px; gap: 7px; }
+  .ck-wordmark-name b { font-size: 12px; }
+  .ck-wordmark-symbol { width: 27px; height: 27px; flex-basis: 27px; }
 }

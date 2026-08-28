@@ -6,7 +6,8 @@
   'use strict';
 
   function today() {
-    return new Date().toISOString().slice(0, 10);
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
   function $(id) {
@@ -49,8 +50,8 @@
     var mode = spec.monMode || 'th';
     var st = {
       checkDate: today(),
-      inspector: '',
-      confirmer: '',
+      inspector: '이다은',
+      confirmer: '권화선',
       corrective: '',
       remark: '',
       locked: false,
@@ -62,6 +63,7 @@
       if (f.default !== undefined) st[f.id] = f.default;
       else st[f.id] = '';
     });
+    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['inspector', 'confirmer', 'writer']);
     return st;
   }
 
@@ -232,8 +234,8 @@
         return;
       }
       el.innerHTML = list.map(function (r) {
-        return '<div class="dkj-history-item"><div><strong>' + (r.checkDate || '') + '</strong>' +
-          ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + (r.judge || '-') + '</span></div>' +
+        return '<div class="dkj-history-item"><div><strong>' + esc(r.checkDate || '') + '</strong>' +
+          ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + esc(r.judge || '-') + '</span></div>' +
           '<div style="display:flex;gap:6px;">' +
           '<button type="button" class="pill-btn ghost" data-load="' + r.id + '">불러오기</button>' +
           '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';
@@ -266,8 +268,13 @@
       metaIds.forEach(function (id) {
         var el = $(id);
         if (!el) return;
-        el.addEventListener('input', scheduleDraft);
-        el.addEventListener('change', scheduleDraft);
+        var onFieldInput = function () {
+          readForm();
+          scheduleDraft();
+          global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+        };
+        el.addEventListener('input', onFieldInput);
+        el.addEventListener('change', onFieldInput);
       });
       if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
       if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
@@ -290,6 +297,20 @@
           }
         });
       }
+      if (global.DkjUtil) {
+        global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+          formId: FORM_ID,
+          hasChecks: false,
+          onClonePrev: function (cloned) {
+            if (state.locked) return;
+            state = Object.assign(emptyState(spec), cloned);
+            editingId = null;
+            writeForm();
+            scheduleDraft();
+          }
+        });
+        global.DkjUtil.attachChips(document);
+      }
     }
 
     function init() {
@@ -298,6 +319,11 @@
       writeForm();
       bind();
       renderHistory();
+      if (global.DkjUtil) {
+        global.DkjUtil.autoFillUser(state, ['inspector', 'confirmer', 'writer'], function () {
+          writeForm();
+        });
+      }
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {

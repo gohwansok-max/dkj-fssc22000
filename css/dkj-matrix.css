@@ -146,8 +146,7 @@
 
 .mxf-notewrap { padding: 2px !important; }
 
-.mxf-note-in,
-.mxf-sign {
+.mxf-note-in {
   width: 100%;
   height: 30px;
   border: 1px solid #e2e7e4;
@@ -156,13 +155,34 @@
   font-size: 12.5px;
 }
 
-.mxf-sign { text-align: center; }
+.mxf-sign {
+  width: 100%;
+  min-width: 48px;
+  height: 30px;
+  border: 1px solid #cde0d5;
+  background: #fdfefe;
+  border-radius: 6px;
+  padding: 0 4px;
+  font-size: 12px;
+  text-align: center;
+  font-weight: 600;
+  color: #1e5237;
+  transition: all 0.15s ease;
+}
+
+.mxf-sign:focus {
+  border-color: #009a44;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 154, 68, 0.15);
+  outline: none;
+}
 
 .mxf-signrow th {
   background: #f2f5f3;
   text-align: center;
   font-weight: 700;
   color: #1f4634;
+  white-space: nowrap;
 }
 
 .mxf-inc {
@@ -186,6 +206,7 @@
   font-weight: 700;
   text-align: center;
   white-space: nowrap;
+  padding: 6px 8px;
 }
 
 .mxf-inc td input {
@@ -200,7 +221,7 @@
 .dkj-form-body.is-locked .mxf-scroll { opacity: .92; }
 .dkj-form-body.is-locked .mxf-table { background: #fcfdfc; }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .mxf-item { min-width: 220px; }
   .mxf-table { font-size: 12px; }
 }
@@ -208,36 +229,95 @@
 /* ===== 유형 E(대장) 화면 입력 ===== */
 .lgf-table {
   width: 100%;
-  min-width: 900px;
+  min-width: 1050px;
   border-collapse: collapse;
   font-size: 13px;
   background: #fff;
+  table-layout: auto;
 }
 
 .lgf-table th,
 .lgf-table td {
-  border: 1px solid #e2e7e4;
-  padding: 3px 4px;
+  border: 1px solid #d8ded9;
+  padding: 4px 5px;
   vertical-align: middle;
+  text-align: center;
+  min-width: 48px;
 }
 
 .lgf-table thead th {
   background: #eef3f0;
   color: #1f4634;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   text-align: center;
-  line-height: 1.25;
+  line-height: 1.3;
+  white-space: nowrap;
+  padding: 6px 4px;
 }
+
+/* 작업장 온도표는 온도와 적/부 열을 같은 폭으로 고정해 가로 스크롤로 표시한다. */
+.temperature-log-page .lgf-table {
+  width: max-content;
+  min-width: 100%;
+  table-layout: fixed;
+}
+.temperature-log-page .lgf-table thead th { white-space: nowrap; }
+.temperature-log-page .lgf-table thead tr:last-child th,
+.temperature-log-page .lgf-table tbody td {
+  width: 72px !important;
+  min-width: 72px;
+  max-width: 72px;
+}
+.temperature-log-page .lgf-table thead th[rowspan="2"] {
+  width: 72px !important;
+  min-width: 72px;
+}
+.temperature-log-page .lgf-table tbody td:last-child {
+  width: 120px !important;
+  min-width: 120px;
+  max-width: 120px;
+}
+.temperature-log-page .lgf-table td input,
+.temperature-log-page .lgf-table td select {
+  min-width: 62px;
+  padding-right: 4px;
+  padding-left: 4px;
+  text-align: center;
+}
+.temperature-log-page .temperature-bulk-actions {
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border: 1px solid #d8ded9;
+  border-radius: 10px;
+  background: #f6f8f7;
+}
+.temperature-log-page .temperature-bulk-actions > span {
+  color: #24503c;
+  font-size: 13px;
+  font-weight: 800;
+}
+.temperature-log-page .temperature-bulk-actions .pill-btn { min-height: 38px; }
 
 .lgf-table td input,
 .lgf-table td select {
   width: 100%;
+  min-width: 42px;
   height: 32px;
-  border: 1px solid #e2e7e4;
+  border: 1px solid #dce2de;
   border-radius: 6px;
-  padding: 0 6px;
+  padding: 0 4px;
   font-size: 12.5px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.lgf-table td input:focus,
+.lgf-table td select:focus {
+  border-color: var(--nh-green, #009a44);
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 154, 68, 0.15);
 }
 
 .lgf-act { width: 54px; text-align: center; }

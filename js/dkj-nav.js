@@ -23,14 +23,6 @@
     return base + path;
   }
 
-  function esc(s) {
-    return String(s || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   function loadMenu(base) {
     if (CACHE) return Promise.resolve(CACHE);
     if (global.DKJ_MENU_CATALOG) {
@@ -63,13 +55,23 @@
       });
   }
 
+    function allowed(link) {
+    if (!link || !link.requiredRole) return true;
+    if (link.requiredRole === 'system_admin') {
+      return !!(global.DkjAuth && global.DkjAuth.isSystemAdmin && global.DkjAuth.isSystemAdmin());
+    }
+    return false;
+  }
+
   function renderMega(item, base) {
     var cols = (item.columns || []).map(function (col) {
-      var links = (col.links || []).map(function (lnk) {
+      var links = (col.links || []).filter(allowed).map(function (lnk) {
         return '<a href="' + esc(href(base, lnk.href)) + '">' + esc(lnk.label) + '</a>';
       }).join('');
+      if (!links) return '';
       return '<div class="mega-col"><div class="mega-title">' + esc(col.title) + '</div>' + links + '</div>';
     }).join('');
+
     return (
       '<div class="gnb-item" data-nav="' + esc(item.id) + '">' +
         '<button type="button" class="gnb-trigger" aria-expanded="false">' + esc(item.label) + '</button>' +
@@ -94,7 +96,10 @@
       document.body.appendChild(backdrop);
     }
 
+    var leaveTimer = null;
+
     function closeAll() {
+      if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
       items.forEach(function (it) {
         it.classList.remove('open');
         var btn = it.querySelector('.gnb-trigger');
@@ -104,43 +109,55 @@
       root.classList.remove('mega-open');
     }
 
+    function openItem(it) {
+      if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+      items.forEach(function (other) {
+        if (other !== it) {
+          other.classList.remove('open');
+          var obtn = other.querySelector('.gnb-trigger');
+          if (obtn) obtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      it.classList.add('open');
+      var btn = it.querySelector('.gnb-trigger');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+      backdrop.classList.add('show');
+      root.classList.add('mega-open');
+    }
+
     items.forEach(function (it) {
       var btn = it.querySelector('.gnb-trigger');
       if (!btn) return;
+
       btn.addEventListener('click', function (e) {
         e.preventDefault();
-        var willOpen = !it.classList.contains('open');
-        closeAll();
-        if (willOpen) {
-          it.classList.add('open');
-          btn.setAttribute('aria-expanded', 'true');
-          backdrop.classList.add('show');
-          root.classList.add('mega-open');
+        e.stopPropagation();
+        var isOpen = it.classList.contains('open');
+        if (isOpen) {
+          closeAll();
+        } else {
+          openItem(it);
         }
+      });
+
+      it.addEventListener('mouseenter', function () {
+        openItem(it);
+      });
+
+      it.addEventListener('mouseleave', function () {
+        if (leaveTimer) clearTimeout(leaveTimer);
+        leaveTimer = setTimeout(function () {
+          closeAll();
+        }, 280);
       });
     });
 
     backdrop.addEventListener('click', closeAll);
+    document.addEventListener('click', function (e) {
+      if (!root.contains(e.target)) closeAll();
+    });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeAll();
-    });
-
-    // desktop hover open
-    var mq = window.matchMedia('(min-width: 1025px)');
-    items.forEach(function (it) {
-      it.addEventListener('mouseenter', function () {
-        if (!mq.matches) return;
-        closeAll();
-        it.classList.add('open');
-        root.classList.add('mega-open');
-      });
-      it.addEventListener('mouseleave', function () {
-        if (!mq.matches) return;
-        it.classList.remove('open');
-        if (!root.querySelector('.gnb-item.open')) {
-          root.classList.remove('mega-open');
-        }
-      });
     });
   }
 
@@ -169,7 +186,11 @@
 
     parts.push('<a class="gnb-static" data-nav="records" href="' + esc(href(base, 'records-center.html')) + '">기록센터</a>');
     parts.push('<a class="gnb-static" data-nav="archive" href="' + esc(href(base, 'records-archive.html')) + '">기록보관함</a>');
+    parts.push('<a class="gnb-static" data-nav="periodic-alerts" href="' + esc(href(base, 'periodic-alerts.html')) + '">정기 알림</a>');
     parts.push('<a class="gnb-static" data-nav="mdr" href="' + esc(href(base, 'mdr-register.html')) + '">MDR</a>');
+    if (global.DkjAuth && global.DkjAuth.isSystemAdmin && global.DkjAuth.isSystemAdmin()) {
+      parts.push('<a class="gnb-static" data-nav="system" href="' + esc(href(base, 'system-settings.html')) + '">시스템 설정</a>');
+    }
 
     root.innerHTML = parts.join('');
     root.classList.add('gnb-mega');
@@ -204,6 +225,11 @@
   }
 
   global.DkjNav = { init: init, loadMenu: loadMenu };
+
+  document.addEventListener('dkj:auth-ready', function () {
+    CACHE = null;
+    init();
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

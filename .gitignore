@@ -1,5 +1,16 @@
 # 로컬 전용 — 컨설팅 원본 폴더 경로. 공개 배포(GitHub Pages)에 올라가면 안 된다.
 data/asset-sources.local.json
+data/extract-sources/
+data/mdr-rev4-preview.json
+
+# 탐색 및 임시 보고서
+_explore-*
+_mdr_name_tmp.txt
+
+# 대외 제안용 문서 원본 (오피스 파일)
+*.doc
+*.docx
+*.pptx
 
 # 에디터/OS
 .claude/

@@ -20,18 +20,21 @@
       disinfectant: 'NaOCl',
       productName: '',
       lot: '',
+      waterChangeTimes: '',
       clMin: 50,
       clMax: 200,
       timeMin: 60,
-      monitorName: '',
+      monitorName: '이다은',
       rows: [emptyRow(), emptyRow(), emptyRow()],
       deviation: '',
       corrective: '',
-      confirmer: '',
+      confirmer: '권화선',
+      approver: '최민재',
       remark: '',
-      // 전자결재 — 모니터링 담당자·확인자 2단. audit 는 여기서 만들어 둬야
-      // 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
-      approvals: { writer: '', reviewer: '', approver: '' },
+      // 전자결재 — 모니터링 담당(작성)·확인자(검토)·승인자(승인) 3단. 정본 인쇄
+      // 서명란(signBox)도 작성/검토/승인 3칸이라 여기서도 맞춘다. audit 는 여기서
+      // 만들어 둬야 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
       signoff: {},
       audit: [],
       locked: false,
@@ -44,14 +47,13 @@
 
   function syncApprovals() {
     if (!window.DkjApproval) return;
-    DkjApproval.bindFlat(state, { writer: 'monitorName', approver: 'confirmer' });
+    DkjApproval.bindFlat(state, { writer: 'monitorName', reviewer: 'confirmer', approver: 'approver' });
   }
 
   function mountApproval() {
     if (!window.DkjApproval || apvUi) return;
     apvUi = DkjApproval.mount({
-      stages: ['writer', 'approver'],
-      labels: { writer: '모니터링', approver: '확인' },
+      stages: ['writer', 'reviewer', 'approver'],
       getState: function () { readForm(); return state; },
       onChange: function () { scheduleDraft(); }
     });
@@ -62,7 +64,8 @@
   }
 
   function today() {
-    return new Date().toISOString().slice(0, 10);
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
   function nowTime() {
@@ -162,6 +165,7 @@
     state.disinfectant = $('disinfectant').value;
     state.productName = $('productName').value;
     state.lot = $('lot').value;
+    state.waterChangeTimes = $('waterChangeTimes').value;
     state.clMin = Number($('clMin').value) || 0;
     state.clMax = Number($('clMax').value) || 0;
     state.timeMin = Number($('timeMin').value) || 0;
@@ -169,6 +173,7 @@
     state.deviation = $('deviation').value;
     state.corrective = $('corrective').value;
     state.confirmer = $('confirmer').value;
+    state.approver = $('approver').value;
     state.remark = $('remark').value;
     syncApprovals();
   }
@@ -178,6 +183,7 @@
     $('disinfectant').value = state.disinfectant || 'NaOCl';
     $('productName').value = state.productName || '';
     $('lot').value = state.lot || '';
+    $('waterChangeTimes').value = state.waterChangeTimes || '';
     $('clMin').value = state.clMin;
     $('clMax').value = state.clMax;
     $('timeMin').value = state.timeMin;
@@ -185,6 +191,7 @@
     $('deviation').value = state.deviation || '';
     $('corrective').value = state.corrective || '';
     $('confirmer').value = state.confirmer || '';
+    $('approver').value = state.approver || '';
     $('remark').value = state.remark || '';
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
     renderRows();
@@ -246,8 +253,8 @@
     }
     el.innerHTML = list.map(function (r) {
       return '<div class="dkj-history-item">' +
-        '<div><strong>' + (r.workDate || '') + '</strong> · ' + (r.productName || '') + ' / ' + (r.lot || '') +
-        ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + (r.judge || '-') + '</span></div>' +
+        '<div><strong>' + esc(r.workDate || '') + '</strong> · ' + esc(r.productName || '') + ' / ' + esc(r.lot || '') +
+        ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + esc(r.judge || '-') + '</span></div>' +
         '<div style="display:flex;gap:6px;">' +
         '<button type="button" class="pill-btn ghost" data-load="' + r.id + '">불러오기</button>' +
         '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';
@@ -277,17 +284,20 @@
   }
 
   function bind() {
-    ['workDate', 'disinfectant', 'productName', 'lot', 'clMin', 'clMax', 'timeMin',
-      'monitorName', 'deviation', 'corrective', 'confirmer', 'remark'].forEach(function (id) {
+    ['workDate', 'disinfectant', 'productName', 'lot', 'waterChangeTimes', 'clMin', 'clMax', 'timeMin',
+      'monitorName', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var el = $(id);
-      el.addEventListener('input', function () {
+      var onFieldInput = function () {
         if (id === 'clMin' || id === 'clMax' || id === 'timeMin') {
           readForm();
           renderRows();
         }
+        readForm();
+        refreshApproval();
         scheduleDraft();
-      });
-      el.addEventListener('change', scheduleDraft);
+      };
+      el.addEventListener('input', onFieldInput);
+      el.addEventListener('change', onFieldInput);
     });
     $('btnAddRow').addEventListener('click', function () {
       if (state.locked) return;
@@ -319,6 +329,20 @@
         window.print();
       }
     });
+    if (window.DkjUtil) {
+      window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+        formId: FORM_ID,
+        hasChecks: false,
+        onClonePrev: function (cloned) {
+          if (state.locked) return;
+          state = Object.assign(emptyState(), cloned);
+          editingId = null;
+          writeForm();
+          scheduleDraft();
+        }
+      });
+      window.DkjUtil.attachChips(document);
+    }
   }
 
   function init() {
@@ -329,6 +353,11 @@
     renderHistory();
     mountApproval();
     refreshApproval();
+    if (window.DkjUtil) {
+      window.DkjUtil.autoFillUser(state, ['monitorName', 'confirmer', 'approver'], function () {
+        writeForm();
+      });
+    }
     setStatus('준비', false);
   }
 

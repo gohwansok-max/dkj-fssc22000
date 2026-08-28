@@ -3244,5 +3244,23 @@
       "enacted": "0",
       "revised": "현행후보"
     }
+  ],
+  "documents": [
+    {
+      "mdrRow": 26,
+      "id": "DKJ-P-21",
+      "code": "DKJ-P-21",
+      "title": "식품안전문화 절차서",
+      "rev": "Rev0",
+      "docType": "절차서",
+      "category": "procedure",
+      "workflowStatus": "완료",
+      "status": "운영중",
+      "filePath": "02_절차서/DKJ-P-21_식품안전문화_절차서_Rev0_20260820.docx",
+      "related": "FSC-01, DKJ-F-047",
+      "note": "FSSC22000 V6 추가요구사항 2.5.8 대응 제정 (2026.08.20)",
+      "enacted": "1",
+      "revised": "2026.08.20"
+    }
   ]
 }

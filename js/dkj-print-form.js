@@ -9,14 +9,6 @@
     return document.getElementById(id);
   }
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   function mark(v) {
     if (v === 'O' || v === '○' || v === '적합') return '○';
     if (v === 'X' || v === '×' || v === '부적합' || v === '이탈') return '×';
@@ -36,7 +28,7 @@
   }
 
   function headerHtml(t, state) {
-    var org = t.orgName || '동김제농협 가공센터';
+    var org = t.orgName || '동김제농협 산지유통센터';
     var docNo = t.docNo || '';
     var title = t.title || '';
     var rev = t.rev != null ? String(t.rev) : '0';
@@ -236,7 +228,7 @@
       '<div class="ps-page">' +
       headerHtml(t, state || {}) +
       body +
-      '<div class="ps-brand">' + esc(t.orgName || '동김제농협 가공센터') + ' · FSSC22000</div>' +
+      '<div class="ps-brand">' + esc(t.orgName || '동김제농협 산지유통센터') + ' · FSSC22000</div>' +
       '</div>';
     return sheet;
   }
@@ -264,7 +256,7 @@
       return {
         layout: formSpec.monMode === 'lux' ? 'mon-lux' : 'mon-th',
         monMode: formSpec.monMode || 'th',
-        orgName: '동김제농협 가공센터',
+        orgName: '동김제농협 산지유통센터',
         docNo: formSpec.code,
         title: formSpec.title,
         rev: '0',
@@ -276,7 +268,7 @@
     return {
       layout: 'ox',
       columnMode: formSpec.code === 'DKJ-S-02-03' || formSpec.code === 'DKJ-S-02-29' ? 'ampm' : 'result',
-      orgName: '동김제농협 가공센터',
+      orgName: '동김제농협 산지유통센터',
       docNo: formSpec.code,
       title: formSpec.title,
       rev: '0',

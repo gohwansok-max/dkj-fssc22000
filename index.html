@@ -4,46 +4,98 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#009a44">
-  <title>동김제농협 가공센터 | 스마트 HACCP 업무 콘솔</title>
+  <title>동김제농협 산지유통센터 | 스마트 HACCP 업무 콘솔</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dkj-tokens.css?v=13">
-  <link rel="stylesheet" href="css/dkj-console.css?v=13">
-  <link rel="manifest" href="manifest.json?v=13">
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=57">
+  <link rel="stylesheet" href="css/dkj-console.css?v=57">
+  <link rel="manifest" href="manifest.json?v=57">
+  <link rel="stylesheet" href="css/dkj-accessibility.css?v=57">
 </head>
 <body class="console-page">
 
+  <!-- 접근성: 스킵 네비게이션 -->
+  <a href="#ckShiftStatus" class="skip-nav">본문으로 바로가기</a>
+
   <header class="ck-header">
     <div class="ck-brand">
-      <img class="ck-symbol" src="assets/brand/nh-symbol.png" alt="농협"
-           onerror="this.outerHTML='&lt;div class=\'ck-symbol-fallback\'&gt;NH&lt;/div&gt;'">
-      <div class="ck-title">
-        <strong>동김제농협 가공센터</strong>
-        <span>스마트 HACCP · FSSC22000 V6</span>
-      </div>
+      <span class="ck-wordmark">
+        <img class="ck-wordmark-symbol" src="assets/brand/nh-symbol.svg" alt="">
+        <span class="ck-wordmark-name"><b>동김제농협</b><b>산지유통센터</b></span>
+      </span>
+      <span class="ck-tagline">스마트 HACCP · FSSC22000 V6</span>
     </div>
     <div class="ck-header-right">
       <span class="ck-today" id="ckDate">—</span>
+      <button type="button" class="ck-hbtn" id="btnHeaderLang" style="background:#fef9c3;color:#78350f;font-weight:900;border:1.5px solid #eab308;cursor:pointer;" title="언어 전환 (Tiếng Việt / 한국어)">🇻🇳 VN</button>
+      <a class="ck-hbtn primary" href="#todayTasks">오늘 할 일</a>
       <a class="ck-hbtn" href="records/DKJ-F-053.html">생산일지</a>
       <a class="ck-hbtn" href="production-dashboard.html">생산분석</a>
-      <a class="ck-hbtn" href="records-center.html">기록 목록</a>
+      <a class="ck-hbtn" href="records-center.html">기록 검색</a>
+      <a class="ck-hbtn" href="quality-dashboard.html">품질 경보</a>
       <a class="ck-hbtn" href="records-archive.html">기록보관함</a>
       <a class="ck-hbtn" href="docs-center.html">문서센터</a>
+      <button class="ck-hbtn ck-menu-toggle" id="ckMenuToggle" aria-label="메뉴 열기" aria-expanded="false">
+        <span class="ck-menu-icon">☰</span>
+      </button>
     </div>
   </header>
 
+  <!-- 햄버거 메뉴 오버레이 -->
+  <div class="ck-menu-overlay" id="ckMenuOverlay" aria-hidden="true">
+    <div class="ck-menu-panel">
+      <div class="ck-menu-header">
+        <h2>전체 메뉴</h2>
+        <button class="ck-menu-close" id="ckMenuClose" aria-label="메뉴 닫기">✕</button>
+      </div>
+      <div class="ck-menu-content">
+        <div class="ck-menu-section">
+          <h3>핵심 업무</h3>
+          <a href="index.html">업무 콘솔</a>
+          <a href="records-center.html">기록양식 작성</a>
+          <a href="records-archive.html">기록보관함</a>
+          <a href="quality-dashboard.html">품질 경보 현황</a>
+          <a href="periodic-alerts.html">정기 알림 관리</a>
+        </div>
+        <div class="ck-menu-section">
+          <h3>문서 & 관리</h3>
+          <a href="docs-center.html">문서센터</a>
+          <a href="official-documents.html">정본 열람실</a>
+          <a href="mdr-register.html">문서관리대장</a>
+          <a href="capa-management.html">CAPA 관리</a>
+        </div>
+        <div class="ck-menu-section">
+          <h3>품질 & 인증</h3>
+          <a href="traceability.html">추적성·모의회수</a>
+          <a href="fssc-audit-readiness.html">FSSC 심사준비</a>
+          <a href="management-culture.html">경영검토·식품안전문화</a>
+        </div>
+        <div class="ck-menu-section">
+          <h3>설정 & 시스템</h3>
+          <a href="haccp-team-settings.html">HACCP팀 설정</a>
+          <a href="executive-dashboard.html">임원 통합 현황</a>
+          <a href="system-settings.html" data-system-admin>시스템 설정</a>
+          <a href="company-profile.html">회사소개서</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <main class="ck-main">
 
-    <!-- 1. 오늘 작성할 일지 -->
-    <section class="ck-sec">
+    <!-- 1. 현장 우선 상태 -->
+    <section class="ck-sec ck-shift-status" id="ckShiftStatus" aria-live="polite"></section>
+
+    <!-- 2. 오늘 작성할 일지 -->
+    <section class="ck-sec" id="todayTasks">
       <div class="ck-sec-head">
         <h2>오늘 작성할 일지</h2>
-        <p>매일 작성해야 하는 서식입니다</p>
+        <p id="ckTodaySubtitle">생산일 기준으로 작성 의무가 자동 계산됩니다</p>
         <span class="ck-count" id="ckTodayCount">—</span>
       </div>
       <div class="ck-tiles" id="ckToday"></div>
     </section>
 
-    <!-- 2. 현황 -->
+    <!-- 3. 현황 -->
     <section class="ck-sec">
       <div class="ck-sec-head">
         <h2>작성 현황</h2>
@@ -53,13 +105,13 @@
 
         <div class="ck-card">
           <h3>서식별 최근 7일 작성률</h3>
-          <p class="ck-sub">85% 미만은 노랑, 50% 미만은 빨강으로 표시됩니다</p>
+          <p class="ck-sub" id="ckRateRule">최근 7일 중 생산일에 작성 의무가 있던 날을 기준으로 계산합니다</p>
           <div class="ck-bars" id="ckBars"></div>
         </div>
 
         <div class="ck-card">
           <h3>최근 7일 완료 추이</h3>
-          <p class="ck-sub">하루에 마쳐야 할 일지 대비 완료 건수</p>
+          <p class="ck-sub">생산일에 마쳐야 할 일지 대비 완료 건수</p>
           <div class="ck-week" id="ckWeekDots"></div>
           <div class="ck-kpi ok" style="margin-top:14px;">
             <b id="kpiDone">0 / 0</b><span>오늘 완료</span>
@@ -67,10 +119,12 @@
         </div>
 
         <div class="ck-card">
-          <h3>주의 항목</h3>
-          <p class="ck-sub">오늘 처리해야 할 건</p>
-          <div class="ck-kpi todo"><b id="kpiTodo">0</b><span>미작성</span></div>
+          <h3>우선 처리 경보</h3>
+          <p class="ck-sub">긴급도 순서대로 처리하세요</p>
+          <div class="ck-kpi ng"><b id="kpiUrgent">0</b><span>즉시 확인</span></div>
+          <div class="ck-kpi todo"><b id="kpiTodo">0</b><span>오늘 미작성</span></div>
           <div class="ck-kpi ng"><b id="kpiNg">0</b><span>부적합 발생</span></div>
+          <div class="ck-alert-list" id="ckAlerts"></div>
         </div>
 
       </div>
@@ -95,10 +149,7 @@
           </div>
           <div id="ckCalGrid"></div>
           <div class="ck-cal-summary" id="ckCalSummary"></div>
-          <p class="ck-cal-note">
-            매일 작성 서식 기준입니다. 생산이 없던 날은 기록이 없는 것이 정상이므로,
-            <strong>기록 없음</strong>은 생산일 여부와 함께 확인하세요.
-          </p>
+          <p class="ck-cal-note" id="ckCalNote">생산일에만 작성 의무를 계산합니다. 달력에서 날짜별 생산일·비생산일을 지정할 수 있습니다.</p>
         </div>
 
         <div class="ck-card">
@@ -130,19 +181,42 @@
     <section class="ck-sec">
       <div class="ck-sec-head">
         <h2>최근 저장된 기록</h2>
+        <p>최근 저장 기록을 검색·필터링합니다</p>
       </div>
       <div class="ck-card">
+        <div class="ck-recent-tools">
+          <input type="search" id="ckRecentSearch" placeholder="서식명·문서번호·내용 검색" aria-label="최근 기록 검색">
+          <select id="ckRecentFilter" aria-label="최근 기록 상태 필터">
+            <option value="all">전체 기록</option>
+            <option value="today">오늘 저장</option>
+            <option value="ng">부적합만</option>
+          </select>
+        </div>
         <div class="ck-list" id="ckRecent"></div>
       </div>
     </section>
 
   </main>
 
-  <script src="js/dkj-firebase-config.js?v=13"></script>
-  <script src="js/dkj-auth.js?v=13"></script>
-  <script src="js/dkj-cloud-sync.js?v=13"></script>
-  <script src="js/dkj-calendar.js?v=13"></script>
-  <script src="js/dkj-console.js?v=13"></script>
-  <script src="js/dkj-pwa.js?v=13"></script>
+  <script src="js/dkj-util.js?v=57"></script>
+  <script src="js/dkj-firebase-config.js?v=57"></script>
+  <script src="js/dkj-auth.js?v=57"></script>
+  <script src="js/dkj-cloud-sync.js?v=57"></script>
+  <script src="js/dkj-telegram-config.js?v=57"></script>
+  <script src="js/dkj-calendar.js?v=57"></script>
+  <script src="js/dkj-console.js?v=57"></script>
+  <script src="js/dkj-chatbot.js?v=57"></script>
+  <script src="js/dkj-pwa.js?v=57"></script>
+  <script src="js/dkj-menu.js?v=57"></script>
+  <script>
+    // 기존 현장 기기도 화면 진입 즉시 최신 서비스워커를 확인한다.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(function (reg) {
+        if (reg) reg.update().catch(function () {});
+      });
+    }
+  </script>
+  <script src="js/dkj-i18n.js?v=57"></script>
+  <script src="js/dkj-accessibility.js?v=57"></script>
 </body>
 </html>

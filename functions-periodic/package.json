@@ -1,0 +1,14 @@
+{
+  "name": "dkj-fssc22000-periodic-email",
+  "private": true,
+  "version": "1.0.0",
+  "description": "동김제농협 정기 관리 이메일 예약 Firebase Functions",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.1"
+  }
+}

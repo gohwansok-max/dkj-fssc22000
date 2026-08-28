@@ -13,11 +13,6 @@
 
   function $(id) { return document.getElementById(id); }
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   function catalogPath(formId) {
     var cat = window.DKJ_RECORD_CATALOG;
     var hit = cat && cat.records
@@ -140,8 +135,11 @@
       $(id).addEventListener('change', apply);
     });
     ['arcWriter', 'arcQuery'].forEach(function (id) {
-      $(id).addEventListener('input', apply);
+      $(id).addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') apply();
+      });
     });
+    $('arcSearch').addEventListener('click', apply);
 
     $('arcAll').addEventListener('change', function () {
       selected = {};

@@ -37,11 +37,11 @@
       checks: checks,
       judge: '',
       action: '입고',
-      inspector: '',
-      confirmer: '',
+      inspector: '이다은',
+      confirmer: '권화선',
       remark: '',
       // 전자결재 — 검사자·확인자 2단
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '', approver: '권화선' },
       signoff: {},
       audit: []
     };
@@ -73,7 +73,8 @@
   }
 
   function today() {
-    return new Date().toISOString().slice(0, 10);
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
   function $(id) { return document.getElementById(id); }
@@ -235,10 +236,15 @@
     }
     if (editingId) data.id = editingId;
     data.locked = !!lock;
+    // 기록보관함·엑셀의 '기록제목' 칸에 쓰인다. 없으면 목록에서 어느 입고 건인지 구분이 안 된다.
+    data.title = '원부자재 입고검사' +
+      (data.itemName ? ' · ' + data.itemName : '') +
+      (data.lot ? ' ' + data.lot : '');
     var saved = DkjRecordStore.save(FORM_ID, data);
     editingId = saved.id;
     setStatus(lock ? '작성완료 저장됨' : '저장 완료', true);
     refreshApproval();
+    showTraceBanner(true, saved);
     renderHistory();
     if (data.judge === '부적합') {
       showFr015Banner(true, saved.id);
@@ -272,6 +278,23 @@
         '&supplier=' + encodeURIComponent(data.supplier || '') +
         '&receiveDate=' + encodeURIComponent(data.receiveDate || '');
       link.href = 'DKJ-STORE-01.html?' + q;
+    }
+  }
+
+  function showTraceBanner(show, data) {
+    var el = $('traceBanner');
+    var link = $('traceLink');
+    if (el) el.hidden = !show;
+    if (link && data) {
+      var q = 'from014=' + encodeURIComponent(data.id || '') +
+        '&lot=' + encodeURIComponent(data.lot || '') +
+        '&item=' + encodeURIComponent(data.itemName || '') +
+        '&supplier=' + encodeURIComponent(data.supplier || '') +
+        '&qty=' + encodeURIComponent(data.qty || '') +
+        '&unit=' + encodeURIComponent(data.unit || 'kg') +
+        '&date=' + encodeURIComponent(data.receiveDate || '') +
+        '&mode=quick';
+      link.href = '../traceability.html?' + q;
     }
   }
 
@@ -321,9 +344,9 @@
     el.innerHTML = list.slice(0, 20).map(function (r) {
       var badge = r.judge === '적합' ? 'done' : 'wip';
       return '<div class="dkj-history-item">' +
-        '<div class="meta"><strong>' + (r.itemName || '-') + '</strong>' +
-        r.receiveDate + ' · ' + (r.supplier || '') + ' · LOT ' + (r.lot || '') +
-        ' <span class="badge ' + badge + '">' + (r.judge || '-') + '</span></div>' +
+        '<div class="meta"><strong>' + esc(r.itemName || '-') + '</strong>' +
+        esc(r.receiveDate || '') + ' · ' + esc(r.supplier || '') + ' · LOT ' + esc(r.lot || '') +
+        ' <span class="badge ' + badge + '">' + esc(r.judge || '-') + '</span></div>' +
         '<div style="display:flex;gap:6px;">' +
           '<button type="button" class="pill-btn ghost" data-edit="' + r.id + '">불러오기</button>' +
           '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button>' +
@@ -340,6 +363,7 @@
           $('btnLock').disabled = !!rec.locked;
           showFr015Banner(rec.judge === '부적합', rec.id);
           showStoreBanner(rec.judge === '적합', rec);
+          showTraceBanner(true, rec);
         }
       });
     });
@@ -359,6 +383,7 @@
     $('btnLock').disabled = false;
     showFr015Banner(false);
     showStoreBanner(false);
+    showTraceBanner(false);
     setStatus('새 입고 작성', false);
   }
 
@@ -377,14 +402,13 @@
       if (confirm('작성완료 후에는 수정이 제한됩니다. 완료할까요?')) saveRecord(true);
     });
     $('btnNew').addEventListener('click', newEntry);
-    if (!window._dkjDoPrintReady) { window._dkjDoPrintReady = true; }
 
   function dkjDoPrint() {
     var st = (typeof collect === 'function') ? collect() : (typeof state !== 'undefined' ? state : {});
     if (window.DkjPrint) {
       DkjPrint.print({
         layout: 'official-fr014',
-        orgName: '동김제농협 가공센터',
+        orgName: '동김제농협 산지유통센터',
         docNo: 'FR-014',
         title: '원부자재 입고검사 기록',
         rev: '0',
@@ -413,6 +437,33 @@
       scheduleDraft();
     }, state.linkedProduct);
 
+    if (window.DkjUtil) {
+      window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+        formId: FORM_ID,
+        hasChecks: true,
+        onAllPass: function () {
+          if (state.locked) return;
+          CHECK_ITEMS.forEach(function (it) { state.checks[it.key] = 'O'; });
+          state.judge = '적합';
+          renderCheckGrid();
+          renderJudgeButtons();
+          scheduleDraft();
+        },
+        onClonePrev: function (cloned) {
+          if (state.locked) return;
+          fillForm(cloned);
+          editingId = null;
+          state.receiveDate = today();
+          $('receiveDate').value = state.receiveDate;
+          scheduleDraft();
+        }
+      });
+      window.DkjUtil.attachChips(document);
+      window.DkjUtil.autoFillUser(state, ['inspector', 'confirmer'], function () {
+        fillForm(state);
+      });
+    }
+
     var params = new URLSearchParams(location.search);
     var loadId = params.get('id');
     if (loadId) {
@@ -421,6 +472,9 @@
         editingId = rec.id;
         fillForm(rec);
         $('btnLock').disabled = !!rec.locked;
+        showFr015Banner(rec.judge === '부적합', rec.id);
+        showStoreBanner(rec.judge === '적합', rec);
+        showTraceBanner(true, rec);
       }
     }
 

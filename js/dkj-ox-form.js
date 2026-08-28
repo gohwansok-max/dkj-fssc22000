@@ -6,7 +6,8 @@
   'use strict';
 
   function today() {
-    return new Date().toISOString().slice(0, 10);
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
   function $(id) {
@@ -24,10 +25,10 @@
       checks: checks,
       judge: '',
       corrective: '',
-      inspector: '',
-      confirmer: '',
+      inspector: '이다은',
+      confirmer: '권화선',
       // O/X 일보는 점검자·확인자 2단이다. 결재 패널이 읽는 approvals 로 readForm 에서 미러링한다.
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '', approver: '권화선' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
@@ -44,6 +45,7 @@
     if (spec.defaults) {
       Object.keys(spec.defaults).forEach(function (k) { st[k] = spec.defaults[k]; });
     }
+    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['inspector', 'confirmer', 'writer']);
     return st;
   }
 
@@ -206,7 +208,7 @@
     }
 
     function historyMeta(r) {
-      return historyKeys.map(function (k) { return r[k] || ''; }).filter(Boolean).join(' · ');
+      return historyKeys.map(function (k) { return r[k] || ''; }).filter(Boolean).map(esc).join(' · ');
     }
 
     function renderHistory() {
@@ -219,7 +221,7 @@
       }
       el.innerHTML = list.map(function (r) {
         return '<div class="dkj-history-item"><div><strong>' + historyMeta(r) + '</strong>' +
-          ' <span class="badge ' + (r.judge === '적합' ? 'done' : 'wip') + '">' + (r.judge || '-') + '</span></div>' +
+          ' <span class="badge ' + (r.judge === '적합' ? 'done' : 'wip') + '">' + esc(r.judge || '-') + '</span></div>' +
           '<div style="display:flex;gap:6px;">' +
           '<button type="button" class="pill-btn ghost" data-load="' + r.id + '">불러오기</button>' +
           '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';
@@ -252,8 +254,13 @@
       ids.forEach(function (id) {
         var el = $(id);
         if (!el) return;
-        el.addEventListener('input', scheduleDraft);
-        el.addEventListener('change', scheduleDraft);
+        var onFieldInput = function () {
+          readForm();
+          refreshApproval();
+          scheduleDraft();
+        };
+        el.addEventListener('input', onFieldInput);
+        el.addEventListener('change', onFieldInput);
       });
       if ($('judgeOk')) {
         $('judgeOk').addEventListener('click', function () {
@@ -293,6 +300,28 @@
           }
         });
       }
+      if (global.DkjUtil) {
+        global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+          formId: FORM_ID,
+          hasChecks: ITEMS.length > 0,
+          onAllPass: function () {
+            if (state.locked) return;
+            ITEMS.forEach(function (it) { state.checks[it.key] = 'O'; });
+            state.judge = '적합';
+            renderOxGrid();
+            renderJudge();
+            scheduleDraft();
+          },
+          onClonePrev: function (cloned) {
+            if (state.locked) return;
+            state = Object.assign(emptyState(spec), cloned);
+            editingId = null;
+            writeForm();
+            scheduleDraft();
+          }
+        });
+        global.DkjUtil.attachChips(document);
+      }
     }
 
     function init() {
@@ -314,6 +343,11 @@
       renderHistory();
       mountApproval();
       refreshApproval();
+      if (global.DkjUtil) {
+        global.DkjUtil.autoFillUser(state, ['inspector', 'confirmer', 'writer'], function () {
+          writeForm();
+        });
+      }
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {

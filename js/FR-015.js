@@ -40,12 +40,12 @@
       notifySupplier: '예',
       reasons: reasons,
       reasonText: '',
-      handler: '',
-      approver: '',
+      handler: '이다은',
+      approver: '최민재',
       remark: '',
       carRequired: '아니오',
       // 전자결재 — 처리담당자·승인자 2단
-      approvals: { writer: '', reviewer: '', approver: '' },
+      approvals: { writer: '이다은', reviewer: '', approver: '최민재' },
       signoff: {},
       audit: []
     };
@@ -77,7 +77,8 @@
   }
 
   function today() {
-    return new Date().toISOString().slice(0, 10);
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
   function $(id) { return document.getElementById(id); }
@@ -235,6 +236,10 @@
     if (err) { alert(err); return; }
     if (editingId) data.id = editingId;
     data.locked = !!lock;
+    // 기록보관함·엑셀의 '기록제목' 칸에 쓰인다. 없으면 목록에서 어느 부적합 건인지 구분이 안 된다.
+    data.title = '부적합 원부자재 처리' +
+      (data.itemName ? ' · ' + data.itemName : '') +
+      (data.lot ? ' ' + data.lot : '');
     var saved = DkjRecordStore.save(FORM_ID, data);
     editingId = saved.id;
     setStatus(lock ? '작성완료' : '저장 완료', true);
@@ -254,8 +259,8 @@
       return;
     }
     el.innerHTML = list.slice(0, 15).map(function (r) {
-      return '<div class="dkj-history-item"><div class="meta"><strong>' + (r.itemName || '-') + '</strong>' +
-        r.processDate + ' · ' + (r.disposition || '') + ' · LOT ' + (r.lot || '') +
+      return '<div class="dkj-history-item"><div class="meta"><strong>' + esc(r.itemName || '-') + '</strong>' +
+        esc(r.processDate || '') + ' · ' + esc(r.disposition || '') + ' · LOT ' + esc(r.lot || '') +
         '</div><div style="display:flex;gap:6px;">' +
         '<button type="button" class="pill-btn ghost" data-edit="' + r.id + '">불러오기</button>' +
         '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';
@@ -309,14 +314,13 @@
       $('btnLock').disabled = false;
       $('carBanner').hidden = true;
     });
-    if (!window._dkjDoPrintReady) { window._dkjDoPrintReady = true; }
 
   function dkjDoPrint() {
     var st = (typeof collect === 'function') ? collect() : (typeof state !== 'undefined' ? state : {});
     if (window.DkjPrint) {
       DkjPrint.print({
         layout: 'official-fr015',
-        orgName: '동김제농협 가공센터',
+        orgName: '동김제농협 산지유통센터',
         docNo: 'FR-015',
         title: '부적합 원부자재 처리기록',
         rev: '0',
@@ -348,6 +352,26 @@
       }
       scheduleDraft();
     });
+
+    if (window.DkjUtil) {
+      window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+        formId: FORM_ID,
+        hasChecks: false,
+        onClonePrev: function (cloned) {
+          if (state.locked) return;
+          editingId = null;
+          state = Object.assign(emptyState(), cloned);
+          state.occurDate = today();
+          syncToForm();
+          renderReasons();
+          scheduleDraft();
+        }
+      });
+      window.DkjUtil.attachChips(document);
+      window.DkjUtil.autoFillUser(state, ['handler', 'writer', 'approver'], function () {
+        syncToForm();
+      });
+    }
 
     renderHistory();
   }

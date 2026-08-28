@@ -17,6 +17,8 @@
 /* global DKJ_PRECACHE, DKJ_SW_VERSION */
 'use strict';
 
+// 배포 식별자: 정적 자산 UI 수정도 기존 현장 기기의 서비스워커 갱신을 즉시 유도한다.
+var DKJ_DEPLOY_MARKER = '20260821-operation-calendar-v56';
 importScripts('sw-precache.js');
 
 var VERSION = self.DKJ_SW_VERSION || 'v1-dev';
@@ -117,6 +119,20 @@ function networkFirst(request) {
   });
 }
 
+function networkFirstStatic(request) {
+  return fetch(request).then(function (res) {
+    if (isCacheable(res)) {
+      var copy = res.clone();
+      caches.open(RUNTIME_CACHE).then(function (c) { c.put(request, copy); });
+    }
+    return res;
+  })['catch'](function () {
+    return matchShell(request).then(function (hit) {
+      return hit || Response.error();
+    });
+  });
+}
+
 function cacheFirst(request, cacheName) {
   return caches.match(request, { ignoreSearch: true }).then(function (hit) {
     var fetching = fetch(request).then(function (res) {
@@ -157,6 +173,21 @@ self.addEventListener('fetch', function (e) {
 
   if (request.mode === 'navigate') {
     e.respondWith(networkFirst(request));
+    return;
+  }
+
+  // 메뉴 카탈로그는 신규 메뉴가 즉시 보이도록 온라인에서는 항상 최신본을 쓴다.
+  // 네트워크가 끊긴 경우에만 기존 프리캐시·런타임 캐시로 대체한다.
+  if (url.pathname.endsWith('/data/menu-catalog.json') ||
+      url.pathname.endsWith('/js/menu-catalog.bundle.js')) {
+    e.respondWith(networkFirstStatic(request));
+    return;
+  }
+
+  // 업무 화면의 검증·저장 로직은 최신본을 우선 적용한다. 오프라인일 때만 캐시로 대체해
+  // 캐시된 이전 스크립트가 새 화면 HTML과 엇갈리는 문제를 예방한다.
+  if (/\.(?:js|css)$/i.test(url.pathname)) {
+    e.respondWith(networkFirstStatic(request));
     return;
   }
 

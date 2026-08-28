@@ -13,12 +13,6 @@
 (function (global) {
   'use strict';
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   function nl2br(s) { return esc(s).replace(/\n/g, '<br>'); }
 
   function headHtml(spec, state) {
@@ -126,7 +120,7 @@
       '<section class="mx-page rp-page">' +
       headHtml(spec, st) + body +
       (spec.legend ? '<div class="off-box tiny">' + esc(spec.legend) + '</div>' : '') +
-      '<div class="off-foot">' + esc(spec.orgName || '동김제농협 가공센터') +
+      '<div class="off-foot">' + esc(spec.orgName || '동김제농협 산지유통센터') +
       ' · ' + esc(spec.docNo || '') + '</div>' +
       '</section></div>';
   }

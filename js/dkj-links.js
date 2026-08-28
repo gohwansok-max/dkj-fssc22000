@@ -5,7 +5,7 @@
 (function (global) {
   'use strict';
 
-  var cache = { records: null, docs: null, pdf: null, assets: null };
+  var cache = { records: null, docs: null, pdf: null, assets: null, drive: null };
 
   function fetchJson(url) {
     return fetch(url).then(function (r) {
@@ -97,14 +97,84 @@
     });
   }
 
+  /** Google Drive 정본 문서 매니페스트. 기존 로컬 PDF가 없어도 Drive PDF를 우선 사용한다. */
+  function loadDriveDocuments() {
+    if (cache.drive) return Promise.resolve(cache.drive);
+    if (global.DKJ_DRIVE_DOCUMENTS) {
+      cache.drive = global.DKJ_DRIVE_DOCUMENTS;
+      return Promise.resolve(cache.drive);
+    }
+    return fetchJson('data/drive-document-manifest.json').then(function (d) {
+      cache.drive = d;
+      return d;
+    }).catch(function () {
+      return loadScriptBundle('js/drive-document-manifest.bundle.js', 'DKJ_DRIVE_DOCUMENTS', { documents: [] }).then(function (d) {
+        cache.drive = d;
+        return d;
+      });
+    });
+  }
+
+  function driveDocumentFor(docId, docCode) {
+    return loadDriveDocuments().then(function (manifest) {
+      var wanted = String(docCode || docId || '').toUpperCase();
+      var matches = (manifest.documents || []).filter(function (doc) {
+        return String(doc.code || '').toUpperCase() === wanted || doc.id === docId;
+      });
+      if (!matches.length) return null;
+      return matches.find(function (doc) { return doc.fileType !== 'pdf' && doc.pdf; }) ||
+        matches.find(function (doc) { return doc.fileType === 'pdf'; }) || matches[0];
+    });
+  }
+
   function getPdfPath(docId, docCode) {
-    return Promise.all([loadPdfManifest(), loadDocAssets()]).then(function (res) {
-      var m = res[0];
-      var a = res[1];
-      var hit = (m.files || []).find(function (f) { return f.id === docId || f.id === docCode; });
-      if (hit && hit.pdf) return hit.pdf;
-      var byMap = (a.map || {})[docId] || (a.map || {})[docCode];
-      return byMap && byMap.pdf ? byMap.pdf : null;
+    return driveDocumentFor(docId, docCode).then(function (driveDoc) {
+      if (driveDoc) {
+        var pdf = driveDoc.fileType === 'pdf' ? driveDoc : driveDoc.pdf;
+        if (pdf && pdf.previewUrl) return pdf.previewUrl;
+      }
+      return Promise.all([loadPdfManifest(), loadDocAssets()]).then(function (res) {
+        var m = res[0];
+        var a = res[1];
+        var hit = (m.files || []).find(function (f) { return f.id === docId || f.id === docCode; });
+        if (hit && hit.pdf) return hit.pdf;
+        var byMap = (a.map || {})[docId] || (a.map || {})[docCode];
+        return byMap && byMap.pdf ? byMap.pdf : null;
+      });
+    });
+  }
+
+  /**
+   * 정본 PDF 가 있는 문서의 id·code 를 한 번에 모아 { 'DKJ-P-01': true, … } 로 돌려준다.
+   * 목록 화면이 문서 143건마다 getPdfPath 를 부르지 않아도 되게 하기 위함
+   * (읽는 파일은 어차피 매니페스트·자산 두 개뿐이라 한 번이면 된다).
+   */
+  function pdfIndex() {
+    return Promise.all([loadPdfManifest(), loadDocAssets(), loadDriveDocuments()]).then(function (res) {
+      var out = {};
+      ((res[0] && res[0].files) || []).forEach(function (f) {
+        if (f && f.id && f.pdf) out[f.id] = true;
+      });
+      var map = (res[1] && res[1].map) || {};
+      Object.keys(map).forEach(function (k) {
+        if (map[k] && map[k].pdf) out[k] = true;
+      });
+      ((res[2] && res[2].documents) || []).forEach(function (doc) {
+        if (!doc || !doc.code) return;
+        if (doc.fileType === 'pdf' || doc.pdf) out[doc.code] = true;
+      });
+      return out;
+    });
+  }
+
+  /** Drive에 원본 또는 PDF가 있는 문서 코드의 색인. */
+  function driveIndex() {
+    return loadDriveDocuments().then(function (manifest) {
+      var out = {};
+      (manifest.documents || []).forEach(function (doc) {
+        if (doc && doc.code) out[doc.code] = true;
+      });
+      return out;
     });
   }
 
@@ -147,7 +217,11 @@
     loadDocs: loadDocs,
     loadPdfManifest: loadPdfManifest,
     loadDocAssets: loadDocAssets,
+    loadDriveDocuments: loadDriveDocuments,
+    driveDocumentFor: driveDocumentFor,
     getPdfPath: getPdfPath,
+    pdfIndex: pdfIndex,
+    driveIndex: driveIndex,
     recordsForProcedure: recordsForProcedure,
     proceduresForRecord: proceduresForRecord,
     sopsForRecord: sopsForRecord,

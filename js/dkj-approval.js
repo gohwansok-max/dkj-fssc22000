@@ -52,16 +52,38 @@
     { key: 'approver', label: '승인', role: '승인자' }
   ];
 
+  /* ---------- 서명 주체 ----------
+     결재 서명은 '지금 로그인한 사람'으로 남긴다. 폼의 결재자 이름 칸은 누구나 아무 이름이나
+     타이핑할 수 있어서, 그 값으로 서명하면 남의 이름을 빌린 결재를 막을 수 없다.
+     로그인 세션(DkjAuth)이 있으면 그 이름·사번이 서명 주체이고, 폼에 적힌 이름은
+     claimed 로 함께 남겨 둔다(둘이 다르면 심사에서 확인할 수 있게).
+
+     클라우드 미설정 상태(파일럿 준비 중)에서는 로그인 자체가 없으므로 종전처럼
+     폼에 적힌 이름으로 서명한다 — 그때는 signer.source 가 'form' 으로 남는다. */
+  function me() {
+    try {
+      return (global.DkjAuth && global.DkjAuth.user()) || null;
+    } catch (e) { return null; }
+  }
+
+  /** 감사이력·서명에 쓸 표기 — '홍길동(1234)' */
+  function whoLabel(u) {
+    if (!u) return '';
+    return u.empId ? u.name + '(' + u.empId + ')' : u.name;
+  }
+
   /* ---------- 감사이력 ---------- */
 
   /** 기록에 항목을 덧붙인다. 기존 항목은 절대 수정하지 않는다. */
   function append(state, action, by, detail) {
     if (!state.audit || !Array.isArray(state.audit)) state.audit = [];
     var prev = state.audit.length ? state.audit[state.audit.length - 1].hash : 'GENESIS';
+    var actor = me();
     var e = {
       at: nowIso(),
       action: action,
       by: by || '',
+      actorUid: (actor && actor.uid) || '',
       detail: detail || ''
     };
     e.prev = prev;
@@ -105,22 +127,258 @@
     return state;
   }
 
+  /* ---------- 잠금 후 내용 변경 차단 ----------
+     작성완료(잠금)된 기록을 '불러오기' 로 다시 열면 텍스트 입력칸에는 잠금 가드가 없어서
+     내용을 고친 뒤 저장/작성완료 버튼을 다시 누르면 같은 id 로 조용히 덮어써졌다.
+     다만 검토·승인 결재는 잠긴 기록을 다시 저장해야 신호(signoff)가 남는 구조라
+     재저장 자체를 막을 수는 없다 — 결재·이력 관련 필드만 예외로 두고
+     나머지 필드가 하나라도 달라지면 막는다. */
+  var UNLOCKED_SAVE_FIELDS = { signoff: 1, audit: 1, updatedAt: 1, updatedBy: 1, updatedByEmpId: 1, locked: 1 };
+
+  function sameLockedContent(prev, next) {
+    var keys = {}, k;
+    for (k in prev) keys[k] = 1;
+    for (k in next) keys[k] = 1;
+    for (k in keys) {
+      if (UNLOCKED_SAVE_FIELDS[k]) continue;
+      if (JSON.stringify(prev[k]) !== JSON.stringify(next[k])) return false;
+    }
+    return true;
+  }
+
   /* ---------- 저장 훅 ----------
-     세 엔진(matrix/ledger/report)이 모두 DkjRecordStore.save 를 쓴다.
+     모든 엔진·서식별 스크립트가 DkjRecordStore.save 를 쓴다.
      엔진을 각각 고치는 대신 저장 지점 한 곳에서 이력을 남긴다. */
   function installHook() {
     if (!global.DkjRecordStore || global.DkjRecordStore.__auditHooked) return;
     var orig = global.DkjRecordStore.save;
     global.DkjRecordStore.save = function (formId, record) {
+      var prev = record.id ? this.get(formId, record.id) : null;
+      if (prev && prev.locked && (!record.locked || !sameLockedContent(prev, record))) {
+        try { global.alert('작성완료(잠금)된 기록의 내용은 수정할 수 없습니다. 결재(서명)는 계속 진행할 수 있습니다.'); } catch (e) { /* alert 불가 환경 무시 */ }
+        return prev;
+      }
       try {
-        var by = (record.approvals && record.approvals.writer) || record.inspector ||
-                 (record.info && record.info.inspector) || '';
+        // 저장한 사람도 로그인 세션을 우선한다 — 폼에 적힌 이름은 누구나 바꿀 수 있다.
+        var u = me();
+        var by = u ? whoLabel(u)
+                   : ((record.approvals && record.approvals.writer) || record.inspector ||
+                      (record.info && record.info.inspector) || '');
         append(record, record.locked ? 'LOCK' : 'SAVE',
                by, record.locked ? '작성완료(잠금)' : '저장');
       } catch (e) { /* 이력 실패가 저장을 막지 않는다 */ }
       return orig.call(this, formId, record);
     };
     global.DkjRecordStore.__auditHooked = true;
+  }
+
+  /* ---------- 삭제 차단 ----------
+     작성완료(잠금)된 기록은 지울 수 없어야 한다 — 지금까지는 각 서식의 '최근 기록'
+     삭제 버튼이 잠금 여부를 보지 않고 DkjRecordStore.remove 를 그대로 불렀다.
+     모든 서식이 이 store 하나를 거치므로, 저장 훅과 같은 방식으로 여기 한 곳만 막는다. */
+  function installRemoveGuard() {
+    if (!global.DkjRecordStore || global.DkjRecordStore.__removeGuarded) return;
+    var orig = global.DkjRecordStore.remove;
+    global.DkjRecordStore.remove = function (formId, id) {
+      var rec = this.get(formId, id);
+      if (rec && rec.locked) {
+        try { global.alert('작성완료(잠금)된 기록은 삭제할 수 없습니다.'); } catch (e) { /* alert 불가 환경 무시 */ }
+        return false;
+      }
+      return orig.call(this, formId, id);
+    };
+    global.DkjRecordStore.__removeGuarded = true;
+  }
+
+  function staffOptions() {
+    var rows = [];
+    var seen = {};
+    function add(empId, name, role) {
+      var label = String(name || '').trim();
+      var id = String(empId || '').trim();
+      if (!label && id) label = '사번 ' + id;
+      if (!label || seen[label]) return;
+      seen[label] = true;
+      var roleText = role ? ' · ' + role : '';
+      rows.push({ value: label, label: label + (id ? ' (' + id + roleText + ')' : '') });
+    }
+    // 기본 상주 인원
+    add('0001', '이다은', '작업자');
+    add('0002', '권화선', '관리자');
+    add('0003', '최민재', '책임자');
+    add('4343', '관리자', '시스템 관리자');
+
+    try {
+      var fixed = global.DkjAuth && global.DkjAuth.staff && global.DkjAuth.staff();
+      Object.keys(fixed || {}).forEach(function (id) {
+        var item = fixed[id] || {};
+        add(id, item.name, item.role);
+      });
+    } catch (e) {}
+    try {
+      var current = me();
+      if (current) add(current.empId, current.name, current.role);
+    } catch (e) {}
+    return rows;
+  }
+
+  function isPersonnelInput(el) {
+    if (!el || el.tagName !== 'INPUT') return false;
+    var type = (el.type || 'text').toLowerCase();
+    if (type !== 'text' && type !== '' && type !== 'search') return false;
+    if (el.readOnly || el.disabled) return false;
+
+    var id = (el.id || '').toLowerCase();
+    var name = (el.name || '').toLowerCase();
+    var ph = (el.placeholder || '').toLowerCase();
+
+    var explicitIds = [
+      'writer', 'reviewer', 'approver', 'inspector', 'confirmer', 'monitorname',
+      'owner', 'containmentowner', 'correctiveowner', 'actionowner', 'verifier',
+      'drillwriter', 'drillreviewer', 'drillcorrectiveowner', 'leader', 'evaluator',
+      'chair', 'chairperson', 'reviewowner', 'cultureowner', 'trainer', 'worker',
+      'operator', 'contact', 'arcwriter', 'inspectorname', 'confirmername',
+      'workername', 'driller', 'auditor', 'cleaner', 'driver', 'immediateowner',
+      'actionmanager', 'personincharge', 'checkperson', 'workperson', 'author',
+      'surveyor', 'investigator', 'reporter'
+    ];
+
+    if (explicitIds.indexOf(id) !== -1 || explicitIds.indexOf(name) !== -1) return true;
+
+    if (ph.indexOf('성명') !== -1 || ph.indexOf('작성자') !== -1 || ph.indexOf('담당자') !== -1 || ph.indexOf('직책') !== -1) {
+      return true;
+    }
+
+    var label = null;
+    if (el.id) {
+      label = document.querySelector('label[for="' + el.id + '"]');
+    }
+    if (!label) {
+      var parent = el.closest('.field') || el.closest('label') || el.parentElement;
+      if (parent) {
+        label = parent.querySelector('label') || (parent.tagName === 'LABEL' ? parent : null);
+      }
+    }
+
+    if (label) {
+      var text = (label.textContent || '').replace(/\*/g, '').trim();
+      var excludeWords = ['일자', '시간', '장소', '상자', '하자', '자재', '자원', '의자', '상태', '결과', '내용', '내역', '사유', '기준', '장비', '단위', '수량', '위치', '방법', '주기', '품목', '공정', '번호', '기간', '서식', '사진', '파일', 'lot', '코드', '온도', '습도', '압력', '규격', '목표', '경로'];
+      if (excludeWords.some(function(w) { return text.toLowerCase().indexOf(w) !== -1; })) {
+        return false;
+      }
+      var personWords = ['작성자', '검토자', '승인자', '확인자', '점검자', '검사자', '담당자', '책임자', '작업자', '교육자', '평가자', '주재자', '조치자', '입고자', '출고자', '기록자', '실시자', '조사자', '입력자', '보고자', '총괄', '책임', '작성', '검토', '승인', '확인', '점검'];
+      if (personWords.some(function(w) { return text.indexOf(w) !== -1; })) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function transformInputToStaffSelect(input, options) {
+    if (!input) return null;
+    var currentValue = input.value || '';
+    var select = input;
+    if (input.tagName === 'INPUT') {
+      select = document.createElement('select');
+      select.id = input.id;
+      select.name = input.name;
+      select.className = input.className;
+      select.required = input.required;
+      if (input.dataset) {
+        for (var k in input.dataset) select.dataset[k] = input.dataset[k];
+      }
+      input.parentNode.replaceChild(select, input);
+    }
+    if (select.tagName !== 'SELECT') return select;
+
+    select.setAttribute('data-dkj-staff-picker', 'true');
+
+    // 역할별 기본값 세팅 (신규 작성 시 또는 시스템 관리자 사번이 들어간 경우)
+    var idLower = (select.id || '').toLowerCase();
+    var defaultVal = '';
+    if (idLower === 'writer' || idLower === 'inspector' || idLower.indexOf('worker') !== -1 || idLower === 'containmentowner') {
+      defaultVal = '이다은';
+    } else if (idLower === 'reviewer' || idLower === 'actionowner' || idLower === 'reviewowner') {
+      defaultVal = '권화선';
+    } else if (idLower === 'approver' || idLower === 'confirmer' || idLower === 'verifier' || idLower === 'chairperson' || idLower === 'leader') {
+      defaultVal = '최민재';
+    }
+
+    var chosenVal = currentValue;
+    if (!chosenVal || chosenVal === '4343' || chosenVal === '관리자' || chosenVal === 'admin' || chosenVal === 'system_admin') {
+      chosenVal = defaultVal || chosenVal;
+    }
+
+    var html = '<option value="">등록 인원 선택</option>';
+    options.forEach(function (o) {
+      html += '<option value="' + esc(o.value) + '">' + esc(o.label) + '</option>';
+    });
+    html += '<option value="__custom__">직접 입력...</option>';
+    select.innerHTML = html;
+
+    if (chosenVal) {
+      if (!options.some(function (o) { return o.value === chosenVal; })) {
+        var customOpt = '<option value="' + esc(chosenVal) + '">' + esc(chosenVal) + ' (입력값)</option>';
+        var lastOpt = select.querySelector('option[value="__custom__"]');
+        if (lastOpt) lastOpt.insertAdjacentHTML('beforebegin', customOpt);
+      }
+      select.value = chosenVal;
+    }
+
+    if (!select.getAttribute('data-dkj-bound')) {
+      select.setAttribute('data-dkj-bound', 'true');
+      select._lastValue = select.value;
+      var handler = function () {
+        if (select.value === '__custom__') {
+          var inputName = prompt('성명을 직접 입력하세요:');
+          if (inputName && inputName.trim()) {
+            inputName = inputName.trim();
+            var opt = document.createElement('option');
+            opt.value = inputName;
+            opt.textContent = inputName + ' (직접입력)';
+            var customEl = select.querySelector('option[value="__custom__"]');
+            if (customEl) customEl.insertAdjacentElement('beforebegin', opt);
+            select.value = inputName;
+            select._lastValue = inputName;
+          } else {
+            select.value = select._lastValue || '';
+          }
+        } else {
+          select._lastValue = select.value;
+        }
+        global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+      };
+      select.addEventListener('change', handler);
+      select.addEventListener('input', handler);
+    }
+    return select;
+  }
+
+  function attachStaffPickers() {
+    var options = staffOptions();
+    // 1. 명시적 인원 필드 ID
+    var explicitIds = [
+      'writer', 'reviewer', 'approver', 'inspector', 'confirmer', 'monitorName',
+      'owner', 'containmentOwner', 'correctiveOwner', 'actionOwner', 'verifier',
+      'drillWriter', 'drillReviewer', 'drillCorrectiveOwner', 'leader', 'evaluator',
+      'chair', 'chairperson', 'reviewOwner', 'cultureOwner', 'trainer', 'worker',
+      'operator', 'contact', 'arcWriter', 'inspectorName', 'confirmerName',
+      'workerName', 'driller', 'auditor', 'cleaner', 'driver', 'immediateOwner',
+      'actionManager', 'personInCharge', 'checkPerson', 'workPerson', 'author'
+    ];
+    explicitIds.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) transformInputToStaffSelect(el, options);
+    });
+
+    // 2. 동적 인원 관련 input 검색
+    var allInputs = document.querySelectorAll('input:not([data-dkj-staff-picker])');
+    Array.prototype.forEach.call(allInputs, function (input) {
+      if (isPersonnelInput(input)) {
+        transformInputToStaffSelect(input, options);
+      }
+    });
   }
 
   /* ---------- 결재 패널 ---------- */
@@ -151,22 +409,50 @@
     }
 
     function stageHtml(st, s) {
-      var sign = (s.signoff && s.signoff[st.key]) || null;
-      var name = (s.approvals && s.approvals[st.key]) || '';
+      var sign = (s && s.signoff && s.signoff[st.key]) || null;
+      var el = document.getElementById(st.key) || document.querySelector('[name="' + st.key + '"]');
+      var name = (s && s.approvals && s.approvals[st.key]) || (s && s[st.key]) || (el && el.value) || '';
+      if (!name) {
+        if (st.key === 'writer' || st.key === 'inspector' || st.key.indexOf('worker') !== -1) name = '이다은';
+        else if (st.key === 'reviewer') name = '권화선';
+        else if (st.key === 'approver' || st.key === 'confirmer') name = '최민재';
+      }
       var done = !!(sign && sign.at);
+      // 로그인 서명이면 사번을 함께 보여 준다. 폼에 적힌 이름과 다르면 그 사실도 드러낸다.
+      var shown = done ? (sign.empId ? sign.name + ' (' + sign.empId + ')' : sign.name) : (name || '—');
+      var mismatch = done && sign.claimed
+        ? '<div class="apv-claimed">기재명 ' + esc(sign.claimed) + '</div>' : '';
+      // 권한표에 걸리면 버튼을 눌러도 되지 않으니 아예 잠그고 이유를 적는다
+      var allowed = !global.DkjAuth || !global.DkjAuth.can || global.DkjAuth.can(st.key);
+      var why = allowed || !global.DkjAuth.denyReason ? '' : global.DkjAuth.denyReason(st.key);
+
       return '<div class="apv-stage' + (done ? ' done' : '') + '">' +
         '<div class="apv-lab">' + esc(st.label) + '</div>' +
-        '<div class="apv-name">' + esc(done ? sign.name : (name || '—')) + '</div>' +
+        '<div class="apv-name">' + esc(shown) + '</div>' + mismatch +
         '<div class="apv-at">' + (done ? esc(fmt(sign.at)) : '미결재') + '</div>' +
         (done
           ? '<span class="apv-mark">서명됨</span>'
-          : '<button type="button" class="pill-btn ghost apv-btn" data-stage="' +
-            st.key + '">' + esc(st.label) + ' 확정</button>') +
+          : allowed
+            ? '<button type="button" class="pill-btn ghost apv-btn" data-stage="' +
+              st.key + '">' + esc(st.label) + ' 확정</button>'
+            : '<button type="button" class="pill-btn ghost apv-btn" disabled ' +
+              'title="' + esc(why) + '">' + esc(st.label) + ' 확정</button>' +
+              '<div class="apv-deny">' + esc(why) + '</div>') +
         '</div>';
     }
 
     function render() {
       var s = getState();
+      if (s) {
+        if (!s.approvals) s.approvals = {};
+        ['writer', 'reviewer', 'approver', 'inspector', 'confirmer'].forEach(function (k) {
+          var el = document.getElementById(k) || document.querySelector('[name="' + k + '"]');
+          if (el && el.value) {
+            s.approvals[k] = el.value;
+            if (s[k] !== undefined) s[k] = el.value;
+          }
+        });
+      }
       var v = verify(s);
       var audit = (s.audit || []).slice().reverse();
 
@@ -196,17 +482,43 @@
       host.querySelectorAll('.apv-btn').forEach(function (b) {
         b.addEventListener('click', function () {
           var key = b.getAttribute('data-stage');
+          // 버튼은 잠가 뒀지만 화면을 만져 되살릴 수 있으니 누를 때 한 번 더 본다
+          if (global.DkjAuth && global.DkjAuth.can && !global.DkjAuth.can(key)) {
+            alert(global.DkjAuth.denyReason(key));
+            return;
+          }
           var st = getState();
-          var name = (st.approvals && st.approvals[key]) || '';
-          if (!name) {
+          var claimed = (st.approvals && st.approvals[key]) || '';
+          var u = me();
+
+          if (!u && !claimed) {
             alert(stageOf(key).role + ' 이름을 먼저 입력하세요.');
             return;
           }
-          if (!confirm(name + ' 님으로 ' + stageOf(key).label +
-              ' 결재를 확정합니다.\n확정 후에는 취소할 수 없습니다.')) return;
+
+          // 서명자 = 로그인한 사람. 로그인이 없으면(미설정 파일럿) 폼에 적힌 이름.
+          var signer = u
+            ? { name: u.name, empId: u.empId, source: 'login' }
+            : { name: claimed, empId: '', source: 'form' };
+
+          var msg = signer.name + ' 님으로 ' + stageOf(key).label +
+                    ' 결재를 확정합니다.\n확정 후에는 취소할 수 없습니다.';
+          if (u && claimed && claimed !== u.name) {
+            msg = '결재란에 적힌 이름은 「' + claimed + '」 이지만, 지금 로그인한 사람은 「' +
+                  u.name + '」 입니다.\n\n서명은 로그인한 ' + u.name + ' 님으로 남습니다.\n' + msg;
+          }
+          if (!confirm(msg)) return;
+
           if (!st.signoff) st.signoff = {};
-          st.signoff[key] = { name: name, at: nowIso() };
-          append(st, 'SIGN', name, stageOf(key).label + ' 결재');
+          st.signoff[key] = {
+            name: signer.name,
+            empId: signer.empId,
+            uid: (u && u.uid) || '',
+            source: signer.source,
+            claimed: claimed && claimed !== signer.name ? claimed : undefined,
+            at: nowIso()
+          };
+          append(st, 'SIGN', u ? whoLabel(u) : signer.name, stageOf(key).label + ' 결재');
           onChange(st);
           render();
         });
@@ -214,13 +526,75 @@
     }
 
     render();
+    try {
+      if (global.DkjAuth && global.DkjAuth.loadStaff) global.DkjAuth.loadStaff()['catch'](function () {});
+      if (global.DkjAuth && global.DkjAuth.loadUsers) global.DkjAuth.loadUsers()['catch'](function () {});
+    } catch (e) {}
+    attachStaffPickers();
+    document.addEventListener('dkj:auth-ready', function () {
+      try {
+        if (global.DkjAuth && global.DkjAuth.loadUsers) global.DkjAuth.loadUsers()['catch'](function () {});
+      } catch (e) {}
+    });
+    document.addEventListener('dkj:staff-loaded', function () {
+      attachStaffPickers();
+      render();
+    });
+    document.addEventListener('dkj:auth-ready', attachStaffPickers);
+
+    var onFieldChange = function (e) {
+      if (e && e.target) {
+        var id = e.target.id || e.target.name || '';
+        if (/^(writer|reviewer|approver|inspector|confirmer|monitorName|owner|leader|drillWriter|drillReviewer)$/i.test(id) || e.target.getAttribute('data-dkj-staff-picker')) {
+          if (typeof getState === 'function') {
+            var curr = getState();
+            if (curr) {
+              if (!curr.approvals) curr.approvals = {};
+              if (/^(writer|reviewer|approver|inspector|confirmer)$/i.test(id)) {
+                curr.approvals[id] = e.target.value;
+                if (curr[id] !== undefined) curr[id] = e.target.value;
+              }
+            }
+          }
+          render();
+        }
+      }
+    };
+    document.addEventListener('input', onFieldChange);
+    document.addEventListener('change', onFieldChange);
+    global.addEventListener('dkj:approval-changed', function () {
+      if (typeof getState === 'function') {
+        var curr = getState();
+        if (curr) {
+          if (!curr.approvals) curr.approvals = {};
+          ['writer', 'reviewer', 'approver', 'inspector', 'confirmer'].forEach(function (k) {
+            var el = document.getElementById(k) || document.querySelector('[name="' + k + '"]');
+            if (el && el.value) {
+              curr.approvals[k] = el.value;
+              if (curr[k] !== undefined) curr[k] = el.value;
+            }
+          });
+        }
+      }
+      render();
+    });
+
     return { render: render };
   }
 
   installHook();
+  installRemoveGuard();
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', installHook);
+    document.addEventListener('DOMContentLoaded', function () {
+      installHook();
+      installRemoveGuard();
+      attachStaffPickers();
+    });
+  } else {
+    attachStaffPickers();
   }
+  global.addEventListener('load', attachStaffPickers);
+  document.addEventListener('dkj:record-loaded', attachStaffPickers);
 
   global.DkjApproval = {
     mount: mount,
@@ -228,6 +602,7 @@
     append: append,
     verify: verify,
     hash: hash,
-    STAGES: STAGES
+    STAGES: STAGES,
+    attachStaffPickers: attachStaffPickers
   };
 })(window);

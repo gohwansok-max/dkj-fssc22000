@@ -6,7 +6,7 @@
 (function (global) {
   'use strict';
 
-  var cache = { products: null, process: null, production: null, staff: null };
+  var cache = { products: null, process: null, production: null };
 
   function base() {
     var path = location.pathname || '';
@@ -67,16 +67,9 @@
     });
   }
 
-  function loadStaff() {
-    if (cache.staff) return Promise.resolve(cache.staff);
-    return loadJson('staff.json', 'staff.bundle.js', 'DKJ_STAFF').then(function (d) {
-      cache.staff = d;
-      return d;
-    });
-  }
-
   function suggestLot(dateStr) {
-    var d = dateStr || new Date().toISOString().slice(0, 10);
+    var now = new Date();
+    var d = dateStr || (now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0'));
     var compact = d.replace(/-/g, '');
     var seq = String(Math.floor(Math.random() * 900) + 100);
     return compact + '-' + seq;
@@ -150,7 +143,6 @@
     loadProducts: loadProducts,
     loadProcess: loadProcess,
     loadProductionMaster: loadProductionMaster,
-    loadStaff: loadStaff,
     suggestLot: suggestLot,
     renderProcessBar: renderProcessBar,
     renderProductChips: renderProductChips,

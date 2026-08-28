@@ -63,7 +63,7 @@
   ],
   "print": {
     "layout": "official-fr-generic",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "FR-034",
     "title": "식품사기 예방 실행계획서",
     "subtitle": "FSSC22000 · 연간",

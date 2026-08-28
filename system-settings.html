@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#006b3f">
+  <title>시스템 설정 · 사용자 및 계정 관리 | 동김제농협 산지유통센터</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=57">
+  <link rel="stylesheet" href="css/dkj-hub.css?v=57">
+  <link rel="manifest" href="manifest.json?v=57">
+  <style>
+    :root{--green:#006b3f;--green2:#087e4c;--ink:#12253a;--muted:#61746a;--line:#d8e5dd;--bg:#f3f8f5;--amber:#9b5c00;--red:#b42318}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Noto Sans KR","Malgun Gothic",Arial,sans-serif}
+    .page{max-width:1240px;margin:auto;padding:24px 16px 72px}
+    .hero{background:linear-gradient(120deg,#004e31,#008c58);border-radius:20px;padding:28px;color:#fff;box-shadow:0 10px 28px rgba(0,71,43,.15)}
+    .eyebrow{font-size:12px;letter-spacing:.11em;font-weight:800;opacity:.82}
+    .hero h1{margin:7px 0;font-size:28px}
+    .hero p{margin:0;max-width:880px;color:#e4f7eb}
+    .system-status{margin:16px 0;padding:13px 15px;border-radius:12px;background:#eef5fc;border:1px solid #c6ddf3;color:#1d5d95;font-weight:600}
+    .system-status.ok{background:#edf9f1;border-color:#bee1ca;color:#12663e}
+    .system-status.bad{background:#fff3f1;border-color:#f0c2bb;color:#a12618}
+    .card{background:#fff;border:1px solid var(--line);border-radius:16px;margin:18px 0;padding:22px;box-shadow:0 3px 12px rgba(18,51,35,.03)}
+    .card h2{font-size:20px;margin:0 0 5px;display:flex;align-items:center;gap:10px}
+    .desc{margin:0 0 16px;color:var(--muted);font-size:13px}
+    
+    /* 신규 사용자 등록 폼 */
+    .add-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr)) auto;gap:12px;align-items:flex-end;background:#f7faf8;padding:16px;border-radius:12px;border:1px solid #dce8e1}
+    .form-group{display:flex;flex-direction:column;gap:5px}
+    .form-group label{font-size:12.5px;font-weight:700;color:#2c4b39}
+    .form-group input,.form-group select{padding:10px 12px;border:1.5px solid #cbdad1;border-radius:8px;font:14px inherit;background:#fff}
+    .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(0,107,63,.12)}
+    .btn-create{height:43px;padding:0 22px;background:var(--green);color:#fff;border:0;border-radius:8px;font:700 14px inherit;cursor:pointer;white-space:nowrap;transition:background .15s}
+    .btn-create:hover{background:var(--green2)}
+    
+    /* 사용자 테이블 */
+    .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:11px}
+    .user-table{width:100%;border-collapse:collapse;min-width:1000px}
+    .user-table th{background:#edf7f1;color:#315a43;font-size:13px;font-weight:700;text-align:left;padding:11px 10px}
+    .user-table td{padding:10px;border-bottom:1px solid #e5eee8;vertical-align:middle;font-size:13.5px}
+    .user-table tr:last-child td{border-bottom:0}
+    .user-table tr:hover td{background:#fafdfb}
+    .user-table input,.user-table select{width:100%;border:1px solid #cbdad1;border-radius:7px;padding:8px 10px;font:13px inherit;background:#fff}
+    .user-table input:focus,.user-table select:focus{outline:none;border-color:var(--green)}
+    .pw-input{font-family:inherit;letter-spacing:.05em}
+    .action-cell{display:flex;gap:6px;align-items:center}
+    .btn-save{border:1px solid #b9d5c5;background:#f0f8f3;color:#075f39;border-radius:7px;padding:7px 12px;font:700 13px inherit;cursor:pointer;white-space:nowrap}
+    .btn-save:hover{background:#006b3f;color:#fff;border-color:#006b3f}
+    .btn-del{border:1px solid #f2c7c2;background:#fff5f4;color:#b42318;border-radius:7px;padding:7px 10px;font:700 13px inherit;cursor:pointer;white-space:nowrap}
+    .btn-del:hover{background:#b42318;color:#fff;border-color:#b42318}
+    .btn-del:disabled{opacity:.35;cursor:not-allowed;background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0}
+    
+    .pw-wrap{display:flex;align-items:center;gap:4px;width:100%}
+    .pw-wrap input{flex:1;min-width:0;font-family:inherit;letter-spacing:.04em;font-weight:600;color:#0f5132;background:#f9fdfa}
+    .btn-pw-eye{border:1px solid #cbdad1;background:#f0f7f3;color:#234f37;border-radius:6px;padding:6px 8px;font-size:12px;cursor:pointer;flex:0 0 auto;transition:background .15s}
+    .btn-pw-eye:hover{background:#dbeee2}
+    
+    .role-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+    .role-box{border:1px solid #d9e7df;border-radius:12px;padding:13px;background:#fcfffd}
+    .role-box b{display:block;color:var(--green);font-size:15px}
+    .role-box span{display:block;font-size:12px;color:var(--muted);margin-top:5px}
+    
+    .empty{padding:28px!important;text-align:center;color:var(--muted)}
+    .audit{margin-top:12px}
+    .audit-row{display:grid;grid-template-columns:180px 100px 1fr 120px;gap:10px;padding:10px 0;border-bottom:1px solid #e5eee8;font-size:13px}
+    .audit-row:last-child{border-bottom:0}
+    .audit-row b{color:var(--green)}
+    .denied{background:#fff3f1;border:1px solid #f0c2bb;border-radius:16px;padding:26px;color:#8c2118}
+    .denied h2{margin:0 0 6px;font-size:20px}
+    .note{font-size:12.5px;color:var(--muted);margin:12px 0 0}
+    .admin-lock{display:inline-block;background:#e8f6ec;color:#12663e;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:800}
+    @media(max-width:800px){
+      .page{padding:16px 12px 56px}
+      .hero{padding:22px 17px}
+      .hero h1{font-size:24px}
+      .card{padding:15px}
+      .add-form-grid{grid-template-columns:1fr;gap:10px}
+      .role-grid{grid-template-columns:repeat(2,1fr)}
+      .audit-row{grid-template-columns:1fr 1fr}
+      .audit-row span:nth-child(3){grid-column:1/-1}
+      .audit-row span:nth-child(4){grid-column:1/-1}
+      .system-status{font-size:13px}
+    }
+  </style>
+  <link rel="stylesheet" href="css/dkj-accessibility.css?v=57">
+</head>
+<body class="hub-page">
+  <header class="ck-header">
+    <a class="ck-brand" href="index.html" aria-label="업무 콘솔로">
+      <span class="ck-wordmark">
+        <img class="ck-wordmark-symbol" src="assets/brand/nh-symbol.svg" alt="">
+        <span class="ck-wordmark-name"><b>동김제농협</b><b>산지유통센터</b></span>
+      </span>
+      <span class="ck-tagline">스마트 HACCP · FSSC22000 V6</span>
+    </a>
+    <nav class="gnb" id="gnb" data-dkj-nav data-active="system" data-base="" aria-label="주요 메뉴"></nav>
+    <div class="ck-header-right">
+      <a class="ck-hbtn" href="index.html">업무 콘솔</a>
+      <a class="ck-hbtn" href="quality-dashboard.html">품질 대시보드</a>
+      <a class="ck-hbtn on" href="system-settings.html" aria-current="page">시스템 설정</a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="gnb"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">SYSTEM ADMINISTRATION · USER &amp; ACCOUNT MANAGEMENT</div>
+      <h1>시스템 설정 · 사용자 및 계정 관리</h1>
+      <p>시스템 관리자(사번 4343) 전용 화면입니다. 로그인할 수 있는 직원을 직접 추가·삭제하고, 아이디(사번), 이름, 비밀번호, 권한 역할을 바로 설정합니다.</p>
+    </section>
+
+    <div class="system-status" id="systemStatus">로그인 권한을 확인하는 중입니다.</div>
+
+    <section id="systemDenied" class="denied" hidden>
+      <h2>시스템 관리자 전용 화면입니다</h2>
+      <p>사용자 등록 및 비밀번호·권한 관리는 <strong>사번 4343 (시스템 관리자)</strong>만 가능합니다. 사번 4343으로 다시 로그인해 주세요.</p>
+    </section>
+
+    <div id="systemContent" hidden>
+      <!-- 신규 사용자 등록 -->
+      <section class="card">
+        <h2>+ 신규 사용자 계정 등록</h2>
+        <p class="desc">로그인할 직원의 사번(ID), 성명, 권한 역할, 초기 비밀번호를 입력하면 즉시 로그인이 가능하도록 등록됩니다.</p>
+        <form id="addUserForm" class="add-form-grid" onsubmit="return false;">
+          <div class="form-group">
+            <label for="newEmpId">사번 (아이디)</label>
+            <input type="text" id="newEmpId" placeholder="예: 0006" maxlength="12" required>
+          </div>
+          <div class="form-group">
+            <label for="newName">성명 (표시 이름)</label>
+            <input type="text" id="newName" placeholder="예: 홍길동" maxlength="20" required>
+          </div>
+          <div class="form-group">
+            <label for="newRole">권한 역할</label>
+            <select id="newRole">
+              <option value="worker">작업자 (작성)</option>
+              <option value="manager">관리자 (작성·검토)</option>
+              <option value="responsible">책임자 (작성·검토·승인)</option>
+              <option value="system_admin">시스템 관리자 (전체)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="newPassword">초기 비밀번호</label>
+            <input type="text" id="newPassword" placeholder="초기 비밀번호" maxlength="30" required>
+          </div>
+          <button type="button" id="btnCreateUser" class="btn-create">+ 사용자 추가 등록</button>
+        </form>
+      </section>
+
+      <!-- 사용자 목록 및 계정 관리 -->
+      <section class="card">
+        <h2>등록 사용자 및 계정 관리 <span class="admin-lock">4343 관리자 전용</span></h2>
+        <p class="desc">등록된 직원의 이름, 역할 및 비밀번호를 바로 수정하거나 불필요한 계정을 삭제할 수 있습니다. (사번 4343은 시스템 관리자로 보호됩니다)</p>
+        <div class="table-wrap">
+          <table class="user-table">
+            <thead>
+                <th style="width:12%">사번 (ID)</th>
+                <th style="width:17%">성명 (표시 이름)</th>
+                <th style="width:17%">권한 역할</th>
+                <th style="width:21%">비밀번호 (조회 / 수정)</th>
+                <th style="width:17%">최근 로그인</th>
+                <th style="width:16%">관리</th>
+              </tr>
+            </thead>
+            <tbody id="userRows">
+              <tr><td colspan="6" class="empty">사용자 정보를 불러오는 중입니다.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">등록 사용자 수: <strong id="registeredCount">0</strong>명. 수정한 뒤 <strong>[저장]</strong>을 누르면 즉시 반영됩니다.</p>
+      </section>
+
+      <!-- 텔레그램 알림 & AI 챗봇 설정 (관리자 전용) -->
+      <section class="card" id="telegramConfigCard">
+        <h2>📱 텔레그램 알림 &amp; AI 챗봇 실시간 연동 <span class="admin-lock">4343 관리자 전용</span></h2>
+        <p class="desc">직원들이 화면 우측 하단의 [AI 도우미 &amp; 불편접수] 챗봇을 통해 오류나 불편사항을 접수하면, 관리자 텔레그램으로 즉시 알림이 발송됩니다.</p>
+        
+        <div style="background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:12px;padding:18px;margin-bottom:16px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:14px;margin-bottom:14px;">
+            <div class="form-group">
+              <label for="tgBotToken">텔레그램 봇 토큰 (Bot Token) *</label>
+              <input type="text" id="tgBotToken" placeholder="예: 7123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" style="font-family:monospace;">
+            </div>
+            <div class="form-group">
+              <label for="tgChatId">텔레그램 수신 Chat ID (사용자 또는 그룹 ID) *</label>
+              <input type="text" id="tgChatId" placeholder="예: 123456789 또는 -100123456789" style="font-family:monospace;">
+            </div>
+          </div>
+          
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;">
+            <button type="button" id="btnSaveTelegram" class="btn-create" style="height:40px;background:#006b3f;">💾 텔레그램 설정 저장</button>
+            <button type="button" id="btnTestTelegram" class="btn-save" style="height:40px;padding:0 18px;background:#0284c7;color:#fff;border-color:#0284c7;">🔔 테스트 메시지 즉시 발송</button>
+            <span id="tgStatusMsg" style="font-size:13px;font-weight:700;color:#006b3f;"></span>
+          </div>
+        </div>
+
+        <details style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;font-size:13px;color:#166534;">
+          <summary style="font-weight:700;cursor:pointer;user-select:none;">💡 텔레그램 봇 토큰 및 Chat ID 확인 방법 (1분 완성 가이드)</summary>
+          <div style="margin-top:10px;line-height:1.7;">
+            <strong>1. 텔레그램 봇 생성 (Bot Token 발급):</strong><br>
+            • 텔레그램 검색창에 <code>@BotFather</code> 검색 후 대화 시작 (<code>/start</code>)<br>
+            • <code>/newbot</code> 입력 → 봇 이름 및 아이디 설정 (예: <code>dkj_haccp_bot</code>)<br>
+            • 생성 완료 시 주어지는 <code>Use this token to access the HTTP API:</code> 뒤의 긴 토큰 복사 후 위 [봇 토큰] 란에 붙여넣기<br><br>
+            <strong>2. 내 Chat ID 확인:</strong><br>
+            • 텔레그램 검색창에 <code>@userinfobot</code> 검색 후 <code>/start</code>를 누르면 본인의 <code>Id: 123456789</code> 숫자가 나옵니다.<br>
+            • 또는 위에서 만든 봇에게 먼저 아무 말(예: <code>/start</code> 또는 <code>안녕</code>)이나 보낸 후 Chat ID를 입력하고 <strong>[테스트 메시지 즉시 발송]</strong>을 눌러보세요!
+          </div>
+        </details>
+      </section>
+
+      <!-- 4단계 역할 기준 -->
+      <section class="card">
+        <h2>4단계 역할 기준</h2>
+        <p class="desc">역할은 화면 접근과 작성·검토·승인 결재 단계를 구분합니다.</p>
+        <div class="role-grid">
+          <div class="role-box"><b>시스템 관리자</b><span>사용자 및 계정 설정 · 작성 · 검토 · 승인</span></div>
+          <div class="role-box"><b>책임자</b><span>작성 · 검토 · 승인</span></div>
+          <div class="role-box"><b>관리자</b><span>작성 · 검토</span></div>
+          <div class="role-box"><b>작업자</b><span>작성</span></div>
+        </div>
+      </section>
+
+      <!-- 권한 및 계정 변경 이력 -->
+      <section class="card">
+        <h2>권한 및 계정 변경 이력</h2>
+        <p class="desc">누가 언제 사용자를 추가·수정·삭제했는지 확인합니다.</p>
+        <div class="audit" id="roleAudit"><p class="empty">변경 이력을 불러오는 중입니다.</p></div>
+      </section>
+    </div>
+  </main>
+  <script src="js/dkj-util.js?v=57"></script>
+  <script src="js/dkj-firebase-config.js?v=57"></script>
+  <script src="js/dkj-auth.js?v=57"></script>
+  <script src="js/dkj-cloud-sync.js?v=57"></script>
+  <script src="js/dkj-telegram-config.js?v=57"></script>
+  <script src="js/menu-catalog.bundle.js?v=57"></script>
+  <script src="js/dkj-nav.js?v=57"></script>
+  <script src="js/system-settings.js?v=57"></script>
+  <script src="js/dkj-chatbot.js?v=57"></script>
+  <script src="js/dkj-pwa.js?v=57"></script>
+  <script src="js/dkj-accessibility.js?v=57"></script>
+</body>
+</html>

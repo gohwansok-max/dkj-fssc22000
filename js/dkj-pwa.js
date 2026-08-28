@@ -14,8 +14,8 @@
 
   var doc = global.document;
 
-  /** 이 스크립트(js/dkj-pwa.js)의 위치에서 사이트 루트를 되짚는다 */
-  function siteRoot() {
+  /** 이 스크립트(js/dkj-pwa.js) 자신의 <script> 태그 — src 에서 루트·캐시버전을 되짚는 데 쓴다 */
+  function selfScriptEl() {
     var el = doc.currentScript;
     if (!el) {
       var all = doc.getElementsByTagName('script');
@@ -23,8 +23,22 @@
         if ((all[i].src || '').indexOf('dkj-pwa.js') !== -1) { el = all[i]; break; }
       }
     }
-    if (!el || !el.src) return null;
+    return (el && el.src) ? el : null;
+  }
+
+  /** 이 스크립트의 위치에서 사이트 루트를 되짚는다 */
+  function siteRoot() {
+    var el = selfScriptEl();
+    if (!el) return null;
     return el.src.split('?')[0].replace(/js\/dkj-pwa\.js$/, '');
+  }
+
+  /** <script src="…dkj-pwa.js?v=38"> 에서 캐시버전 숫자만 뽑는다 — 화면에 뜬 배지가
+      실제 받은 파일의 버전과 항상 같도록, 별도 상수로 관리하지 않고 여기서 읽는다. */
+  function cacheVersion() {
+    var el = selfScriptEl();
+    var m = el && el.src.match(/[?&]v=([0-9]+)/);
+    return m ? m[1] : '';
   }
 
   /* ---------- 알림 띠 ---------- */
@@ -44,7 +58,11 @@
       '.dkj-pwa-bar.update{background:#009a44}' +
       '.dkj-pwa-bar button{border:0;border-radius:999px;padding:6px 14px;' +
       'font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:#222}' +
-      '@media print{.dkj-pwa-bar{display:none}}';
+      '.dkj-pwa-ver{position:fixed;right:6px;bottom:6px;z-index:9997;' +
+      'font-size:10px;line-height:1;padding:3px 7px;border-radius:999px;' +
+      "font-family:'Noto Sans KR','Malgun Gothic',sans-serif;" +
+      'background:rgba(0,0,0,.4);color:#fff;pointer-events:none;opacity:.7}' +
+      '@media print{.dkj-pwa-bar,.dkj-pwa-ver{display:none}}';
     var s = doc.createElement('style');
     s.setAttribute('data-dkj', 'pwa');
     s.appendChild(doc.createTextNode(css));
@@ -122,27 +140,114 @@
 
     global.navigator.serviceWorker.register(root + 'sw.js', {
       scope: root,
-      // GitHub Pages 는 정적 파일에 10분짜리 캐시 헤더를 붙인다. 기본값이면
-      // sw.js 가 importScripts 하는 sw-precache.js 를 그 캐시에서 받아
-      // 배포가 최대 10분 늦게 반영된다. 갱신 확인은 항상 서버에 묻는다.
       updateViaCache: 'none'
     }).then(function (reg) {
       watchForUpdates(reg);
+
+      // 이미 대기 중인 새 서비스워커가 있는 경우 즉시 알림
+      if (reg.waiting && hadController) {
+        showUpdateBanner(reg);
+      }
+
+      // 새 서비스워커 다운로드 감지
+      reg.addEventListener('updatefound', function () {
+        var newWorker = reg.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', function () {
+          if (newWorker.state === 'installed' && global.navigator.serviceWorker.controller) {
+            showUpdateBanner(reg);
+          }
+        });
+      });
     })['catch'](function (err) {
       console.warn('[dkj-pwa] 서비스워커 등록 실패:', err && err.message);
     });
 
-    // 새 서비스워커가 제어권을 넘겨받으면 = 새 버전이 깔린 것
+    // 새 서비스워커가 제어권을 넘겨받으면 알림
     global.navigator.serviceWorker.addEventListener('controllerchange', function () {
-      if (!hadController) return;   // 첫 설치는 알릴 것이 없다
-      bar('dkjPwaUpdate', 'update', '새 버전이 준비됐습니다.', '새로고침', function () {
-        global.location.reload();
-      });
+      if (!hadController) return;
+      showUpdateBanner();
     });
+  }
+
+  function showUpdateBanner(reg) {
+    bar('dkjPwaUpdate', 'update', '🎉 최신 업데이트가 배포되었습니다.', '지금 반영하기', function () {
+      if (reg && reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      if ('caches' in global) {
+        caches.keys().then(function (names) {
+          return Promise.all(names.map(function (n) { return caches.delete(n); }));
+        }).finally(function () {
+          global.location.reload();
+        });
+      } else {
+        global.location.reload();
+      }
+    });
+  }
+
+  /** 화면 구석에 지금 받은 캐시버전을 작게 띄운다 — 태블릿·폰에서 배포가
+      실제로 반영됐는지 새로고침 배너를 기다리지 않고도 바로 확인하려는 것. */
+  function renderVersion() {
+    var v = cacheVersion();
+    if (!v) return;
+    injectStyle();
+    var el = doc.createElement('div');
+    el.id = 'dkjPwaVer';
+    el.className = 'dkj-pwa-ver';
+    el.textContent = 'v' + v;
+    doc.body.appendChild(el);
+  }
+
+  function renderQuickNavFallback() {
+    if (global.DkjQuickNav && typeof global.DkjQuickNav.render === 'function') {
+      global.DkjQuickNav.render();
+      return;
+    }
+    var p = (global.location && global.location.pathname) || '';
+    var isConsoleHome = (/(?:^|\/)index\.html$/i.test(p) || /\/dkj-fssc22000\/?$/i.test(p) || p === '/') && p.indexOf('/records/') === -1;
+    if (isConsoleHome || doc.getElementById('dkjQuickNav')) return;
+
+    var base = (/\/records\/[^\/]+$/i.test(p) || p.indexOf('/records/') !== -1) ? '../' : './';
+    var homeHref = base + 'index.html';
+
+    var nav = doc.createElement('nav');
+    nav.id = 'dkjQuickNav';
+    nav.className = 'dkj-quick-nav';
+    nav.setAttribute('aria-label', '빠른 이동');
+    nav.innerHTML =
+      '<button type="button" class="dkj-quick-nav__button dkj-quick-nav__back" title="이전 화면으로 이동합니다. 이전 화면이 없으면 홈으로 이동합니다." aria-label="이전 화면으로 이동">' +
+        '<span class="dkj-quick-nav__icon" aria-hidden="true">‹</span><span>이전</span>' +
+      '</button>' +
+      '<a class="dkj-quick-nav__button dkj-quick-nav__home" href="' + homeHref + '" title="업무 콘솔 홈으로 이동합니다." aria-label="홈으로 이동">' +
+        '<span class="dkj-quick-nav__icon" aria-hidden="true">⌂</span><span>홈</span>' +
+      '</a>';
+
+    var btnBack = nav.querySelector('.dkj-quick-nav__back');
+    if (btnBack) {
+      btnBack.addEventListener('click', function () {
+        var hasPrev = false;
+        if (doc.referrer) {
+          try {
+            var prev = new URL(doc.referrer);
+            hasPrev = prev.origin === global.location.origin && prev.pathname !== global.location.pathname;
+          } catch (e) {}
+        }
+        if (hasPrev && global.history && global.history.length > 1) {
+          global.history.back();
+        } else {
+          global.location.href = homeHref;
+        }
+      });
+    }
+    doc.body.appendChild(nav);
   }
 
   function init() {
     renderNetworkState();
+    renderVersion();
+    renderQuickNavFallback();
     global.addEventListener('online', renderNetworkState);
     global.addEventListener('offline', renderNetworkState);
     register();
@@ -151,5 +256,5 @@
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
   else init();
 
-  global.DkjPwa = { siteRoot: siteRoot };
+  global.DkjPwa = { siteRoot: siteRoot, cacheVersion: cacheVersion };
 })(window);

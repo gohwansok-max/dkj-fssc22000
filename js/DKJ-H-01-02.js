@@ -11,8 +11,17 @@
   var draftTimer = null;
 
   function emptyRow() {
-    return { time: '', fe: '', sus: '', prodFe: '', prodSus: '', judge: '' };
+    return { time: '', fe: '', sus: '', prodOnly: '', prodFe: '', prodSus: '', judge: '' };
   }
+
+  /* 물성보정/안정도 — 인쇄물 한계기준표의 중량구간별 고정값(임시 운영값, 확정 전).
+     매 행마다 같은 값이라 행 데이터로 안 두고 중량구간 선택 하나로 도출한다. */
+  var WEIGHT_CLASS = {
+    fresh500: { label: '신선편의식품 500g 이하', adjust: '70', stable: '450' },
+    fresh1kg: { label: '신선편의식품 500g~1kg', adjust: '70', stable: '954' },
+    freshOver1kg: { label: '신선편의식품 1kg 이상', adjust: '70', stable: '252' },
+    material: { label: '부재료(기타가공품)', adjust: '70', stable: '70' }
+  };
 
   function emptyState() {
     return {
@@ -22,16 +31,19 @@
       lot: '',
       feSize: '1.5',
       susSize: '2.0',
-      monitorName: '',
+      weightClass: 'fresh500',
+      monitorName: '이다은',
       timing: '시작전',
       rows: [emptyRow(), emptyRow(), emptyRow()],
       deviation: '',
       corrective: '',
-      confirmer: '',
+      confirmer: '권화선',
+      approver: '최민재',
       remark: '',
-      // 전자결재 — 모니터링 담당자·확인자 2단. audit 는 여기서 만들어 둬야
-      // 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
-      approvals: { writer: '', reviewer: '', approver: '' },
+      // 전자결재 — 모니터링 담당(작성)·확인자(검토)·승인자(승인) 3단. 정본 인쇄
+      // 서명란(signBox)도 작성/검토/승인 3칸이라 여기서도 맞춘다. audit 는 여기서
+      // 만들어 둬야 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
+      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
       signoff: {},
       audit: [],
       locked: false,
@@ -44,14 +56,13 @@
 
   function syncApprovals() {
     if (!window.DkjApproval) return;
-    DkjApproval.bindFlat(state, { writer: 'monitorName', approver: 'confirmer' });
+    DkjApproval.bindFlat(state, { writer: 'monitorName', reviewer: 'confirmer', approver: 'approver' });
   }
 
   function mountApproval() {
     if (!window.DkjApproval || apvUi) return;
     apvUi = DkjApproval.mount({
-      stages: ['writer', 'approver'],
-      labels: { writer: '모니터링', approver: '확인' },
+      stages: ['writer', 'reviewer', 'approver'],
       getState: function () { readForm(); return state; },
       onChange: function () { scheduleDraft(); }
     });
@@ -62,7 +73,8 @@
   }
 
   function today() {
-    return new Date().toISOString().slice(0, 10);
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
   function nowTime() {
@@ -94,7 +106,6 @@
       return;
     }
     if (vals.indexOf('X') !== -1) row.judge = 'X';
-    else if (vals.length === 4 && vals.every(function (v) { return v === 'O'; })) row.judge = 'O';
     else if (vals.every(function (v) { return v === 'O'; })) row.judge = 'O';
     else row.judge = '';
   }
@@ -113,6 +124,7 @@
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
         '<td>' + oxSelect(row.fe, 'fe') + '</td>' +
         '<td>' + oxSelect(row.sus, 'sus') + '</td>' +
+        '<td>' + oxSelect(row.prodOnly, 'prodOnly') + '</td>' +
         '<td>' + oxSelect(row.prodFe, 'prodFe') + '</td>' +
         '<td>' + oxSelect(row.prodSus, 'prodSus') + '</td>' +
         '<td class="mon-judge ' + (row.judge === 'X' ? 'ng' : row.judge === 'O' ? 'ok' : '') + '">' + (row.judge || '·') + '</td>' +
@@ -147,6 +159,13 @@
     scheduleDraft();
   }
 
+  function renderWeightHint() {
+    var el = $('weightClassHint');
+    if (!el) return;
+    var wc = WEIGHT_CLASS[$('weightClass').value] || WEIGHT_CLASS.fresh500;
+    el.textContent = '물성보정 ' + wc.adjust + ' · 안정도 ' + wc.stable + ' (정본에 자동 반영)';
+  }
+
   function readForm() {
     state.workDate = $('workDate').value;
     state.equipment = $('equipment').value;
@@ -154,11 +173,17 @@
     state.lot = $('lot').value;
     state.feSize = $('feSize').value;
     state.susSize = $('susSize').value;
+    state.weightClass = $('weightClass').value;
+    var wc = WEIGHT_CLASS[state.weightClass] || WEIGHT_CLASS.fresh500;
+    state.adjust = wc.adjust;
+    state.stable = wc.stable;
+    renderWeightHint();
     state.monitorName = $('monitorName').value;
     state.timing = $('timing').value;
     state.deviation = $('deviation').value;
     state.corrective = $('corrective').value;
     state.confirmer = $('confirmer').value;
+    state.approver = $('approver').value;
     state.remark = $('remark').value;
     syncApprovals();
   }
@@ -170,11 +195,14 @@
     $('lot').value = state.lot || '';
     $('feSize').value = state.feSize || '1.5';
     $('susSize').value = state.susSize || '2.0';
+    $('weightClass').value = state.weightClass || 'fresh500';
+    renderWeightHint();
     $('monitorName').value = state.monitorName || '';
     $('timing').value = state.timing || '시작전';
     $('deviation').value = state.deviation || '';
     $('corrective').value = state.corrective || '';
     $('confirmer').value = state.confirmer || '';
+    $('approver').value = state.approver || '';
     $('remark').value = state.remark || '';
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
     renderRows();
@@ -200,7 +228,7 @@
     if (!state.lot) return 'LOT를 입력하세요.';
     if (!state.monitorName) return '모니터링 담당자를 입력하세요.';
     var filled = state.rows.filter(function (r) {
-      return r.fe || r.sus || r.prodFe || r.prodSus;
+      return r.fe || r.sus || r.prodOnly || r.prodFe || r.prodSus;
     });
     if (!filled.length) return '시편 검출 결과를 1건 이상 입력하세요.';
     if (state.hasDeviation) {
@@ -238,8 +266,8 @@
     }
     el.innerHTML = list.map(function (r) {
       return '<div class="dkj-history-item">' +
-        '<div><strong>' + (r.workDate || '') + '</strong> · ' + (r.productName || '') + ' / ' + (r.lot || '') +
-        ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + (r.judge || '-') + '</span></div>' +
+        '<div><strong>' + esc(r.workDate || '') + '</strong> · ' + esc(r.productName || '') + ' / ' + esc(r.lot || '') +
+        ' <span class="badge ' + (r.hasDeviation ? 'wip' : 'done') + '">' + esc(r.judge || '-') + '</span></div>' +
         '<div style="display:flex;gap:6px;">' +
         '<button type="button" class="pill-btn ghost" data-load="' + r.id + '">불러오기</button>' +
         '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';
@@ -269,11 +297,17 @@
   }
 
   function bind() {
-    ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize',
-      'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'remark'].forEach(function (id) {
-      $(id).addEventListener('input', scheduleDraft);
-      $(id).addEventListener('change', scheduleDraft);
+    ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize', 'weightClass',
+      'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
+      var onFieldInput = function () {
+        readForm();
+        refreshApproval();
+        scheduleDraft();
+      };
+      $(id).addEventListener('input', onFieldInput);
+      $(id).addEventListener('change', onFieldInput);
     });
+    $('weightClass').addEventListener('change', renderWeightHint);
     $('btnAddRow').addEventListener('click', function () {
       if (state.locked) return;
       state.rows.push(emptyRow());
@@ -304,6 +338,20 @@
         window.print();
       }
     });
+    if (window.DkjUtil) {
+      window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+        formId: FORM_ID,
+        hasChecks: false,
+        onClonePrev: function (cloned) {
+          if (state.locked) return;
+          state = Object.assign(emptyState(), cloned);
+          editingId = null;
+          writeForm();
+          scheduleDraft();
+        }
+      });
+      window.DkjUtil.attachChips(document);
+    }
   }
 
   function init() {
@@ -314,6 +362,11 @@
     renderHistory();
     mountApproval();
     refreshApproval();
+    if (window.DkjUtil) {
+      window.DkjUtil.autoFillUser(state, ['monitorName', 'confirmer', 'approver'], function () {
+        writeForm();
+      });
+    }
     setStatus('준비', false);
   }
 

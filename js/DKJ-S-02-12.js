@@ -105,7 +105,7 @@
   "print": {
     "layout": "official-prp-ox",
     "columnMode": "result",
-    "orgName": "동김제농협 가공센터",
+    "orgName": "동김제농협 산지유통센터",
     "docNo": "DKJ-S-02-12",
     "title": "제조시설·설비점검표",
     "rev": "0",
