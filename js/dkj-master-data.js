@@ -6,7 +6,7 @@
 (function (global) {
   'use strict';
 
-  var cache = { products: null, process: null };
+  var cache = { products: null, process: null, production: null, staff: null };
 
   function base() {
     var path = location.pathname || '';
@@ -55,6 +55,22 @@
     if (cache.process) return Promise.resolve(cache.process);
     return loadJson('process-line.json', 'process-line.bundle.js', 'DKJ_PROCESS_LINE').then(function (d) {
       cache.process = d;
+      return d;
+    });
+  }
+
+  function loadProductionMaster() {
+    if (cache.production) return Promise.resolve(cache.production);
+    return loadJson('production-master.json', 'production-master.bundle.js', 'DKJ_PRODUCTION_MASTER').then(function (d) {
+      cache.production = d;
+      return d;
+    });
+  }
+
+  function loadStaff() {
+    if (cache.staff) return Promise.resolve(cache.staff);
+    return loadJson('staff.json', 'staff.bundle.js', 'DKJ_STAFF').then(function (d) {
+      cache.staff = d;
       return d;
     });
   }
@@ -133,6 +149,8 @@
   global.DkjMaster = {
     loadProducts: loadProducts,
     loadProcess: loadProcess,
+    loadProductionMaster: loadProductionMaster,
+    loadStaff: loadStaff,
     suggestLot: suggestLot,
     renderProcessBar: renderProcessBar,
     renderProductChips: renderProductChips,

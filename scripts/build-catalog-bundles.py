@@ -18,6 +18,8 @@ BUNDLES = [
     # 마스터 데이터 (js/dkj-master-data.js)
     ("products.json", "products.bundle.js", "DKJ_PRODUCTS"),
     ("process-line.json", "process-line.bundle.js", "DKJ_PROCESS_LINE"),
+    ("production-master.json", "production-master.bundle.js", "DKJ_PRODUCTION_MASTER"),
+    ("staff.json", "staff.bundle.js", "DKJ_STAFF"),
 ]
 
 

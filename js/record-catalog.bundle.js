@@ -47,6 +47,14 @@ window.DKJ_RECORD_CATALOG={
       ]
     },
     {
+      "id": "production",
+      "label": "생산관리·수율",
+      "icon": "📊",
+      "codes": [
+        "DKJ-F-053"
+      ]
+    },
+    {
       "id": "recall",
       "label": "제품회수",
       "icon": "↩️",
@@ -1041,6 +1049,18 @@ window.DKJ_RECORD_CATALOG={
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-29.html",
       "mdrCode": "DKJ-S-02-29"
+    },
+    {
+      "id": "DKJ-F-053",
+      "code": "DKJ-F-053",
+      "title": "생산일지 — 수율·불량율 자동계산·원인분석",
+      "rev": "Rev0",
+      "fileType": "html",
+      "frequency": "매일",
+      "relatedProcedures": [],
+      "htmlReady": true,
+      "htmlPath": "records/DKJ-F-053.html",
+      "mdrCode": "DKJ-F-053"
     }
   ],
   "mdrRev": "Rev11"

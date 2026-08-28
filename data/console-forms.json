@@ -17,7 +17,8 @@
         { "code": "DKJ-S-02-04", "title": "이물관리 점검", "href": "records/DKJ-S-02-04.html", "check": { "mode": "perDay", "dateField": "checkDate" } },
         { "code": "DKJ-S-02-05", "title": "작업장 온도", "href": "records/DKJ-S-02-05.html", "check": { "mode": "dayRow", "dayKey": "day" } },
         { "code": "DKJ-H-01-01", "title": "CCP-1BC 소독·헹굼", "href": "records/DKJ-H-01-01.html", "ccp": true, "check": { "mode": "perDay", "dateField": "workDate" } },
-        { "code": "DKJ-H-01-02", "title": "CCP-2P 금속검출", "href": "records/DKJ-H-01-02.html", "ccp": true, "check": { "mode": "perDay", "dateField": "workDate" } }
+        { "code": "DKJ-H-01-02", "title": "CCP-2P 금속검출", "href": "records/DKJ-H-01-02.html", "ccp": true, "check": { "mode": "perDay", "dateField": "workDate" } },
+        { "code": "DKJ-F-053", "title": "생산일지", "href": "records/DKJ-F-053.html", "check": { "mode": "perDay", "dateField": "workDate" } }
       ]
     },
     {

@@ -280,6 +280,14 @@
               "href": "records-center.html"
             },
             {
+              "label": "DKJ-F-053 생산일지",
+              "href": "records/DKJ-F-053.html"
+            },
+            {
+              "label": "생산분석 대시보드",
+              "href": "production-dashboard.html"
+            },
+            {
               "label": "FR-014 입고검사",
               "href": "records/FR-014.html"
             },

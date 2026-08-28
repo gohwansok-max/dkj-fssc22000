@@ -1,0 +1,273 @@
+/* ============================================================
+   생산일지(DKJ-F-053) · 생산분석 대시보드 전용 스타일
+   "생산일보, 이렇게 쓰면 쉬워요" 교육자료의 색상 규칙을 그대로 따른다:
+     입력칸(파란 굵게) = 현장이 매일 채움 / 계산칸(회색) = 절대 손대지 않음
+   토큰은 dkj-tokens.css 재사용.
+   ============================================================ */
+
+.prod-help {
+  margin: -6px 0 14px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.prod-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: #fff;
+}
+
+.prod-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+  font-size: 12.5px;
+}
+
+.prod-table-sm { min-width: 640px; }
+
+.prod-table th {
+  background: var(--nh-green-50);
+  color: var(--nh-green-ink);
+  padding: 8px 6px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 11.5px;
+  line-height: 1.25;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.prod-table td {
+  padding: 5px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* 입력칸 — 파란 굵은 글씨(현장이 매일 입력) */
+.prod-table input,
+.prod-table select {
+  width: 100%;
+  min-width: 76px;
+  min-height: 40px;
+  padding: 6px 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--nh-green-ink);
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.prod-table input:focus,
+.prod-table select:focus {
+  outline: 2px solid var(--nh-green);
+  outline-offset: -1px;
+  border-color: var(--nh-green);
+}
+
+.prod-table input.prod-key {
+  background: var(--nh-yellow-50);
+  border-color: var(--nh-yellow);
+}
+
+/* 계산칸 — 회색 글씨(자동계산, 절대 손대지 않음) */
+.prod-table td.prod-calc {
+  color: var(--ink-3);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.prod-calc.prod-neg { color: var(--st-ng); }
+.prod-calc.prod-pos { color: var(--st-done); }
+
+.prod-table tr.prod-subtotal td {
+  background: #fbfcfb;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.prod-table tr.prod-grandtotal td {
+  background: var(--nh-green-50);
+  font-weight: 800;
+  color: var(--nh-green-ink);
+  border-top: 2px solid var(--nh-green);
+}
+
+.prod-act { white-space: nowrap; }
+
+.prod-del {
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--st-ng-line);
+  background: var(--st-ng-bg);
+  color: var(--st-ng);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.prod-action { text-align: left; font-size: 11.5px; color: var(--ink-2); }
+
+/* 검증 배지 */
+.prod-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.prod-badge.ok { background: var(--st-done-bg); color: var(--st-done); }
+.prod-badge.ng { background: var(--st-ng-bg); color: var(--st-ng); }
+.prod-badge.off { background: var(--st-off-bg); color: var(--st-off); }
+
+/* KPI 카드 줄 */
+.prod-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.prod-kpi {
+  background: #fbfcfb;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.prod-kpi span { font-size: 11.5px; color: var(--ink-3); font-weight: 600; }
+.prod-kpi strong { font-size: 19px; font-weight: 800; color: var(--nh-green-ink); letter-spacing: -.02em; }
+.prod-kpi strong.prod-neg { color: var(--st-ng); }
+.prod-kpi strong.prod-pos { color: var(--st-done); }
+
+.prod-judge {
+  border-radius: var(--r-s);
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.prod-judge.ok { background: var(--st-done-bg); color: var(--st-done); }
+.prod-judge.ng { background: var(--st-ng-bg); color: var(--st-ng); }
+
+.prod-subhead {
+  margin: 14px 0 6px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--nh-green-ink);
+}
+
+.prod-tip {
+  background: var(--nh-yellow-50);
+  border: 1px solid var(--nh-yellow);
+  border-radius: var(--r-s);
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b4e00;
+}
+
+/* 대시보드 전용 */
+.prod-dash-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.prod-dash-toolbar select,
+.prod-dash-toolbar input {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  font-size: 13.5px;
+  font-family: inherit;
+}
+
+.prod-trend {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.prod-lever-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.prod-lever-card h4 { margin: 0 0 6px; font-size: 14px; font-weight: 800; color: var(--nh-green-ink); }
+.prod-lever-card p { margin: 0 0 8px; font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
+.prod-lever-card .prod-lever-meta { font-size: 12px; color: var(--ink-3); display: flex; gap: 14px; flex-wrap: wrap; }
+
+/* 원료별 수율 소그룹 차트 */
+.prod-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+.prod-item-grid.single { grid-template-columns: 1fr; max-width: 760px; }
+
+.prod-item-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  padding: 14px 16px 10px;
+}
+.prod-item-card h4 { margin: 0 0 6px; font-size: 14px; font-weight: 800; color: var(--nh-green-ink); }
+
+.prod-chart-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.prod-chart-legend i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+@media (max-width: 900px) {
+  .prod-kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .prod-kpi-row { grid-template-columns: 1fr; }
+}
+
+/* 생산일지 인쇄 — 한 장(A4)에 들어가도록 촘촘하게 */
+@media print {
+  .prod-print-page { font-size: 7.6pt; }
+  .prod-print-page .ps-title { font-size: 12pt; }
+  .prod-print-page .ps-docno { font-size: 7pt; }
+  .prod-print-page .ps-grid th,
+  .prod-print-page .ps-grid td,
+  .prod-print-page .ps-info th,
+  .prod-print-page .ps-info td {
+    padding: 2pt 3pt;
+    font-size: 7pt;
+  }
+  .prod-print-page .ps-foot { margin-top: 5pt; font-size: 7.6pt; line-height: 1.35; }
+  .prod-print-page .ps-brand { margin-top: 6pt; }
+}
