@@ -11,6 +11,55 @@
   color: var(--ink-3);
 }
 
+/* 직원/전처리/외포장/계절 인원 스테퍼 — 칸이 셀 전체로 늘어나지 않게 내용 크기로 고정 */
+.prod-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+}
+
+.prod-step-btn {
+  flex: 0 0 auto;
+  width: 48px;
+  min-height: var(--tap);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  background: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  font-family: inherit;
+  color: var(--nh-green-ink);
+  cursor: pointer;
+}
+
+.prod-step-btn:active {
+  background: var(--nh-green-50);
+  border-color: var(--nh-green);
+}
+
+.prod-stepper .prod-step-input {
+  flex: 0 0 auto;
+  width: 92px;
+  min-height: var(--tap);
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  text-align: center;
+  color: var(--ink);
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.prod-stepper .prod-step-input:focus {
+  outline: 2px solid var(--nh-green);
+  outline-offset: -1px;
+  border-color: var(--nh-green);
+}
+
 .prod-table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -74,6 +123,11 @@
 .prod-table input.prod-key {
   background: var(--nh-yellow-50);
   border-color: var(--nh-yellow);
+}
+
+/* 원재료명 선택칸 — 이름이 잘리지 않도록 다른 입력칸보다 넓게 */
+.prod-table select[data-f="name"] {
+  min-width: 132px;
 }
 
 /* 계산칸 — 회색 글씨(자동계산, 절대 손대지 않음) */
