@@ -74,6 +74,8 @@
       checks: checks,
       notes: notes,
       signs: new Array(n).fill(''),
+      // 생산 없는 요일(예: 토요일 휴무) 표시 — true 인 열은 "전체 적합"에서 제외한다.
+      offDays: new Array(n).fill(false),
       incidents: incidents,
       approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
       signoff: {},
@@ -156,7 +158,8 @@
         var lab = (spec.dayLabels && spec.dayLabels[i]) || '';
         var main = LABEL_MODE ? lab : (WEEK_MODE ? (lab || (i + 1) + '주') : md);
         var sub = LABEL_MODE ? '' : (WEEK_MODE ? md : lab);
-        out += '<th class="mxf-day"><span>' + esc(main) + '</span><small>' + esc(sub) + '</small></th>';
+        var off = state.offDays && state.offDays[i];
+        out += '<th class="mxf-day' + (off ? ' mxf-day-off' : '') + '"><span>' + esc(main) + '</span><small>' + esc(sub) + '</small></th>';
       }
       return out;
     }
@@ -170,9 +173,44 @@
       return c;
     }
 
+    /** "생산 없는 열" 토글 바 — 켜진 열은 전체 적합에서 제외되고 헤더가 회색으로 표시된다. */
+    function renderOffDaysBar() {
+      var grid = $('matrixGrid');
+      if (!grid || !grid.parentNode) return;
+      var bar = document.getElementById('mxOffDaysBar');
+      if (!bar) {
+        bar = document.createElement('div');
+        bar.className = 'mxf-offdays';
+        bar.id = 'mxOffDaysBar';
+        grid.parentNode.insertBefore(bar, grid);
+      }
+      if (!state.offDays || state.offDays.length !== N) {
+        state.offDays = (state.offDays || []).slice(0, N);
+        while (state.offDays.length < N) state.offDays.push(false);
+      }
+      bar.innerHTML = '<span class="mxf-offdays-label">생산 없는 ' + (WEEK_MODE ? '요일' : '열') + '(전체 적합 시 제외):</span>' +
+        state.offDays.map(function (off, i) {
+          var lab = (spec.dayLabels && spec.dayLabels[i]) || (i + 1) + '';
+          return '<button type="button" class="mxf-offday-chip' + (off ? ' is-off' : '') +
+            '" data-offday="' + i + '" aria-pressed="' + (off ? 'true' : 'false') + '">' + esc(lab) + '</button>';
+        }).join('');
+      bar.querySelectorAll('[data-offday]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (state.locked) return;
+          var i = Number(btn.getAttribute('data-offday'));
+          state.offDays[i] = !state.offDays[i];
+          renderOffDaysBar();
+          renderMatrix();
+          renderSummary();
+          scheduleDraft();
+        });
+      });
+    }
+
     function renderMatrix() {
       var host = $('matrixGrid');
       if (!host) return;
+      renderOffDaysBar();
       var head =
         '<tr>' +
         (LEAD
@@ -294,23 +332,28 @@
     /* ---------- 요약 ---------- */
 
     function stats() {
-      var o = 0, x = 0, n = 0, blank = 0;
+      var o = 0, x = 0, n = 0, blank = 0, total = 0;
+      var off = state.offDays || [];
       ROWS.forEach(function (r) {
         var v = state.checks[r.key] || [];
         for (var d = 0; d < N; d++) {
+          if (off[d]) continue; // 생산 없는 요일은 집계에서 제외한다
+          total++;
           if (!v[d]) blank++;
           else if (v[d] === 'X') x++;
           else if (v[d] === '-') n++;
           else o++;
         }
       });
-      return { o: o, x: x, n: n, blank: blank, total: ROWS.length * N };
+      return { o: o, x: x, n: n, blank: blank, total: total };
     }
 
-    /** 열(하루)이 전부 채워졌는지 */
+    /** 열(하루)이 전부 채워졌는지 — 생산 없는 요일은 완료 집계에서 뺀다 */
     function filledDays() {
       var out = [];
+      var off = state.offDays || [];
       for (var d = 0; d < N; d++) {
+        if (off[d]) continue;
         var ok = ROWS.every(function (r) { return (state.checks[r.key] || [])[d]; });
         if (ok) out.push(d);
       }
@@ -516,8 +559,13 @@
           hasChecks: true,
           onAllPass: function () {
             if (state.locked) return;
+            var off = state.offDays || [];
             ROWS.forEach(function (r) {
-              state.checks[r.key] = new Array(N).fill('O');
+              if (!state.checks[r.key]) state.checks[r.key] = new Array(N).fill('');
+              for (var d = 0; d < N; d++) {
+                if (off[d]) continue; // 생산 없는 열은 비워둔다
+                state.checks[r.key][d] = 'O';
+              }
             });
             renderMatrix();
             renderSummary();

@@ -21,7 +21,7 @@
     <div class="container">
       <div>
         <h1>DKJ-S-02-01 작업장 위생점검 일지</h1>
-        <p>선행요건 · 매일 점검 · 주 단위 결재 · 35항목 × 6일 · PRP-001/002 연계</p>
+        <p>선행요건 · 매일 점검 · 주 단위 결재 · 35항목 × 7일 · PRP-001/002 연계</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <a class="pill-btn ghost" href="../records-center.html?cat=daily">← 기록목록</a><a class="pill-btn ghost" href="../doc-viewer.html?id=PRP-001">PRP-001</a>
@@ -42,11 +42,13 @@
       <div class="dkj-field-grid">
         <div class="dkj-field"><label for="weekStart">점검 주차 시작일(월) *</label><input type="date" id="weekStart"></div>
         <div class="dkj-field"><label>점검 기간</label><div class="mxf-range" id="weekRange">—</div></div>
+      </div>
+      <div class="dkj-field-grid mxf-approval-row">
         <div class="dkj-field"><label for="writer">작성 *</label><input type="text" id="writer" placeholder="점검자"></div>
         <div class="dkj-field"><label for="reviewer">검토</label><input type="text" id="reviewer" placeholder="HACCP팀장"></div>
         <div class="dkj-field"><label for="approver">승인</label><input type="text" id="approver" placeholder="센터장"></div>
       </div>
-      <p class="mxf-hint">※ 종이 정본과 동일하게 <strong>1장 = 1주(월~토 6일)</strong> 이며, 결재는 주 단위로 실시합니다.</p>
+      <p class="mxf-hint">※ <strong>1장 = 1주(월~일 7일)</strong> 이며, 결재는 주 단위로 실시합니다. 생산이 없는 요일은 아래 점검표 상단의 요일 버튼으로 제외할 수 있습니다.</p>
     </section>
 
     <section class="dkj-panel">

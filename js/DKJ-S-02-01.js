@@ -10,14 +10,15 @@
   "subtitle": "선행요건 · 매일 점검 · 주 단위 결재 · PRP-001/002 연계",
   "pattern": "matrix",
   "period": "week",
-  "days": 6,
+  "days": 7,
   "dayLabels": [
     "월",
     "화",
     "수",
     "목",
     "금",
-    "토"
+    "토",
+    "일"
   ],
   "docNo": "DKJ-S-02-01",
   "rev": "0",
