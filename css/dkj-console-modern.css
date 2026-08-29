@@ -1,0 +1,284 @@
+/* ============================================================
+   동김제농협 FSSC22000 업무 콘솔 — 2026 대시보드 리디자인
+   첨부 시안의 남색 사이드바·밝은 카드·농협 포인트 컬러를
+   기존 DOM과 업무 기능을 바꾸지 않고 적용하는 표현 계층이다.
+   ============================================================ */
+
+:root {
+  --navy-950: #061b38;
+  --navy-900: #08264a;
+  --navy-800: #0d3562;
+  --blue-600: #2563eb;
+  --blue-50: #eff6ff;
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --ink: #15233b;
+  --ink-2: #526078;
+  --ink-3: #8490a3;
+  --line: #e7ebf2;
+  --nh-green-ink: #063f2b;
+  --r-l: 18px;
+  --r-m: 12px;
+  --shadow: 0 8px 30px rgba(20, 43, 78, .055), 0 1px 3px rgba(20, 43, 78, .045);
+  --wrap: 1540px;
+}
+
+.console-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 92% 4%, rgba(37, 99, 235, .06), transparent 26rem),
+    var(--bg);
+}
+
+.ck-main { padding: 28px 30px 56px; }
+.ck-sec { margin-bottom: 30px; }
+
+.ck-sec-head {
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.ck-sec-head h2 {
+  color: #15294b;
+  font-size: 19px;
+  letter-spacing: -.025em;
+}
+
+.ck-card,
+.ck-tile,
+.ck-qbtn {
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+
+.ck-card { padding: 20px 22px; }
+.ck-card h3 { color: #1a2d4d; font-size: 15px; }
+
+.ck-shift-status {
+  min-height: 124px;
+  padding: 24px 26px;
+  border: 1px solid #dceee5;
+  background:
+    linear-gradient(110deg, rgba(236, 249, 242, .96), rgba(255, 255, 255, .98) 64%),
+    #fff;
+  box-shadow: var(--shadow);
+}
+
+.ck-shift-status h1 { color: #123354; font-size: 24px; }
+.ck-shift-icon { border-radius: 14px; }
+
+.ck-tile {
+  min-height: 126px;
+  border-width: 1px;
+  padding: 18px 20px;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.ck-tile:hover {
+  transform: translateY(-2px);
+  border-color: #cad5e5;
+  box-shadow: 0 13px 34px rgba(20, 43, 78, .09);
+}
+
+.ck-tile.is-todo { border-left: 4px solid var(--nh-yellow); }
+.ck-tile.is-done { border-left: 4px solid var(--nh-green); }
+.ck-tile.is-ng { border-left: 4px solid var(--st-ng); }
+.ck-tile.is-part { border-left: 4px solid #f59e0b; }
+.ck-tile-name { color: #162945; }
+
+.ck-bar-track { background: #edf1f7; }
+.ck-bar-fill { background: linear-gradient(90deg, #159f61, #22b875); }
+.ck-qbtn:hover { border-color: #9fb4d1; color: #123b6a; background: #f8fbff; }
+
+.ck-cal-cell { border-color: #e5eaf1; }
+.ck-cal-cell.is-today { outline-color: var(--blue-600); }
+
+/* 데스크톱: 시안의 왼쪽 고정 내비게이션 */
+@media (min-width: 1181px) {
+  .console-page { padding-left: 238px; }
+
+  .ck-header {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 238px;
+    height: 100vh !important;
+    padding: 22px 16px 18px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    overflow-y: auto !important;
+    background: linear-gradient(180deg, var(--navy-950), var(--navy-900)) !important;
+    box-shadow: 10px 0 30px rgba(6, 27, 56, .08);
+  }
+
+  .ck-brand {
+    width: 100%;
+    min-width: 0 !important;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ck-wordmark {
+    width: 100%;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .ck-wordmark-symbol {
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    flex-basis: 36px !important;
+  }
+
+  .ck-wordmark-name b { font-size: 13px; }
+
+  .ck-brand::after {
+    content: "FSSC 22000 통합 관리";
+    display: block;
+    margin: 11px 4px 0;
+    color: rgba(255,255,255,.58);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+
+  .ck-header-right {
+    width: 100%;
+    margin: 0;
+    flex: 1;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .ck-today {
+    margin: 0 4px 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,.07);
+    color: rgba(255,255,255,.72);
+    text-align: center;
+  }
+
+  .ck-hbtn {
+    width: 100%;
+    height: 46px;
+    padding: 0 13px;
+    justify-content: flex-start;
+    gap: 11px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: rgba(255,255,255,.78);
+    font-size: 13.5px;
+    font-weight: 650;
+  }
+
+  .ck-hbtn::before {
+    width: 21px;
+    flex: 0 0 21px;
+    color: #7fa7d5;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .ck-hbtn[href="#todayTasks"]::before { content: "▦"; }
+  .ck-hbtn[href*="DKJ-F-053"]::before { content: "▤"; }
+  .ck-hbtn[href="production-dashboard.html"]::before { content: "⌁"; }
+  .ck-hbtn[href="records-center.html"]::before { content: "▧"; }
+  .ck-hbtn[href="quality-dashboard.html"]::before { content: "◇"; }
+  .ck-hbtn[href="records-archive.html"]::before { content: "▣"; }
+  .ck-hbtn[href="docs-center.html"]::before { content: "▱"; }
+
+  .ck-hbtn:hover {
+    background: rgba(255,255,255,.08);
+    color: #fff;
+  }
+
+  .ck-hbtn.primary {
+    border-color: rgba(78, 151, 255, .42);
+    background: linear-gradient(135deg, #1769e8, #1d7af2);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0, 83, 207, .25);
+  }
+
+  #btnHeaderLang {
+    order: 20;
+    margin-top: auto;
+    background: rgba(255, 199, 44, .10) !important;
+    border-color: rgba(255, 199, 44, .25) !important;
+    color: #ffe49a !important;
+  }
+
+  #btnHeaderLang::before { content: "◎"; color: #ffd45b; }
+
+  .ck-menu-toggle { order: 21; }
+  .ck-menu-toggle::before { content: "☰"; }
+  .ck-menu-toggle .ck-menu-icon { display: none; }
+
+  .ck-main {
+    width: 100%;
+    max-width: var(--wrap);
+    margin: 0 auto;
+  }
+
+  .ck-alert-banner { top: 20px; }
+}
+
+/* 태블릿·모바일: 짧고 단정한 상단 도구막대 */
+@media (max-width: 1180px) {
+  .ck-header {
+    background: linear-gradient(110deg, var(--navy-950), var(--navy-800)) !important;
+    box-shadow: 0 4px 20px rgba(6, 27, 56, .13);
+  }
+
+  .ck-wordmark { border-radius: 12px; }
+  .ck-hbtn { background: rgba(255,255,255,.06); }
+  .ck-hbtn.primary { background: #1769e8; border-color: #4c91f5; }
+}
+
+@media (max-width: 639px) {
+  .ck-header { padding: 10px 12px; }
+  .ck-header-right { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 3px; }
+  .ck-today { display: none; }
+  .ck-hbtn { width: auto; min-height: 44px; }
+  .ck-main { padding: 18px 12px 44px; }
+  .ck-sec-head { align-items: flex-start; flex-wrap: wrap; gap: 4px 10px; }
+  .ck-sec-head p { flex-basis: 100%; }
+  .ck-card { padding: 17px 16px; }
+  .ck-shift-status { border-radius: 16px; }
+  .ck-tile { border-radius: 15px; }
+}
+
+/* --- 인쇄: 고정 사이드바 해제 --- */
+@media print {
+  .ck-header { display: none !important; }
+  .console-page { padding-left: 0; background: #fff; }
+}
+
+/* --- 다크모드: 남색 계열로 토큰 재정의 --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1622;
+    --card: #16202e;
+    --ink: #e6edf6;
+    --ink-2: #a9b6c7;
+    --ink-3: #7d8b9d;
+    --line: #263346;
+  }
+  .console-page { background: var(--bg); }
+  .ck-shift-status {
+    background: #16202e;
+    border-color: #263346;
+  }
+  .ck-shift-status h1 { color: #e6edf6; }
+  .ck-sec-head h2 { color: #dbe6f4; }
+  .ck-card h3 { color: #dbe6f4; }
+  .ck-tile-name { color: #e6edf6; }
+  .ck-bar-track { background: #22304a; }
+  .ck-cal-cell { border-color: #263346; }
+  .ck-qbtn:hover { background: #1b2739; border-color: #3a4c68; color: #cfe0f6; }
+}
