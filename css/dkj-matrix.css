@@ -157,7 +157,7 @@
 
 .mxf-sign {
   width: 100%;
-  min-width: 48px;
+  min-width: 70px;
   height: 36px;
   border: 1px solid #cde0d5;
   background: #fdfefe;
@@ -211,11 +211,16 @@
 
 .mxf-inc td input {
   width: 100%;
-  height: 32px;
+  height: 40px;
   border: 1px solid #e2e7e4;
   border-radius: 6px;
   padding: 0 6px;
   font-size: 12.5px;
+}
+
+/* 조치자·확인자 등 사람 이름 입력칸 — 좁은 %열(8%)이라도 이름이 잘리지 않게 최소 폭을 둔다 */
+.mxf-inc td input[list="dkjStaffList"] {
+  min-width: 78px;
 }
 
 .dkj-form-body.is-locked .mxf-scroll { opacity: .92; }
