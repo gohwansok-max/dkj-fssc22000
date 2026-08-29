@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/dkj-tokens.css?v=57">
   <link rel="stylesheet" href="css/dkj-console.css?v=57">
   <link rel="stylesheet" href="css/dkj-console-modern.css?v=57">
+  <link rel="stylesheet" href="css/dkj-yield-widget.css?v=57">
   <link rel="manifest" href="manifest.json?v=57">
   <link rel="stylesheet" href="css/dkj-accessibility.css?v=57">
 </head>
@@ -131,6 +132,27 @@
       </div>
     </section>
 
+    <!-- 3-1. 수율 추이 -->
+    <section class="ck-sec">
+      <div class="ck-sec-head">
+        <h2>수율 추이</h2>
+        <p>저장된 생산일지(DKJ-F-053)에서 자동으로 계산합니다</p>
+      </div>
+      <div class="ck-card">
+        <div class="ck-yield-head">
+          <div>
+            <h3>가중평균 실적수율</h3>
+            <p class="ck-sub" id="ckYieldSub">저장된 생산일지 기준</p>
+          </div>
+          <a class="link-chip sm" href="production-dashboard.html">생산분석 대시보드 →</a>
+        </div>
+        <div class="ck-kpi" id="ckYieldKpi" style="margin:2px 0 12px;">
+          <b id="ckYieldValue">—</b><span id="ckYieldDeltaText"></span>
+        </div>
+        <div id="ckYieldChart" class="ck-yield-chart"></div>
+      </div>
+    </section>
+
     <!-- 3. 월 기록 캘린더 -->
     <section class="ck-sec">
       <div class="ck-sec-head">
@@ -206,6 +228,10 @@
   <script src="js/dkj-telegram-config.js?v=57"></script>
   <script src="js/dkj-calendar.js?v=57"></script>
   <script src="js/dkj-console.js?v=57"></script>
+  <script src="js/dkj-record-store.js?v=57"></script>
+  <script src="js/dkj-master-data.js?v=57"></script>
+  <script src="js/dkj-production-calc.js?v=57"></script>
+  <script src="js/dkj-yield-widget.js?v=57"></script>
   <script src="js/dkj-chatbot.js?v=57"></script>
   <script src="js/dkj-pwa.js?v=57"></script>
   <script src="js/dkj-menu.js?v=57"></script>

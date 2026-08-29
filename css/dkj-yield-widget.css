@@ -1,0 +1,61 @@
+/* ============================================================
+   업무 콘솔 — 수율 추이 위젯 (index.html 전용)
+   관리자가 매일 첫 화면에서 생산 수율을 확인하고 목표 대비를 바로
+   판단할 수 있도록 하는 카드. 계산은 js/dkj-production-calc.js 하나만
+   쓰고, 색상은 dkj-tokens.css 토큰을 그대로 참조해 다크모드도 따라간다.
+   ============================================================ */
+
+.ck-yield-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.ck-yield-head h3 { margin: 0 0 4px; }
+
+.ck-yield-chart { margin-top: 6px; }
+
+.ck-yield-chart svg { display: block; }
+
+.ck-yield-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.ck-yield-legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+.ck-yield-legend i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.ckyw-dot-ok { background: var(--st-done); }
+.ckyw-dot-ng { background: var(--st-ng); }
+
+.ck-yield-legend .ckyw-legend-note {
+  margin-left: auto;
+  font-style: normal;
+}
+
+.ck-yield-empty {
+  margin: 4px 0 0;
+  padding: 22px 4px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+@media (max-width: 640px) {
+  .ck-yield-legend .ckyw-legend-note { display: none; }
+}
