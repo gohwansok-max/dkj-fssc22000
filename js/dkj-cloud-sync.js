@@ -79,7 +79,7 @@
    * 규칙이 열려 있어도 401 로 거부된다. 로컬 로그인이면 auth= 자체를 빼고 익명으로 보낸다. */
   function isRealToken(t) { return !!t && String(t).indexOf('local-token-') !== 0; }
 
-  async function request(path, method, data) {
+  async function request(path, method, data, retried) {
     var root = String(CFG.databaseURL || '').replace(/\/$/, '') + '/' + (CFG.root || 'dkj-fssc22000');
     var token = auth().token();
     var authParam = isRealToken(token) ? ('?auth=' + encodeURIComponent(token)) : '';
@@ -90,8 +90,12 @@
       body: data === undefined ? undefined : JSON.stringify(data)
     });
     if (r.status === 401) {
+      /* 로컬 계정 세션(가짜 토큰)이면 재인증할 진짜 Firebase 자격이 애초에 없으므로 재시도해도
+       * 똑같이 401이 난다 — 무한 재시도 루프를 막기 위해 한 번만 시도하고, 진짜 토큰이었을 때만
+       * 재인증을 건다. */
+      if (retried || !isRealToken(token)) throw new Error('HTTP 401');
       await auth().reauth();
-      return request(path, method, data);
+      return request(path, method, data, true);
     }
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
