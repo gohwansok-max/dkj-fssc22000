@@ -363,6 +363,11 @@
    * 계정 정보는 시스템 설정 화면에서 별도로 관리하고, 세션은 기기마다 달라야 한다. */
   var SETTINGS_EXCLUDE_RE = /^dkj:(auth:|chatbot:)/;
 
+  /** 작성 중 임시본(draft) — LIST_RE 에 안 걸려 '설정'으로 백업엔 담기지만, 복원 때
+   * 그대로 덮어쓰면 지금 기기에서 더 진행된 임시본을 백업 시점의 옛 임시본으로 지울 수
+   * 있다. 병합할 배열이 아니라 통짜 객체라 id 병합도 못 쓰므로, 아예 복원 대상에서 뺀다. */
+  var DRAFT_RE = /^dkj:records:(.+):draft:v1$/;
+
   /** 기록 목록(id·updatedAt 기준 병합)을 실제 저장소에 반영한다 — 같은 id 는 최신본만 남긴다. */
   function restoreRecordsFrom(recordsObj) {
     var added = 0;
@@ -412,14 +417,16 @@
     return { records: Object.keys(dump.records).length, settings: Object.keys(dump.settings).length };
   }
 
-  /** 전체 백업 복원 — 기록은 병합, 설정값은 백업 시점 값으로 덮어쓴다. */
+  /** 전체 백업 복원 — 기록은 병합, 설정값은 백업 시점 값으로 덮어쓴다.
+   * 작성 중 임시본(draft)은 복원하지 않는다 — 지금 기기에서 더 진행된 입력을
+   * 백업 시점의 옛 임시본으로 덮어쓸 수 있어서다. */
   function restoreFullBackup(text) {
     var dump = JSON.parse(text);
     if (!dump || (!dump.records && !dump.settings)) throw new Error('BAD_BACKUP');
     var recordsAdded = restoreRecordsFrom(dump.records);
     var settingsRestored = 0;
     Object.keys(dump.settings || {}).forEach(function (key) {
-      if (!key || key.indexOf('dkj:') !== 0 || LIST_RE.test(key) || SETTINGS_EXCLUDE_RE.test(key)) return;
+      if (!key || key.indexOf('dkj:') !== 0 || LIST_RE.test(key) || SETTINGS_EXCLUDE_RE.test(key) || DRAFT_RE.test(key)) return;
       try {
         var v = dump.settings[key];
         localStorage.setItem(key, typeof v === 'string' ? v : JSON.stringify(v));
