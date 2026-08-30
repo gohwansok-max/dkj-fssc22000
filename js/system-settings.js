@@ -292,6 +292,48 @@
     }
   }
 
+  function renderLastBackupStatus() {
+    var el = $('lastBackupStatus');
+    if (!el || !window.DkjExport) return;
+    var last = window.DkjExport.lastBackupAt();
+    el.textContent = last ? ('마지막 백업: ' + fmt(last)) : '아직 전체 백업을 한 번도 받지 않았습니다.';
+  }
+
+  function handleFullBackup() {
+    var msgEl = $('fullBackupMsg');
+    try {
+      var result = window.DkjExport.toFullBackup();
+      if (msgEl) { msgEl.style.color = '#006b3f'; msgEl.textContent = '✅ 백업 파일을 내려받았습니다 (기록 ' + result.records + '종 · 설정 ' + result.settings + '건).'; }
+      addAudit('전체 데이터 백업 다운로드', '시스템', '기록 ' + result.records + '종 · 설정 ' + result.settings + '건');
+      renderLastBackupStatus();
+    } catch (e) {
+      if (msgEl) { msgEl.style.color = '#b42318'; msgEl.textContent = '❌ 백업 실패: ' + e.message; }
+    }
+  }
+
+  function handleFullRestoreFile() {
+    var file = this.files && this.files[0];
+    if (!file) return;
+    if (!confirm('백업 파일로 복원하시겠습니까?\n기록은 최신 것만 남도록 병합되고, 설정값은 백업 시점 값으로 되돌아갑니다.')) {
+      this.value = '';
+      return;
+    }
+    var msgEl = $('fullBackupMsg');
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var result = window.DkjExport.restoreFullBackup(String(reader.result));
+        if (msgEl) { msgEl.style.color = '#006b3f'; msgEl.textContent = '✅ 복원 완료 — 새 기록 ' + result.records + '건, 설정 ' + result.settings + '건 반영.'; }
+        addAudit('전체 데이터 복원', '시스템', '새 기록 ' + result.records + '건 · 설정 ' + result.settings + '건');
+        alert('복원이 완료됐습니다. 화면을 새로고침하면 반영된 내용을 볼 수 있습니다.');
+      } catch (e) {
+        if (msgEl) { msgEl.style.color = '#b42318'; msgEl.textContent = '❌ 복원 실패 — 백업 파일이 아니거나 손상됐습니다.'; }
+      }
+    };
+    reader.readAsText(file);
+    this.value = '';
+  }
+
   async function loadData() {
     var auth = window.DkjAuth;
     var me = auth && auth.user ? auth.user() : null;
@@ -319,6 +361,7 @@
     renderUsers();
     renderAudit();
     loadTelegramConfig();
+    renderLastBackupStatus();
   }
 
   function boot() {
@@ -333,6 +376,16 @@
     var btnTestTg = $('btnTestTelegram');
     if (btnTestTg) {
       btnTestTg.addEventListener('click', handleTestTelegram);
+    }
+    var btnFullBackup = $('btnFullBackup');
+    if (btnFullBackup) {
+      btnFullBackup.addEventListener('click', handleFullBackup);
+    }
+    var btnFullRestore = $('btnFullRestore');
+    var fullRestoreFile = $('fullRestoreFile');
+    if (btnFullRestore && fullRestoreFile) {
+      btnFullRestore.addEventListener('click', function () { fullRestoreFile.click(); });
+      fullRestoreFile.addEventListener('change', handleFullRestoreFile);
     }
     document.addEventListener('dkj:auth-ready', loadData);
     if (window.DkjAuth && window.DkjAuth.user && window.DkjAuth.user()) {

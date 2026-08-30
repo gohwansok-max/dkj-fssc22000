@@ -344,6 +344,12 @@
     });
   }
 
+  /** 마지막 백업 시각 — js/dkj-backup-reminder.js 가 이 키를 읽어 주 1회 백업 배너를 띄운다. */
+  var LAST_BACKUP_KEY = 'dkj:backup:lastBackupAt:v1';
+  function markBackedUp() {
+    try { localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString()); } catch (e) {}
+  }
+
   /** 전체 기록 원본 백업 — 복원 가능한 형태(JSON). */
   function toJsonBackup(filename) {
     var dump = { site: '동김제농협 산지유통센터', exportedAt: new Date().toISOString(), records: {} };
@@ -356,17 +362,27 @@
     }
     download(new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' }),
       filename || ('동김제_기록백업_' + stamp() + '.json'));
+    markBackedUp();
     return Object.keys(dump.records).length;
   }
 
-  /** 백업 JSON 복원 — 같은 id 는 최신(updatedAt)만 남긴다. */
-  function restoreJson(text) {
-    var dump = JSON.parse(text);
-    if (!dump || !dump.records) throw new Error('BAD_BACKUP');
+  /** 로그인 세션·토큰(dkj:auth:*)과 챗봇 대화(dkj:chatbot:*)는 백업에 담지 않는다 —
+   * 계정 정보는 시스템 설정 화면에서 별도로 관리하고, 세션은 기기마다 달라야 한다.
+   * dkj:backup:* 는 '언제 백업했는가' 메타 정보라 백업 내용물이 아니다 — 옛 백업을
+   * 복원할 때 이 값까지 되돌아가면 방금 한 백업이 안 한 것처럼 보이므로 제외한다. */
+  var SETTINGS_EXCLUDE_RE = /^dkj:(auth:|chatbot:|backup:)/;
+
+  /** 작성 중 임시본(draft) — LIST_RE 에 안 걸려 '설정'으로 백업엔 담기지만, 복원 때
+   * 그대로 덮어쓰면 지금 기기에서 더 진행된 임시본을 백업 시점의 옛 임시본으로 지울 수
+   * 있다. 병합할 배열이 아니라 통짜 객체라 id 병합도 못 쓰므로, 아예 복원 대상에서 뺀다. */
+  var DRAFT_RE = /^dkj:records:(.+):draft:v1$/;
+
+  /** 기록 목록(id·updatedAt 기준 병합)을 실제 저장소에 반영한다 — 같은 id 는 최신본만 남긴다. */
+  function restoreRecordsFrom(recordsObj) {
     var added = 0;
-    Object.keys(dump.records).forEach(function (key) {
+    Object.keys(recordsObj || {}).forEach(function (key) {
       if (!LIST_RE.test(key)) return;
-      var incoming = dump.records[key] || [];
+      var incoming = recordsObj[key] || [];
       var current = [];
       try { current = JSON.parse(localStorage.getItem(key)) || []; } catch (e) {}
       var byId = {};
@@ -384,6 +400,57 @@
     return added;
   }
 
+  /** 백업 JSON 복원 — 같은 id 는 최신(updatedAt)만 남긴다. */
+  function restoreJson(text) {
+    var dump = JSON.parse(text);
+    if (!dump || !dump.records) throw new Error('BAD_BACKUP');
+    return restoreRecordsFrom(dump.records);
+  }
+
+  /** 전체 백업 — 기록 전체 + 시스템 설정(텔레그램 알림, 가동 캘린더, 생산 목표 등)을
+   * 한 파일에 담는다. 로그인 세션·비밀번호 캐시(dkj:auth:*)는 담지 않는다. */
+  function toFullBackup(filename) {
+    var dump = { site: '동김제농협 산지유통센터', exportedAt: new Date().toISOString(), records: {}, settings: {} };
+    var keys = storageKeys();
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      if (!key) continue;
+      if (LIST_RE.test(key)) {
+        try { dump.records[key] = JSON.parse(localStorage.getItem(key)); } catch (e) {}
+      } else if (key.indexOf('dkj:') === 0 && !SETTINGS_EXCLUDE_RE.test(key)) {
+        try { dump.settings[key] = JSON.parse(localStorage.getItem(key)); } catch (e) { dump.settings[key] = localStorage.getItem(key); }
+      }
+    }
+    download(new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' }),
+      filename || ('동김제_전체백업_' + stamp() + '.json'));
+    markBackedUp();
+    return { records: Object.keys(dump.records).length, settings: Object.keys(dump.settings).length };
+  }
+
+  /** 전체 백업 복원 — 기록은 병합, 설정값은 백업 시점 값으로 덮어쓴다.
+   * 작성 중 임시본(draft)은 복원하지 않는다 — 지금 기기에서 더 진행된 입력을
+   * 백업 시점의 옛 임시본으로 덮어쓸 수 있어서다. */
+  function restoreFullBackup(text) {
+    var dump = JSON.parse(text);
+    if (!dump || (!dump.records && !dump.settings)) throw new Error('BAD_BACKUP');
+    var recordsAdded = restoreRecordsFrom(dump.records);
+    var settingsRestored = 0;
+    Object.keys(dump.settings || {}).forEach(function (key) {
+      if (!key || key.indexOf('dkj:') !== 0 || LIST_RE.test(key) || SETTINGS_EXCLUDE_RE.test(key) || DRAFT_RE.test(key)) return;
+      try {
+        var v = dump.settings[key];
+        localStorage.setItem(key, typeof v === 'string' ? v : JSON.stringify(v));
+        settingsRestored++;
+      } catch (e) {}
+    });
+    return { records: recordsAdded, settings: settingsRestored };
+  }
+
+  /** 마지막 백업 시각(ISO) — 없으면 null. js/dkj-backup-reminder.js 가 이걸로 배너를 띄운다. */
+  function lastBackupAt() {
+    try { return localStorage.getItem(LAST_BACKUP_KEY); } catch (e) { return null; }
+  }
+
   global.DkjExport = {
     collect: collect,
     filter: filter,
@@ -391,6 +458,9 @@
     toCsv: toCsv,
     toXlsx: toXlsx,
     toJsonBackup: toJsonBackup,
-    restoreJson: restoreJson
+    lastBackupAt: lastBackupAt,
+    restoreJson: restoreJson,
+    toFullBackup: toFullBackup,
+    restoreFullBackup: restoreFullBackup
   };
 })(window);
