@@ -448,15 +448,34 @@
 
   async function resume() {
     if (!configured()) throw new Error('NOT_CONFIGURED');
+    /* 로컬 디렉터리(시스템 설정에서 등록한 계정)에 있는 사번은 항상 로컬 세션으로 복원한다 —
+     * 예전(진짜 Firebase Auth 시절)에 저장된 세션·갱신 토큰 흔적이 sessionStorage/localStorage에
+     * 남아 있어도 그걸 절대 신뢰하지 않는다. 그 흔적이 깨진 토큰이면 매번 재인증→401을 반복하는
+     * 루프의 원인이 되므로, 여기서 아예 그 경로 자체를 막는다. */
+    var dir = getDirectory();
     var sess = readJson('sessionStorage', SESSION_KEY, null);
     if (sess && sess.token) {
-      persist(sess.empId, sess.name, sess.token, null, sess.uid, sess.role);
+      var sessLocalUser = dir[sess.empId];
+      if (sessLocalUser && isRealToken(sess.token)) {
+        removeStored('localStorage', refreshKey(sess.empId));
+        persist(sess.empId, sessLocalUser.name || sess.empId, 'local-token-' + sess.empId, null, 'uid-' + sess.empId, sessLocalUser.role);
+      } else {
+        persist(sess.empId, sess.name, sess.token, null, sess.uid, sess.role);
+      }
       await loadAssignedRole();
       if (global.DkjCloudSync) global.DkjCloudSync.start();
       return state;
     }
     var last = readJson('localStorage', USER_KEY, readJson('localStorage', LEGACY_USER_KEY, null));
     if (!last || !last.empId) throw new Error('NO_SESSION');
+    var lastLocalUser = dir[last.empId];
+    if (lastLocalUser) {
+      removeStored('localStorage', refreshKey(last.empId));
+      persist(last.empId, lastLocalUser.name || last.empId, 'local-token-' + last.empId, null, 'uid-' + last.empId, lastLocalUser.role);
+      await loadAssignedRole();
+      if (global.DkjCloudSync) global.DkjCloudSync.start();
+      return state;
+    }
     var saved = getStored('localStorage', refreshKey(last.empId));
     if (!saved) throw new Error('NO_SESSION');
     var d = await refresh(saved);
