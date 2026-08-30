@@ -21,12 +21,10 @@
   var writingLocal = false, timers = {}, poller = null, started = false;
 
   function auth() { return global.DkjAuth; }
-  function hasRemoteToken() {
-    if (!auth() || !auth().token()) return false;
-    var t = String(auth().token() || '');
-    return !!t && t.indexOf('local-token-') !== 0;
-  }
-  function ready() { return !!(CFG.apiKey && CFG.databaseURL && hasRemoteToken()); }
+  /* 로그인은 시스템 설정에서 등록한 로컬 계정으로 하고(Firebase Authentication 안 씀),
+   * RTDB 규칙도 그에 맞춰 인증 없이 열려 있다 — 그래서 "진짜 Firebase 토큰"인지는 더 이상
+   * 안 가리고, 이 화면에 로그인된 사람이 있는지만 본다. */
+  function ready() { return !!(CFG.apiKey && CFG.databaseURL && auth() && auth().user()); }
   function isSyncKey(k) { return !!k && KEY_RE.test(k); }
   function formIdOf(key) {
     var m = String(key || '').match(KEY_RE);
@@ -76,9 +74,16 @@
     el._t = setTimeout(function () { el.style.display = 'none'; }, 3500);
   }
 
+  /** 'local-token-…'는 이 사이트만의 표식이지 Firebase 가 아는 진짜 토큰이 아니다. RTDB REST
+   * API 는 auth= 에 뭐가 오든(빈 값이 아닌 한) 유효성부터 검사해서, 이걸 그대로 보내면
+   * 규칙이 열려 있어도 401 로 거부된다. 로컬 로그인이면 auth= 자체를 빼고 익명으로 보낸다. */
+  function isRealToken(t) { return !!t && String(t).indexOf('local-token-') !== 0; }
+
   async function request(path, method, data) {
     var root = String(CFG.databaseURL || '').replace(/\/$/, '') + '/' + (CFG.root || 'dkj-fssc22000');
-    var url = root + (path ? '/' + path : '') + '.json?auth=' + encodeURIComponent(auth().token());
+    var token = auth().token();
+    var authParam = isRealToken(token) ? ('?auth=' + encodeURIComponent(token)) : '';
+    var url = root + (path ? '/' + path : '') + '.json' + authParam;
     var r = await fetch(url, {
       method: method || 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -431,6 +436,7 @@
 
   global.DkjCloudSync = {
     start: start,
+    ready: ready,
     sync: function () { return syncAll(false); },
     lastSync: function () { try { return localStorage.getItem(LAST_SYNC_KEY); } catch (e) { return null; } },
     isSyncKey: isSyncKey,

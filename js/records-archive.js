@@ -198,7 +198,8 @@
     if (!pill) return;
     var on = window.DkjAuth && window.DkjAuth.configured();
     var user = window.DkjAuth && window.DkjAuth.user();
-    if (on && user) {
+    var syncing = window.DkjCloudSync && window.DkjCloudSync.ready && window.DkjCloudSync.ready();
+    if (syncing && user) {
       pill.textContent = '클라우드 동기화 · ' + user.name;
     } else if (on) {
       pill.textContent = '클라우드 동기화 (로그인 필요)';
@@ -217,4 +218,6 @@
 
   bind();
   load();
+  // 로그인은 페이지가 로드된 뒤 비동기로 완료된다 — 로그인 직후에도 배지가 갱신되도록 다시 그린다.
+  document.addEventListener('dkj:auth-ready', syncPill);
 })();

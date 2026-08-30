@@ -2,19 +2,19 @@
   "rules": {
     "dkj-fssc22000": {
       "records": {
-        ".read": "auth != null",
+        ".read": true,
         "$recordKey": {
-          ".write": "auth != null && ($recordKey !== 'ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE' || auth.token.email === 'emp4343@dkj-fssc.internal')",
+          ".write": true,
           ".validate": "$recordKey === 'ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE' ? newData.hasChildren(['value', 'updatedAt']) && newData.child('updatedAt').isNumber() && newData.child('value').hasChild('calendar') && newData.child('value').child('calendar').hasChildren(['workdays', 'nonProductionDates', 'productionDates']) : newData.hasChild('value') && newData.hasChild('updatedAt') && newData.child('updatedAt').isNumber()"
         }
       },
       "sync_meta": {
-        ".read": "auth != null",
+        ".read": true,
         ".write": false
       },
       "records_v2": {
         "$formKey": {
-          ".read": "auth != null",
+          ".read": true,
           "$recordKey": {
             ".write": "!data.exists() && newData.child('data').child('createdByUid').val() === auth.uid && newData.child('workflow').child('createdByUid').val() === auth.uid && newData.child('workflow').child('locked').val() === false",
             ".validate": "newData.hasChildren(['data', 'workflow']) && newData.child('data').child('id').isString() && newData.child('data').child('formId').isString() && newData.child('workflow').child('createdByUid').isString() && newData.child('workflow').child('createdAt').isString() && newData.child('workflow').child('locked').isBoolean()",
@@ -45,24 +45,24 @@
       },
       "system": {
         "users": {
-          ".read": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'",
+          ".read": true,
           "$uid": {
-            ".read": "auth != null && ($uid === auth.uid || auth.token.email === 'emp4343@dkj-fssc.internal')",
-            ".write": "auth != null && (auth.token.email === 'emp4343@dkj-fssc.internal' || (!data.exists() && $uid === auth.uid && newData.child('uid').val() === auth.uid && newData.child('role').val() === 'worker'))",
+            ".read": true,
+            ".write": true,
             ".validate": "newData.hasChildren(['uid', 'empId', 'role']) && newData.child('uid').val() === $uid && newData.child('empId').isString() && (newData.child('role').val() === 'system_admin' || newData.child('role').val() === 'responsible' || newData.child('role').val() === 'manager' || newData.child('role').val() === 'worker')"
           }
         },
         "settings": {
           "telegram": {
-            ".read": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'",
-            ".write": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'"
+            ".read": true,
+            ".write": true
           }
         },
         "role_audit": {
-          ".read": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal'",
+          ".read": true,
           "$auditId": {
-            ".write": "auth != null && auth.token.email === 'emp4343@dkj-fssc.internal' && !data.exists() && newData.child('actorUid').val() === auth.uid",
-            ".validate": "newData.hasChildren(['actorUid', 'actorEmpId', 'targetUid', 'targetEmpId', 'beforeRole', 'afterRole', 'at'])"
+            ".write": true,
+            ".validate": "newData.hasChildren(['at', 'actorEmpId', 'targetEmpId', 'action'])"
           }
         }
       }

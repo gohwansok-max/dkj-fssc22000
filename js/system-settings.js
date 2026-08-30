@@ -69,7 +69,11 @@
 
     target.innerHTML = rows.map(function (row) {
       var isRootAdmin = String(row.empId) === '4343';
-      var currentPw = row.password || row.empId || '';
+      // 다른 기기에서 등록된 뒤 클라우드에서 넘어온 계정은 이 기기에 평문 비밀번호가 없다
+      // (클라우드엔 해시만 있음) — 임의값(사번 등)으로 채우면 그대로 저장 시 실제 비밀번호가
+      // 조용히 바뀌어 버리므로, 빈 칸 + 안내문구로 두고 바꿀 때만 새로 입력하게 한다.
+      var currentPw = row.password || '';
+      var pwPlaceholder = currentPw ? '비밀번호' : '변경하려면 새 비밀번호 입력';
       return '<tr data-emp-id="' + esc(row.empId) + '">' +
         '<td>' +
           (isRootAdmin
@@ -80,7 +84,7 @@
         '<td><select class="user-role"' + (isRootAdmin ? ' disabled' : '') + '>' + optionTags(row.role || 'worker') + '</select></td>' +
         '<td>' +
           '<div class="pw-wrap">' +
-            '<input type="text" class="user-pw pw-input" maxlength="30" placeholder="비밀번호" value="' + esc(currentPw) + '">' +
+            '<input type="text" class="user-pw pw-input" maxlength="30" placeholder="' + esc(pwPlaceholder) + '" value="' + esc(currentPw) + '">' +
             '<button type="button" class="btn-pw-eye" title="비밀번호 숨기기/보기">🔒</button>' +
           '</div>' +
         '</td>' +
