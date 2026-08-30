@@ -16,9 +16,11 @@
 
   function injectStyle() {
     if (doc.querySelector('style[data-dkj="backup-reminder"]')) return;
+    /* position:fixed 로 띄우면 dkj-auth.js 가 body 맨 앞에 넣는 로그인 정보·로그아웃 바
+     * (일반 문서 흐름, 화면 맨 위)를 그대로 덮어버린다 — 고정 배치 대신 문서 흐름에 얹어
+     * 로그인 바 바로 아래로 자연스럽게 밀려나게 한다. */
     var css =
-      '.dkj-backup-bar{position:fixed;left:0;right:0;top:0;z-index:9998;' +
-      'display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;' +
+      '.dkj-backup-bar{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;' +
       'padding:10px 16px;font-size:13.5px;font-weight:700;color:#fff;background:#9b5c00;' +
       "font-family:'Noto Sans KR','Malgun Gothic',sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.15)}" +
       '.dkj-backup-bar button{border:0;border-radius:999px;padding:6px 14px;' +
@@ -63,7 +65,10 @@
     if (!el) {
       el = doc.createElement('div');
       el.id = BAR_ID;
-      doc.body.appendChild(el);
+      var authBar = doc.querySelector('.dkj-auth-bar');
+      if (authBar && authBar.nextSibling) authBar.parentNode.insertBefore(el, authBar.nextSibling);
+      else if (authBar) authBar.parentNode.appendChild(el);
+      else doc.body.insertBefore(el, doc.body.firstChild);
     }
     el.className = 'dkj-backup-bar';
     el.textContent = last
