@@ -203,7 +203,10 @@
       body: data === undefined ? undefined : JSON.stringify(data)
     });
     if (r.status === 401) {
-      if (retried || !state.empId) throw authError('SESSION_EXPIRED');
+      /* 로컬 계정 세션(가짜 토큰)은 재인증할 진짜 Firebase 자격이 없다 — 재시도해도 다시 401만
+       * 나므로(그리고 옛날 흔적이 남아 있으면 그걸로 세션이 깨진 진짜 토큰으로 바뀌는 부작용까지
+       * 생긴다), 진짜 토큰이었을 때만 재인증을 시도한다. */
+      if (retried || !state.empId || !isRealToken(state.token)) throw authError('SESSION_EXPIRED');
       await reauth();
       return request(path, method, data, true);
     }
@@ -421,6 +424,10 @@
       var activeId = localUser.empId || id;
       localUser.lastLoginAt = new Date().toISOString();
       saveDirectory(dir);
+      /* 과거(콘솔에서 직접 만든 계정 시절)의 진짜 Firebase 갱신 토큰이 이 기기에 남아 있으면,
+       * 아래 request()의 401 재인증 로직이 그 흔적을 집어 들고 로컬 세션을 깨진 진짜 토큰으로
+       * 덮어써 버린다 — 로컬 로그인이 확정되는 순간 그 흔적을 지운다. */
+      removeStored('localStorage', refreshKey(activeId));
       persist(activeId, localUser.name || activeId, 'local-token-' + activeId, null, 'uid-' + activeId, localUser.role);
       if (global.DkjCloudSync) global.DkjCloudSync.start();
       return user();
