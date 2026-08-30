@@ -292,12 +292,20 @@
     }
   }
 
+  function renderLastBackupStatus() {
+    var el = $('lastBackupStatus');
+    if (!el || !window.DkjExport) return;
+    var last = window.DkjExport.lastBackupAt();
+    el.textContent = last ? ('마지막 백업: ' + fmt(last)) : '아직 전체 백업을 한 번도 받지 않았습니다.';
+  }
+
   function handleFullBackup() {
     var msgEl = $('fullBackupMsg');
     try {
       var result = window.DkjExport.toFullBackup();
       if (msgEl) { msgEl.style.color = '#006b3f'; msgEl.textContent = '✅ 백업 파일을 내려받았습니다 (기록 ' + result.records + '종 · 설정 ' + result.settings + '건).'; }
       addAudit('전체 데이터 백업 다운로드', '시스템', '기록 ' + result.records + '종 · 설정 ' + result.settings + '건');
+      renderLastBackupStatus();
     } catch (e) {
       if (msgEl) { msgEl.style.color = '#b42318'; msgEl.textContent = '❌ 백업 실패: ' + e.message; }
     }
@@ -353,6 +361,7 @@
     renderUsers();
     renderAudit();
     loadTelegramConfig();
+    renderLastBackupStatus();
   }
 
   function boot() {

@@ -344,6 +344,12 @@
     });
   }
 
+  /** 마지막 백업 시각 — js/dkj-backup-reminder.js 가 이 키를 읽어 주 1회 백업 배너를 띄운다. */
+  var LAST_BACKUP_KEY = 'dkj:backup:lastBackupAt:v1';
+  function markBackedUp() {
+    try { localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString()); } catch (e) {}
+  }
+
   /** 전체 기록 원본 백업 — 복원 가능한 형태(JSON). */
   function toJsonBackup(filename) {
     var dump = { site: '동김제농협 산지유통센터', exportedAt: new Date().toISOString(), records: {} };
@@ -356,12 +362,15 @@
     }
     download(new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' }),
       filename || ('동김제_기록백업_' + stamp() + '.json'));
+    markBackedUp();
     return Object.keys(dump.records).length;
   }
 
   /** 로그인 세션·토큰(dkj:auth:*)과 챗봇 대화(dkj:chatbot:*)는 백업에 담지 않는다 —
-   * 계정 정보는 시스템 설정 화면에서 별도로 관리하고, 세션은 기기마다 달라야 한다. */
-  var SETTINGS_EXCLUDE_RE = /^dkj:(auth:|chatbot:)/;
+   * 계정 정보는 시스템 설정 화면에서 별도로 관리하고, 세션은 기기마다 달라야 한다.
+   * dkj:backup:* 는 '언제 백업했는가' 메타 정보라 백업 내용물이 아니다 — 옛 백업을
+   * 복원할 때 이 값까지 되돌아가면 방금 한 백업이 안 한 것처럼 보이므로 제외한다. */
+  var SETTINGS_EXCLUDE_RE = /^dkj:(auth:|chatbot:|backup:)/;
 
   /** 작성 중 임시본(draft) — LIST_RE 에 안 걸려 '설정'으로 백업엔 담기지만, 복원 때
    * 그대로 덮어쓰면 지금 기기에서 더 진행된 임시본을 백업 시점의 옛 임시본으로 지울 수
@@ -414,6 +423,7 @@
     }
     download(new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' }),
       filename || ('동김제_전체백업_' + stamp() + '.json'));
+    markBackedUp();
     return { records: Object.keys(dump.records).length, settings: Object.keys(dump.settings).length };
   }
 
@@ -436,6 +446,11 @@
     return { records: recordsAdded, settings: settingsRestored };
   }
 
+  /** 마지막 백업 시각(ISO) — 없으면 null. js/dkj-backup-reminder.js 가 이걸로 배너를 띄운다. */
+  function lastBackupAt() {
+    try { return localStorage.getItem(LAST_BACKUP_KEY); } catch (e) { return null; }
+  }
+
   global.DkjExport = {
     collect: collect,
     filter: filter,
@@ -443,6 +458,7 @@
     toCsv: toCsv,
     toXlsx: toXlsx,
     toJsonBackup: toJsonBackup,
+    lastBackupAt: lastBackupAt,
     restoreJson: restoreJson,
     toFullBackup: toFullBackup,
     restoreFullBackup: restoreFullBackup
