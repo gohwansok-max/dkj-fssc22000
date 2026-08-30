@@ -91,26 +91,42 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 > - 결재 서명이 **로그인한 사람** 기준으로 남습니다.
 >
 > 역할 4단계 — **시스템 관리자**(사번 4343 고정, 사용자 권한 설정 가능) / **책임자**(작성·검토·
-> 승인) / **관리자**(작성·검토) / **작업자**(작성만). 실제 운영 권한의 출처는
-> **RTDB `system/users/<uid>`** 이고, `data/staff-roles.json` 은 최초 로그인·오프라인 결재
-> 화면을 위한 **기본값**일 뿐입니다(둘이 다르면 RTDB 쪽이 이깁니다). 처음 로그인한 사용자는
-> 기본적으로 작업자로 등록되고, 시스템 관리자(4343)가 `system-settings.html`에서 역할을
-> 조정합니다. 운영 절차는 `docs/ENTRY_LOGIN_AND_ROLE_SETUP.md` 참고.
+> 승인) / **관리자**(작성·검토) / **작업자**(작성만). 운영 절차는
+> `docs/ENTRY_LOGIN_AND_ROLE_SETUP.md` 참고.
 >
-> 계정 체계 — 이메일은 `emp<사번>@dkj-fssc.internal`(실제 메일 주소 아님), Firebase 콘솔에서
-> 관리자가 직접 추가합니다(공개 가입·삭제는 콘솔에서 차단해 뒀습니다). 사번은 4자리이고
-> 로그인 화면에서 `1` 만 입력해도 `0001` 로 채워집니다(`normId()`).
+> **계정 체계 — Firebase Authentication 을 쓰지 않습니다 (2026-08-30 변경).** 로그인 계정은
+> `system-settings.html`(시스템 관리자 4343 전용)에서 등록·수정하는 **로컬 디렉터리**
+> (`js/dkj-auth.js`, localStorage 키 `dkj:auth:directory:v3`)가 정본입니다. 사번·이름·역할·
+> 비밀번호를 웹에서 바로 관리하고, Firebase 콘솔에서 계정을 따로 만들 필요가 없습니다.
+> `system/users`(RTDB)는 그 디렉터리를 기기 간에 맞추는 사본일 뿐입니다 — 비밀번호는
+> **SHA-256 해시로만** 올라갑니다(이 기기의 localStorage 에는 평문이 그대로 남습니다).
+> 새 태블릿에서 처음 로그인을 시도하면 로그인 화면이 뜨기 전에 이 사본을 먼저 받아와서,
+> 다른 기기에서 등록한 사번도 바로 로그인할 수 있습니다.
 >
-> 표시이름 — 이름을 정하는 순서는 ① Firebase Authentication 계정의 `displayName`
-> ② `system-settings.html`에서 관리자가 지정한 이름(RTDB `system/users`에 저장, 로그인해야
-> 읽힘) ③ `data/staff-roles.json`의 `name`(항상 빈 문자열, 아래 참고) 순으로 폴백합니다.
-> 실명을 남기려면 ①이나 ②를 쓰세요 — 둘 다 로그인 없이는 안 읽힙니다.
+> **주의 — `database.rules.json` 이 인증 없이 열려 있습니다.** 로그인 신원을 Firebase
+> Authentication 이 아니라 이 앱 자체가 판별하므로, RTDB 규칙에서 `auth != null` 같은
+> 조건으로는 "진짜 관리자인지" 구분할 방법이 없습니다. 그래서 `records`, `system/users`,
+> `system/settings/telegram`, `system/role_audit` 는 전부 읽기·쓰기가 열려 있습니다(비밀번호
+> 해시 포함 — 원문 비밀번호는 아님). 즉 이 사이트 주소와 Firebase 설정(`js/dkj-firebase-config.js`,
+> 이미 공개 저장소가 아니어도 GitHub Pages 로 누구나 열람 가능한 정적 파일)을 아는 사람은
+> 개발자도구로 RTDB 를 직접 읽고 쓸 수 있습니다. **의도적으로 감수한 트레이드오프**입니다
+> (2026-08-30, 사용자 요청 — "지금은 사용이 먼저, 나중에 안정화되면 보안 강화"). 나중에 강화할
+> 때는 Firebase Authentication 을 다시 붙이거나(전 직원 계정을 콘솔에서 만들어야 함), RTDB
+> 규칙에 커스텀 토큰 검증을 넣는 방향을 검토하세요. `records_v2`(아직 미사용, 위 V2 전환
+> 참고)만은 예외로 원래의 `auth.uid` 기반 규칙을 그대로 뒀습니다 — 지금은 죽은 코드라
+> 손대지 않았을 뿐, V2 전환 전에 반드시 다시 검토해야 합니다.
+>
+> 사번은 4자리이고 로그인 화면에서 `1` 만 입력해도 `0001` 로 채워집니다(`normId()`).
+>
+> 표시이름 — `system-settings.html`에서 관리자가 지정한 이름이 정본입니다(로컬 디렉터리에
+> 저장, RTDB `system/users`로 기기 간 동기화). `data/staff-roles.json`의 `name`은 항상 빈
+> 문자열입니다(아래 참고).
 >
 > 주의 — GitHub Pages 사이트는 저장소가 비공개여도 **누구나 열람 가능**합니다.
-> `data/staff-roles.json` 이 로그인 없이 공개 주소에서 읽히기 때문에, 여기 실명·사번을
-> 같이 적어 두면 직원 개인정보가 그대로 노출됩니다. 그래서 `name` 필드는 항상 비워
-> 두기로 했습니다(기록에는 사번이 남아 추적성은 유지됩니다).
-> 실제 기록 내용은 로그인 + RTDB 규칙(`database.rules.json`)으로 보호되므로 공개되지 않습니다.
+> `data/staff-roles.json` 이 공개 주소에서 읽히기 때문에, 여기 실명·사번을 같이 적어
+> 두면 직원 개인정보가 그대로 노출됩니다. 그래서 `name` 필드는 항상 비워 두기로 했습니다
+> (기록에는 사번이 남아 추적성은 유지됩니다). RTDB 를 연 사람에게는 위에서 설명한 대로
+> 어차피 노출되지만, 최소한 이 정적 파일 하나만 보고 실명이 특정되지는 않게 합니다.
 
 ### RTDB 기록 저장 스키마 — V1(배열) → V2(레코드별 노드) 전환 준비 완료, 전환 대기중
 
@@ -126,7 +142,11 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 **지금은 V2 코드·규칙이 저장소에 준비돼 있을 뿐, 실제 운영 데이터의 전환(=`sync_meta/schemaVersion`을
 2로 바꾸는 것)은 아직 안 됐습니다.** 전환은 되돌리기 어려운 운영 데이터 작업이라 사람이 직접
 Firebase 콘솔에서 백업·검증하며 수행해야 합니다 — 절대 코드만 보고 "이미 전환됨"이라 판단하지
-말고, 실제로 `sync_meta/schemaVersion`이 몇인지 확인하세요. 절차는 `docs/RTDB_V2_MIGRATION.md`,
+말고, 실제로 `sync_meta/schemaVersion`이 몇인지 확인하세요. **추가로(2026-08-30) — 로그인을
+Firebase Authentication 없이 자체 계정 체계로 바꾸면서, `records_v2`의 `auth.uid` 기반 규칙은
+이제 아무도 실제로 만족시킬 수 없습니다**(모든 로그인이 진짜 Firebase 토큰이 아닌 로컬 토큰을
+씁니다). V2 전환 전에 이 규칙을 반드시 다시 설계해야 합니다 — 그대로 두고 `schemaVersion`만
+2로 바꾸면 기록 쓰기가 전부 거부됩니다. 절차는 `docs/RTDB_V2_MIGRATION.md`,
 변환 스크립트는 `scripts/migrate-rtdb-v1-to-v2.py`(Firebase에 직접 접속하지 않고 백업 JSON을
 읽어 import 파일만 생성).
 

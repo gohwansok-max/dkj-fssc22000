@@ -2,8 +2,11 @@
  * 동김제농협 로그인·역할 기반 권한관리.
  *
  * - 모든 업무 화면은 로그인 후 사용한다. 회사소개서는 고객 공유용으로 공개한다.
- * - Firebase Authentication은 본인 확인을, RTDB system/users는 역할 저장을 담당한다.
- * - 시스템 관리자(emp4343)만 사용자 역할을 변경할 수 있다.
+ * - 로그인 계정은 Firebase Authentication이 아니라 이 파일이 관리하는 로컬
+ *   디렉터리(dkj:auth:directory:v3, 시스템 설정 화면에서 등록·수정)가 정본이다.
+ *   RTDB system/users는 그 디렉터리를 기기 간에 맞추는 사본일 뿐이다(비밀번호는
+ *   해시로만 올라간다). database.rules.json도 이에 맞춰 인증 없이 열려 있다 —
+ *   운영 안정화 후 별도로 계정별 보안을 다시 강화할 예정이다.
  */
 (function (global) {
   'use strict';
@@ -56,10 +59,63 @@
     var store = storage(name);
     try { if (store) store.removeItem(key); } catch (e) {}
   }
+
+  /** 비밀번호는 이 기기(localStorage)에는 그대로, 클라우드(RTDB)에는 해시로만 올린다 —
+   * RTDB 규칙이 인증 없이 열려 있어 누구나 읽을 수 있으므로, 평문이 그대로 올라가면 안 된다. */
+  function sha256Hex(text) {
+    if (!(global.crypto && global.crypto.subtle && global.crypto.subtle.digest && global.TextEncoder)) {
+      return Promise.resolve(''); // http:// 이외(구형 브라우저 등) 환경 — 해시를 못 만들면 클라우드에 비밀번호를 아예 안 올린다
+    }
+    var bytes = new global.TextEncoder().encode(String(text == null ? '' : text));
+    return global.crypto.subtle.digest('SHA-256', bytes).then(function (buf) {
+      var arr = new Uint8Array(buf), hex = '';
+      for (var i = 0; i < arr.length; i++) hex += (arr[i] < 16 ? '0' : '') + arr[i].toString(16);
+      return hex;
+    })['catch'](function () { return ''; });
+  }
+
+  /** RTDB system/users 에 올릴 사용자 프로필 — password 필드를 빼고 passwordHash 로 바꾼다.
+   * 이 기기에 평문이 없으면(다른 기기에서 등록된 계정을 이름·역할만 고쳐 저장하는 경우)
+   * 절대 새로 해시를 계산하지 않는다 — item.password 가 없으면 빈 문자열의 해시가 나와서,
+   * 그대로 올리면 실제 비밀번호가 지워진 것처럼 돼 버린다. 그럴 땐 이미 알고 있는 해시를
+   * 그대로 유지한다. */
+  function cloudUserPayload(item) {
+    var payload = {};
+    Object.keys(item || {}).forEach(function (k) { if (k !== 'password') payload[k] = item[k]; });
+    if (item && item.password) {
+      return sha256Hex(item.password).then(function (hash) {
+        if (hash) payload.passwordHash = hash;
+        return payload;
+      });
+    }
+    if (item && item.passwordHash) payload.passwordHash = item.passwordHash;
+    return Promise.resolve(payload);
+  }
+
+  /** 로그인 시 비밀번호 대조 — 이 기기에 평문이 있으면 그걸로, 없고 해시만 있으면(다른
+   * 기기에서 등록된 뒤 클라우드로 넘어온 계정) 해시로 비교한다. 아예 비밀번호가 없는
+   * 레코드는(과거 동작 유지) 통과시킨다. */
+  function passwordMatches(localUser, password) {
+    if (!localUser) return Promise.resolve(false);
+    if (localUser.password !== undefined && localUser.password !== '') {
+      return Promise.resolve(localUser.password === password);
+    }
+    if (localUser.passwordHash) {
+      return sha256Hex(password).then(function (hash) { return !!hash && hash === localUser.passwordHash; });
+    }
+    return Promise.resolve(true);
+  }
+  /** 'local-token-…'는 이 사이트 안에서만 쓰는 표식이지 Firebase 가 아는 진짜 토큰이 아니다.
+   * RTDB REST API 는 auth= 파라미터에 뭐가 오든(빈 값이 아닌 한) 유효한 토큰인지부터
+   * 검사해서, 이걸 그대로 보내면 규칙이 열려 있어도 401 로 거부된다. 그래서 로컬 로그인일
+   * 때는 auth= 자체를 아예 안 보낸다(=로그인 전과 똑같이 익명 요청) — RTDB 쪽에서 "누가
+   * 로그인했는지"는 어차피 못 가리므로 잃는 게 없다. */
+  function isRealToken(t) { return !!t && t.indexOf('local-token-') !== 0; }
   function rootUrl(path) {
     var c = config();
     var root = String(c.databaseURL || '').replace(/\/$/, '') + '/' + (c.root || 'dkj-fssc22000');
-    return root + (path ? '/' + path : '') + '.json?auth=' + encodeURIComponent(state.token || '');
+    var authParam = isRealToken(state.token) ? ('?auth=' + encodeURIComponent(state.token)) : '';
+    return root + (path ? '/' + path : '') + '.json' + authParam;
   }
   function authError(code, cause) {
     var err = new Error(code);
@@ -138,13 +194,16 @@
     return { idToken: d.id_token, refreshToken: d.refresh_token, uid: d.user_id };
   }
   async function request(path, method, data, retried) {
-    if (!state.token) throw new Error('NO_SESSION');
+    // RTDB 규칙이 인증 없이 열려 있으므로(파이어베이스 로그인 없이도 동기화되게 하려고),
+    // 로그인 전이라도(state.token 없어도) 요청은 보낸다 — 로그인 화면 뜨기 전에 사용자
+    // 목록을 미리 받아오는 데도 쓰인다.
+    if (!configured()) throw new Error('NOT_CONFIGURED');
     var r = await fetchWithTimeout(rootUrl(path), {
       method: method || 'GET', cache: 'no-store', headers: { 'Content-Type': 'application/json' },
       body: data === undefined ? undefined : JSON.stringify(data)
     });
     if (r.status === 401) {
-      if (retried) throw authError('SESSION_EXPIRED');
+      if (retried || !state.empId) throw authError('SESSION_EXPIRED');
       await reauth();
       return request(path, method, data, true);
     }
@@ -209,7 +268,9 @@
     dir[id] = item;
     saveDirectory(dir);
     if (configured() && state.token) {
-      request('system/users/' + encodeURIComponent(item.uid), 'PUT', item).catch(function () {});
+      cloudUserPayload(item).then(function (payload) {
+        return request('system/users/' + encodeURIComponent(item.uid), 'PUT', payload);
+      })['catch'](function () {});
     }
     return item;
   }
@@ -247,7 +308,10 @@
     dir[currentId] = item;
     saveDirectory(dir);
     if (configured() && state.token) {
-      request('system/users/' + encodeURIComponent(item.uid || ('uid-' + currentId)), 'PUT', item).catch(function () {});
+      var uidToWrite = item.uid || ('uid-' + currentId);
+      cloudUserPayload(item).then(function (payload) {
+        return request('system/users/' + encodeURIComponent(uidToWrite), 'PUT', payload);
+      })['catch'](function () {});
     }
     return item;
   }
@@ -283,32 +347,48 @@
   function loadUsers() {
     var dir = getDirectory();
     loadStaff();
-    if (!configured() || !state.token) return Promise.resolve(dir);
+    if (!configured()) return Promise.resolve(dir);
     return request('system/users', 'GET').then(function (remoteUsers) {
       var rows = remoteUsers || {};
-      Object.keys(rows).forEach(function (uid) {
+      var tasks = Object.keys(rows).map(function (uid) {
         var row = rows[uid] || {};
         var eid = normId(row.empId || uid.replace(/^uid-/, ''));
-        if (!eid) return;
+        if (!eid) return null;
         if (!dir[eid]) {
           dir[eid] = {
             uid: uid,
             empId: eid,
             name: row.name || eid,
             role: row.role || 'worker',
-            password: row.password || eid,
+            // 새 기기가 이 계정을 처음 보는 경우 평문 비밀번호는 없다 — 클라우드에는
+            // 해시만 올라가므로, 있으면 해시로 로그인을 검증한다(passwordMatches 참고).
+            passwordHash: row.passwordHash || '',
             createdAt: row.createdAt || new Date().toISOString(),
             lastLoginAt: row.lastLoginAt || ''
           };
-        } else {
-          if (row.name) dir[eid].name = row.name;
-          if (row.role && eid !== ADMIN_EMP_ID) dir[eid].role = row.role;
-          if (row.password) dir[eid].password = row.password;
-          if (row.lastLoginAt) dir[eid].lastLoginAt = row.lastLoginAt;
+          return null;
         }
+        if (row.name) dir[eid].name = row.name;
+        if (row.role && eid !== ADMIN_EMP_ID) dir[eid].role = row.role;
+        if (row.lastLoginAt) dir[eid].lastLoginAt = row.lastLoginAt;
+        if (!row.passwordHash) return null;
+        // 이 기기에 남아 있는 평문이 클라우드 해시와 다르면, 다른 기기에서 비밀번호가
+        // 바뀐 것이다 — 옛 평문을 버리고 새 해시를 따라간다(옛 비밀번호가 계속 통하면 안 됨).
+        if (dir[eid].password) {
+          return sha256Hex(dir[eid].password).then(function (localHash) {
+            if (localHash !== row.passwordHash) {
+              delete dir[eid].password;
+              dir[eid].passwordHash = row.passwordHash;
+            }
+          });
+        }
+        dir[eid].passwordHash = row.passwordHash;
+        return null;
       });
-      saveDirectory(dir);
-      return dir;
+      return Promise.all(tasks).then(function () {
+        saveDirectory(dir);
+        return dir;
+      });
     }).catch(function () {
       return dir;
     });
@@ -336,22 +416,17 @@
     var dir = getDirectory();
     var localUser = dir[raw] || dir[id] || dir[raw.toLowerCase()];
 
-    // 1. 로컬 사용자 디렉터리 비밀번호 검증 (즉시 로그인)
-    if (localUser && (localUser.password === password || !localUser.password)) {
+    // 1. 로컬(=시스템 설정에서 등록한) 사용자 디렉터리로 로그인한다 — 이게 정식 경로다.
+    if (localUser && await passwordMatches(localUser, password)) {
       var activeId = localUser.empId || id;
       localUser.lastLoginAt = new Date().toISOString();
       saveDirectory(dir);
       persist(activeId, localUser.name || activeId, 'local-token-' + activeId, null, 'uid-' + activeId, localUser.role);
-      if (configured()) {
-        signIn(activeId, password).then(function (d) {
-          persist(activeId, localUser.name || d.displayName || activeId, d.idToken, d.refreshToken, d.localId, localUser.role);
-          if (global.DkjCloudSync) global.DkjCloudSync.start();
-        }).catch(function () {});
-      }
+      if (global.DkjCloudSync) global.DkjCloudSync.start();
       return user();
     }
 
-    // 2. Firebase 원격 인증 시도
+    // 2. Firebase 원격 인증 시도 — 과거에 콘솔에서 직접 만든 계정이 남아 있을 때만 쓰인다.
     if (configured()) {
       var d = await signIn(id, password);
       var name = d.displayName || (localUser && localUser.name) || id;
@@ -482,7 +557,12 @@
   function requireLogin() {
     return resume().then(function () { renderBar(); emitReady(); return state; }).catch(function (e) {
       if (e.message === 'NOT_CONFIGURED') { console.warn('[DkjAuth] 클라우드 미설정 — 로컬 저장으로만 동작합니다.'); return null; }
-      showLogin(''); throw e;
+      // 로그인 화면은 네트워크를 기다리지 않고 바로 띄운다(느린 회선에서 화면이 몇 초씩
+      // 멈춰 보이면 안 된다). 최신 사용자 목록은 뒤에서 조용히 받아온다 — 관리자가 다른
+      // 기기에서 방금 등록한 직원도, 그 요청이 화면을 다 그리기 전에 끝나면 바로 로그인된다.
+      showLogin('');
+      loadUsers()['catch'](function () {});
+      throw e;
     });
   }
 
