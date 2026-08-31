@@ -444,7 +444,7 @@
       var yRate = m.yieldRate || calcMaterialYield(m);
       return '<tr data-idx="' + idx + '">' +
         '<td style="font-weight:700;color:#1b5e20;">' + matType + '</td>' +
-        '<td style="text-align:left;"><input type="text" class="qc-in-box" data-f="name" value="' + (m.name || '') + '" style="text-align:left;font-weight:700;"></td>' +
+        '<td style="text-align:left;"><input type="text" class="qc-mat-name-box" data-f="name" value="' + (m.name || '') + '"></td>' +
         '<td><input type="text" class="qc-in-box" data-f="ratio" value="' + (m.ratio || '') + '" style="text-align:center;"></td>' +
         '<td><input type="number" step="any" min="0" class="qc-in-box qc-mat-in" data-f="inKg" value="' + (m.inKg || '') + '" placeholder="kg"></td>' +
         '<td><input type="number" step="any" min="0" class="qc-in-box qc-mat-used" data-f="usedKg" value="' + (m.usedKg || '') + '" placeholder="kg"></td>' +
@@ -456,7 +456,7 @@
     }).join('');
 
     // Smooth real-time update WITHOUT destroying input focus
-    tbody.querySelectorAll('.qc-in-box').forEach(function (inp) {
+    tbody.querySelectorAll('.qc-in-box, .qc-mat-name-box').forEach(function (inp) {
       inp.addEventListener('input', function () {
         if (state.locked) return;
         var tr = inp.closest('tr');
@@ -569,7 +569,7 @@
     });
 
     // Inputs inside finished goods (Focus-safe updates)
-    tbody.querySelectorAll('.qc-in-box').forEach(function (inp) {
+    tbody.querySelectorAll('.qc-in-box, .qc-mat-name-box').forEach(function (inp) {
       inp.addEventListener('input', function () {
         if (state.locked) return;
         var tr = inp.closest('tr');

@@ -404,6 +404,51 @@
     .pill-btn.ghost { background: #fff; color: #344054; border: 1.5px solid #d0d5dd; }
     .pill-btn.sm { min-height: 30px; padding: 4px 10px; font-size: 12px; border-radius: 16px; }
 
+    
+    /* Table minimum widths for comfortable mobile swipe without text truncation */
+    #mainCheckTable { min-width: 860px; }
+    #matTable { min-width: 820px; }
+    #finishedGoodsTable { min-width: 820px; }
+
+    /* Generous column widths for mobile readability */
+    .col-mat-type { min-width: 75px; width: 85px; font-weight: 800; }
+    .col-mat-name { min-width: 160px; width: 190px; text-align: left; }
+    .col-mat-ratio { min-width: 85px; width: 95px; }
+    .col-mat-num { min-width: 85px; width: 95px; }
+    .col-mat-yield { min-width: 80px; width: 90px; }
+    .col-mat-status { min-width: 70px; width: 75px; }
+    .col-mat-del { min-width: 44px; width: 44px; }
+
+    .col-prod-name { min-width: 175px; width: 210px; text-align: left; }
+    .col-prod-spec { min-width: 85px; width: 95px; }
+    .col-prod-num { min-width: 88px; width: 100px; }
+    .col-prod-check { min-width: 85px; width: 95px; }
+    .col-prod-del { min-width: 44px; width: 44px; }
+
+    .qc-mat-name-box {
+      width: 100%;
+      height: 34px;
+      padding: 0 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #101828;
+      border: 1.5px solid var(--qc-border);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .qc-prod-select {
+      width: 100%;
+      height: 34px;
+      padding: 0 6px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #003311;
+      border: 1.5px solid var(--qc-border);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+    }
+
     /* Print Template Overlay */
     @media print {
       @page { size: A4 portrait; margin: 8mm 6mm; }
