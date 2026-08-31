@@ -212,6 +212,7 @@
     add('0001', '이다은', '작업자');
     add('0002', '권화선', '관리자');
     add('0003', '최민재', '책임자');
+    add('0004', '최재원', '승인자');
     add('4343', '관리자', '시스템 관리자');
 
     try {
@@ -421,7 +422,8 @@
       if (!name) {
         if (st.key === 'writer' || st.key === 'inspector' || st.key.indexOf('worker') !== -1) name = '이다은';
         else if (st.key === 'reviewer') name = '권화선';
-        else if (st.key === 'approver' || st.key === 'confirmer') name = '최민재';
+        else if (st.key === 'approver') name = '최재원';
+        else if (st.key === 'confirmer') name = '권화선';
       }
       var done = !!(sign && sign.at);
       // 로그인 서명이면 사번을 함께 보여 준다. 폼에 적힌 이름과 다르면 그 사실도 드러낸다.

@@ -8,17 +8,79 @@ window.DKJ_STAFF_ROLES={
   ],
   "updatedAt": "2026-08-16",
   "roles": {
-    "system_admin": { "label": "시스템 관리자", "stages": ["writer", "reviewer", "approver"] },
-    "responsible": { "label": "책임자", "stages": ["writer", "reviewer", "approver"] },
-    "manager": { "label": "관리자", "stages": ["writer", "reviewer"] },
-    "worker": { "label": "작업자", "stages": ["writer"] }
+    "system_admin": {
+      "label": "시스템 관리자",
+      "stages": [
+        "writer",
+        "reviewer",
+        "approver"
+      ]
+    },
+    "responsible": {
+      "label": "책임자",
+      "stages": [
+        "writer",
+        "reviewer",
+        "approver"
+      ]
+    },
+    "manager": {
+      "label": "관리자",
+      "stages": [
+        "writer",
+        "reviewer"
+      ]
+    },
+    "worker": {
+      "label": "작업자",
+      "stages": [
+        "writer"
+      ]
+    }
   },
   "staff": {
-    "0001": { "name": "이다은", "role": "worker", "stages": ["writer"] },
-    "0002": { "name": "권화선", "role": "manager", "stages": ["writer", "reviewer"] },
-    "0003": { "name": "최민재", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
-    "0004": { "name": "", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
-    "0005": { "name": "", "role": "responsible", "stages": ["writer", "reviewer", "approver"] },
-    "4343": { "name": "관리자", "role": "system_admin", "stages": ["writer", "reviewer", "approver"], "admin": true }
+    "0001": {
+      "name": "이다은",
+      "role": "worker",
+      "stages": [
+        "writer"
+      ]
+    },
+    "0002": {
+      "name": "권화선",
+      "role": "manager",
+      "stages": [
+        "writer",
+        "reviewer"
+      ]
+    },
+    "0003": {
+      "name": "최민재",
+      "role": "responsible",
+      "stages": [
+        "writer",
+        "reviewer",
+        "approver"
+      ]
+    },
+    "0004": {
+      "name": "최재원",
+      "role": "responsible",
+      "stages": [
+        "writer",
+        "reviewer",
+        "approver"
+      ]
+    },
+    "4343": {
+      "name": "관리자",
+      "role": "system_admin",
+      "stages": [
+        "writer",
+        "reviewer",
+        "approver"
+      ],
+      "admin": true
+    }
   }
 };

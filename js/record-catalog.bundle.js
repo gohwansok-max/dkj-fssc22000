@@ -3,6 +3,14 @@ window.DKJ_RECORD_CATALOG={
   "site": "동김제농협 산지유통센터",
   "categories": [
     {
+      "id": "qc",
+      "label": "QC 공정검사",
+      "icon": "📋",
+      "codes": [
+        "DKJ-QC-001"
+      ]
+    },
+    {
       "id": "document",
       "label": "문서·기록관리",
       "icon": "📄",
@@ -56,6 +64,7 @@ window.DKJ_RECORD_CATALOG={
       "label": "생산관리·수율",
       "icon": "📊",
       "codes": [
+        "DKJ-QC-001",
         "DKJ-F-053"
       ]
     },
@@ -174,6 +183,7 @@ window.DKJ_RECORD_CATALOG={
       "label": "일상·PRP",
       "icon": "📋",
       "codes": [
+        "DKJ-QC-001",
         "DKJ-S-02-01",
         "DKJ-S-02-03",
         "DKJ-S-02-05",
@@ -206,6 +216,7 @@ window.DKJ_RECORD_CATALOG={
       "label": "CCP 점검",
       "icon": "🛡️",
       "codes": [
+        "DKJ-QC-001",
         "DKJ-H-01-01",
         "DKJ-H-01-02"
       ]
@@ -222,6 +233,15 @@ window.DKJ_RECORD_CATALOG={
     }
   ],
   "records": [
+    {
+      "code": "DKJ-QC-001",
+      "title": "일일 QC 순회 공정검사일지 (크로스체크)",
+      "period": "매일 (일 3회)",
+      "category": "qc",
+      "role": "품질팀",
+      "file": "records/DKJ-QC-001.html",
+      "summary": "품질팀 1인 순회 크로스체크(1차 09:00, 2차 13:30, 3차 16:30) · 선행위생/온도/CCP-1BC/CCP-2P/관능/BOM 원료수불·폐기량·제품생산량 일체화"
+    },
     {
       "id": "DKJ-H-01-01",
       "code": "DKJ-H-01-01",

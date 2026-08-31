@@ -242,7 +242,8 @@
     var staff = [
       { name: '이다은', role: '작성' },
       { name: '권화선', role: '검토' },
-      { name: '최민재', role: '승인' },
+      { name: '최재원', role: '승인' },
+      { name: '최민재', role: '작성/책임자' },
       { name: '김영호', role: '책임자' },
       { name: '박서준', role: '책임자' },
       { name: '관리자', role: '시스템 관리자' }

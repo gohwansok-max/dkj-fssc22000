@@ -9,7 +9,13 @@
   },
   "operationCalendar": {
     "label": "기본 생산일: 월요일~금요일",
-    "workdays": [1, 2, 3, 4, 5],
+    "workdays": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
     "nonProductionDates": [],
     "productionDates": []
   },
@@ -19,47 +25,238 @@
       "id": "daily",
       "label": "매일 작성",
       "forms": [
-        { "code": "DKJ-S-02-01", "title": "작업장 위생점검", "priority": "high", "href": "records/DKJ-S-02-01.html", "check": { "mode": "dayColumn" } },
-        { "code": "DKJ-S-02-03", "title": "개인위생 점검", "priority": "high", "href": "records/DKJ-S-02-03.html", "check": { "mode": "dayColumn" } },
-        { "code": "DKJ-S-02-04", "title": "이물관리 점검", "priority": "normal", "href": "records/DKJ-S-02-04.html", "check": { "mode": "perDay", "dateField": "checkDate" } },
-        { "code": "DKJ-S-02-05", "title": "작업장 온도", "priority": "high", "href": "records/DKJ-S-02-05.html", "check": { "mode": "dayRow", "dayKey": "day" } },
-        { "code": "DKJ-H-01-01", "title": "CCP-1BC 소독·헹굼", "priority": "critical", "href": "records/DKJ-H-01-01.html", "ccp": true, "check": { "mode": "perDay", "dateField": "workDate" } },
-        { "code": "DKJ-H-01-02", "title": "CCP-2P 금속검출", "priority": "critical", "href": "records/DKJ-H-01-02.html", "ccp": true, "check": { "mode": "perDay", "dateField": "workDate" } },
-        { "code": "DKJ-F-053", "title": "생산일지", "priority": "high", "href": "records/DKJ-F-053.html", "check": { "mode": "perDay", "dateField": "workDate" } }
+        {
+          "code": "DKJ-QC-001",
+          "title": "일일 QC 순회 공정검사",
+          "priority": "critical",
+          "href": "records/DKJ-QC-001.html",
+          "ccp": true,
+          "check": {
+            "mode": "perDay",
+            "dateField": "workDate"
+          }
+        },
+        {
+          "code": "DKJ-S-02-01",
+          "title": "작업장 위생점검",
+          "priority": "high",
+          "href": "records/DKJ-S-02-01.html",
+          "check": {
+            "mode": "dayColumn"
+          }
+        },
+        {
+          "code": "DKJ-S-02-03",
+          "title": "개인위생 점검",
+          "priority": "high",
+          "href": "records/DKJ-S-02-03.html",
+          "check": {
+            "mode": "dayColumn"
+          }
+        },
+        {
+          "code": "DKJ-S-02-04",
+          "title": "이물관리 점검",
+          "priority": "normal",
+          "href": "records/DKJ-S-02-04.html",
+          "check": {
+            "mode": "perDay",
+            "dateField": "checkDate"
+          }
+        },
+        {
+          "code": "DKJ-S-02-05",
+          "title": "작업장 온도",
+          "priority": "high",
+          "href": "records/DKJ-S-02-05.html",
+          "check": {
+            "mode": "dayRow",
+            "dayKey": "day"
+          }
+        },
+        {
+          "code": "DKJ-H-01-01",
+          "title": "CCP-1BC 소독·헹굼",
+          "priority": "critical",
+          "href": "records/DKJ-H-01-01.html",
+          "ccp": true,
+          "check": {
+            "mode": "perDay",
+            "dateField": "workDate"
+          }
+        },
+        {
+          "code": "DKJ-H-01-02",
+          "title": "CCP-2P 금속검출",
+          "priority": "critical",
+          "href": "records/DKJ-H-01-02.html",
+          "ccp": true,
+          "check": {
+            "mode": "perDay",
+            "dateField": "workDate"
+          }
+        },
+        {
+          "code": "DKJ-F-053",
+          "title": "생산일지",
+          "priority": "high",
+          "href": "records/DKJ-F-053.html",
+          "check": {
+            "mode": "perDay",
+            "dateField": "workDate"
+          }
+        }
       ]
     },
     {
       "id": "weekly",
       "label": "주간·월간",
       "forms": [
-        { "code": "DKJ-S-02-13", "title": "저수조 관리", "href": "records/DKJ-S-02-13.html", "check": { "mode": "dayColumn" } },
-        { "code": "DKJ-S-02-07", "title": "방충방서 점검", "href": "records/DKJ-S-02-07.html", "check": { "mode": "perPeriod", "period": "week", "dateField": "checkDate" } },
-        { "code": "DKJ-S-02-02", "title": "조도 점검", "href": "records/DKJ-S-02-02.html", "check": { "mode": "perPeriod", "period": "month", "dateField": "checkDate" } },
-        { "code": "DKJ-S-02-09", "title": "세척소독제 관리", "href": "records/DKJ-S-02-09.html", "check": { "mode": "dayRow", "dayKey": "day" } }
+        {
+          "code": "DKJ-S-02-13",
+          "title": "저수조 관리",
+          "href": "records/DKJ-S-02-13.html",
+          "check": {
+            "mode": "dayColumn"
+          }
+        },
+        {
+          "code": "DKJ-S-02-07",
+          "title": "방충방서 점검",
+          "href": "records/DKJ-S-02-07.html",
+          "check": {
+            "mode": "perPeriod",
+            "period": "week",
+            "dateField": "checkDate"
+          }
+        },
+        {
+          "code": "DKJ-S-02-02",
+          "title": "조도 점검",
+          "href": "records/DKJ-S-02-02.html",
+          "check": {
+            "mode": "perPeriod",
+            "period": "month",
+            "dateField": "checkDate"
+          }
+        },
+        {
+          "code": "DKJ-S-02-09",
+          "title": "세척소독제 관리",
+          "href": "records/DKJ-S-02-09.html",
+          "check": {
+            "mode": "dayRow",
+            "dayKey": "day"
+          }
+        }
       ]
     },
     {
       "id": "event",
       "label": "발생 시 작성",
       "forms": [
-        { "code": "DKJ-S-02-14", "title": "원/부재료 입고검사", "href": "records/DKJ-S-02-14.html", "check": { "mode": "event" } },
-        { "code": "DKJ-S-02-15", "title": "부자재 입고검사", "href": "records/DKJ-S-02-15.html", "check": { "mode": "event" } },
-        { "code": "DKJ-S-02-19", "title": "부적합품 처리", "href": "records/DKJ-S-02-19.html", "check": { "mode": "event" } },
-        { "code": "DKJ-S-02-20", "title": "고객불만 접수", "href": "records/DKJ-S-02-20.html", "check": { "mode": "event" } },
-        { "code": "DKJ-S-02-08", "title": "폐기물 관리", "href": "records/DKJ-S-02-08.html", "check": { "mode": "event" } },
-        { "code": "DKJ-S-02-31", "title": "이물 관리대장", "href": "records/DKJ-S-02-31.html", "check": { "mode": "event" } },
-        { "code": "DKJ-H-01-11", "title": "교육・훈련 일지", "href": "records/DKJ-H-01-11.html", "check": { "mode": "event" } },
-        { "code": "DKJ-H-01-07", "title": "검증 결과 보고", "href": "records/DKJ-H-01-07.html", "check": { "mode": "event" } },
-        { "code": "DKJ-H-01-08", "title": "검증 개선조치", "href": "records/DKJ-H-01-08.html", "check": { "mode": "event" } }
+        {
+          "code": "DKJ-S-02-14",
+          "title": "원/부재료 입고검사",
+          "href": "records/DKJ-S-02-14.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-S-02-15",
+          "title": "부자재 입고검사",
+          "href": "records/DKJ-S-02-15.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-S-02-19",
+          "title": "부적합품 처리",
+          "href": "records/DKJ-S-02-19.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-S-02-20",
+          "title": "고객불만 접수",
+          "href": "records/DKJ-S-02-20.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-S-02-08",
+          "title": "폐기물 관리",
+          "href": "records/DKJ-S-02-08.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-S-02-31",
+          "title": "이물 관리대장",
+          "href": "records/DKJ-S-02-31.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-H-01-11",
+          "title": "교육・훈련 일지",
+          "href": "records/DKJ-H-01-11.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-H-01-07",
+          "title": "검증 결과 보고",
+          "href": "records/DKJ-H-01-07.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-H-01-08",
+          "title": "검증 개선조치",
+          "href": "records/DKJ-H-01-08.html",
+          "check": {
+            "mode": "event"
+          }
+        }
       ]
     },
     {
       "id": "annual",
       "label": "연간 계획",
       "forms": [
-        { "code": "DKJ-S-02-16", "title": "협력업체 점검 계획", "href": "records/DKJ-S-02-16.html", "check": { "mode": "event" } },
-        { "code": "DKJ-H-01-10", "title": "교육・훈련 계획", "href": "records/DKJ-H-01-10.html", "check": { "mode": "event" } },
-        { "code": "DKJ-H-01-06", "title": "검증 계획", "href": "records/DKJ-H-01-06.html", "check": { "mode": "event" } }
+        {
+          "code": "DKJ-S-02-16",
+          "title": "협력업체 점검 계획",
+          "href": "records/DKJ-S-02-16.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-H-01-10",
+          "title": "교육・훈련 계획",
+          "href": "records/DKJ-H-01-10.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
+          "code": "DKJ-H-01-06",
+          "title": "검증 계획",
+          "href": "records/DKJ-H-01-06.html",
+          "check": {
+            "mode": "event"
+          }
+        }
       ]
     }
   ]
