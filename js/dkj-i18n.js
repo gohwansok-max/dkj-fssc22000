@@ -1,11 +1,5 @@
 /**
  * dkj-i18n.js — 동김제농협 스마트 HACCP / FSSC22000 V6 다국어(한국어/베트남어) 지원 엔진
- * 
- * 기능:
- * 1. DICTIONARY 기반 실시간 한글 -> 베트남어 (Tiếng Việt) 자동 번역
- * 2. DOM 텍스트 노드, placeholder, option, aria-label, title 다중 패스 번역
- * 3. MutationObserver 기반 동적 렌더링 요소 (체크리스트, 테이블, 결재선) 실시간 자동 번역
- * 4. localStorage 영구 저장 (언어 설정 유지) 및 언어 전환 이벤트 브로드캐스트
  */
 (function (global) {
   'use strict';
@@ -172,12 +166,12 @@
     "로그인": "Đăng nhập",
     "로그아웃": "Đăng xuất",
     "작업자": "Công nhân",
-    "관리자": "Quản trị viên",
+    "관리자": "Quản lý",
     "품질관리자": "QL Chất lượng",
     "생산관리자": "QL Sản xuất",
-    "책임자": "Người phụ trách",
+    "책임자": "Trưởng bộ phận",
     "대표자": "Đại diện",
-    "작성 중": "Đang soạn",
+    "작성 중": "Đang viết",
     "작성중": "Đang soạn",
     "검토대기": "Chờ xem xét",
     "검토완료": "Đã kiểm tra",
@@ -293,7 +287,7 @@
     "DKJ-S-02-29 식품안전 내부심사 보고서": "DKJ-S-02-29 Báo cáo kết quả đánh giá nội bộ ATTP",
     "시정 및 예방조치(CAPA) 요구서": "Yêu cầu hành động khắc phục & phòng ngừa (CAPA)",
     "DKJ-S-02-30 시정 및 예방조치(CAPA) 요구서": "DKJ-S-02-30 Yêu cầu hành động khắc phục & phòng ngừa (CAPA)",
-    "이물 관리대장": "Sổ theo dõi & quản lý dị vật",
+    "이물 관리대장": "Sổ quản lý dị vật",
     "DKJ-S-02-31 이물 관리대장": "DKJ-S-02-31 Sổ theo dõi & quản lý dị vật",
     "원료 입고 관리대장": "Sổ quản lý nhập nguyên liệu thô",
     "DKJ-STORE-01 원료 입고 관리대장": "DKJ-STORE-01 Sổ quản lý nhập nguyên liệu thô",
@@ -398,7 +392,7 @@
     "직접 입력": "Nhập trực tiếp",
     "직접 입력...": "Nhập trực tiếp...",
     "등록 인원 선택": "Chọn nhân viên đã đăng ký",
-    "일일 QC 순회 공정검사일지": "Nhật ký kiểm tra tuần tra QC công đoạn hàng ngày",
+    "일일 QC 순회 공정검사일지": "Nhật ký kiểm tra tuần tra QC hàng ngày",
     "일일 QC 공정검사일지": "Nhật ký kiểm tra QC công đoạn hàng ngày",
     "QC 공정일보": "Báo cáo QC công đoạn",
     "📋 QC 공정일보": "📋 Báo cáo QC công đoạn",
@@ -647,7 +641,7 @@
     "원/부재료 입고검사": "Kiểm tra nhập kho nguyên vật liệu",
     "부자재 입고검사일지": "Nhật ký kiểm tra nhập kho vật liệu phụ/bao bì",
     "부자재 입고검사": "Kiểm tra nhập kho vật liệu phụ/bao bì",
-    "협력업체 점검 계획": "Kế hoạch đánh giá nhà cung ứng / đối tác",
+    "협력업체 점검 계획": "Kế hoạch đánh giá đối tác",
     "부적합품 처리": "Xử lý hàng không phù hợp",
     "고객불만 접수대장": "Sổ tiếp nhận khiếu nại khách hàng",
     "고객불만 접수": "Tiếp nhận khiếu nại khách hàng",
@@ -775,8 +769,69 @@
     "작동": "Hoạt động",
     "정지": "Dừng",
     "미점검": "Chưa kiểm tra",
-    "점검완료": "Đã kiểm tra xong"
+    "점검완료": "Đã kiểm tra xong",
+    "일일 QC 순회 공정검사": "Kiểm tra tuần tra QC hàng ngày",
+    "CCP-1BC 소독·헹굼": "CCP-1BC Khử trùng · Tráng",
+    "CCP-2P 금속검출": "CCP-2P Dò kim loại",
+    "개인위생 점검": "Kiểm tra vệ sinh cá nhân",
+    "생산일지": "Nhật ký sản xuất",
+    "작업장 위생점검": "Kiểm tra vệ sinh xưởng",
+    "이물관리 점검": "Kiểm tra quản lý dị vật",
+    "조도 점검": "Kiểm tra độ rọi",
+    "자가품질 검사": "Tự kiểm tra chất lượng",
+    "냉장·냉동 시설 점검": "Kiểm tra thiết bị lạnh · đông",
+    "용수 관리 점검": "Kiểm tra quản lý nguồn nước",
+    "보관·운송 관리": "Quản lý bảo quản · vận chuyển",
+    "방충·방서 관리": "Kiểm soát côn trùng · dịch hại",
+    "폐기물 관리": "Quản lý chất thải",
+    "제조시설 위생점검": "Kiểm tra vệ sinh thiết bị SX",
+    "CCP 최우선": "Ưu tiên CCP",
+    "중요": "Quan trọng",
+    "일반": "Bình thường",
+    "작성 필요": "Cần viết",
+    "작성 완료": "Đã hoàn thành",
+    "발생 기록": "Hồ sơ phát sinh",
+    "작성 의무 없음": "Không bắt buộc viết",
+    "바로 작성 →": "Viết ngay →",
+    "열기 →": "Mở →",
+    "바로 작성": "Viết ngay",
+    "열기": "Mở",
+    "오늘 생산일에 작성해야 하는 정기 일지입니다": "Các nhật ký định kỳ cần viết trong ngày sản xuất hôm nay",
+    "오늘은 비생산일입니다. 정기 일지는 작성 의무에서 제외됩니다": "Hôm nay là ngày không sản xuất. Nhật ký định kỳ không bắt buộc viết",
+    "CCP와 중요 점검부터 작성하세요. 완료 수는 저장 기록을 기준으로 자동 갱신됩니다.": "Hãy viết từ CCP và các mục quan trọng trước. Số lượng hoàn thành được tự động cập nhật.",
+    "저장된 기록 기준입니다. 발생 기록은 사건이 있을 때만 추가합니다.": "Tính theo hồ sơ đã lưu. Hồ sơ phát sinh chỉ tạo khi có sự việc phát sinh.",
+    "정기 일지 작성 의무가 없습니다. 입고·부적합·고객불만 같은 발생 기록만 필요 시 작성하세요.": "Không bắt buộc viết nhật ký định kỳ. Chỉ lập hồ sơ khi phát sinh nhập kho, lỗi hoặc khiếu nại.",
+    "오늘 할 일 보기": "Xem việc hôm nay",
+    "발생 기록 보기": "Xem hồ sơ phát sinh",
+    "품질 경보 확인": "Kiểm tra cảnh báo chất lượng",
+    "완료된 일지 숨기기": "Ẩn nhật ký đã hoàn thành",
+    "오늘은 비생산일입니다": "Hôm nay là ngày không sản xuất",
+    "⚠ 아직 전체 백업을 한 번도 받지 않았습니다.": "⚠ Bạn chưa thực hiện sao lưu toàn bộ lần nào.",
+    "아직 전체 백업을 한 번도 받지 않았습니다.": "Bạn chưa thực hiện sao lưu toàn bộ lần nào.",
+    "지금 백업하러 가기": "Đi tới sao lưu ngay",
+    "이번 주 백업을 잊지 마세요.": "Đừng quên sao lưu tuần này.",
+    "생산분석": "Phân tích sản xuất",
+    "AI 도우미 & 불편접수": "Trợ lý AI & Khiếu nại",
+    "로그인:": "Đăng nhập:",
+    "시스템 관리자": "Quản trị hệ thống"
 }
+  };
+
+  var DAYS_MAP = {
+    '월': 'Thứ Hai',
+    '화': 'Thứ Ba',
+    '수': 'Thứ Tư',
+    '목': 'Thứ Năm',
+    '금': 'Thứ Sáu',
+    '토': 'Thứ Bảy',
+    '일': 'Chủ Nhật'
+  };
+
+  var ROLE_MAP = {
+    '시스템 관리자': 'Quản trị hệ thống',
+    '관리자': 'Quản lý',
+    '책임자': 'Trưởng bộ phận',
+    '작업자': 'Công nhân'
   };
 
   function getSavedLang() {
@@ -787,9 +842,76 @@
     }
   }
 
-  // 정규화 헬퍼 (공백 압축)
   function norm(str) {
     return String(str || '').replace(/\s+/g, ' ').trim();
+  }
+
+  // 동적 패턴 번역
+  function translatePattern(text) {
+    if (!text) return null;
+
+    // 1. "오늘 생산일 · 정기 기록 7건이 남아 있습니다"
+    var mRemain = text.match(/오늘\s*(생산일|비생산일)\s*·\s*정기\s*기록\s*(\d+)건이\s*남아\s*있습니다/);
+    if (mRemain) {
+      var sType = (mRemain[1] === '생산일') ? 'ngày sản xuất' : 'ngày không sản xuất';
+      return 'Hôm nay là ' + sType + ' · Còn lại ' + mRemain[2] + ' bản ghi định kỳ';
+    }
+
+    // 2. "오늘 생산일 · 정기 일지가 모두 완료되었습니다"
+    var mDone = text.match(/오늘\s*(생산일|비생산일)\s*·\s*정기\s*일지가\s*모두\s*완료되었습니다/);
+    if (mDone) {
+      var sType2 = (mDone[1] === '생산일') ? 'ngày sản xuất' : 'ngày không sản xuất';
+      return 'Hôm nay là ' + sType2 + ' · Đã hoàn thành tất cả nhật ký định kỳ';
+    }
+
+    // 3. "7건 남음" / "1개 남음"
+    var mLeft = text.match(/^(\d+)(?:건|개)\s*남음$/);
+    if (mLeft) {
+      return 'Còn ' + mLeft[1] + ' mục';
+    }
+
+    // 4. "완료된 일지 1개 보기" / "▼ 완료된 일지 1개 보기"
+    var mComp = text.match(/^([▼▲]\s*)?완료된\s*일지\s*(\d+)개\s*보기$/);
+    if (mComp) {
+      var arrow = mComp[1] || '';
+      return arrow + 'Xem ' + mComp[2] + ' nhật ký đã hoàn thành';
+    }
+
+    // 5. "완료된 일지 숨기기" / "▲ 완료된 일지 숨기기"
+    var mHide = text.match(/^([▼▲]\s*)?완료된\s*일지\s*숨기기$/);
+    if (mHide) {
+      var arrowH = mHide[1] || '';
+      return arrowH + 'Ẩn nhật ký đã hoàn thành';
+    }
+
+    // 6. 날짜 + 요일 + 생산일: "2026년 8월 31일 (월) · 생산일"
+    var mDate = text.match(/^(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일\s*\(([월화수목금토일])\)\s*·\s*(생산일|비생산일|휴무)$/);
+    if (mDate) {
+      var dayVi = DAYS_MAP[mDate[4]] || mDate[4];
+      var prodVi = (mDate[5] === '생산일') ? 'Ngày SX' : 'Nghỉ SX';
+      return 'Ngày ' + mDate[3] + '/' + mDate[2] + '/' + mDate[1] + ' (' + dayVi + ') · ' + prodVi;
+    }
+
+    // 7. 로그인 바: "로그인: 4343 시스템 관리자"
+    var mLog = text.match(/^로그인:\s*(\d+)\s*(.+)$/);
+    if (mLog) {
+      var rVi = ROLE_MAP[mLog[2].trim()] || mLog[2].trim();
+      return 'Đăng nhập: ' + mLog[1] + ' ' + rVi;
+    }
+
+    // 8. 백업 배너: "⚠ 마지막 전체 백업이 N일 전입니다. 이번 주 백업을 잊지 마세요."
+    var mBak = text.match(/마지막\s*전체\s*백업이\s*(\d+)일\s*전입니다/);
+    if (mBak) {
+      return '⚠ Lần sao lưu gần nhất là ' + mBak[1] + ' ngày trước. Đừng quên sao lưu tuần này.';
+    }
+
+    // 9. 작성률 설명: "최근 7일 중 생산일 N일을 분모로 계산합니다"
+    var mRate = text.match(/최근\s*7일\s*중\s*생산일\s*(\d+)일을\s*분모로\s*계산합니다/);
+    if (mRate) {
+      return 'Tính trên ' + mRate[1] + ' ngày sản xuất trong 7 ngày qua';
+    }
+
+    return null;
   }
 
   // 단어/문구 번역 헬퍼
@@ -802,18 +924,24 @@
     // 1. 정확 일치
     if (dict[text]) return dict[text];
 
-    // 2. 공백 정규화 일치
+    // 2. 동적 패턴 번역
+    var pat = translatePattern(text);
+    if (pat) return pat;
+
+    // 3. 공백 정규화 일치
     var nText = norm(text);
     if (dict[nText]) return dict[nText];
+    var patN = translatePattern(nText);
+    if (patN) return patN;
 
-    // 3. 필수 표시(*) 분리 번역
+    // 4. 필수 표시(*) 분리 번역
     if (/\*$/.test(text)) {
       var withoutStar = text.replace(/\s*\*+$/, '').trim();
       if (dict[withoutStar]) return dict[withoutStar] + ' *';
       if (dict[norm(withoutStar)]) return dict[norm(withoutStar)] + ' *';
     }
 
-    // 4. 문서번호/코드 접두어 분리 번역 (예: "DKJ-H-01-01 중요관리점..." or "FR-001 문서 제·개정...")
+    // 5. 문서번호/코드 접두어 분리 번역 (예: "DKJ-H-01-01 중요관리점..." or "FR-001 문서 제·개정...")
     var mCode = text.match(/^([A-Z0-9-]+(?:\s*[-·]\s*[A-Z0-9-]+)?)\s+(.+)$/);
     if (mCode) {
       var codePrefix = mCode[1];
@@ -822,8 +950,8 @@
       if (dict[norm(restBody)]) return codePrefix + ' ' + dict[norm(restBody)];
     }
 
-    // 5. 특수기호 접두어 분리 번역 (예: "■ [생산일지 연계] ...", "★ [QC 중점관리] ...", "📋 QC 공정일보")
-    var mSym = text.match(/^([■★▶●◆※📋🕒👉]+\s*(?:\[[^\]]+\])?)\s*(.+)$/);
+    // 6. 특수기호 접두어 분리 번역 (예: "■ [생산일지 연계] ...", "★ [QC 중점관리] ...", "📋 QC 공정일보", "📍 작성 필요")
+    var mSym = text.match(/^([■★▶●◆※📋🕒👉📍⚠✓✕!]+\s*(?:\[[^\]]+\])?)\s*(.+)$/);
     if (mSym) {
       var symPrefix = mSym[1].trim();
       var symBody = mSym[2].trim();
@@ -831,9 +959,6 @@
       if (dict[norm(symBody)]) return symPrefix + ' ' + dict[norm(symBody)];
       if (dict[text]) return dict[text];
     }
-
-    // 6. 괄호 단위 부분 치환 (예: "양상추(선별/절단)" -> "Xà lách búp (Tuyển/Cắt)")
-    if (dict[text]) return dict[text];
 
     return rawText;
   }
@@ -848,7 +973,6 @@
       if (!val || !val.trim()) return;
       var trimmed = val.trim();
       
-      // 한글 포함 여부 검사
       if (/[\uac00-\ud7a3]/.test(trimmed)) {
         if (!node._origKo) node._origKo = val;
         if (isVi) {
@@ -964,7 +1088,7 @@
       btnHeader.addEventListener('click', toggleLanguage);
     }
 
-    // 커스텀 이벤트 연동 (테이블/결재 패널 등이 갱신되었을 때)
+    // 커스텀 이벤트 연동
     window.addEventListener('dkj:approval-changed', function () {
       if (currentLang === 'vi') setTimeout(translatePage, 10);
     });
