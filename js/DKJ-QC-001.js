@@ -187,12 +187,13 @@
   // Handle and compress camera/uploaded image for localStorage & high quality print
   function handleImageUpload(file, callback) {
     if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function (e) {
+    try {
+      var url = URL.createObjectURL(file);
       var img = new Image();
       img.onload = function () {
+        URL.revokeObjectURL(url);
         var canvas = document.createElement('canvas');
-        var MAX_DIM = 1000;
+        var MAX_DIM = 900;
         var width = img.width;
         var height = img.height;
 
@@ -212,12 +213,38 @@
         canvas.height = height;
         var ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
-        var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.80);
         callback(dataUrl);
       };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var fbImg = new Image();
+          fbImg.onload = function () {
+            var canvas = document.createElement('canvas');
+            var MAX_DIM = 900;
+            var w = fbImg.width;
+            var h = fbImg.height;
+            if (w > h) {
+              if (w > MAX_DIM) { h = Math.round((h * MAX_DIM) / w); w = MAX_DIM; }
+            } else {
+              if (h > MAX_DIM) { w = Math.round((w * MAX_DIM) / h); h = MAX_DIM; }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(fbImg, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', 0.80));
+          };
+          fbImg.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      };
+      img.src = url;
+    } catch (err) {
+      console.error('Image handling failed', err);
+    }
   }
 
   // Re-sync raw materials BOM whenever products list changes
@@ -387,11 +414,20 @@
       var photoColHtml = '';
       if (it.photoKey) {
         var curPhoto = (state.photos && state.photos[it.photoKey]) || null;
-        photoColHtml = '<div class="qc-photo-box">' +
-          '<button type="button" class="qc-camera-btn" data-trigger-photo="' + it.photoKey + '">📷 ' + it.photoTitle + '</button>' +
-          '<input type="file" accept="image/*" capture="environment" class="qc-photo-file-inp" data-photo-inp="' + it.photoKey + '" style="display:none;">' +
-          (curPhoto ? '<div class="qc-photo-preview-wrap"><img src="' + curPhoto + '" class="qc-photo-thumb" alt="미리보기"><button type="button" class="qc-photo-del" data-del-photo="' + it.photoKey + '">✕</button></div>' : '') +
+        if (curPhoto) {
+          photoColHtml = '<div class="qc-photo-box">' +
+            '<div class="qc-photo-preview-wrap">' +
+              '<img src="' + curPhoto + '" class="qc-photo-thumb" alt="미리보기" onclick="window.open(this.src)" title="클릭하여 원본보기">' +
+              '<button type="button" class="qc-photo-del" data-del-photo="' + it.photoKey + '" title="사진 삭제">✕</button>' +
+            '</div>' +
           '</div>';
+        } else {
+          photoColHtml = '<div class="qc-photo-box">' +
+            '<label class="qc-camera-btn" style="position:relative;cursor:pointer;">📷 ' + it.photoTitle +
+              '<input type="file" accept="image/*" capture="environment" class="qc-photo-file-inp" data-photo-inp="' + it.photoKey + '" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;">' +
+            '</label>' +
+          '</div>';
+        }
       }
 
       rowsHtml += '<tr' + ccpRowCls + '>';
@@ -468,17 +504,7 @@
       });
     });
 
-    // Camera Trigger Buttons
-    tbody.querySelectorAll('[data-trigger-photo]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (state.locked) return;
-        var pKey = btn.getAttribute('data-trigger-photo');
-        var fileInp = tbody.querySelector('[data-photo-inp="' + pKey + '"]');
-        if (fileInp) fileInp.click();
-      });
-    });
-
-    // Camera File Inputs
+    // Camera File Inputs in Table
     tbody.querySelectorAll('[data-photo-inp]').forEach(function (inp) {
       inp.addEventListener('change', function () {
         if (state.locked) return;
@@ -489,16 +515,17 @@
             state.photos = state.photos || {};
             state.photos[pKey] = dataUrl;
             renderMainCheckTable();
+            renderPhotoSection();
             scheduleDraft();
             if (window.DkjUtil && window.DkjUtil.toast) {
-              window.DkjUtil.toast('사진이 성공적으로 첨부되었습니다.');
+              window.DkjUtil.toast('📷 ' + (pKey === 'chlorinePaper' ? '소독수 시험지' : '소비기한/LOT 날인') + ' 사진이 첨부되었습니다.');
             }
           });
         }
       });
     });
 
-    // Photo Delete Buttons
+    // Photo Delete Buttons in Table
     tbody.querySelectorAll('[data-del-photo]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         if (state.locked) return;
@@ -506,7 +533,96 @@
         if (state.photos && state.photos[pKey]) {
           state.photos[pKey] = null;
           renderMainCheckTable();
+          renderPhotoSection();
           scheduleDraft();
+          if (window.DkjUtil && window.DkjUtil.toast) {
+            window.DkjUtil.toast('사진이 삭제되었습니다.');
+          }
+        }
+      });
+    });
+  }
+
+  // Render Bottom Photo Cards Section (⑤ 현장 실물 증빙 사진 첨부)
+  function renderPhotoSection() {
+    var sec = $('qcPhotoSection');
+    if (!sec) return;
+
+    var configs = [
+      { key: 'chlorinePaper', cardBody: 'previewBoxChlorinePaper', badge: 'badgeChlorinePaper', title: '소독수 유효염소 시험지' },
+      { key: 'lotPrint', cardBody: 'previewBoxLotPrint', badge: 'badgeLotPrint', title: '소비기한/LOT 날인' }
+    ];
+
+    configs.forEach(function (cfg) {
+      var photo = (state.photos && state.photos[cfg.key]) || null;
+      var bodyEl = $(cfg.cardBody);
+      var badgeEl = $(cfg.badge);
+
+      if (badgeEl) {
+        if (photo) {
+          badgeEl.textContent = '✓ 첨부완료 (저장됨)';
+          badgeEl.className = 'qc-photo-badge saved';
+        } else {
+          badgeEl.textContent = '미첨부';
+          badgeEl.className = 'qc-photo-badge';
+        }
+      }
+
+      if (bodyEl) {
+        if (photo) {
+          bodyEl.innerHTML = '<div class="qc-photo-preview-box">' +
+            '<img src="' + photo + '" class="qc-photo-img-large" alt="' + cfg.title + ' 실물" onclick="window.open(this.src)" title="클릭하여 원본보기">' +
+            '<div class="qc-photo-actions">' +
+              '<label class="pill-btn ghost sm" style="position:relative;cursor:pointer;">📷 사진 변경' +
+                '<input type="file" accept="image/*" capture="environment" data-sec-photo="' + cfg.key + '" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;">' +
+              '</label>' +
+              '<button type="button" class="pill-btn ghost sm" data-sec-del="' + cfg.key + '" style="color:#d92d20;border-color:#fca5a5;">🗑️ 사진 삭제</button>' +
+            '</div>' +
+          '</div>';
+        } else {
+          bodyEl.innerHTML = '<label class="qc-photo-dropzone">' +
+            '<input type="file" accept="image/*" capture="environment" data-sec-photo="' + cfg.key + '">' +
+            '<span class="qc-drop-icon">📷</span>' +
+            '<span class="qc-drop-text">' + cfg.title + ' 촬영 / 사진 선택</span>' +
+            '<span class="qc-drop-sub">터치하여 스마트폰 카메라 촬영 또는 갤러리 선택</span>' +
+          '</label>';
+        }
+      }
+    });
+
+    // Bind inputs inside photo section
+    sec.querySelectorAll('[data-sec-photo]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        if (state.locked) return;
+        var pKey = inp.getAttribute('data-sec-photo');
+        var file = inp.files && inp.files[0];
+        if (file) {
+          handleImageUpload(file, function (dataUrl) {
+            state.photos = state.photos || {};
+            state.photos[pKey] = dataUrl;
+            renderMainCheckTable();
+            renderPhotoSection();
+            scheduleDraft();
+            if (window.DkjUtil && window.DkjUtil.toast) {
+              window.DkjUtil.toast('📷 ' + (pKey === 'chlorinePaper' ? '소독수 시험지' : '소비기한/LOT 날인') + ' 사진이 첨부되었습니다.');
+            }
+          });
+        }
+      });
+    });
+
+    sec.querySelectorAll('[data-sec-del]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (state.locked) return;
+        var pKey = btn.getAttribute('data-sec-del');
+        if (state.photos && state.photos[pKey]) {
+          state.photos[pKey] = null;
+          renderMainCheckTable();
+          renderPhotoSection();
+          scheduleDraft();
+          if (window.DkjUtil && window.DkjUtil.toast) {
+            window.DkjUtil.toast('사진이 삭제되었습니다.');
+          }
         }
       });
     });
@@ -758,6 +874,7 @@
     renderMainCheckTable();
     renderFinishedGoodsTable();
     renderMaterialsTable();
+    renderPhotoSection();
     checkDeviations();
     if (apvUi) apvUi.render();
   }
@@ -908,23 +1025,27 @@
 
     var prodTitle = (state.finishedItems && state.finishedItems.length) ? state.finishedItems.map(function(f){return f.name;}).join(', ') : '신선편의 가공채소';
 
-    var hasPhotos = state.photos && (state.photos.chlorinePaper || state.photos.lotPrint);
-    var photoAttachmentHtml = '';
-    if (hasPhotos) {
-      photoAttachmentHtml = '<div style="margin-top:8px;border-top:1.5px dashed #000;padding-top:6px;page-break-inside:avoid;">' +
-        '<div style="font-weight:bold;font-size:8pt;margin-bottom:4px;color:#003311;">■ [현장 실물 증빙 첨부] 소독수 시험지 및 소비기한/LOT 날인 사진</div>' +
-        '<div style="display:flex;gap:8px;justify-content:space-between;">' +
-          '<div style="flex:1;border:1px solid #000;padding:4px;text-align:center;background:#fff;">' +
-            '<div style="font-weight:bold;font-size:7.5pt;margin-bottom:3px;background:#eef2f6;padding:2px;">1. [CCP-1BC] 소독수 유효염소농도 시험지 확인</div>' +
-            (state.photos.chlorinePaper ? '<img src="' + state.photos.chlorinePaper + '" style="max-width:100%;max-height:85mm;object-fit:contain;border:1px solid #cbd5e1;">' : '<div style="height:60px;display:flex;align-items:center;justify-content:center;color:#888;font-size:7.5pt;">(미첨부)</div>') +
-          '</div>' +
-          '<div style="flex:1;border:1px solid #000;padding:4px;text-align:center;background:#fff;">' +
-            '<div style="font-weight:bold;font-size:7.5pt;margin-bottom:3px;background:#eef2f6;padding:2px;">2. [포장/표시사항] 소비기한 / LOT 날인 상태</div>' +
-            (state.photos.lotPrint ? '<img src="' + state.photos.lotPrint + '" style="max-width:100%;max-height:85mm;object-fit:contain;border:1px solid #cbd5e1;">' : '<div style="height:60px;display:flex;align-items:center;justify-content:center;color:#888;font-size:7.5pt;">(미첨부)</div>') +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }
+    var photoAttachmentHtml = '<div style="margin-top:6px;border-top:1.5px solid #000;padding-top:4px;page-break-inside:avoid;">' +
+      '<div style="font-weight:bold;font-size:8.5pt;margin-bottom:3px;color:#003311;">■ [현장 실물 증빙 첨부] 소독수 유효염소 시험지 및 소비기한/LOT 날인 사진</div>' +
+      '<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;text-align:center;">' +
+        '<thead>' +
+          '<tr style="background:#eef2f6;font-size:8pt;font-weight:bold;">' +
+            '<th style="border:1px solid #000;width:50%;padding:3px;">1. [CCP-1BC] 소독수 유효염소 시험지 확인 (200~300 ppm)</th>' +
+            '<th style="border:1px solid #000;width:50%;padding:3px;">2. [포장/표시사항] 소비기한 / LOT 날인 상태 확인</th>' +
+          '</tr>' +
+        '</thead>' +
+        '<tbody>' +
+          '<tr>' +
+            '<td style="border:1px solid #000;height:60mm;padding:4px;vertical-align:middle;background:#fff;">' +
+              (state.photos && state.photos.chlorinePaper ? '<img src="' + state.photos.chlorinePaper + '" style="max-width:100%;max-height:56mm;object-fit:contain;border:1px solid #94a3b8;">' : '<div style="height:50px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:8pt;">(소독수 시험지 사진 미첨부 / 현장 부착란)</div>') +
+            '</td>' +
+            '<td style="border:1px solid #000;height:60mm;padding:4px;vertical-align:middle;background:#fff;">' +
+              (state.photos && state.photos.lotPrint ? '<img src="' + state.photos.lotPrint + '" style="max-width:100%;max-height:56mm;object-fit:contain;border:1px solid #94a3b8;">' : '<div style="height:50px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:8pt;">(소비기한/LOT 날인 사진 미첨부 / 현장 부착란)</div>') +
+            '</td>' +
+          '</tr>' +
+        '</tbody>' +
+      '</table>' +
+    '</div>';
 
     p.innerHTML = '<div style="width:200mm;margin:0 auto;padding:4mm 2mm;font-family:sans-serif;font-size:8.0pt;color:#000;line-height:1.2;">' +
       // 1. Header & Approval Box

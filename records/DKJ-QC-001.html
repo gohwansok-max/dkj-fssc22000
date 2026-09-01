@@ -551,6 +551,126 @@
       touch-action: manipulation;
     }
 
+    /* 하단 실물 증빙 사진 첨부 그리드 */
+    .qc-photo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 10px;
+    }
+    @media (max-width: 768px) {
+      .qc-photo-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+    .qc-photo-card {
+      border: 1px solid #cce3d5;
+      border-radius: 12px;
+      background: #fdfefe;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .qc-photo-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #f1f8f4;
+      border-bottom: 1px solid #e0eee6;
+    }
+    .qc-photo-card-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0b3d22;
+    }
+    .qc-photo-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #475569;
+    }
+    .qc-photo-badge.saved {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+    .qc-photo-card-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      background: #fff;
+    }
+    .qc-photo-dropzone {
+      width: 100%;
+      min-height: 160px;
+      border: 2px dashed #a7d3b9;
+      border-radius: 10px;
+      background: #f9fcfb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .qc-photo-dropzone:hover {
+      border-color: #009a44;
+      background: #f0fdf4;
+    }
+    .qc-photo-dropzone input[type="file"] {
+      display: none;
+    }
+    .qc-drop-icon {
+      font-size: 34px;
+      line-height: 1;
+    }
+    .qc-drop-text {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #007a34;
+    }
+    .qc-drop-sub {
+      font-size: 11.5px;
+      color: #64748b;
+    }
+    .qc-photo-preview-box {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .qc-photo-img-large {
+      max-width: 100%;
+      max-height: 240px;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      background: #f8fafc;
+    }
+    .qc-photo-actions {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+
     /* Print Template Overlay */
     @media print {
       @page { size: A4 portrait; margin: 8mm 6mm; }
@@ -725,9 +845,36 @@
       </div>
     </section>
 
-    <!-- 5. 특이사항 & 이탈 시 시정조치 & 전자결재 -->
+    <!-- 5. 현장 실물 증빙 사진 첨부 (소독수 시험지 & LOT 날인) -->
+    <section class="dkj-panel" id="qcPhotoSection">
+      <h2>⑤ 현장 실물 증빙 사진 첨부 <span style="font-size:12px;font-weight:500;color:#666;">(소독수 시험지 및 소비기한/LOT 날인 실물 촬영)</span></h2>
+      <div class="viewer-notice" style="margin-bottom:12px;background:#f0fdf4;border-color:#86efac;color:#166534;">
+        📷 스마트폰으로 촬영하거나 앨범에서 사진을 선택하면 일보에 자동 첨부되며, <strong>인쇄(정본) 시 최하단 실물 증빙란에 함께 출력</strong>됩니다.
+      </div>
+      <div class="qc-photo-grid">
+        <!-- 소독수 유효염소 시험지 -->
+        <div class="qc-photo-card" id="cardChlorinePaper">
+          <div class="qc-photo-card-head">
+            <span class="qc-photo-card-title">🧪 [CCP-1BC] 소독수 유효염소 시험지 (200~300 ppm)</span>
+            <span class="qc-photo-badge" id="badgeChlorinePaper">미첨부</span>
+          </div>
+          <div class="qc-photo-card-body" id="previewBoxChlorinePaper"></div>
+        </div>
+
+        <!-- 소비기한 / LOT 날인 -->
+        <div class="qc-photo-card" id="cardLotPrint">
+          <div class="qc-photo-card-head">
+            <span class="qc-photo-card-title">🏷️ [포장/표시] 소비기한 / LOT 날인 상태</span>
+            <span class="qc-photo-badge" id="badgeLotPrint">미첨부</span>
+          </div>
+          <div class="qc-photo-card-body" id="previewBoxLotPrint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 특이사항 & 이탈 시 시정조치 & 전자결재 -->
     <section class="dkj-panel">
-      <h2>⑤ 특이사항 · 이탈 조치 내역 & 전자결재</h2>
+      <h2>⑥ 특이사항 · 이탈 조치 내역 & 전자결재</h2>
       <div class="dkj-field-grid">
         <div class="dkj-field full">
           <label for="remarkPreset">특이사항 빠른 선택</label>
@@ -763,7 +910,7 @@
 
     <!-- 최근 저장 기록 -->
     <section class="dkj-panel history">
-      <h2>⑥ 최근 저장 기록 (이 기기)</h2>
+      <h2>⑦ 최근 저장 기록 (이 기기)</h2>
       <div id="historyList"></div>
     </section>
   </main>
