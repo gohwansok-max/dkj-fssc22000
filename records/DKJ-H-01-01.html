@@ -60,13 +60,14 @@
           </select>
         </div>
         <div class="dkj-field full">
-          <label for="productSelect">품목 *</label>
+          <label for="productSelect">품목 * (농협+샐러디아 동시체크 및 다중선택 지원)</label>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <select id="productSelect" style="flex:1;min-width:220px;">
               <option value="">-- 품목 선택 --</option>
-              <option value="양상추 샐러드">양상추 샐러드</option>
+              <option value="농협 샐러드 채소믹스, 샐러디아 샐러드 채소믹스">✨ 농협 샐러드 + 샐러디아 (동시 소독)</option>
               <option value="농협 샐러드 채소믹스">농협 샐러드 채소믹스</option>
               <option value="샐러디아 샐러드 채소믹스">샐러디아 샐러드 채소믹스</option>
+              <option value="양상추 샐러드">양상추 샐러드</option>
               <option value="슬로우캘리 샐러드믹스">슬로우캘리 샐러드믹스</option>
               <option value="급식(바로먹는 유러피언 샐러드 채소믹스)">급식(바로먹는 유러피언 샐러드 채소믹스)</option>
               <option value="__custom__">✏️ 직접 입력...</option>
@@ -75,9 +76,10 @@
           </div>
           <div class="dkj-preset-chips" id="productChips">
             <span class="dkj-chips-label">빠른선택:</span>
-            <button type="button" class="dkj-chip" data-prod="양상추 샐러드">양상추 샐러드</button>
+            <button type="button" class="dkj-chip" data-prod="농협 샐러드 채소믹스, 샐러디아 샐러드 채소믹스" style="font-weight:800;color:#007a34;border-color:#86efac;background:#f0fdf4;">✨ 농협+샐러디아</button>
             <button type="button" class="dkj-chip" data-prod="농협 샐러드 채소믹스">농협 샐러드</button>
             <button type="button" class="dkj-chip" data-prod="샐러디아 샐러드 채소믹스">샐러디아</button>
+            <button type="button" class="dkj-chip" data-prod="양상추 샐러드">양상추 샐러드</button>
             <button type="button" class="dkj-chip" data-prod="슬로우캘리 샐러드믹스">슬로우캘리</button>
             <button type="button" class="dkj-chip" data-prod="급식(바로먹는 유러피언 샐러드 채소믹스)">급식(유러피언)</button>
           </div>

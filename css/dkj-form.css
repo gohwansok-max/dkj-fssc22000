@@ -823,6 +823,14 @@
   transform: scale(0.96);
 }
 
+.dkj-chip.active {
+  background: var(--nh-green, #009a44) !important;
+  color: #fff !important;
+  border-color: var(--nh-green-dark, #007a34) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(0, 154, 68, 0.28);
+}
+
 /* 모바일, 아이폰, iPad, 안드로이드 태블릿 정렬 최적화 */
 @media (max-width: 640px) {
   .dkj-preset-chips {

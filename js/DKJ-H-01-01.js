@@ -11,9 +11,10 @@
   var draftTimer = null;
 
   var PRODUCT_PRESETS = [
-    '양상추 샐러드',
+    '농협 샐러드 채소믹스, 샐러디아 샐러드 채소믹스',
     '농협 샐러드 채소믹스',
     '샐러디아 샐러드 채소믹스',
+    '양상추 샐러드',
     '슬로우캘리 샐러드믹스',
     '급식(바로먹는 유러피언 샐러드 채소믹스)'
   ];
@@ -280,21 +281,44 @@
   function syncProductUi() {
     var pSel = $('productSelect');
     var pInp = $('productName');
-    if (!pSel || !pInp) return;
+    var val = (state.productName || '').trim();
 
-    var val = state.productName || '';
-    if (PRODUCT_PRESETS.indexOf(val) !== -1) {
-      pSel.value = val;
-      pInp.style.display = 'none';
+    if (pSel) {
+      var matched = false;
+      for (var i = 0; i < pSel.options.length; i++) {
+        if (pSel.options[i].value === val) {
+          pSel.selectedIndex = i;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        pSel.value = val ? '__custom__' : '';
+      }
+    }
+
+    if (pInp) {
+      if (pSel && pSel.value === '__custom__') {
+        pInp.style.display = 'block';
+      } else {
+        pInp.style.display = 'none';
+      }
       pInp.value = val;
-    } else if (val) {
-      pSel.value = '__custom__';
-      pInp.style.display = 'block';
-      pInp.value = val;
-    } else {
-      pSel.value = '';
-      pInp.style.display = 'none';
-      pInp.value = '';
+    }
+
+    // Chip active states
+    var host = $('productChips');
+    if (host) {
+      host.querySelectorAll('[data-prod]').forEach(function (chip) {
+        var pVal = chip.getAttribute('data-prod');
+        if (pVal === val) {
+          chip.classList.add('active');
+        } else if (pVal.indexOf(',') === -1 && val.indexOf(',') !== -1 && val.indexOf(pVal) !== -1) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
     }
   }
 
@@ -593,14 +617,33 @@
       });
     }
 
-    // 품목 칩 바인딩
+    // 품목 칩 바인딩 (농협+샐러디아 동시체크 및 다중선택 지원)
     var prodChips = $('productChips');
     if (prodChips) {
       prodChips.querySelectorAll('[data-prod]').forEach(function (chip) {
         chip.addEventListener('click', function () {
           if (state.locked) return;
           var val = chip.getAttribute('data-prod');
-          state.productName = val;
+
+          if (val.indexOf(',') !== -1) {
+            // "농협+샐러디아" 원터치 콤보
+            if (state.productName === val) {
+              state.productName = '';
+            } else {
+              state.productName = val;
+            }
+          } else {
+            // 단일 칩 다중 토글
+            var curList = state.productName ? state.productName.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : [];
+            var idx = curList.indexOf(val);
+            if (idx !== -1) {
+              curList.splice(idx, 1);
+            } else {
+              curList.push(val);
+            }
+            state.productName = curList.join(', ');
+          }
+
           syncProductUi();
           readForm();
           refreshApproval();
