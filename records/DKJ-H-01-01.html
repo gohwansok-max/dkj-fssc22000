@@ -59,17 +59,58 @@
             <option value="기타">기타</option>
           </select>
         </div>
-        <div class="dkj-field">
-          <label for="productName">품목 *</label>
-          <input type="text" id="productName" placeholder="예: 세척채소 믹스">
+        <div class="dkj-field full">
+          <label for="productSelect">품목 *</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="productSelect" style="flex:1;min-width:220px;">
+              <option value="">-- 품목 선택 --</option>
+              <option value="양상추 샐러드">양상추 샐러드</option>
+              <option value="농협 샐러드 채소믹스">농협 샐러드 채소믹스</option>
+              <option value="샐러디아 샐러드 채소믹스">샐러디아 샐러드 채소믹스</option>
+              <option value="슬로우캘리 샐러드믹스">슬로우캘리 샐러드믹스</option>
+              <option value="급식(바로먹는 유러피언 샐러드 채소믹스)">급식(바로먹는 유러피언 샐러드 채소믹스)</option>
+              <option value="__custom__">✏️ 직접 입력...</option>
+            </select>
+            <input type="text" id="productName" placeholder="품목명 직접 입력" style="flex:1;min-width:220px;display:none;">
+          </div>
+          <div class="dkj-preset-chips" id="productChips">
+            <span class="dkj-chips-label">빠른선택:</span>
+            <button type="button" class="dkj-chip" data-prod="양상추 샐러드">양상추 샐러드</button>
+            <button type="button" class="dkj-chip" data-prod="농협 샐러드 채소믹스">농협 샐러드</button>
+            <button type="button" class="dkj-chip" data-prod="샐러디아 샐러드 채소믹스">샐러디아</button>
+            <button type="button" class="dkj-chip" data-prod="슬로우캘리 샐러드믹스">슬로우캘리</button>
+            <button type="button" class="dkj-chip" data-prod="급식(바로먹는 유러피언 샐러드 채소믹스)">급식(유러피언)</button>
+          </div>
         </div>
         <div class="dkj-field">
           <label for="lot">생산 LOT *</label>
-          <input type="text" id="lot" placeholder="생산·포장 기록과 동일한 LOT">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="text" id="lot" placeholder="예: 20260901" style="flex:1;">
+            <button type="button" class="pill-btn ghost" id="btnSyncLot" title="작업일자 기준으로 LOT 생성" style="white-space:nowrap;padding:0 10px;min-height:44px;font-size:12px;">일자LOT</button>
+          </div>
         </div>
-        <div class="dkj-field">
+        <div class="dkj-field full">
           <label for="waterChangeTimes">소독액·헹굼수 교체 시각 (3시간마다)</label>
-          <input type="text" id="waterChangeTimes" placeholder="예: 08:00, 11:00, 14:00">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="waterPresetSelect" style="flex:1;min-width:220px;">
+              <option value="">-- 표준 교체 시각 선택 --</option>
+              <option value="08:00, 11:00, 14:00">08:00, 11:00, 14:00 (표준 주간 1)</option>
+              <option value="08:30, 11:30, 14:30">08:30, 11:30, 14:30 (표준 주간 2)</option>
+              <option value="09:00, 12:00, 15:00">09:00, 12:00, 15:00 (표준 주간 3)</option>
+              <option value="07:30, 10:30, 13:30">07:30, 10:30, 13:30 (조기 작업)</option>
+              <option value="08:00, 11:00, 14:00, 17:00">08:00, 11:00, 14:00, 17:00 (연장 4회)</option>
+              <option value="__custom__">✏️ 직접 입력 / 수정</option>
+            </select>
+            <input type="text" id="waterChangeTimes" placeholder="예: 08:00, 11:00, 14:00" style="flex:1;min-width:220px;">
+            <button type="button" class="pill-btn ghost" id="btnOpenTimePicker" style="white-space:nowrap;min-height:44px;">🕒 시간 팝업</button>
+          </div>
+          <div class="dkj-preset-chips" id="waterChips">
+            <span class="dkj-chips-label">추천 3시간:</span>
+            <button type="button" class="dkj-chip" data-water="08:00, 11:00, 14:00">08:00, 11:00, 14:00</button>
+            <button type="button" class="dkj-chip" data-water="08:30, 11:30, 14:30">08:30, 11:30, 14:30</button>
+            <button type="button" class="dkj-chip" data-water="09:00, 12:00, 15:00">09:00, 12:00, 15:00</button>
+            <button type="button" class="dkj-chip" data-water="08:00, 11:00, 14:00, 17:00">08:00, 11:00, 14:00, 17:00</button>
+          </div>
         </div>
         <div class="dkj-field">
           <label for="clMin">한계기준 하한 (ppm)</label>
@@ -161,6 +202,46 @@
 
   </div>
   <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
+
+  <!-- 소독액·헹굼수 교체 시각 선택 팝업 다이얼로그 -->
+  <dialog id="waterTimeModal" class="dkj-time-modal">
+    <div class="dkj-time-modal__card">
+      <div class="dkj-time-modal__head">
+        <h3>🕒 교체 시각 선택 (3시간 간격)</h3>
+        <button type="button" class="dkj-time-modal__close" id="btnCloseTimeModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="dkj-time-modal__body">
+        <div class="dkj-time-auto-box">
+          <div class="dkj-time-auto-label">⚡ 시작 시각 기준 3시간 간격 자동 생성:</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="modalStartHour" class="dkj-time-select">
+              <option value="07:00">07:00</option>
+              <option value="07:30">07:30</option>
+              <option value="08:00" selected>08:00 (기본)</option>
+              <option value="08:30">08:30</option>
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+            </select>
+            <button type="button" class="pill-btn green" id="btnAutoCalcTimes">3시간 간격 자동 채우기</button>
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:700;margin:12px 0 6px;color:var(--ink-2);">개별 교체 시각 직접 체크 (다중 선택):</div>
+        <div id="modalTimeGrid" class="dkj-time-grid">
+          <!-- 시간 슬롯 체크박스 칩 렌더링 -->
+        </div>
+
+        <div style="margin-top:12px;font-size:13px;color:var(--ink-2);">
+          <strong>선택된 시각:</strong> <span id="modalSelectedPreview" style="color:var(--nh-green);font-weight:700;">-</span>
+        </div>
+      </div>
+      <div class="dkj-time-modal__foot">
+        <button type="button" class="pill-btn ghost" id="btnCancelTimeModal">취소</button>
+        <button type="button" class="pill-btn green" id="btnApplyTimeModal">선택 완료</button>
+      </div>
+    </div>
+  </dialog>
 
 
   <script src="../js/dkj-util.js?v=66"></script>

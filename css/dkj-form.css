@@ -958,3 +958,156 @@
   }
 }
 
+/* ---------- DKJ-H-01-01 입력 편의 및 시간 모달 ---------- */
+.dkj-time-modal {
+  border: 0;
+  border-radius: 16px;
+  padding: 0;
+  background: transparent;
+  max-width: min(500px, calc(100vw - 24px));
+  box-shadow: 0 18px 55px rgba(0, 0, 0, .28);
+}
+.dkj-time-modal::backdrop {
+  background: rgba(14, 31, 24, .55);
+  backdrop-filter: blur(2px);
+}
+.dkj-time-modal__card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  overflow: hidden;
+}
+.dkj-time-modal__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+.dkj-time-modal__head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--nh-green-ink);
+}
+.dkj-time-modal__close {
+  border: 0;
+  background: #f0f4f2;
+  color: #333;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dkj-time-modal__close:hover {
+  background: #e0e8e4;
+}
+.dkj-time-modal__body {
+  padding: 8px 0 16px;
+}
+.dkj-time-auto-box {
+  background: #f4f8f5;
+  border: 1px solid #cde0d5;
+  border-radius: var(--r-s);
+  padding: 12px;
+  margin-bottom: 14px;
+}
+.dkj-time-auto-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--nh-green-ink);
+  margin-bottom: 8px;
+}
+.dkj-time-select {
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+}
+.dkj-time-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+@media (max-width: 480px) {
+  .dkj-time-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.dkj-time-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 6px 8px;
+  border: 1px solid #d0dcd4;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+  user-select: none;
+}
+.dkj-time-chip-btn:hover {
+  border-color: var(--nh-green);
+  background: #f0f7f3;
+}
+.dkj-time-chip-btn.active {
+  background: var(--nh-green);
+  border-color: var(--nh-green-dark);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(0, 154, 68, .3);
+}
+.dkj-time-modal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+/* 테이블 내 콤보 선택기 (유효염소, 침지) */
+.mon-select-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  width: 100%;
+}
+.mon-select-group .mon-in {
+  flex: 1;
+  min-width: 0;
+}
+.mon-select-group .mon-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  background: #f8faf9;
+  color: var(--ink-2);
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.mon-select-group .mon-mode-btn:hover {
+  background: #eef5f1;
+  border-color: var(--nh-green);
+}
+
