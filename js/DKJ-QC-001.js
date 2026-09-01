@@ -75,9 +75,9 @@
     { key: 'c08', group: '전처리', proc: '절단·선별', label: '이물 1차 선별 상태', std: '달팽이, 벌레, 비닐 등 협잡물 100% 제거 (○/×)', type: 'ox', defaultVal: '○', act: '선별 속도 감속 및 재선별' },
     
     // CCP-1BC (4)
-    { key: 'c09', group: 'CCP-1BC', proc: '소독공정', label: '소독수 유효염소농도 (ppm)', std: '한계기준: 50 ~ 200 ppm (관리목표: 100~150 ppm)', type: 'num', unit: 'ppm', min: 50, max: 200, defaultVal: '120', isCcp: true, act: '소독원액 보충 및 재조제', photoKey: 'chlorinePaper', photoTitle: '소독수 시험지' },
-    { key: 'c10', group: 'CCP-1BC', proc: '소독공정', label: '소독 침지 시간 (초)', std: '한계기준: 60초 이상 침지 (측정 초 기록)', type: 'num', unit: '초', min: 60, max: 300, defaultVal: '75', isCcp: true, act: '컨베이어 이송속도 감속' },
-    { key: 'c11', group: 'CCP-1BC', proc: '헹굼공정', label: '세척 헹굼 및 잔류염소', std: '음용수 헹굼 실시, 잔류염소 냄새 없음 (○/×)', type: 'ox', defaultVal: '○', isCcp: true, act: '헹굼 수량/수압 증대' },
+    { key: 'c09', group: 'CCP-1BC', proc: '소독공정', label: '소독수 유효염소농도 (ppm)', std: '한계기준: 200 ~ 300 ppm (관리목표: 220~280 ppm)', type: 'num', unit: 'ppm', min: 200, max: 300, defaultVal: '250', isCcp: true, act: '소독원액 보충 및 재조제', photoKey: 'chlorinePaper', photoTitle: '소독수 시험지' },
+    { key: 'c10', group: 'CCP-1BC', proc: '소독공정', label: '소독 침지 시간 (초)', std: '한계기준: 20 ~ 30초 침지 (측정 초 기록)', type: 'num', unit: '초', min: 20, max: 30, defaultVal: '25', isCcp: true, act: '컨베이어 이송속도 조정' },
+    { key: 'c11', group: 'CCP-1BC', proc: '헹굼공정', label: '세척 헹굼 및 잔류염소', std: '음용수 50~60초 헹굼 실시, 잔류염소 4 ppm 미만 확인 (○/×)', type: 'ox', defaultVal: '○', isCcp: true, act: '헹굼 수량/수압 증대 및 헹굼시간 연장' },
     { key: 'c12', group: 'CCP-1BC', proc: '세척수관리', label: '소독액·헹굼수 교체', std: '3시간 주기 전량 교체 확인 (교체 시각 기록)', type: 'ox', defaultVal: '○', isCcp: true, act: '세척수 즉시 전량 교체' },
     
     // 가공 (2)

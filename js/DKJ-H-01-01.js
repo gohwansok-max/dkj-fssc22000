@@ -19,8 +19,8 @@
     '급식(바로먹는 유러피언 샐러드 채소믹스)'
   ];
 
-  var PPM_PRESETS = ['50', '60', '70', '80', '90', '100', '110', '120', '130', '140', '150', '160', '170', '180', '190', '200'];
-  var SOAK_PRESETS = ['60', '65', '70', '75', '80', '90', '100', '120', '150', '180'];
+  var PPM_PRESETS = ['200', '210', '220', '230', '240', '250', '260', '270', '280', '290', '300'];
+  var SOAK_PRESETS = ['20', '22', '24', '25', '26', '28', '30'];
 
   var TIME_SLOTS = [
     '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
@@ -52,9 +52,9 @@
       productName: '',
       lot: dateToLot(td),
       waterChangeTimes: '08:00, 11:00, 14:00',
-      clMin: 50,
-      clMax: 200,
-      timeMin: 60,
+      clMin: 200,
+      clMax: 300,
+      timeMin: 20,
       monitorName: '이다은',
       rows: [emptyRow(), emptyRow(), emptyRow()],
       deviation: '',
@@ -119,7 +119,7 @@
   function soakOk(sec) {
     var n = parseFloat(sec);
     if (isNaN(n)) return null;
-    return n >= Number(state.timeMin);
+    return n >= Number(state.timeMin) && n <= 30;
   }
 
   function evaluateRow(row) {
@@ -155,7 +155,8 @@
     var opts = '<option value="">선택</option>';
     PPM_PRESETS.forEach(function (v) {
       var sel = String(row.ppm) === v ? ' selected' : '';
-      opts += '<option value="' + v + '"' + sel + '>' + v + ' ppm</option>';
+      var label = v + ' ppm' + (v === '200' ? ' (하한)' : (v === '250' ? ' (표준)' : (v === '300' ? ' (상한)' : '')));
+      opts += '<option value="' + v + '"' + sel + '>' + label + '</option>';
     });
     opts += '<option value="__custom__">✏️ 직접입력</option>';
 
@@ -179,7 +180,7 @@
     var opts = '<option value="">선택</option>';
     SOAK_PRESETS.forEach(function (v) {
       var sel = String(row.soak) === v ? ' selected' : '';
-      var label = v + '초' + (v === '60' ? ' (기준)' : '');
+      var label = v + '초' + (v === '20' ? ' (하한)' : (v === '25' ? ' (표준)' : (v === '30' ? ' (상한)' : '')));
       opts += '<option value="' + v + '"' + sel + '>' + label + '</option>';
     });
     opts += '<option value="__custom__">✏️ 직접입력</option>';

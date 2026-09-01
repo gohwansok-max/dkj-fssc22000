@@ -40,8 +40,8 @@
     </div>
 
     <div class="viewer-notice" style="margin-bottom:14px;background:#fff8e1;border-color:#ffe082;color:#5d4037;">
-      <strong>한계기준(임시 운영값)</strong> — HACCP관리기준서 확정값으로 교체하세요.<br>
-      유효염소 <strong>50~200 ppm</strong> · 침지시간 <strong>≥ 60초</strong> · 헹굼 <strong>완료(O)</strong>
+      <strong>한계기준</strong> — HACCP관리기준서(CCP-1BC) 확정 규격<br>
+      유효염소 <strong>200~300 ppm</strong> · 소독 침지시간 <strong>20~30초</strong> · 헹굼시간 <strong>50~60초 (잔류염소 4 ppm 미만)</strong> · 헹굼 <strong>완료(O)</strong>
     </div>
 
     <section class="dkj-panel">
@@ -115,16 +115,16 @@
           </div>
         </div>
         <div class="dkj-field">
-          <label for="clMin">한계기준 하한 (ppm)</label>
-          <input type="number" id="clMin" value="50" min="0" step="1">
+          <label for="clMin">유효염소 하한 (ppm)</label>
+          <input type="number" id="clMin" value="200" min="0" step="1">
         </div>
         <div class="dkj-field">
-          <label for="clMax">한계기준 상한 (ppm)</label>
-          <input type="number" id="clMax" value="200" min="0" step="1">
+          <label for="clMax">유효염소 상한 (ppm)</label>
+          <input type="number" id="clMax" value="300" min="0" step="1">
         </div>
         <div class="dkj-field">
-          <label for="timeMin">최소 침지시간 (초)</label>
-          <input type="number" id="timeMin" value="60" min="0" step="1">
+          <label for="timeMin">소독 침지시간 (초: 20~30)</label>
+          <input type="number" id="timeMin" value="20" min="0" step="1">
         </div>
         <div class="dkj-field">
           <label for="monitorName">모니터링 담당 *</label>
@@ -134,7 +134,7 @@
     </section>
 
     <section class="dkj-panel">
-      <h2>② 모니터링 결과 <span style="font-weight:500;color:#888;font-size:12px;">(작업 시작·중·품목변경·종료)</span></h2>
+      <h2>② 모니터링 결과 <span style="font-weight:500;color:#888;font-size:12px;">(소독 20~30초 · 헹굼 50~60초 · 잔류염소 &lt; 4ppm)</span></h2>
       <div class="mon-toolbar">
         <button type="button" class="pill-btn green" id="btnAddRow">＋ 측정행 추가</button>
         <button type="button" class="pill-btn ghost" id="btnNow">지금시각 채우기</button>
@@ -144,9 +144,9 @@
           <thead>
             <tr>
               <th>시각</th>
-              <th>유효염소<br>(ppm)</th>
-              <th>침지<br>(초)</th>
-              <th>헹굼</th>
+              <th>유효염소<br>(200~300 ppm)</th>
+              <th>소독침지<br>(20~30초)</th>
+              <th>헹굼 (50~60초)<br>잔류염소&lt;4ppm</th>
               <th>판정</th>
               <th></th>
             </tr>
