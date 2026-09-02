@@ -20,7 +20,7 @@
     var link = document.createElement('link');
     link.id = 'dkj-chatbot-css';
     link.rel = 'stylesheet';
-    link.href = getBaseHref() + 'css/dkj-chatbot.css?v=66';
+    link.href = getBaseHref() + 'css/dkj-chatbot.css?v=68';
     document.head.appendChild(link);
   }
 
@@ -66,6 +66,13 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  function translate(text) {
+    if (global.DkjI18n && typeof global.DkjI18n.t === 'function') {
+      return global.DkjI18n.t(text);
+    }
+    return text;
   }
 
   // 지능형 응답 지식 엔진
@@ -181,6 +188,12 @@
   function ChatbotWidget() {
     this.isOpen = false;
     this.messages = [];
+    this.recognition = null;
+    this.isListening = false;
+    this.isSending = false;
+    this.speechBaseValue = '';
+    this.speechTranscriptReceived = false;
+    this.speechStatusTimer = null;
     this.init();
   }
 
@@ -188,6 +201,7 @@
     ensureStylesheet();
     this.loadState();
     this.buildDom();
+    this.setupSpeechRecognition();
     this.bindEvents();
     this.renderHistory();
 
@@ -195,17 +209,17 @@
     if (!this.messages.length) {
       var user = getUserInfo();
       this.addBotMessage(
-        '안녕하세요, <strong>' + escapeHtml(user.name || '동김제농협 직원') + '</strong>님! 🌾<br>' +
-        '스마트 HACCP · FSSC22000 AI 도우미입니다.<br>' +
-        '사용 중 불편한 점이나 질문이 있으시면 언제든지 말씀해주세요.<br>' +
-        '<strong>불편사항은 관리자 텔레그램으로 즉시 전달됩니다!</strong>',
-        true
+        '안녕하세요, <strong>' + escapeHtml(user.name || '동김제농협 직원') + '</strong>님!<br>' +
+        '불편사항을 아래 입력칸에 적거나 <strong>🎤 음성 입력</strong> 버튼을 눌러 말씀하세요.<br>' +
+        '<strong>전송 버튼을 누르면 관리자 텔레그램으로 바로 전달됩니다.</strong>',
+        false
       );
     }
   };
 
   ChatbotWidget.prototype.loadState = function () {
-    this.messages = getSavedMessages();
+    // 이전 도움말·선택지 기록은 직접 접수 화면에 다시 표시하지 않는다.
+    this.messages = getSavedMessages().filter(function (msg) { return msg && msg.direct === true; });
     try {
       this.isOpen = sessionStorage.getItem(OPEN_STORAGE_KEY) === '1';
     } catch (e) {
@@ -245,10 +259,10 @@
               '<img src="' + getBaseHref() + 'assets/brand/nh-symbol.svg" alt="NH">' +
             '</div>' +
             '<div>' +
-              '<h3 class="dkj-chatbot-header__title">동김제 스마트 AI 도우미</h3>' +
+              '<h3 class="dkj-chatbot-header__title">AI 도우미 · 불편접수</h3>' +
               '<div class="dkj-chatbot-header__status">' +
                 '<span class="dkj-chatbot-header__dot"></span>' +
-                '<span>실시간 텔레그램 알림 연동 중</span>' +
+                '<span>메시지는 관리자 텔레그램으로 바로 전송됩니다</span>' +
               '</div>' +
             '</div>' +
           '</div>' +
@@ -260,12 +274,16 @@
         '<div class="dkj-chatbot-body" id="dkjChatbotBody" role="log" aria-live="polite"></div>' +
 
         '<div class="dkj-chatbot-footer">' +
+          '<button type="button" class="dkj-chatbot-mic-btn" id="dkjChatbotMic" aria-label="음성 입력 시작" aria-pressed="false" title="음성 입력 시작">' +
+            '<span aria-hidden="true">🎤</span>' +
+          '</button>' +
           '<div class="dkj-chatbot-input-wrap">' +
-            '<input type="text" class="dkj-chatbot-input" id="dkjChatbotInput" placeholder="불편사항이나 궁금한 점을 입력하세요..." autocomplete="off" aria-label="메시지 입력">' +
+            '<textarea class="dkj-chatbot-input" id="dkjChatbotInput" rows="2" placeholder="불편사항을 바로 입력하세요..." autocomplete="off" aria-label="불편사항 메시지 입력"></textarea>' +
           '</div>' +
-          '<button type="button" class="dkj-chatbot-send-btn" id="dkjChatbotSend" aria-label="전송" title="전송">' +
+          '<button type="button" class="dkj-chatbot-send-btn" id="dkjChatbotSend" aria-label="텔레그램으로 전송" title="텔레그램으로 전송">' +
             '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>' +
           '</button>' +
+          '<div class="dkj-chatbot-speech-status" id="dkjChatbotSpeechStatus" aria-live="polite"></div>' +
         '</div>' +
       '</aside>';
 
@@ -275,7 +293,115 @@
     this.elBody = document.getElementById('dkjChatbotBody');
     this.elInput = document.getElementById('dkjChatbotInput');
     this.elSend = document.getElementById('dkjChatbotSend');
+    this.elMic = document.getElementById('dkjChatbotMic');
+    this.elSpeechStatus = document.getElementById('dkjChatbotSpeechStatus');
     this.elClose = document.getElementById('dkjChatbotClose');
+  };
+
+  ChatbotWidget.prototype.setupSpeechRecognition = function () {
+    var Recognition = global.SpeechRecognition || global.webkitSpeechRecognition;
+    var self = this;
+
+    if (!this.elMic) return;
+    if (!Recognition) {
+      this.elMic.disabled = true;
+      this.elMic.title = '이 브라우저에서는 음성 입력을 지원하지 않습니다.';
+      this.elMic.setAttribute('aria-label', this.elMic.title);
+      return;
+    }
+
+    this.recognition = new Recognition();
+    this.recognition.continuous = false;
+    this.recognition.interimResults = true;
+    this.recognition.maxAlternatives = 1;
+
+    this.recognition.onstart = function () {
+      self.speechError = false;
+      self.setListening(true);
+      self.setSpeechStatus('듣는 중… 불편사항을 말씀하세요.', false, true);
+    };
+
+    this.recognition.onresult = function (event) {
+      var transcript = '';
+      for (var i = 0; i < event.results.length; i++) {
+        if (event.results[i] && event.results[i][0]) transcript += event.results[i][0].transcript;
+      }
+      self.speechTranscriptReceived = !!transcript.trim();
+      self.elInput.value = ((self.speechBaseValue ? self.speechBaseValue + ' ' : '') + transcript).trim();
+    };
+
+    this.recognition.onerror = function (event) {
+      if (event.error === 'aborted' && self.stopRequested) return;
+      self.speechError = true;
+      var messages = {
+        'not-allowed': '마이크 권한이 필요합니다. 브라우저 설정에서 마이크를 허용해주세요.',
+        'service-not-allowed': '이 브라우저에서는 음성인식 사용이 허용되지 않았습니다.',
+        'no-speech': '음성이 들리지 않았습니다. 마이크 버튼을 다시 눌러 말씀해주세요.',
+        'audio-capture': '마이크를 사용할 수 없습니다. 기기의 마이크 상태를 확인해주세요.',
+        'network': '음성인식 네트워크 연결을 확인해주세요.'
+      };
+      self.setSpeechStatus(messages[event.error] || '음성인식 중 오류가 발생했습니다. 다시 시도해주세요.', true);
+    };
+
+    this.recognition.onend = function () {
+      self.setListening(false);
+      if (!self.speechError && self.speechTranscriptReceived) {
+        self.setSpeechStatus('음성 입력 완료 — 내용을 확인하고 전송하세요.', false);
+        self.elInput.focus();
+      } else if (!self.speechError) {
+        self.setSpeechStatus('', false);
+      }
+      self.stopRequested = false;
+    };
+  };
+
+  ChatbotWidget.prototype.setSpeechStatus = function (message, isError, keep) {
+    var self = this;
+    if (!this.elSpeechStatus) return;
+    clearTimeout(this.speechStatusTimer);
+    this.elSpeechStatus.textContent = message ? translate(message) : '';
+    this.elSpeechStatus.classList.toggle('is-error', !!isError);
+    if (message && !keep) {
+      this.speechStatusTimer = setTimeout(function () {
+        if (!self.isListening) self.elSpeechStatus.textContent = '';
+      }, 4500);
+    }
+  };
+
+  ChatbotWidget.prototype.setListening = function (on) {
+    this.isListening = !!on;
+    if (!this.elMic) return;
+    this.elMic.classList.toggle('is-listening', this.isListening);
+    this.elMic.setAttribute('aria-pressed', this.isListening ? 'true' : 'false');
+    this.elMic.setAttribute('aria-label', this.isListening ? '음성 입력 중지' : '음성 입력 시작');
+    this.elMic.title = this.isListening ? '음성 입력 중지' : '음성 입력 시작';
+  };
+
+  ChatbotWidget.prototype.toggleSpeechRecognition = function () {
+    if (!this.recognition) {
+      this.setSpeechStatus('이 브라우저에서는 음성 입력을 지원하지 않습니다.', true);
+      return;
+    }
+    if (this.isListening) {
+      this.stopRequested = true;
+      this.recognition.stop();
+      return;
+    }
+
+    this.speechBaseValue = this.elInput.value.trim();
+    this.speechTranscriptReceived = false;
+    this.speechError = false;
+    this.stopRequested = false;
+    var lang = document.documentElement.lang || '';
+    if (global.DkjI18n && typeof global.DkjI18n.getLanguage === 'function') {
+      lang = global.DkjI18n.getLanguage();
+    }
+    this.recognition.lang = String(lang).toLowerCase().indexOf('vi') === 0 ? 'vi-VN' : 'ko-KR';
+    try {
+      this.recognition.start();
+    } catch (e) {
+      this.setSpeechStatus('음성 입력을 시작하지 못했습니다. 잠시 후 다시 시도해주세요.', true);
+    }
   };
 
   ChatbotWidget.prototype.bindEvents = function () {
@@ -291,6 +417,10 @@
 
     this.elSend.addEventListener('click', function () {
       self.handleSend();
+    });
+
+    this.elMic.addEventListener('click', function () {
+      self.toggleSpeechRecognition();
     });
 
     this.elInput.addEventListener('keydown', function (e) {
@@ -497,6 +627,7 @@
     var msg = {
       sender: 'user',
       text: escapeHtml(text),
+      direct: true,
       timestamp: new Date().toISOString()
     };
     this.messages.push(msg);
@@ -523,6 +654,7 @@
       chips: chips,
       showForm: !!showForm,
       formCategory: formCategory || '화면/기능 오류',
+      direct: true,
       timestamp: new Date().toISOString()
     };
 
@@ -532,12 +664,27 @@
     this.scrollToBottom();
   };
 
+  ChatbotWidget.prototype.setSending = function (on) {
+    this.isSending = !!on;
+    this.elSend.disabled = this.isSending;
+    this.elSend.classList.toggle('is-sending', this.isSending);
+    this.elSend.setAttribute('aria-label', this.isSending ? '텔레그램으로 전송 중' : '텔레그램으로 전송');
+    this.elSend.title = this.isSending ? '텔레그램으로 전송 중' : '텔레그램으로 전송';
+    if (this.elMic) this.elMic.disabled = this.isSending || !this.recognition;
+  };
+
   ChatbotWidget.prototype.handleSend = function () {
     var text = this.elInput.value.trim();
-    if (!text) return;
+    if (!text || this.isSending) return;
+    if (this.isListening && this.recognition) {
+      this.stopRequested = true;
+      this.recognition.stop();
+    }
     this.elInput.value = '';
     this.addUserMessage(text);
-    this.processQuery(text);
+    this.setSending(true);
+    this.setSpeechStatus('텔레그램으로 전송 중…', false, true);
+    return this.submitToTelegram('현장 불편사항', text, null);
   };
 
   ChatbotWidget.prototype.processQuery = function (query) {
@@ -566,18 +713,8 @@
     var self = this;
     var user = getUserInfo();
 
-    if (!global.DkjTelegram || !global.DkjTelegram.sendMessage) {
-      alert('텔레그램 전송 모듈이 로드되지 않았습니다.');
-      return;
-    }
-
-    global.DkjTelegram.sendMessage({
-      category: category,
-      message: message,
-      user: user,
-      pageTitle: document.title,
-      pageUrl: window.location.href
-    }).then(function (result) {
+    function finish(result) {
+      self.setSending(false);
       if (result.success) {
         if (formCard) {
           formCard.innerHTML =
@@ -587,10 +724,12 @@
               '신속하게 확인하여 조치하겠습니다. 감사합니다.' +
             '</div>';
         }
+        self.setSpeechStatus('텔레그램 전송 완료', false);
         self.addBotMessage(
-          '불편사항이 성공적으로 접수되었습니다. 추가로 궁금하신 점이나 다른 문의가 있으시면 언제든지 말씀해주세요!',
-          true
+          '<strong>✅ 텔레그램 전송 완료</strong><br>관리자에게 불편사항이 바로 전달되었습니다.',
+          false
         );
+        self.elInput.focus();
       } else {
         if (formCard) {
           var submitBtn = formCard.querySelector('.dkj-cb-form-submit');
@@ -598,13 +737,40 @@
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<span>🚨 재시도: 관리자 텔레그램으로 접수하기</span>';
           }
+        } else {
+          if (!self.elInput.value.trim()) self.elInput.value = message;
+          self.elInput.focus();
         }
+        self.setSpeechStatus('텔레그램 전송 실패 — 입력 내용은 그대로 보존했습니다.', true);
         self.addBotMessage(
-          '⚠️ <strong>텔레그램 전송 안내:</strong><br>' +
-          result.message + '<br><br>' +
-          '<em>(관리자 안내: [시스템 설정] 화면에서 텔레그램 봇 토큰과 Chat ID를 설정해두시면 실시간 알림을 정상 수신할 수 있습니다.)</em>'
+          '⚠️ <strong>텔레그램 전송 실패</strong><br>' +
+          escapeHtml(result.message || '잠시 후 다시 전송해주세요.'),
+          false
         );
       }
+      return result;
+    }
+
+    if (!global.DkjTelegram || !global.DkjTelegram.sendMessage) {
+      return Promise.resolve(finish({
+        success: false,
+        message: '텔레그램 전송 모듈을 불러오지 못했습니다. 화면을 새로고침한 뒤 다시 시도해주세요.'
+      }));
+    }
+
+    return global.DkjTelegram.sendMessage({
+      category: category,
+      message: message,
+      user: user,
+      pageTitle: document.title,
+      pageUrl: window.location.href
+    }).then(function (result) {
+      return finish(result);
+    }).catch(function (err) {
+      return finish({
+        success: false,
+        message: '네트워크 오류로 전송하지 못했습니다. (' + (err && err.message ? err.message : '알 수 없는 오류') + ')'
+      });
     });
   };
 
