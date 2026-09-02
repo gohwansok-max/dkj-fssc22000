@@ -83,7 +83,10 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 Web Speech API(`SpeechRecognition`/`webkitSpeechRecognition`)를 사용하며 한국어·베트남어 UI
 언어에 맞춰 인식합니다. 오인식 방지를 위해 음성 결과는 입력칸에만 채우고 사용자가 확인 후
 전송해야 합니다. 전송 실패 시 입력 내용을 복원하며, 지원하지 않는 브라우저에서는 마이크
-버튼만 비활성화됩니다.
+버튼만 비활성화됩니다. 텔레그램 Bot Token과 Chat ID는 기존 localStorage 키
+`dkj:telegram:config:v1`을 유지하면서 RTDB `system/settings/telegram`에도 저장하고 재조회해
+영구 저장 여부를 확인합니다. 다음 접속 때는 RTDB 값을 먼저 동기화하므로 기기나 도메인이
+바뀌어도 다시 입력하지 않습니다.
 
 ## 데이터 저장 — 전부 브라우저에
 

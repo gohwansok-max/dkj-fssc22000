@@ -28,33 +28,56 @@
     return Object.assign({}, defaultConfig);
   }
 
-  function saveConfig(cfg) {
-    try {
-      var current = getStorageConfig();
-      var merged = Object.assign({}, current, cfg);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-
-      // Firebase RTDB에도 동기화
-      if (global.DkjAuth && global.DkjAuth.configured && global.DkjAuth.configured() && global.DkjAuth.token && global.DkjAuth.token()) {
-        global.DkjAuth.request(RTDB_PATH, 'PUT', merged).catch(function () {});
-      }
-      return merged;
-    } catch (e) {
-      return cfg;
-    }
+  function hasCompleteConfig(cfg) {
+    return !!(cfg && String(cfg.botToken || '').trim() && String(cfg.chatId || '').trim());
   }
 
-  // Firebase RTDB에서 설정 로드
+  async function saveConfig(cfg) {
+    var current = getStorageConfig();
+    var merged = Object.assign({}, current, cfg);
+
+    // 빈 값으로 저장을 시도해도 이미 쓰던 정상 설정은 덮어쓰지 않는다.
+    if (!hasCompleteConfig(merged)) {
+      return { config: current, localSaved: false, cloudSaved: false, error: 'INCOMPLETE_CONFIG' };
+    }
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    } catch (e) {
+      return { config: merged, localSaved: false, cloudSaved: false, error: 'LOCAL_SAVE_FAILED' };
+    }
+
+    // 관리자 로그인 상태에서는 RTDB 저장 완료 후 재조회하여 영구 저장을 확인한다.
+    if (global.DkjAuth && global.DkjAuth.configured && global.DkjAuth.configured() &&
+        global.DkjAuth.token && global.DkjAuth.token() && global.DkjAuth.request) {
+      try {
+        await global.DkjAuth.request(RTDB_PATH, 'PUT', merged);
+        var verified = await global.DkjAuth.request(RTDB_PATH, 'GET');
+        if (!hasCompleteConfig(verified) ||
+            String(verified.botToken).trim() !== String(merged.botToken).trim() ||
+            String(verified.chatId).trim() !== String(merged.chatId).trim()) {
+          throw new Error('CLOUD_VERIFY_FAILED');
+        }
+        return { config: merged, localSaved: true, cloudSaved: true };
+      } catch (e) {
+        return { config: merged, localSaved: true, cloudSaved: false, error: 'CLOUD_SAVE_FAILED' };
+      }
+    }
+
+    return { config: merged, localSaved: true, cloudSaved: false, error: 'CLOUD_UNAVAILABLE' };
+  }
+
+  // Firebase RTDB에서 설정 로드. 빈 원격값이 정상적인 로컬 설정을 지우지 않게 한다.
   function syncFromCloud() {
     if (global.DkjAuth && global.DkjAuth.configured && global.DkjAuth.configured() && global.DkjAuth.token && global.DkjAuth.token()) {
       return global.DkjAuth.request(RTDB_PATH, 'GET').then(function (remoteCfg) {
-        if (remoteCfg && typeof remoteCfg === 'object') {
-          var current = getStorageConfig();
+        var current = getStorageConfig();
+        if (hasCompleteConfig(remoteCfg)) {
           var merged = Object.assign({}, current, remoteCfg);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
           return merged;
         }
-        return getStorageConfig();
+        return current;
       }).catch(function () {
         return getStorageConfig();
       });

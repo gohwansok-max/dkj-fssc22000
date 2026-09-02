@@ -217,30 +217,71 @@
     }
   }
 
-  function loadTelegramConfig() {
+  async function loadTelegramConfig() {
     if (!window.DkjTelegram) return;
+    if (window.DkjTelegram.syncFromCloud) {
+      try {
+        await window.DkjTelegram.syncFromCloud();
+      } catch (e) {}
+    }
     var cfg = window.DkjTelegram.getConfig();
     if ($('tgBotToken')) $('tgBotToken').value = cfg.botToken || '';
     if ($('tgChatId')) $('tgChatId').value = cfg.chatId || '';
   }
 
-  function handleSaveTelegram() {
+  async function handleSaveTelegram() {
     if (!window.DkjTelegram) return;
     var botToken = $('tgBotToken').value.trim();
     var chatId = $('tgChatId').value.trim();
     var statusEl = $('tgStatusMsg');
+    var saveBtn = $('btnSaveTelegram');
 
-    window.DkjTelegram.saveConfig({
-      botToken: botToken,
-      chatId: chatId
-    });
-
-    if (statusEl) {
-      statusEl.textContent = '✅ 텔레그램 설정이 성공적으로 저장되었습니다.';
-      statusEl.style.color = '#006b3f';
-      setTimeout(function () { statusEl.textContent = ''; }, 4000);
+    if (!botToken || !chatId) {
+      alert('봇 토큰과 Chat ID를 모두 입력해야 저장할 수 있습니다. 기존 설정은 변경하지 않았습니다.');
+      return;
     }
-    addAudit('텔레그램 알림 설정 변경', '시스템', 'Bot Token 및 Chat ID 갱신');
+
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ 클라우드에 저장 중...';
+    }
+    if (statusEl) {
+      statusEl.textContent = '이 기기와 클라우드에 설정을 저장하고 확인하고 있습니다...';
+      statusEl.style.color = '#0284c7';
+    }
+
+    try {
+      var result = await window.DkjTelegram.saveConfig({
+        botToken: botToken,
+        chatId: chatId
+      });
+
+      if (result && result.cloudSaved) {
+        if (statusEl) {
+          statusEl.textContent = '✅ 클라우드 영구 저장 완료 — 다음 접속부터 자동으로 불러옵니다.';
+          statusEl.style.color = '#006b3f';
+        }
+        addAudit('텔레그램 알림 설정 변경', '시스템', 'Bot Token 및 Chat ID 클라우드 영구 저장');
+      } else if (result && result.localSaved) {
+        if (statusEl) {
+          statusEl.textContent = '⚠️ 이 기기에는 저장됐지만 클라우드 저장을 확인하지 못했습니다. 인터넷 연결 후 다시 저장해주세요.';
+          statusEl.style.color = '#b45309';
+        }
+      } else if (statusEl) {
+        statusEl.textContent = '❌ 설정을 저장하지 못했습니다. 브라우저 저장 권한을 확인해주세요.';
+        statusEl.style.color = '#b42318';
+      }
+    } catch (e) {
+      if (statusEl) {
+        statusEl.textContent = '❌ 설정 저장 중 오류가 발생했습니다. 입력값은 그대로 유지됩니다.';
+        statusEl.style.color = '#b42318';
+      }
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 텔레그램 설정 저장';
+      }
+    }
   }
 
   async function handleTestTelegram() {
@@ -364,7 +405,7 @@
 
     renderUsers();
     renderAudit();
-    loadTelegramConfig();
+    await loadTelegramConfig();
     renderLastBackupStatus();
   }
 
