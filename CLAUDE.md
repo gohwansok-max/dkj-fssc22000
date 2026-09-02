@@ -62,7 +62,7 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 | 문서센터 | `docs-center.html` → `doc-viewer.html` | 매뉴얼·절차서 열람 |
 | 문서관리대장 | `mdr-register.html` | MDR-001 등록대장 |
 | 정본 문서 열람실 | `official-documents.html` | Google Drive 원본·PDF 259건 검색·열람·인쇄 (문서센터와 별개 경로) |
-| 시스템 설정 | `system-settings.html` | 시스템 관리자(사번 4343) 전용 — 로그인한 사용자 역할 배정 |
+| 시스템 설정 | `system-settings.html` | 시스템 관리자(사번 4343) 전용 — 로그인한 사용자 역할 배정. 메인 콘솔 왼쪽 메뉴에도 관리자에게만 표시 |
 | 종합 품질 대시보드 | `quality-dashboard.html` | CAPA 기한초과·모의회수 목표미달·추적성 후속확인 실시간 경보 |
 | 이탈·시정조치(CAPA) 관리 | `capa-management.html` | CCP 이탈·부적합의 CAPA 등록·진행·종결 |
 | 추적성 검증·모의회수 | `traceability.html` | 모의회수 훈련 기록, 2시간 목표·수량대조 |
@@ -81,9 +81,10 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 `js/dkj-chatbot.js`는 선택 메뉴 없이 불편사항 입력창을 바로 열고, 전송한 메시지를 기존
 `DkjTelegram.sendMessage()` 경로로 관리자 텔레그램에 전달합니다. 음성 입력은 브라우저 내장
 Web Speech API(`SpeechRecognition`/`webkitSpeechRecognition`)를 사용하며 한국어·베트남어 UI
-언어에 맞춰 인식합니다. 오인식 방지를 위해 음성 결과는 입력칸에만 채우고 사용자가 확인 후
-전송해야 합니다. 전송 실패 시 입력 내용을 복원하며, 지원하지 않는 브라우저에서는 마이크
-버튼만 비활성화됩니다. 텔레그램 Bot Token과 Chat ID는 기존 localStorage 키
+언어에 맞춰 인식합니다. 모바일에서는 매번 새 인식 객체를 만들어 종료된 객체 재시작 오류를
+피하고, 권한 거부·앱 내 브라우저 제한·마이크 점유를 구분해 안내합니다. 오인식 방지를 위해
+음성 결과는 입력칸에만 채우고 사용자가 확인 후 전송해야 합니다. 전송 실패 시 입력 내용을
+복원하며, 지원하지 않는 브라우저에서는 마이크 버튼만 비활성화됩니다. 텔레그램 Bot Token과 Chat ID는 기존 localStorage 키
 `dkj:telegram:config:v1`을 유지하면서 RTDB `system/settings/telegram`에도 저장하고 재조회해
 영구 저장 여부를 확인합니다. 다음 접속 때는 RTDB 값을 먼저 동기화하므로 기기나 도메인이
 바뀌어도 다시 입력하지 않습니다.

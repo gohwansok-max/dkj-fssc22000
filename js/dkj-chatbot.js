@@ -20,7 +20,7 @@
     var link = document.createElement('link');
     link.id = 'dkj-chatbot-css';
     link.rel = 'stylesheet';
-    link.href = getBaseHref() + 'css/dkj-chatbot.css?v=68';
+    link.href = getBaseHref() + 'css/dkj-chatbot.css?v=70';
     document.head.appendChild(link);
   }
 
@@ -300,7 +300,6 @@
 
   ChatbotWidget.prototype.setupSpeechRecognition = function () {
     var Recognition = global.SpeechRecognition || global.webkitSpeechRecognition;
-    var self = this;
 
     if (!this.elMic) return;
     if (!Recognition) {
@@ -310,18 +309,26 @@
       return;
     }
 
-    this.recognition = new Recognition();
-    this.recognition.continuous = false;
-    this.recognition.interimResults = true;
-    this.recognition.maxAlternatives = 1;
+    this.Recognition = Recognition;
+    this.createSpeechRecognition();
+  };
 
-    this.recognition.onstart = function () {
+  ChatbotWidget.prototype.createSpeechRecognition = function () {
+    var self = this;
+    if (!this.Recognition) return null;
+
+    var recognition = new this.Recognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function () {
       self.speechError = false;
       self.setListening(true);
       self.setSpeechStatus('듣는 중… 불편사항을 말씀하세요.', false, true);
     };
 
-    this.recognition.onresult = function (event) {
+    recognition.onresult = function (event) {
       var transcript = '';
       for (var i = 0; i < event.results.length; i++) {
         if (event.results[i] && event.results[i][0]) transcript += event.results[i][0].transcript;
@@ -330,20 +337,20 @@
       self.elInput.value = ((self.speechBaseValue ? self.speechBaseValue + ' ' : '') + transcript).trim();
     };
 
-    this.recognition.onerror = function (event) {
+    recognition.onerror = function (event) {
       if (event.error === 'aborted' && self.stopRequested) return;
       self.speechError = true;
       var messages = {
-        'not-allowed': '마이크 권한이 필요합니다. 브라우저 설정에서 마이크를 허용해주세요.',
-        'service-not-allowed': '이 브라우저에서는 음성인식 사용이 허용되지 않았습니다.',
+        'not-allowed': '마이크 권한이 꺼져 있습니다. 주소창의 자물쇠 메뉴에서 마이크를 허용한 뒤 다시 눌러주세요.',
+        'service-not-allowed': '현재 앱 내 브라우저에서는 음성인식이 제한됩니다. ⋮ 메뉴에서 Chrome으로 열어 다시 시도해주세요.',
         'no-speech': '음성이 들리지 않았습니다. 마이크 버튼을 다시 눌러 말씀해주세요.',
-        'audio-capture': '마이크를 사용할 수 없습니다. 기기의 마이크 상태를 확인해주세요.',
+        'audio-capture': '마이크를 사용할 수 없습니다. 다른 통화·녹음 앱을 종료한 뒤 다시 시도해주세요.',
         'network': '음성인식 네트워크 연결을 확인해주세요.'
       };
       self.setSpeechStatus(messages[event.error] || '음성인식 중 오류가 발생했습니다. 다시 시도해주세요.', true);
     };
 
-    this.recognition.onend = function () {
+    recognition.onend = function () {
       self.setListening(false);
       if (!self.speechError && self.speechTranscriptReceived) {
         self.setSpeechStatus('음성 입력 완료 — 내용을 확인하고 전송하세요.', false);
@@ -353,6 +360,20 @@
       }
       self.stopRequested = false;
     };
+
+    this.recognition = recognition;
+    return recognition;
+  };
+
+  ChatbotWidget.prototype.getSpeechStartErrorMessage = function (error) {
+    var name = error && error.name;
+    if (name === 'NotAllowedError' || name === 'SecurityError') {
+      return '마이크 권한이 꺼져 있습니다. 주소창의 자물쇠 메뉴에서 마이크를 허용한 뒤 다시 눌러주세요.';
+    }
+    if (name === 'InvalidStateError') {
+      return '음성 입력을 다시 준비했습니다. 마이크 버튼을 한 번 더 눌러 말씀해주세요.';
+    }
+    return '음성 입력을 시작하지 못했습니다. 앱 내 브라우저라면 ⋮ 메뉴에서 Chrome으로 열어 다시 시도해주세요.';
   };
 
   ChatbotWidget.prototype.setSpeechStatus = function (message, isError, keep) {
@@ -396,11 +417,19 @@
     if (global.DkjI18n && typeof global.DkjI18n.getLanguage === 'function') {
       lang = global.DkjI18n.getLanguage();
     }
-    this.recognition.lang = String(lang).toLowerCase().indexOf('vi') === 0 ? 'vi-VN' : 'ko-KR';
+    // 모바일 브라우저는 종료된 인식 객체를 다시 시작할 때 예외를 내는 경우가 있어,
+    // 매 시도마다 새 객체를 사용한다.
+    var recognition = this.createSpeechRecognition();
+    if (!recognition) {
+      this.setSpeechStatus('이 브라우저에서는 음성 입력을 지원하지 않습니다.', true);
+      return;
+    }
+    recognition.lang = String(lang).toLowerCase().indexOf('vi') === 0 ? 'vi-VN' : 'ko-KR';
     try {
-      this.recognition.start();
+      recognition.start();
     } catch (e) {
-      this.setSpeechStatus('음성 입력을 시작하지 못했습니다. 잠시 후 다시 시도해주세요.', true);
+      this.setListening(false);
+      this.setSpeechStatus(this.getSpeechStartErrorMessage(e), true);
     }
   };
 

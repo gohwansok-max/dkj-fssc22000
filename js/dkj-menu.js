@@ -5,6 +5,17 @@
 (function (global) {
   'use strict';
 
+  function syncSystemAdminMenus() {
+    var auth = global.DkjAuth;
+    var isAdmin = !!(auth && auth.isSystemAdmin && auth.isSystemAdmin());
+
+    document.querySelectorAll('[data-system-admin]').forEach(function (el) {
+      el.hidden = !isAdmin;
+      // 기존 레이아웃의 display 속성이 hidden 속성을 덮는 브라우저도 있어 함께 제어한다.
+      el.style.display = isAdmin ? '' : 'none';
+    });
+  }
+
   function init() {
     var toggle = document.getElementById('ckMenuToggle');
     var overlay = document.getElementById('ckMenuOverlay');
@@ -64,19 +75,12 @@
       });
     });
 
-    // 시스템 관리자 전용 메뉴 표시/숨김
-    global.addEventListener('dkj:auth-ready', function () {
-      var auth = global.DkjAuth;
-      var isAdmin = auth && auth.isSystemAdmin && auth.isSystemAdmin();
-      overlay.querySelectorAll('[data-system-admin]').forEach(function (el) {
-        if (isAdmin) {
-          el.style.display = '';
-        } else {
-          el.style.display = 'none';
-        }
-      });
-    });
+    // 인증 초기화가 메뉴보다 먼저 끝난 경우에도 현재 권한을 즉시 반영한다.
+    syncSystemAdminMenus();
   }
+
+  // DkjAuth는 인증 준비 이벤트를 document에 발행한다.
+  document.addEventListener('dkj:auth-ready', syncSystemAdminMenus);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
@@ -84,5 +88,5 @@
     init();
   }
 
-  global.DkjMenu = { init: init };
+  global.DkjMenu = { init: init, syncSystemAdminMenus: syncSystemAdminMenus };
 })(window);

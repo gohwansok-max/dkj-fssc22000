@@ -83,11 +83,15 @@ function createDocument() {
   return document;
 }
 
-function loadChatbot(sendMessage) {
+function loadChatbot(sendMessage, options) {
+  options = options || {};
   let recognitionInstance;
   class FakeRecognition {
     constructor() { recognitionInstance = this; }
-    start() { if (this.onstart) this.onstart(); }
+    start() {
+      if (options.startError) throw options.startError;
+      if (this.onstart) this.onstart();
+    }
     stop() { if (this.onend) this.onend(); }
     emit(transcript) {
       if (this.onresult) this.onresult({ results: [[{ transcript }]] });
@@ -129,6 +133,18 @@ test('opens with a direct input and converts Korean speech into editable text', 
   assert.equal(widget.elInput.value, '기존 내용 소독수 교체 알림이 안 떠요');
   assert.equal(widget.isListening, false);
   assert.match(widget.elSpeechStatus.textContent, /내용을 확인하고 전송/);
+});
+
+test('스마트폰 음성 입력 시작 실패는 권한 또는 앱 내 브라우저 조치 문구로 안내한다', () => {
+  const error = new Error('permission denied');
+  error.name = 'NotAllowedError';
+  const app = loadChatbot(async () => ({ success: true }), { startError: error });
+
+  app.widget.toggleSpeechRecognition();
+
+  assert.equal(app.widget.isListening, false);
+  assert.match(app.widget.elSpeechStatus.textContent, /마이크 권한이 꺼져 있습니다/);
+  assert.doesNotMatch(app.widget.elSpeechStatus.textContent, /잠시 후 다시 시도/);
 });
 
 test('sends the direct message to Telegram with current page and user context', async () => {

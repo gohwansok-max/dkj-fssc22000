@@ -192,6 +192,7 @@
   .ck-hbtn[href="quality-dashboard.html"]::before { content: "◇"; }
   .ck-hbtn[href="records-archive.html"]::before { content: "▣"; }
   .ck-hbtn[href="docs-center.html"]::before { content: "▱"; }
+  .ck-hbtn[href="system-settings.html"]::before { content: "⚙"; }
 
   .ck-hbtn:hover {
     background: rgba(255,255,255,.08);

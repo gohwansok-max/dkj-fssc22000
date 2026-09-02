@@ -119,19 +119,19 @@
     if (!window.DkjI18n && !document.getElementById('dkj-i18n-script')) {
       var s0 = document.createElement('script');
       s0.id = 'dkj-i18n-script';
-      s0.src = (base || '') + 'js/dkj-i18n.js?v=68';
+      s0.src = (base || '') + 'js/dkj-i18n.js?v=70';
       document.body.appendChild(s0);
     }
     if (!window.DkjTelegram && !document.getElementById('dkj-telegram-script')) {
       var s1 = document.createElement('script');
       s1.id = 'dkj-telegram-script';
-      s1.src = (base || '') + 'js/dkj-telegram-config.js?v=68';
+      s1.src = (base || '') + 'js/dkj-telegram-config.js?v=70';
       document.body.appendChild(s1);
     }
     if (!window.DkjChatbot && !document.getElementById('dkj-chatbot-script')) {
       var s2 = document.createElement('script');
       s2.id = 'dkj-chatbot-script';
-      s2.src = (base || '') + 'js/dkj-chatbot.js?v=68';
+      s2.src = (base || '') + 'js/dkj-chatbot.js?v=70';
       document.body.appendChild(s2);
     }
   }

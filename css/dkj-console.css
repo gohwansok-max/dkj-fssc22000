@@ -585,6 +585,11 @@
   padding-left: 13px;
 }
 
+/* 인증 판별 전에는 관리자 메뉴가 레이아웃 스타일에 의해 노출되지 않도록 보장한다. */
+[data-system-admin][hidden] {
+  display: none !important;
+}
+
 /* ---------- 캘린더 상태 표기 ---------- */
 .ck-cal-cell { min-height: 76px; }
 .ck-cal-state { font-size: 10px; color: var(--ink-3); font-weight: 800; }
