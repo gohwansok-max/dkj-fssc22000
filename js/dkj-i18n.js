@@ -812,6 +812,14 @@
     "이번 주 백업을 잊지 마세요.": "Đừng quên sao lưu tuần này.",
     "생산분석": "Phân tích sản xuất",
     "AI 도우미 & 불편접수": "Trợ lý AI & Khiếu nại",
+    "AI 도우미 · 불편접수": "Trợ lý AI · Báo bất tiện",
+    "메시지는 관리자 텔레그램으로 바로 전송됩니다": "Tin nhắn được gửi ngay đến Telegram của quản trị viên",
+    "불편사항을 바로 입력하세요...": "Nhập nội dung bất tiện tại đây...",
+    "듣는 중… 불편사항을 말씀하세요.": "Đang nghe… Hãy nói nội dung bất tiện.",
+    "음성 입력 완료 — 내용을 확인하고 전송하세요.": "Đã nhập giọng nói — Hãy kiểm tra rồi gửi.",
+    "텔레그램으로 전송 중…": "Đang gửi đến Telegram…",
+    "텔레그램 전송 완료": "Đã gửi Telegram",
+    "텔레그램 전송 실패 — 입력 내용은 그대로 보존했습니다.": "Gửi Telegram thất bại — Nội dung nhập vẫn được giữ nguyên.",
     "로그인:": "Đăng nhập:",
     "시스템 관리자": "Quản trị hệ thống"
 }

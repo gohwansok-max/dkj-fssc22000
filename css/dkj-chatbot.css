@@ -458,7 +458,53 @@
   border-top: 1px solid var(--dkj-cb-border);
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
+}
+
+.dkj-chatbot-mic-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 19px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+
+.dkj-chatbot-mic-btn:hover {
+  border-color: var(--dkj-cb-primary);
+  background: var(--dkj-cb-primary-light);
+}
+
+.dkj-chatbot-mic-btn:active {
+  transform: scale(0.95);
+}
+
+.dkj-chatbot-mic-btn.is-listening {
+  color: #ffffff;
+  background: var(--dkj-cb-danger);
+  border-color: var(--dkj-cb-danger);
+  animation: dkj-cb-mic-pulse 1.2s infinite;
+}
+
+.dkj-chatbot-mic-btn:disabled {
+  color: #94a3b8;
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  animation: none;
+}
+
+@keyframes dkj-cb-mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.38); }
+  50% { box-shadow: 0 0 0 8px rgba(229, 62, 62, 0); }
 }
 
 .dkj-chatbot-input-wrap {
@@ -471,14 +517,18 @@
 .dkj-chatbot-input {
   width: 100%;
   box-sizing: border-box;
-  padding: 10px 14px;
-  padding-right: 36px;
+  min-height: 42px;
+  max-height: 84px;
+  padding: 10px 12px;
   border: 1.5px solid #cbd5e1;
-  border-radius: 999px;
+  border-radius: 14px;
   font-size: 13.5px;
+  line-height: 1.4;
   font-family: inherit;
   background: #f8fafc;
   outline: none;
+  resize: none;
+  overflow-y: auto;
   transition: all 0.15s;
 }
 
@@ -489,8 +539,8 @@
 }
 
 .dkj-chatbot-send-btn {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: var(--dkj-cb-primary);
   color: #ffffff;
@@ -511,11 +561,42 @@
   transform: scale(0.95);
 }
 
+.dkj-chatbot-send-btn:disabled {
+  background: #94a3b8;
+  cursor: wait;
+}
+
+.dkj-chatbot-send-btn.is-sending svg {
+  animation: dkj-cb-send-spin 0.8s linear infinite;
+}
+
+@keyframes dkj-cb-send-spin {
+  to { transform: rotate(360deg); }
+}
+
 .dkj-chatbot-send-btn svg {
   width: 17px;
   height: 17px;
   fill: currentColor;
   margin-left: 2px;
+}
+
+.dkj-chatbot-speech-status {
+  display: none;
+  flex-basis: 100%;
+  padding-left: 50px;
+  color: var(--dkj-cb-primary-dark);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.dkj-chatbot-speech-status:not(:empty) {
+  display: block;
+}
+
+.dkj-chatbot-speech-status.is-error {
+  color: var(--dkj-cb-danger);
 }
 
 /* 로딩 스피너 애니메이션 */
@@ -560,6 +641,17 @@
     max-height: 85vh;
     border-radius: 20px 20px 0 0;
     border-bottom: none;
+  }
+
+  .dkj-chatbot-mic-btn,
+  .dkj-chatbot-send-btn {
+    width: 46px;
+    height: 46px;
+  }
+
+  .dkj-chatbot-input {
+    min-height: 46px;
+    font-size: 16px;
   }
 }
 
