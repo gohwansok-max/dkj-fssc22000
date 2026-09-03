@@ -56,6 +56,8 @@
 .arc-btn:hover { border-color: var(--nh-green); background: var(--nh-green-50, #f0f9f4); }
 .arc-btn.primary { color: #fff; background: var(--nh-green); border-color: var(--nh-green); }
 .arc-btn.primary:hover { background: var(--nh-green-dark); }
+.arc-btn.danger { color: #b42318; background: #fff5f4; border-color: #f3c2b9; }
+.arc-btn.danger:hover { background: #fde8e6; border-color: #e39187; }
 .arc-btn:disabled { opacity: .5; cursor: default; }
 
 .arc-summary {
