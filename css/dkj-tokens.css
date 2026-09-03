@@ -4,6 +4,13 @@
    같은 언어를 쓰도록 팔레트·버튼·뱃지·페이지 셸을 여기서 정의한다.
    ============================================================ */
 
+/* [hidden] 속성은 일반 우선순위의 UA 스타일(display:none)이라, 이 파일의
+   .ck-hbtn/.arc-btn 같은 일반 author 규칙(display:inline-flex 등)에 늘 밀린다
+   — data-system-admin hidden 으로 숨긴 버튼(예: 시스템 설정 링크, 기록보관함
+   관리자 삭제 버튼)이 el.hidden=true 여도 화면엔 계속 보이던 이유. 이 파일이
+   거의 모든 화면에 실려서 여기 한 줄로 전체를 고친다. */
+[hidden] { display: none !important; }
+
 :root {
   /* 농협 브랜드 — 심볼 노랑 + 워드마크 녹색 */
   --nh-green: #009a44;
