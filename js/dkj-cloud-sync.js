@@ -424,6 +424,26 @@
     });
     startPoll();
     global.addEventListener('online', function () { syncAll(true).catch(function () {}); });
+
+    /* 태블릿·스마트폰은 화면이 꺼지거나 다른 앱으로 전환되면 브라우저가 배터리
+       절약을 위해 setInterval 타이머를 그대로 멈춰 버린다. 화면을 다시 켜거나
+       탭으로 돌아왔을 때 즉시 한 번 동기화하지 않으면, 그 사이 다른 기기가 올린
+       변경사항(새 기록·삭제 모두)을 다음 타이머 재개까지 무기한 놓치게 된다 —
+       "PC에서 저장했는데 스마트폰엔 안 뜬다"의 흔한 원인 중 하나. */
+    var lastResumeSync = 0;
+    function resumeSync() {
+      var now = Date.now();
+      if (now - lastResumeSync < 3000) return; // 짧은 간격으로 여러 번 겹쳐 뜨는 것 방지
+      lastResumeSync = now;
+      if (ready()) syncAll(true).catch(function () {});
+    }
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') resumeSync();
+      });
+    }
+    global.addEventListener('pageshow', resumeSync);
+    global.addEventListener('focus', resumeSync);
   }
 
   /* 각 서식이 저장소 공용 API를 거치므로, 여기서 한 번만 감시하면 된다. */
