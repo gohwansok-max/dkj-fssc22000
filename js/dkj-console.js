@@ -158,6 +158,8 @@
     try {
       var raw = localStorage.getItem('dkj:records:' + code + ':list:v1');
       list = raw ? JSON.parse(raw) : [];
+      // 삭제 표식(js/dkj-record-store.js 참고)이 붙은 기록은 '오늘 작성 완료'로 세면 안 된다.
+      list = list.filter(function (r) { return !r || !r.deleted; });
     } catch (e) { list = []; }
     _cache[key] = list;
     return list;

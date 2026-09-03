@@ -45,7 +45,10 @@
     if (spec.defaults) {
       Object.keys(spec.defaults).forEach(function (k) { st[k] = spec.defaults[k]; });
     }
-    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['inspector', 'confirmer', 'writer']);
+    // 'writer' 는 이 서식에 없는 필드다(화면은 점검자·확인자 2단) — 넣으면 로그인한
+    // 사람 이름이 최초 1회 박제돼 dkj-export.js 의 pick() 이 실제 점검자(inspector)보다
+    // 그 값을 먼저 찾아 기록보관함 작성자 칸이 틀어진다.
+    if (global.DkjUtil) global.DkjUtil.autoFillUser(st, ['inspector', 'confirmer']);
     return st;
   }
 
@@ -345,7 +348,7 @@
       mountApproval();
       refreshApproval();
       if (global.DkjUtil) {
-        global.DkjUtil.autoFillUser(state, ['inspector', 'confirmer', 'writer'], function () {
+        global.DkjUtil.autoFillUser(state, ['inspector', 'confirmer'], function () {
           writeForm();
         });
       }
