@@ -216,8 +216,21 @@
     syncPill();
   }
 
+  // 클라우드에서 다른 기기(태블릿 등)가 저장한 기록이 들어왔을 때 다시 그린다.
+  // fillFormOptions()가 <select> 내용을 통째로 새로 그리므로, 사용자가 고른 서식
+  // 필터를 그대로 유지해야 화면을 보던 중 필터가 "전체 서식"으로 되돌아가지 않는다.
+  function refreshFromCloud() {
+    var formSel = $('arcForm');
+    var prevForm = formSel ? formSel.value : '';
+    all = window.DkjExport.collect();
+    fillFormOptions();
+    if (formSel && prevForm) formSel.value = prevForm;
+    apply();
+  }
+
   bind();
   load();
   // 로그인은 페이지가 로드된 뒤 비동기로 완료된다 — 로그인 직후에도 배지가 갱신되도록 다시 그린다.
   document.addEventListener('dkj:auth-ready', syncPill);
+  window.addEventListener('dkj:records-changed', refreshFromCloud);
 })();
