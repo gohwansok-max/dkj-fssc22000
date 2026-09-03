@@ -12,6 +12,11 @@
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
+  function thisMonth() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+
   function emptyRow(spec) {
     var r = {};
     (spec.columns || []).forEach(function (c) { r[c.key] = c.default || ''; });
@@ -30,7 +35,7 @@
     }
     var info = {};
     (spec.infoFields || []).forEach(function (f) {
-      info[f.id] = f.type === 'date' ? today() : (f.default || '');
+      info[f.id] = f.type === 'date' ? today() : f.type === 'month' ? thisMonth() : (f.default || '');
     });
     var incidents = [];
     if (spec.incident) {
@@ -122,16 +127,27 @@
               esc(f.placeholder || '') + '">';
         return '<div class="dkj-field"><label>' + esc(f.label) + '</label>' + input + '</div>';
       }).join('');
-      host.querySelectorAll('[data-info]').forEach(function (el) {
-        el.addEventListener('input', function () {
-          state.info[el.getAttribute('data-info')] = el.value;
-          if (spec.autoWeekday && el.getAttribute('data-info') === spec.autoWeekday.monthField) {
-            applyAutoWeekday();
-            renderGrid();
-          }
-          scheduleDraft();
+      // dkj-approval.js 의 직원 자동선택 기능(attachStaffPickers)이 '점검자' 같은 인원 칸을
+      // <select>로 통째로 바꿔치기한다. 개별 요소에 리스너를 걸면 그 바꿔치기 때마다
+      // 리스너가 원래 요소와 함께 사라져서, 드롭다운에서 이름을 골라도 state.info 에는
+      // 절대 반영되지 않는(=검증에서 계속 "입력하세요"로 막히는) 버그가 있었다. 부모
+      // 컨테이너(host)에 위임 리스너를 하나만 걸어 두면, 자식이 어떤 요소로 바뀌든
+      // 이벤트 버블링만으로 계속 잡힌다.
+      if (!host._dkjInfoDelegated) {
+        host._dkjInfoDelegated = true;
+        ['input', 'change'].forEach(function (evt) {
+          host.addEventListener(evt, function (e) {
+            var el = e.target.closest ? e.target.closest('[data-info]') : null;
+            if (!el || !host.contains(el)) return;
+            state.info[el.getAttribute('data-info')] = el.value;
+            if (spec.autoWeekday && el.getAttribute('data-info') === spec.autoWeekday.monthField) {
+              applyAutoWeekday();
+              renderGrid();
+            }
+            scheduleDraft();
+          });
         });
-      });
+      }
     }
 
     function cellInput(c, ri, v) {

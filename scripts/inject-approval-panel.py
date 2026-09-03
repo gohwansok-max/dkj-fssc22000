@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-SCRIPT_LINE = '<script src="../js/dkj-approval.js?v=69"></script>'
+SCRIPT_LINE = '<script src="../js/dkj-approval.js?v=70"></script>'
 SCRIPT_ANCHOR = re.compile(
     r'^([ \t]*)<script src="\.\./js/dkj-record-store\.js[^"]*"></script>\n', re.M)
 
