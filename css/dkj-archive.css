@@ -59,6 +59,7 @@
 .arc-btn.danger { color: #b42318; background: #fff5f4; border-color: #f3c2b9; }
 .arc-btn.danger:hover { background: #fde8e6; border-color: #e39187; }
 .arc-btn:disabled { opacity: .5; cursor: default; }
+.arc-btn.sm { min-height: 34px; padding: 0 12px; font-size: 12.5px; }
 
 .arc-summary {
   display: flex;
