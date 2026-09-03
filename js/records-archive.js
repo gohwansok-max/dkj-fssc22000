@@ -166,6 +166,27 @@
       window.print();
     });
 
+    // 다른 기기가 방금 저장한 기록이 30초 주기를 기다리지 않고 바로 반영되게
+    // 수동으로 동기화를 돌린다. 진짜로 놓친 게 있었으면 dkj:records-changed 가
+    // 떠서 refreshFromCloud() 가 알아서 다시 그린다.
+    $('arcSyncNow').addEventListener('click', function () {
+      var btn = $('arcSyncNow');
+      if (!(window.DkjCloudSync && window.DkjCloudSync.ready && window.DkjCloudSync.ready())) {
+        alert('클라우드 동기화가 꺼져 있습니다 (로그인 상태를 확인하세요).');
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = '⏳ 동기화 중…';
+      window.DkjCloudSync.sync().then(function () {
+        btn.textContent = '✅ 확인 완료';
+      }).catch(function () {
+        btn.textContent = '⚠️ 실패 (다시 시도)';
+      }).finally(function () {
+        btn.disabled = false;
+        setTimeout(function () { btn.textContent = '🔄 지금 동기화'; }, 2500);
+      });
+    });
+
     // 시스템 관리자(4343) 전용 — 버튼 자체는 data-system-admin 으로 화면에서 숨겨지지만,
     // 콘솔 등으로 직접 눌러도 막히도록 여기서도 한 번 더 확인한다.
     $('arcDelete').addEventListener('click', function () {

@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LINE = '<script src="../js/dkj-deeplink.js?v=75"></script>'
+LINE = '<script src="../js/dkj-deeplink.js?v=76"></script>'
 ANCHOR = re.compile(r'^([ \t]*)<script src="\.\./js/dkj-record-store\.js[^"]*"></script>\n', re.M)
 
 
