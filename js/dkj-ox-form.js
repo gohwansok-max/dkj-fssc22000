@@ -251,17 +251,18 @@
     }
 
     function bind() {
-      ids.forEach(function (id) {
-        var el = $(id);
-        if (!el) return;
-        var onFieldInput = function () {
-          readForm();
-          refreshApproval();
-          scheduleDraft();
-        };
-        el.addEventListener('input', onFieldInput);
-        el.addEventListener('change', onFieldInput);
-      });
+      // dkj-approval.js 의 직원 자동선택이 inspector 같은 인원 칸을 <select>로 통째로
+      // 바꿔치기하면서, 개별 요소에 건 리스너는 그 요소와 함께 사라진다. document 위임
+      // 리스너를 쓰면 요소가 나중에 바뀌어도 계속 잡힌다 — readForm()은 매번 id로 다시
+      // 조회해서 읽으므로 어떤 요소가 지금 거기 있든 상관없다.
+      var onFieldInput = function (e) {
+        if (!e.target || ids.indexOf(e.target.id) === -1) return;
+        readForm();
+        refreshApproval();
+        scheduleDraft();
+      };
+      document.addEventListener('input', onFieldInput);
+      document.addEventListener('change', onFieldInput);
       if ($('judgeOk')) {
         $('judgeOk').addEventListener('click', function () {
           if (state.locked) return;

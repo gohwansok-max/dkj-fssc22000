@@ -166,6 +166,21 @@
       window.print();
     });
 
+    // 시스템 관리자(4343) 전용 — 버튼 자체는 data-system-admin 으로 화면에서 숨겨지지만,
+    // 콘솔 등으로 직접 눌러도 막히도록 여기서도 한 번 더 확인한다.
+    $('arcDelete').addEventListener('click', function () {
+      if (!(window.DkjAuth && window.DkjAuth.isSystemAdmin && window.DkjAuth.isSystemAdmin())) {
+        alert('시스템 관리자만 기록을 삭제할 수 있습니다.');
+        return;
+      }
+      var picked = view.filter(function (r) { return selected[r.id]; });
+      if (!picked.length) { alert('삭제할 기록을 먼저 선택하세요.'); return; }
+      if (!confirm(picked.length + '건을 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.\n계속할까요?')) return;
+      picked.forEach(function (r) { window.DkjRecordStore.remove(r.formId, r.id); });
+      selected = {};
+      load();
+    });
+
     $('arcBackup').addEventListener('click', function () {
       var n = window.DkjExport.toJsonBackup();
       if (!n) alert('백업할 기록이 없습니다.');

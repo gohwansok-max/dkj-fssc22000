@@ -341,16 +341,24 @@
     }
 
     function bind() {
+      // writer/reviewer/approver 도 dkj-approval.js 의 직원 자동선택이 <select>로
+      // 바꿔치기한다 — renderInfo() 와 같은 이유로 개별 요소 리스너 대신 document 위임
+      // 리스너를 쓴다(요소가 나중에 통째로 바뀌어도 계속 잡힌다).
       ['writer', 'reviewer', 'approver'].forEach(function (k) {
-        if ($(k)) {
-          var onAppChange = function () {
-            state.approvals[k] = this.value;
+        document.addEventListener('input', function (e) {
+          if (e.target && e.target.id === k) {
+            state.approvals[k] = e.target.value;
             scheduleDraft();
             global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
-          };
-          $(k).addEventListener('input', onAppChange);
-          $(k).addEventListener('change', onAppChange);
-        }
+          }
+        });
+        document.addEventListener('change', function (e) {
+          if (e.target && e.target.id === k) {
+            state.approvals[k] = e.target.value;
+            scheduleDraft();
+            global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+          }
+        });
       });
       if ($('remark')) $('remark').addEventListener('input', function () {
         state.remark = this.value; scheduleDraft();
