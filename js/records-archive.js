@@ -179,11 +179,16 @@
       btn.textContent = '⏳ 동기화 중…';
       window.DkjCloudSync.sync().then(function () {
         btn.textContent = '✅ 확인 완료';
-      }).catch(function () {
-        btn.textContent = '⚠️ 실패 (다시 시도)';
+        setTimeout(function () { btn.textContent = '🔄 지금 동기화'; }, 2500);
+      }).catch(function (err) {
+        // 실패 이유를 화면에 그대로 보여준다 — "실패"라고만 뜨면 원인을 알 방법이
+        // 없어서 사용자도 나도 다음 대응(네트워크 문제인지, 로그인 문제인지)을
+        // 판단할 수가 없었다. 사라지는 시간도 길게 둬서 캡처해 알려줄 여유를 준다.
+        console.error('[기록보관함] 지금 동기화 실패:', err);
+        btn.textContent = '⚠️ 실패: ' + ((err && err.message) || '알 수 없는 오류');
+        setTimeout(function () { btn.textContent = '🔄 지금 동기화'; }, 8000);
       }).finally(function () {
         btn.disabled = false;
-        setTimeout(function () { btn.textContent = '🔄 지금 동기화'; }, 2500);
       });
     });
 
