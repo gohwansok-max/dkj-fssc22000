@@ -90,6 +90,7 @@
       if (!Array.isArray(list)) continue;
       list.forEach(function (rec) {
         if (!rec || typeof rec !== 'object') return;
+        if (rec.deleted) return; // 삭제 표식(js/dkj-record-store.js 참고) — 기록보관함·내보내기 모두 제외
         out.push({
           formId: formId,
           formTitle: catalogTitle(formId),

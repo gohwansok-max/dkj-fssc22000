@@ -63,6 +63,7 @@
         var list = JSON.parse(localStorage.getItem(key) || '[]');
         (Array.isArray(list) ? list : []).forEach(function (record) {
           if (!record || typeof record !== 'object') return;
+          if (record.deleted) return; // 삭제 표식(js/dkj-record-store.js 참고)
           record = Object.assign({}, record);
           record.formId = record.formId || match[1];
           out.push(record);
