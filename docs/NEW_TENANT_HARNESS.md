@@ -13,6 +13,29 @@
 
 ---
 
+## PART 0. 진짜 목표 — 오프라인 문서 받으면 2일 안에 시스템 완성
+
+**최종 목표는 브랜딩 치환이 아니다.** 새 농협의 기존 오프라인 문서(HACCP 계획서·
+SOP·점검표 등 Word/PDF/한글 원본)를 받아서, 그걸 이 시스템의 서식으로 코딩해
+넣으면 동김제농협과 똑같이 완결된 시스템이 사업장 하나당 **2일 안에** 뜨는 것이
+목표다.
+
+시간이 실제로 드는 곳은 이 순서다 — 뒤로 갈수록 기계적이라 이미 자동화됐거나
+자동화하기 쉽고, **1번이 압도적으로 오래 걸린다**:
+
+1. **문서를 읽고 서식으로 옮기는 판단 작업** (가장 오래 걸림, 사람/Claude의 판단이
+   매번 필요 — PART 5 참고)
+2. 카탈로그 JSON 4종에 새 서식 등록 (기계적이지만 아직 스크립트 없음 — PART 3
+   "아직 안 된 일" 참고)
+3. 브랜딩 치환 — `scripts/new-tenant-rename.py`로 자동화 완료 (PART 3)
+4. Firebase 신규 프로젝트 연결·배포 — 체크리스트로 자동화(사람이 콘솔 클릭은
+   해야 함, PART 1)
+
+그래서 2일을 노린다면 **Day 1은 문서 매핑(PART 5)에 몰아쓰고, Day 2는 브랜딩·
+Firebase·배포·실기기 검증(PART 1, PART 3)에 쓰는 게 현실적인 배분이다.**
+
+---
+
 ## PART 1. 새 사업장 배포 전 필수 체크리스트
 
 새 Firebase 프로젝트를 연결하고 처음 배포할 때, **반드시** 아래 순서대로 확인한다.
@@ -182,8 +205,8 @@
 | 항목 | 위치 | 비고 |
 |---|---|---|
 | Firebase 프로젝트 설정 | `js/dkj-firebase-config.js` | 새 Firebase 프로젝트로 완전히 교체 (PART 1 참고) |
-| 시스템 관리자 사번 `4343` | `js/dkj-auth.js`, `js/dkj-approval.js`, `js/dkj-backup-reminder.js`, `js/dkj-chatbot.js`, `js/dkj-i18n.js`, `js/records-archive.js`, `system-settings.html`, `js/system-settings.js`, `js/staff-roles.bundle.js` 등 10개 파일 | 하드코딩돼 있음 — 새 사업장의 시스템 관리자 사번으로 전부 바꿔야 함(검색-치환 필요, 지금은 상수화 안 돼 있음) |
-| 회사명("동김제농협 산지유통센터") | 353개 파일 (`.js`/`.html`/`.json` 전체) | 헤더 워드마크, 페이지 타이틀, 문서 서식 정본, `data/staff-roles.json` 등 전반 |
+| 시스템 관리자 사번 `4343` | `js/dkj-auth.js`, `js/dkj-approval.js`, `js/dkj-backup-reminder.js`, `js/dkj-chatbot.js`, `js/dkj-i18n.js`, `js/records-archive.js`, `system-settings.html`, `js/system-settings.js`, `data/staff-roles.json` 등 9개 파일 | **자동화됨** — `python scripts/new-tenant-rename.py --admin-emp-id <새사번> ... --apply` |
+| 회사명("동김제농협 산지유통센터") | 100개 넘는 파일 (`.html`/`.js`/`.json`) — 헤더 워드마크, 페이지 타이틀, 문서 서식 정본, 서식별 JS 안의 "OO 계약농가" 류 문구 등 | **자동화됨** — 같은 스크립트가 `--org-full`/`--org-mid`/`--org-short` 세 단계로 치환. `index.html` 헤더는 조합명과 시설유형("산지유통센터")이 별도 태그라 시설유형이 다르면 직접 고쳐야 함(스크립트 실행 결과에 안내됨). CLAUDE.md·docs/**는 의도적으로 건드리지 않음 |
 | 브랜드 로고 | `assets/brand/dkj-icon.svg`, `dkj-icon-maskable.svg`, `nh-symbol.svg`, `nh-symbol-green.svg` | 새 사업장 로고로 교체 (nh-symbol은 농협 공통 심볼이라 재사용 가능할 수 있음) |
 | 문서번호 프리픽스 (`DKJ-*`) | `data/record-catalog.json`, `data/mdr-catalog.json`, `data/print-templates/*.json`, `records/DKJ-*.html`, 다수 `js/DKJ-*.js` | 서식 코드 체계 전체가 `DKJ-` 프리픽스. 완전히 새 프리픽스로 바꾸려면 74개 서식 코드·파일명·사양 JSON을 전부 리네임해야 하는 큰 작업 — 처음엔 `DKJ-`를 유지하고 회사명/로고만 바꾸는 것도 현실적 선택지 |
 | 사업장 고유 데이터 (14개 카탈로그) | `data/*.json` 전체 (`console-forms`, `doc-catalog`, `menu-catalog`, `mdr-catalog`, `staff-roles`, `products`, `production-master`, `process-line`, `drive-document-manifest`, `asset-sources` 등) | 문서 목록·직원 명단·제품 마스터 등 전부 새 사업장 내용으로 교체 필요. 고친 뒤 `python scripts/build-catalog-bundles.py` 필수 |
@@ -191,13 +214,18 @@
 | Google Drive 정본 문서 폴더 | `official-documents.html`, `data/drive-document-manifest.json` | 새 사업장의 Drive 폴더로 교체, `scripts/inventory_drive_tree.py` → `build_drive_document_manifest.py` 재실행 |
 | Telegram 봇/불편접수 | `js/dkj-telegram-config.js`, RTDB `system/settings/telegram` | 새 사업장의 텔레그램 Bot Token/Chat ID |
 
-**아직 안 된 일**: 위 표는 "무엇을 바꿔야 하는지" 조사만 됐고, 실제로 자동
-치환하는 스크립트나 스킬은 아직 없다. 다음 단계로 필요한 것:
-1. 회사명·로고·Firebase 설정처럼 "값만 바꾸면 되는" 항목을 모아 설정 파일 하나로
+**아직 안 된 일** (2026-09-04 기준, 우선순위 순):
+1. **카탈로그 4종(`record-catalog.json`/`console-forms.json`/`mdr-catalog.json`/
+   `print-templates/*.json`) 자동 등록 스크립트.** 지금은 PART 5의 매핑 작업이
+   끝난 뒤 이 4개 파일에 손으로 항목을 추가해야 한다 — 다음 자동화 1순위.
+   `console-forms.json`은 `groups[].items[]`에 서식별 `check.mode`(dayColumn/
+   dayRow/perDay/perPeriod/event)를 지정하는 구조라, 어떤 엔진을 골랐는지에 따라
+   기계적으로 값이 정해진다(PART 5 표 참고) — 자동화 난이도는 낮다.
+2. 회사명·로고·Firebase 설정처럼 "값만 바꾸면 되는" 항목을 모아 설정 파일 하나로
    빼내는 리팩터(지금은 여러 파일에 흩어져 있음).
-2. `4343` 같은 하드코딩된 상수를 설정값으로 통일.
-3. 위 체크리스트를 그대로 실행하는 Claude Code 스킬(`.claude/skills/new-tenant-scaffold/`,
-   이 커밋에서 뼈대만 추가함)을 실제로 자동화 단계까지 채우기.
+3. `.claude/skills/new-tenant-scaffold/`가 지금은 사람이 순서대로 밟는 안내
+   위주다 — 1번이 되면 이 스킬이 실제로 "문서 하나 던지면 서식 하나 나온다"에
+   가까워진다.
 
 ---
 
@@ -213,3 +241,57 @@
 - **실기기 재현이 필수**: 로컬스토리지 시뮬레이션이나 헤드리스 테스트로는 안
   잡히던 백그라운드 탭 타이머 정지, 실제 401 등은 사용자가 실제 PC/폰에서
   재현해준 뒤에야 원인을 좁힐 수 있었다.
+
+---
+
+## PART 5. 오프라인 문서 → 서식 매핑 (진짜 시간이 드는 곳)
+
+새 사업장의 기존 Word/PDF/한글 문서 하나를 이 시스템의 작동하는 서식 하나로
+옮기는 절차. **`records/<코드>.html`은 껍데기이고 실제 동작은 공용 엔진 +
+서식별 사양(JSON) 조합이라는 게 핵심이다** — 대부분의 문서는 새 JS 코드를
+한 줄도 안 써도 되고, **사양 JSON 하나만 새로 쓰면 서식이 완성된다.** 이게
+2일 목표가 가능한 이유다.
+
+### 5-1. 문서 하나를 받으면: 어느 엔진에 맞는지부터 정한다
+
+| 문서가 이렇게 생겼으면… | 엔진 | 사양 위치 | 특징 |
+|---|---|---|---|
+| 하루 1장, 항목별로 값 입력 + 작성/검토/승인 서명란 | `fr-form` | `data/fr-form-specs/` | 가장 흔한 형태(동김제 74종 중 45종). 필드 목록만 JSON으로 적으면 끝 |
+| 한 장에 날짜(1~31일) 세로 행이 쭉 있고, 매일 그 행 하나씩 채우는 대장/관리대장 | `ledger-form` | `data/ledger-form-specs/` | 월 단위로 한 시트에 누적(예: 온도 점검일지, 조도점검일지) |
+| 표에서 가로축이 날짜, 세로축이 점검항목인 매트릭스형 주간/월간 점검표 | `matrix-form` | `data/matrix-form-specs/` | 청소·소독 점검표류. `#btnAllPass`(전체 적합) 같은 일괄입력 지원 |
+| 항목별로 O/X(적합/부적합)만 체크하는 단순 점검표 | `ox-form` | `data/ox-form-specs/` | 가장 단순한 형태 |
+| 사고·이슈 발생 시 작성하는 보고서(부적합·불만·이탈 등 서술형이 많은 문서) | `report-form` | `data/report-form-specs/` | 체크블록(`.rpf-chk`/`data-chk`) + 서술형 섹션 혼합 |
+| CCP 관리처럼 한계기준 이탈 시 시정조치가 자동으로 강제돼야 하는 문서 | 전용 스크립트 (`js/<코드>.js`) | — | `DKJ-H-01-01`/`-02`처럼 엔진으로 못 담는 예외적 로직이 필요할 때만. **가장 마지막 선택지** — 대부분의 문서는 위 5개 엔진 중 하나로 충분하다 |
+
+애매하면 기존 74종 중 비슷한 문서를 찾아 그 스펙 JSON을 복사해서 시작하는 게
+가장 빠르다(`data/record-catalog.json`에서 `category`/`period`로 비슷한 걸
+찾는다).
+
+### 5-2. 서식 하나 추가 시 실제로 손대야 하는 파일 (자동화 전 기준)
+
+1. `data/<엔진>-form-specs/<코드>.json` — 문서의 항목을 `fields`/`sections`로
+   옮긴다. 기존 서식 하나를 복사해서 `code`/`title`/`fields`만 바꾸는 게 제일
+   빠르다.
+2. `records/<코드>.html` — 기존 같은 엔진 서식의 HTML을 복사하고 스크립트
+   태그의 코드만 바꾼다(엔진이 `data-code`로 스펙을 찾아 읽는 구조라 HTML
+   자체는 서식마다 거의 동일).
+3. `data/record-catalog.json` — 서식 목록에 항목 추가(`code`/`title`/`period`/
+   `category`/`role`/`file`/`summary`).
+4. `data/console-forms.json` — `groups[].items[]`에 등록. `check.mode`는
+   5-1의 엔진과 거의 1:1 대응한다: `fr-form`→`perDay`, `ledger-form`→`dayRow`,
+   `matrix-form`→`dayColumn`, `ox-form`→`perDay`, `report-form`→`event`.
+5. `data/mdr-catalog.json` — 문서관리대장에 문서번호·개정번호 등록(**문서
+   제목·개정번호의 정본**이므로 서식 제목은 지어내지 말고 여기 기준으로).
+6. `data/print-templates/<코드>.json` — 인쇄 정본 레이아웃(문서번호·제정일·
+   조직명). 화면 서식과 별개라 빠뜨리기 쉽다.
+7. `python scripts/build-catalog-bundles.py` — 위 JSON들을 고쳤으면 반드시
+   실행. 화면은 `js/*.bundle.js`를 읽지 JSON을 직접 안 읽는다.
+
+### 5-3. 심사 증거로 쓰이는 기록이라는 것을 잊지 말 것
+
+이 서식들은 실제 HACCP/FSSC22000 심사에서 증거로 제출된다(`quality-record-app-rules`
+스킬 참고). 문서를 옮길 때 최소한 이건 지킨다: 문서번호·Rev·작성자/작성일시가
+빠지지 않아야 하고, 결재(작성→검토→승인)가 필요한 문서면 승인 후 잠기게 하고,
+한계기준 이탈 항목이 있으면 시정조치 입력 없이는 저장을 끝내지 않게 한다.
+빠르게 찍어내는 것과 심사에서 지적당하지 않는 것은 같이 가야 한다 — 후자를
+희생해서 시간을 버는 건 목표가 아니다.
