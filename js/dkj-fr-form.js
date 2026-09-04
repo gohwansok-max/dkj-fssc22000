@@ -29,12 +29,14 @@
       checks: checks,
       judge: '',
       corrective: '',
-      writer: '이다은',
-      reviewer: '권화선',
-      approver: '최민재',
+      writer: '',
+      reviewer: '',
+      approver: '',
       // 결재 패널은 approvals(이름) / signoff(확정 서명)를 본다.
       // FR 서식은 writer·reviewer·approver 를 평면 필드로 갖고 있어 readForm 에서 미러링한다.
-      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
+      // 여기서 이름을 미리 채우지 않는다 — 작성자는 autoFillUser()가 로그인한
+      // 사람으로 채우고, 검토·승인자는 화면에서 드롭다운으로 직접 고른다.
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.

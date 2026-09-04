@@ -77,7 +77,7 @@
       // 생산 없는 요일(예: 토요일 휴무) 표시 — true 인 열은 "전체 적합"에서 제외한다.
       offDays: new Array(n).fill(false),
       incidents: incidents,
-      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.

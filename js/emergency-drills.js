@@ -171,8 +171,11 @@
     return buildReport(data) + approvalTable(record);
   }
 
-  function currentApprovals() { return { writer:value('writer') || '이다은', reviewer:value('reviewer') || '권화선', approver:value('approver') || '최민재' }; }
-  function setApprovals(approvals) { approvals = approvals || {}; ['writer','reviewer','approver'].forEach(function (key) { if ($(key)) $(key).value = approvals[key] || (key === 'writer' ? '이다은' : key === 'reviewer' ? '권화선' : '최민재'); }); }
+  // 작성자만 로그인한 사람 이름으로 기본값을 둔다(추적성) — 검토·승인자는 강제
+  // 기본값을 두지 않고 화면 드롭다운에서 직접 고른다.
+  function loggedInName() { var u = window.DkjAuth && typeof window.DkjAuth.user === 'function' ? window.DkjAuth.user() : null; return (u && u.name) || ''; }
+  function currentApprovals() { return { writer:value('writer') || loggedInName(), reviewer:value('reviewer') || '', approver:value('approver') || '' }; }
+  function setApprovals(approvals) { approvals = approvals || {}; ['writer','reviewer','approver'].forEach(function (key) { if ($(key)) $(key).value = approvals[key] || (key === 'writer' ? loggedInName() : ''); }); }
   function allSigned(record) { var sign = (record && record.signoff) || {}; return !!(sign.writer && sign.reviewer && sign.approver); }
   function approvalNamesValid() { var approvals = currentApprovals(); return !!(approvals.writer && approvals.reviewer && approvals.approver); }
   function lockedState() { return !!(current && (current.approvalRequested || current.locked)); }

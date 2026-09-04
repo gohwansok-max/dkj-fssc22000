@@ -39,7 +39,7 @@
     return {
       values: values,
       tables: tables,
-      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.

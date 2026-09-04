@@ -20,10 +20,10 @@
   function blank(type) {
     return {
       title: type === 'culture' ? '식품안전문화 평가·실행계획' : '경영검토 회의·후속조치',
-      recordType: type || 'management', docDate: today(), writer: '이다은', reviewer: '권화선', approver: '최민재',
-      status: 'draft', locked: false, approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' }, signoff: {}, audit: [],
-      reviewPeriod: '', meetingDate: today(), chairperson: '최민재', attendees: '최민재, 권화선, 이다은 외', meetingType: '정기 경영검토', managementInput: '', decisions: '', reviewAction: '', reviewOwner: '권화선', reviewDue: '', resources: '', reviewVerification: '',
-      culturePeriod: '', cultureDate: today(), cultureTeam: '식품안전팀', cultureMethod: '현장관찰·면담·기록평가', cultureReviewDate: '', cultureScores: defaultScores(), cultureStrength: '', cultureGap: '', cultureOwner: '이다은', cultureDue: '', culturePlan: '', cultureVerification: '', cultureEvidence: ''
+      recordType: type || 'management', docDate: today(), writer: '', reviewer: '', approver: '',
+      status: 'draft', locked: false, approvals: { writer: '', reviewer: '', approver: '' }, signoff: {}, audit: [],
+      reviewPeriod: '', meetingDate: today(), chairperson: '', attendees: '', meetingType: '정기 경영검토', managementInput: '', decisions: '', reviewAction: '', reviewOwner: '', reviewDue: '', resources: '', reviewVerification: '',
+      culturePeriod: '', cultureDate: today(), cultureTeam: '식품안전팀', cultureMethod: '현장관찰·면담·기록평가', cultureReviewDate: '', cultureScores: defaultScores(), cultureStrength: '', cultureGap: '', cultureOwner: '', cultureDue: '', culturePlan: '', cultureVerification: '', cultureEvidence: ''
     };
   }
   function allRecords() { return list(FORM_ID).sort(function (a, b) { return String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')); }); }
@@ -105,7 +105,7 @@
     $('history').innerHTML = records.length ? records.map(function(r){ var t=r.recordType==='culture'?'식품안전문화':'경영검토', period=r.recordType==='culture'?r.culturePeriod:r.reviewPeriod, score=r.recordType==='culture'?(cultureAverage(r.cultureScores)||'—')+' / 5':(r.meetingDate||'-'); return '<div class="history-row"><span class="tag '+(r.recordType==='culture'?'culture':'')+'">'+esc(t)+'</span><span class="tag '+(r.locked?'':'draft')+'">'+(r.locked?'승인·잠금':'초안')+'</span><span><strong>'+esc(period||'기간 미입력')+'</strong><br><span style="color:#60746a">'+esc(score)+' · 작성 '+esc(r.writer||'-')+'</span></span><span><button class="btn load" type="button" data-id="'+esc(r.id)+'">열기</button></span></div>'; }).join('') : '<p class="desc">저장된 경영검토·식품안전문화 이력이 없습니다.</p>';
     $('history').querySelectorAll('.load').forEach(function(b){b.addEventListener('click',function(){current=DkjRecordStore.get(FORM_ID,b.getAttribute('data-id'))||blank('management');renderForm();syncApproval();window.scrollTo({top:0,behavior:'smooth'});});});
   }
-  function changeType(type) { if (current && current.id && !current.locked && !confirm('현재 초안은 저장된 상태로 남습니다. 새 ' + (type==='culture'?'식품안전문화':'경영검토') + ' 기록을 작성하시겠습니까?')) return; current=blank(type);renderForm();syncApproval(); }
+  function changeType(type) { if (current && current.id && !current.locked && !confirm('현재 초안은 저장된 상태로 남습니다. 새 ' + (type==='culture'?'식품안전문화':'경영검토') + ' 기록을 작성하시겠습니까?')) return; current=blank(type);if(window.DkjUtil)window.DkjUtil.autoFillUser(current,['writer']);renderForm();syncApproval(); }
   function bind() {
     document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){changeType(b.getAttribute('data-type'));});});
     $('saveDraft').addEventListener('click',function(){var s=formState();if(!validate(s,false))return;s.status='draft';save(s,'초안이 저장됐습니다. 입력자료와 실행계획을 검토한 뒤 결재를 진행하세요.');});
@@ -113,6 +113,6 @@
     $('lockClose').addEventListener('click',function(){var s=formState();if(!validate(s,true))return;if(!confirm('이 기록을 승인 후 작성완료·잠금 처리합니다. 이후 수정은 새 기록 또는 후속조치로 관리합니다. 계속하시겠습니까?'))return;s.locked=true;s.status='closed';save(s,'경영검토·식품안전문화 기록이 승인·잠금됐습니다.');});
     $('newRecord').addEventListener('click',function(){changeType(selectedType());}); $('historyFilter').addEventListener('change',renderHistory);
   }
-  function init(){current=allRecords()[0]||blank('management');renderForm();bind();mountApproval();renderHistory();renderMetrics();}
+  function init(){current=allRecords()[0]||blank('management');if(window.DkjUtil)window.DkjUtil.autoFillUser(current,['writer']);renderForm();bind();mountApproval();renderHistory();renderMetrics();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

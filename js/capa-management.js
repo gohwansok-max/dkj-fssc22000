@@ -63,25 +63,25 @@
       isolation: '',
       description: '',
       containment: '',
-      containmentOwner: '이다은',
+      containmentOwner: '',
       rootMethod: '5 Why',
-      actionOwner: '권화선',
+      actionOwner: '',
       dueDate: '',
       verificationDueDate: '',
       rootCause: '',
       actionPlan: '',
       status: 'containment',
       verifyDate: '',
-      verifier: '최민재',
+      verifier: '',
       verificationResult: '',
       verificationDetail: '',
       evidence: '',
       closureDate: '',
       managementReview: '',
-      writer: '이다은',
-      reviewer: '권화선',
-      approver: '최민재',
-      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
+      writer: '',
+      reviewer: '',
+      approver: '',
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       audit: [],
       sourceForm: '',
@@ -263,6 +263,11 @@
     $('historyFilter').addEventListener('change', renderHistory);
   }
 
-  function init() { current = records()[0] || blankState(); renderForm(); bind(); mountApproval(); renderHistory(); syncApproval(); }
+  function init() {
+    current = records()[0] || blankState();
+    // 작성자·즉시조치 담당자는 로그인한 사람 이름으로 채운다(추적성) — 빈 칸일 때만.
+    if (window.DkjUtil) window.DkjUtil.autoFillUser(current, ['writer', 'containmentOwner']);
+    renderForm(); bind(); mountApproval(); renderHistory(); syncApproval();
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

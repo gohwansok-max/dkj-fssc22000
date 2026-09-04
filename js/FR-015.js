@@ -40,12 +40,12 @@
       notifySupplier: '예',
       reasons: reasons,
       reasonText: '',
-      handler: '이다은',
-      approver: '최민재',
+      handler: '',
+      approver: '',
       remark: '',
       carRequired: '아니오',
       // 전자결재 — 처리담당자·승인자 2단
-      approvals: { writer: '이다은', reviewer: '', approver: '최민재' },
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       audit: []
     };

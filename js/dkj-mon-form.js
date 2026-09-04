@@ -50,8 +50,8 @@
     var mode = spec.monMode || 'th';
     var st = {
       checkDate: today(),
-      inspector: '이다은',
-      confirmer: '권화선',
+      inspector: '',
+      confirmer: '',
       corrective: '',
       remark: '',
       locked: false,

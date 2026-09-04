@@ -301,15 +301,16 @@
 
     select.setAttribute('data-dkj-staff-picker', 'true');
 
-    // 역할별 기본값 세팅 (신규 작성 시 또는 시스템 관리자 사번이 들어간 경우)
+    // 작성자류 필드만 로그인한 사람 이름으로 채운다(추적성 — 실제로 지금 화면을
+    // 쓰는 사람). 검토·승인·확인자류는 강제 기본값을 두지 않는다 — 예전엔
+    // 특정 이름(이다은/권화선/최민재)을 서식과 무관하게 고정 기본값으로 뒀었는데,
+    // 로그인한 사람과 다른 사람 이름이 미리 채워져 있으면 확인 없이 그대로
+    // 저장될 위험이 있었다. 아래 목록에서 바로 골라 정확한 사람으로 남긴다.
     var idLower = (select.id || '').toLowerCase();
     var defaultVal = '';
     if (idLower === 'writer' || idLower === 'inspector' || idLower.indexOf('worker') !== -1 || idLower === 'containmentowner') {
-      defaultVal = '이다은';
-    } else if (idLower === 'reviewer' || idLower === 'actionowner' || idLower === 'reviewowner') {
-      defaultVal = '권화선';
-    } else if (idLower === 'approver' || idLower === 'confirmer' || idLower === 'verifier' || idLower === 'chairperson' || idLower === 'leader') {
-      defaultVal = '최민재';
+      var apvMe = global.DkjAuth && typeof global.DkjAuth.user === 'function' ? global.DkjAuth.user() : null;
+      defaultVal = (apvMe && apvMe.name) || '';
     }
 
     var chosenVal = currentValue;
@@ -418,13 +419,10 @@
     function stageHtml(st, s) {
       var sign = (s && s.signoff && s.signoff[st.key]) || null;
       var el = document.getElementById(st.key) || document.querySelector('[name="' + st.key + '"]');
+      // 아직 아무도 안 골랐으면 특정 이름을 미리 보여주지 않는다(예전엔 여기도
+      // 고정된 이름을 기본으로 보여줬는데, 실제로 그 사람이 서명한 게 아닌데
+      // 마치 이미 정해진 것처럼 보여 혼동을 줬다) — 비어 있으면 "—"로 둔다.
       var name = (s && s.approvals && s.approvals[st.key]) || (s && s[st.key]) || (el && el.value) || '';
-      if (!name) {
-        if (st.key === 'writer' || st.key === 'inspector' || st.key.indexOf('worker') !== -1) name = '이다은';
-        else if (st.key === 'reviewer') name = '권화선';
-        else if (st.key === 'approver') name = '최재원';
-        else if (st.key === 'confirmer') name = '권화선';
-      }
       var done = !!(sign && sign.at);
       // 로그인 서명이면 사번을 함께 보여 준다. 폼에 적힌 이름과 다르면 그 사실도 드러낸다.
       var shown = done ? (sign.empId ? sign.name + ' (' + sign.empId + ')' : sign.name) : (name || '—');

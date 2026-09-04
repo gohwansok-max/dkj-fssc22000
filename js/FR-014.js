@@ -37,11 +37,11 @@
       checks: checks,
       judge: '',
       action: '입고',
-      inspector: '이다은',
-      confirmer: '권화선',
+      inspector: '',
+      confirmer: '',
       remark: '',
       // 전자결재 — 검사자·확인자 2단
-      approvals: { writer: '이다은', reviewer: '', approver: '권화선' },
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       audit: []
     };

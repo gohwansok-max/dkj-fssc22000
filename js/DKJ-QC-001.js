@@ -153,7 +153,7 @@
     return {
       workDate: curDate,
       lot: curLot,
-      inspector: '최민재',
+      inspector: '',
       roundTimes: { r1: '09:00', r2: '13:30', r3: '16:30' },
       selectedCodes: [defProd.code],
       checks: checks,
@@ -165,9 +165,9 @@
       },
       remarkPreset: '특이사항 없음 / 정상 가동',
       deviationNotes: '',
-      confirmer: '권화선',
-      approver: '최재원',
-      approvals: { writer: '최민재', reviewer: '권화선', approver: '최재원' },
+      confirmer: '',
+      approver: '',
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       audit: [],
       locked: false,
@@ -861,11 +861,11 @@
     var curDate = state.workDate || todayStr();
     if ($('workDate')) $('workDate').value = curDate;
     if ($('lot')) $('lot').value = state.lot || makeLot(curDate);
-    if ($('inspector')) $('inspector').value = state.inspector || '최민재';
+    if ($('inspector')) $('inspector').value = state.inspector || '';
     if ($('remarkPreset')) $('remarkPreset').value = state.remarkPreset || '특이사항 없음 / 정상 가동';
     if ($('deviationNotes')) $('deviationNotes').value = state.deviationNotes || '';
-    if ($('confirmer')) $('confirmer').value = state.confirmer || '권화선';
-    if ($('approver')) $('approver').value = state.approver || '최재원';
+    if ($('confirmer')) $('confirmer').value = state.confirmer || '';
+    if ($('approver')) $('approver').value = state.approver || '';
 
     state.photos = state.photos || { chlorinePaper: null, lotPrint: null };
 
@@ -1288,13 +1288,12 @@
       state.lot = makeLot(state.workDate);
     }
     
-    // DKJ-QC-001 전용 결재선 고정: 작성(최민재), 검토(권화선), 승인(최재원)
-    state.inspector = state.inspector || '최민재';
-    state.confirmer = state.confirmer || '권화선';
-    state.approver = state.approver || '최재원';
-    if (state.approver === '최민재' && state.inspector === '최민재') {
-      state.approver = '최재원';
-    }
+    // 검사자(작성)는 로그인한 사람 이름으로 채운다(추적성) — 다른 사람이 로그인해도
+    // 늘 같은 이름이 미리 채워져 있으면 확인 없이 그대로 저장될 위험이 있어, 이전엔
+    // 고정된 이름(최민재/권화선/최재원)을 기본값으로 뒀었지만 없앴다. 검토·승인자는
+    // 강제 기본값을 두지 않고 화면에서 드롭다운으로 바로 고르게 한다.
+    var qcMe = global.DkjAuth && typeof global.DkjAuth.user === 'function' ? global.DkjAuth.user() : null;
+    if (!state.inspector && qcMe && qcMe.name) state.inspector = qcMe.name;
     state.approvals = {
       writer: state.inspector,
       reviewer: state.confirmer,
