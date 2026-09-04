@@ -83,9 +83,14 @@
     var root = String(CFG.databaseURL || '').replace(/\/$/, '') + '/' + (CFG.root || 'dkj-fssc22000');
     var token = auth().token();
     var authParam = isRealToken(token) ? ('?auth=' + encodeURIComponent(token)) : '';
-    var url = root + (path ? '/' + path : '') + '.json' + authParam;
+    // 다른 기기가 방금 올린 내용이 브라우저(또는 중간 프록시)의 GET 캐시에 걸려서
+    // "동기화 성공"인데 실제로는 옛 응답을 그대로 다시 보여주는 상황을 막는다 —
+    // cache:'no-store'만으로는 프록시 캐시까지 못 뚫는 경우가 있어 타임스탬프도 같이 붙인다.
+    var bust = (authParam ? '&' : '?') + '_=' + Date.now();
+    var url = root + (path ? '/' + path : '') + '.json' + authParam + bust;
     var r = await fetch(url, {
       method: method || 'GET',
+      cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
       body: data === undefined ? undefined : JSON.stringify(data)
     });
@@ -161,23 +166,25 @@
 
   async function legacySyncAll(silent) {
     var cloud = (await request('records', 'GET')) || {};
-    var touched = 0;
+    var touched = 0, pushedNew = 0, pushedUpdated = 0;
     var keys = Object.keys(cloud);
+    var cloudKeyCount = 0;
     for (var i = 0; i < keys.length; i++) {
       var encodedKey = keys[i];
       var key = readNodeKey(encodedKey);
       if (!isSyncKey(key)) continue;
+      cloudKeyCount++;
       var row = cloud[encodedKey];
       if (!row || !Array.isArray(row.value)) continue;
       var localVal = parse(localStorage.getItem(key)) || [];
       var merged = mergeRecords(localVal, row.value);
       if (!same(merged, localVal)) { writeLocal(key, merged); touched++; }
-      if (!same(merged, row.value)) await legacyPushKey(key);
+      if (!same(merged, row.value)) { await legacyPushKey(key); pushedUpdated++; }
     }
     var localKeys = storageKeys();
     for (var i = 0; i < localKeys.length; i++) {
       var k = localKeys[i];
-      if (isSyncKey(k) && !cloud[nodeKey(k)]) await legacyPushKey(k);
+      if (isSyncKey(k) && !cloud[nodeKey(k)]) { await legacyPushKey(k); pushedNew++; }
     }
     markSynced();
     if (touched) {
@@ -188,6 +195,7 @@
       sessionStorage.setItem('dkj_cloud_reloaded', '1');
       setTimeout(function () { location.reload(); }, 700);
     }
+    return { mode: 'legacy', cloudKeyCount: cloudKeyCount, pulled: touched, pushedNew: pushedNew, pushedUpdated: pushedUpdated };
   }
 
   /* ----------------------------- 레코드 단위 V2 스키마 ----------------------------- */
