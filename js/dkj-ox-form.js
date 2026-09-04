@@ -25,10 +25,12 @@
       checks: checks,
       judge: '',
       corrective: '',
-      inspector: '이다은',
-      confirmer: '권화선',
+      inspector: '',
+      confirmer: '',
       // O/X 일보는 점검자·확인자 2단이다. 결재 패널이 읽는 approvals 로 readForm 에서 미러링한다.
-      approvals: { writer: '이다은', reviewer: '', approver: '권화선' },
+      // 여기서 이름을 미리 채우지 않는다 — 점검자는 autoFillUser()가 로그인한
+      // 사람으로 채우고, 확인자는 화면에서 드롭다운으로 직접 고른다.
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.

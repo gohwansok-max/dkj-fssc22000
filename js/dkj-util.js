@@ -40,17 +40,6 @@
     }, 2600);
   }
 
-  /** 기본 결재자 설정: 작성(이다은), 검토(권화선), 승인(최민재) */
-  var DEFAULT_SIGNERS = {
-    writer: '이다은',
-    inspector: '이다은',
-    monitorName: '이다은',
-    author: '이다은',
-    reviewer: '권화선',
-    confirmer: '권화선',
-    approver: '최민재'
-  };
-
   /** 작성자/검토자/승인자 기본값 주입 및 로그인 사용자 연동 */
   function autoFillUser(state, writerKeys, onApplied) {
     var keys = Array.isArray(writerKeys) ? writerKeys : ['writer', 'inspector', 'monitorName', 'author', 'reviewer', 'confirmer', 'approver'];
@@ -58,19 +47,22 @@
       var u = global.DkjAuth && typeof global.DkjAuth.user === 'function' ? global.DkjAuth.user() : null;
       var changed = false;
       keys.forEach(function (k) {
-        if (state && (state[k] === '' || state[k] == null)) {
-          if (u && (u.name || u.empId) && (k === 'writer' || k === 'inspector' || k === 'monitorName' || k === 'author')) {
-            state[k] = u.name || ('사번 ' + u.empId);
-          } else if (DEFAULT_SIGNERS[k]) {
-            state[k] = DEFAULT_SIGNERS[k];
-          }
+        // 작성자류(writer/inspector/monitorName/author)만 로그인한 사람 이름으로
+        // 채운다. 검토·승인자는 강제 기본값을 두지 않는다 — 예전엔 서식과 무관하게
+        // 고정된 이름(이다은/권화선/최민재)을 기본값으로 뒀는데, 실제로 그 사람이
+        // 아닌데도 미리 채워져 있으면 확인 없이 그대로 저장될 위험이 있었다.
+        if (state && (state[k] === '' || state[k] == null) &&
+            u && (u.name || u.empId) && (k === 'writer' || k === 'inspector' || k === 'monitorName' || k === 'author' || k === 'handler')) {
+          state[k] = u.name || ('사번 ' + u.empId);
           changed = true;
         }
       });
       if (state && state.approvals) {
-        if (!state.approvals.writer) state.approvals.writer = state.writer || state.inspector || state.monitorName || DEFAULT_SIGNERS.writer;
-        if (!state.approvals.reviewer && (state.reviewer || state.confirmer)) state.approvals.reviewer = state.reviewer || state.confirmer || DEFAULT_SIGNERS.reviewer;
-        if (!state.approvals.approver && state.approver) state.approvals.approver = state.approver || DEFAULT_SIGNERS.approver;
+        if (!state.approvals.writer && (state.writer || state.inspector || state.monitorName || state.handler)) {
+          state.approvals.writer = state.writer || state.inspector || state.monitorName || state.handler;
+        }
+        if (!state.approvals.reviewer && (state.reviewer || state.confirmer)) state.approvals.reviewer = state.reviewer || state.confirmer;
+        if (!state.approvals.approver && state.approver) state.approvals.approver = state.approver;
       }
       if (changed && typeof onApplied === 'function') onApplied(state);
       return changed;

@@ -11,6 +11,25 @@
    거의 모든 화면에 실려서 여기 한 줄로 전체를 고친다. */
 [hidden] { display: none !important; }
 
+/* 작성자/검토자/승인자류 입력칸은 dkj-approval.js 의 attachStaffPickers() 가
+   <input>을 직원 선택 <select>로 바꿔치기한다. 그 전환이 일어나기 전(스크립트가
+   아직 파싱·실행되지 않은 짧은 순간) 화면엔 빈 텍스트칸이 먼저 보였다가 갑자기
+   드롭다운으로 바뀌어서, 그 사이에 뭔가 입력하려던 사람이 헷갈리거나 입력을
+   잃을 수 있었다. 전환 전까지는 안 보이게 해서 그 깜빡임을 없앤다 — 바뀐 뒤에는
+   <select>가 되므로(더 이상 input#id 에 안 걸림) 자동으로 다시 보인다.
+   dkj-approval.js 의 attachStaffPickers() 안 explicitIds 목록과 반드시 맞춰 둘 것. */
+input#writer, input#reviewer, input#approver, input#inspector, input#confirmer,
+input#monitorName, input#owner, input#containmentOwner, input#correctiveOwner,
+input#actionOwner, input#verifier, input#drillWriter, input#drillReviewer,
+input#drillCorrectiveOwner, input#leader, input#evaluator, input#chair,
+input#chairperson, input#reviewOwner, input#cultureOwner, input#trainer,
+input#worker, input#operator, input#contact, input#arcWriter, input#inspectorName,
+input#confirmerName, input#workerName, input#driller, input#auditor, input#cleaner,
+input#driver, input#immediateOwner, input#actionManager, input#personInCharge,
+input#checkPerson, input#workPerson, input#author {
+  visibility: hidden;
+}
+
 :root {
   /* 농협 브랜드 — 심볼 노랑 + 워드마크 녹색 */
   --nh-green: #009a44;

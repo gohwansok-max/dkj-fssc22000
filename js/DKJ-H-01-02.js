@@ -32,18 +32,18 @@
       feSize: '1.5',
       susSize: '2.0',
       weightClass: 'fresh500',
-      monitorName: '이다은',
+      monitorName: '',
       timing: '시작전',
       rows: [emptyRow(), emptyRow(), emptyRow()],
       deviation: '',
       corrective: '',
-      confirmer: '권화선',
-      approver: '최민재',
+      confirmer: '',
+      approver: '',
       remark: '',
       // 전자결재 — 모니터링 담당(작성)·확인자(검토)·승인자(승인) 3단. 정본 인쇄
       // 서명란(signBox)도 작성/검토/승인 3칸이라 여기서도 맞춘다. audit 는 여기서
       // 만들어 둬야 저장 훅이 같은 배열에 이어 붙는다(없으면 저장할 때마다 이력이 초기화된다).
-      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       audit: [],
       locked: false,

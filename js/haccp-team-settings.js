@@ -30,13 +30,13 @@
       revision: 'R1',
       effectiveDate: today(),
       nextReviewDate: '',
-      writer: '이다은',
-      reviewer: '권화선',
-      approver: '최민재',
+      writer: '',
+      reviewer: '',
+      approver: '',
       changeReason: '신규 제정',
       riskSettings: defaultRiskSettings(),
       samplingSites: [],
-      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' },
+      approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       audit: [],
       locked: false,
@@ -200,10 +200,11 @@
     var base = formState();
     current = {
       title: 'HACCP팀 위험·환경 설정', docDate: today(), revision: nextRevision(base.revision), effectiveDate: today(), nextReviewDate: '',
-      writer: '이다은', reviewer: '권화선', approver: '최민재',
+      writer: '', reviewer: '', approver: '',
       changeReason: '개정본 작성', riskSettings: clone(base.riskSettings), samplingSites: clone(base.samplingSites),
-      approvals: { writer: '이다은', reviewer: '권화선', approver: '최민재' }, signoff: {}, audit: [], locked: false, status: 'draft'
+      approvals: { writer: '', reviewer: '', approver: '' }, signoff: {}, audit: [], locked: false, status: 'draft'
     };
+    if (window.DkjUtil) window.DkjUtil.autoFillUser(current, ['writer']);
     renderForm();
     if (approvalUi) approvalUi.render();
   }
@@ -243,6 +244,8 @@
 
   function init() {
     current = allRecords()[0] || blankState();
+    // 작성자는 로그인한 사람 이름으로 채운다(추적성) — 빈 칸일 때만.
+    if (window.DkjUtil) window.DkjUtil.autoFillUser(current, ['writer']);
     renderForm();
     bindEvents();
     mountApproval();
