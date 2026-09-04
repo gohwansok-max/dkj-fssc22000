@@ -142,6 +142,11 @@
       scope: root,
       updateViaCache: 'none'
     }).then(function (reg) {
+      // index.html 에만 있던 "화면 진입 즉시 최신 서비스워커 확인" 스크립트를 여기로 옮겨
+      // 모든 화면에 적용한다 — records-archive.html 처럼 그 스크립트가 없던 화면은
+      // watchForUpdates() 의 10분 주기(그나마도 online/visibilitychange 이벤트가 실제로
+      // 떠야 도는)만 믿고 있어서, 새로고침 한 번으로는 새 버전을 못 받는 경우가 있었다.
+      reg.update()['catch'](function () { /* 오프라인이면 조용히 넘어간다 */ });
       watchForUpdates(reg);
 
       // 이미 대기 중인 새 서비스워커가 있는 경우 즉시 알림
