@@ -247,10 +247,30 @@
     return dl;
   }
 
+  /** 저장(계속 수정 가능)과 작성완료(잠금·이후 새 이력으로만 수정) 버튼이
+      나란히 있으면 처음 쓰는 사람은 뭘 눌러야 할지 헷갈릴 수 있다. title
+      툴팁은 태블릿(터치)에서 hover가 없어 안 보이므로, 항상 보이는 짧은
+      문구를 버튼 바로 아래 붙인다. */
+  function explainSaveButtons() {
+    var save = document.getElementById('btnSave');
+    var lock = document.getElementById('btnLock');
+    if (!save || !lock) return;
+    var toolbar = save.closest('.dkj-form-toolbar');
+    if (!toolbar || toolbar.querySelector('.dkj-save-hint')) return;
+    var hint = document.createElement('div');
+    hint.className = 'dkj-save-hint';
+    hint.textContent = '저장 = 계속 수정 가능 · 작성완료 = 잠금(이후 수정은 새 이력으로만 가능)';
+    toolbar.appendChild(hint);
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', ensureStaffDatalist);
+    document.addEventListener('DOMContentLoaded', function () {
+      ensureStaffDatalist();
+      explainSaveButtons();
+    });
   } else {
     ensureStaffDatalist();
+    explainSaveButtons();
   }
 
   global.esc = esc;

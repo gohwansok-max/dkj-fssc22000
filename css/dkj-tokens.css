@@ -30,6 +30,16 @@ input#checkPerson, input#workPerson, input#author {
   visibility: hidden;
 }
 
+/* 저장/작성완료 버튼 설명 — js/dkj-util.js 의 explainSaveButtons() 가 붙인다.
+   flex-basis:100% 로 툴바 안에서 줄바꿈해 버튼 배치는 그대로 두고 아래에 한 줄
+   추가한다. */
+.dkj-save-hint {
+  flex-basis: 100%;
+  font-size: 11.5px;
+  color: #667085;
+  padding: 0 2px;
+}
+
 :root {
   /* 농협 브랜드 — 심볼 노랑 + 워드마크 녹색 */
   --nh-green: #009a44;
