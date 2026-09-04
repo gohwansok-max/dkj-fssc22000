@@ -12,8 +12,11 @@ _mdr_name_tmp.txt
 *.docx
 *.pptx
 
-# 에디터/OS
-.claude/
+# 에디터/OS — 단, .claude/skills/ 는 예외(저장소에 커밋해 다음 세션·다음 사업장에서도
+# 쓸 수 있어야 하는 프로젝트 스킬이 들어간다. 로컬 설정/권한 같은 나머지 .claude/ 는 계속 무시)
+.claude/*
+!.claude/skills/
+!.claude/skills/**
 desktop.ini
 Thumbs.db
 .DS_Store

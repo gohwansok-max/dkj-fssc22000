@@ -16,6 +16,16 @@
 1호 사업장입니다. 그래서 옛 경로(`tenants/dkj/...`)나 코엔에프 흔적이 가끔 남아 있는데,
 발견하면 이 저장소 기준으로 고치세요.
 
+**단, 지금은 관계가 뒤집혔습니다(2026-09-04).** `smart-haccp-system`은 이후 별도로
+발전이 멈춘 단순 문서 포털(로그인·서식엔진·클라우드 동기화 없음)로 남았고, 이
+저장소가 서식 74종·5개 엔진·Firebase 동기화·계정 체계까지 갖추며 훨씬 앞서
+발전했습니다. **다음 농협 사업장을 새로 찍어낼 때 실제 베이스는 `smart-haccp-system`이
+아니라 지금의 이 저장소입니다.** 새 사업장을 만들자는 요청("OO농협꺼 만들자" 등)이
+오면 `.claude/skills/new-tenant-scaffold/SKILL.md`와 `docs/NEW_TENANT_HARNESS.md`를
+먼저 확인하세요 — 특히 하네스 문서에는 동김제 배포 중 실제로 며칠씩 걸렸던 버그들
+(RTDB 스키마 버전 방치, 빈 배열 프루닝, 삭제-병합 충돌, 서비스워커 캐시, 로그인
+레이스 등)과 다음 사업장에서 반드시 확인해야 할 배포 전 체크리스트가 정리돼 있습니다.
+
 **저장소는 비공개입니다.** `js/dkj-firebase-config.js` 에 실제 Firebase 자격증명이 들어
 있고 `data/` 에는 사업장 문서 정보가 있습니다. 공개 전환을 제안하지 마세요.
 
@@ -73,7 +83,8 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 
 새 화면들은 2026-08-16에 마누스(다른 AI 에이전트)가 PR #26~#35로 main에 직접 merge했습니다.
 각 화면의 배경·운영 절차는 `docs/*.md`(특히 `RTDB_V2_MIGRATION.md`, `ENTRY_LOGIN_AND_ROLE_SETUP.md`,
-`QUALITY_ALERT_AUTOMATION.md`, `GOOGLE_DRIVE_DOCUMENT_LIBRARY.md`, `NEXT_STEPS_AFTER_V2.md`)에
+`QUALITY_ALERT_AUTOMATION.md`, `GOOGLE_DRIVE_DOCUMENT_LIBRARY.md`, `NEXT_STEPS_AFTER_V2.md`,
+`NEW_TENANT_HARNESS.md` — 다른 농협 사업장을 새로 찍어낼 때 필요한 체크리스트)에
 더 자세히 있습니다. `docs/`는 배포 제외 대상이라 소스에만 있습니다.
 
 ## AI 도우미 · 불편접수
