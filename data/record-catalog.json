@@ -208,7 +208,8 @@
         "DKJ-S-02-08",
         "DKJ-S-02-09",
         "DKJ-S-02-20",
-        "DKJ-S-02-31"
+        "DKJ-S-02-31",
+        "DKJ-S-02-32"
       ]
     },
     {
@@ -1257,6 +1258,15 @@
       "htmlReady": true,
       "htmlPath": "records/DKJ-F-053.html",
       "mdrCode": "DKJ-F-053"
+    },
+    {
+      "code": "DKJ-S-02-32",
+      "title": "음용수 잔류염소 점검일지",
+      "period": "매일",
+      "category": "daily",
+      "role": "생산팀",
+      "file": "records/DKJ-S-02-32.html",
+      "summary": "취수구·배관말단 잔류염소 측정, 기준(0.2mg/L) 미달 시 재염소 투입 조치"
     }
   ],
   "mdrRev": "Rev11"

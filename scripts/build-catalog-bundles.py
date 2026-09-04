@@ -42,10 +42,13 @@ def main():
         # validate
         json.loads(raw)
         out = JS / out_name
-        out.write_text(
-            f"window.{global_name}={raw};\n",
-            encoding="utf-8",
-        )
+        # 기존 번들 파일이 CRLF로 커밋돼 있으면 그대로 유지한다 — 안 그러면
+        # Path.write_text() 가 기본으로 LF만 쓰기 때문에, 내용은 안 바뀌어도
+        # 매번 다시 빌드할 때마다 파일 전체가 diff에 걸려 나온다(실제로
+        # menu-catalog.bundle.js/record-catalog.bundle.js에서 발생했다).
+        newline = "\r\n" if out.is_file() and b"\r\n" in out.read_bytes() else "\n"
+        with out.open("w", encoding="utf-8", newline=newline) as f:
+            f.write(f"window.{global_name}={raw};\n")
         print("OK", out_name, "->", global_name)
 
 
