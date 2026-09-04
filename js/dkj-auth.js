@@ -419,6 +419,22 @@
     var dir = getDirectory();
     var localUser = dir[raw] || dir[id] || dir[raw.toLowerCase()];
 
+    /* 이 기기가 방금 캐시 삭제 등으로 로컬 디렉터리를 잃었으면, 여기 dir 는 아직
+     * DEFAULT_DIRECTORY 의 하드코딩된 기본값(4343 비밀번호="4343")뿐이다. 진짜 최신
+     * 비밀번호 해시는 loadUsers() 가 system/users 에서 백그라운드로 받아오는데, 로그인
+     * 화면은 그걸 기다리지 않고 바로 뜬다(느린 회선 배려) — 그래서 화면이 뜨자마자
+     * 바로 로그인을 시도하면 그 백그라운드 동기화가 아직 안 끝나 있을 수 있다. 그 순간
+     * 비밀번호 대조가 실패하면 곧장 2번(옛 Firebase 인증) 경로로 새 버려, 실제로는
+     * 정식 로컬 계정인데도 깨진 레거시 인증을 타서 이후 요청마다 401이 나는 원인이 됐다.
+     * 그래서 로컬 대조가 처음에 실패하면, 폴백으로 쓰지 말고 클라우드에서 한 번 더
+     * 받아와서 다시 대조해 본다. */
+    if (!(localUser && await passwordMatches(localUser, password)) && configured()) {
+      try {
+        dir = await loadUsers();
+        localUser = dir[raw] || dir[id] || dir[raw.toLowerCase()];
+      } catch (e) { /* 오프라인이면 기존 로컬 값으로 계속 진행 */ }
+    }
+
     // 1. 로컬(=시스템 설정에서 등록한) 사용자 디렉터리로 로그인한다 — 이게 정식 경로다.
     if (localUser && await passwordMatches(localUser, password)) {
       var activeId = localUser.empId || id;
