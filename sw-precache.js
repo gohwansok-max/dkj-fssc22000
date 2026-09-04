@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-d5749bc26a14';
+self.DKJ_SW_VERSION = 'v1-50b6c64b63f8';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -29,6 +29,7 @@ self.DKJ_PRECACHE = [
   './data/doc-assets.json',
   './data/doc-catalog.json',
   './data/drive-document-manifest.json',
+  './data/fr-form-specs/DKJ-S-02-32.json',
   './data/fr-form-specs/FR-001.json',
   './data/fr-form-specs/FR-002.json',
   './data/fr-form-specs/FR-003.json',
@@ -111,6 +112,7 @@ self.DKJ_PRECACHE = [
   './data/print-templates/DKJ-S-02-12.json',
   './data/print-templates/DKJ-S-02-18.json',
   './data/print-templates/DKJ-S-02-29.json',
+  './data/print-templates/DKJ-S-02-32.json',
   './data/print-templates/DKJ-STORE-01.json',
   './data/print-templates/FR-001.json',
   './data/print-templates/FR-002.json',
@@ -203,6 +205,7 @@ self.DKJ_PRECACHE = [
   './js/DKJ-S-02-20.js',
   './js/DKJ-S-02-29.js',
   './js/DKJ-S-02-31.js',
+  './js/DKJ-S-02-32.js',
   './js/DKJ-STORE-01.js',
   './js/FR-001.js',
   './js/FR-002.js',
@@ -359,6 +362,7 @@ self.DKJ_PRECACHE = [
   './records/DKJ-S-02-20.html',
   './records/DKJ-S-02-29.html',
   './records/DKJ-S-02-31.html',
+  './records/DKJ-S-02-32.html',
   './records/DKJ-STORE-01.html',
   './records/FR-001.html',
   './records/FR-002.html',

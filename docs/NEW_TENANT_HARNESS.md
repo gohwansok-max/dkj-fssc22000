@@ -226,17 +226,24 @@ CRLF라 실제로 이 문제를 겪고 고쳤다). `layout`처럼 엔진만으�
 일부러 `TODO-CHOOSE-LAYOUT` 같은 명백히 틀린 값을 넣어 반드시 사람이 고치게
 한다. 사용법은 PART 5-2와 스크립트 자체의 `--help`.
 
+**`build-catalog-bundles.py` 줄바꿈 문제 — 고침 (2026-09-04)**: 일부 번들
+(`menu-catalog.bundle.js`, `record-catalog.bundle.js`)이 원본과 다른 줄바꿈
+방식(CRLF/LF)으로 다시 써져서, 실제 등록 없이 빌드만 다시 돌려도 diff가
+수천 줄씩 나오던 문제가 있었다. `new-record-catalog-add.py`로 실제 서식 하나
+(`DKJ-S-02-32`)를 등록해보는 과정에서 다시 발생해 그 자리에서 고쳤다 — 기존
+번들 파일이 있으면 그 줄바꿈 방식을 그대로 유지하도록 수정.
+
 **아직 안 된 일** (2026-09-04 기준, 우선순위 순):
 1. 회사명·로고·Firebase 설정처럼 "값만 바꾸면 되는" 항목을 모아 설정 파일 하나로
    빼내는 리팩터(지금은 여러 파일에 흩어져 있음).
 2. `data/<엔진>-form-specs/<코드>.json`의 `fields`/`sections` 자체를 문서에서
    반자동으로 뽑아내는 것 — 이건 판단 작업이라 완전 자동화보다는, Claude가 문서를
    읽고 초안을 빠르게 만드는 워크플로를 다듬는 쪽이 현실적이다(PART 5).
-3. `python scripts/build-catalog-bundles.py`가 일부 번들 파일(`menu-catalog.bundle.js`,
-   `record-catalog.bundle.js`에서 확인됨)을 원본과 다른 줄바꿈 방식으로 다시 써서,
-   실제 등록 없이 빌드만 다시 돌려도 diff가 수천 줄씩 나오는 문제가 있다 — 위
-   `new-record-catalog-add.py`에서 고친 것과 같은 원인(CRLF/LF)일 가능성이 높다.
-   아직 고치지 않음.
+3. `js/<코드>.js` 셸(부트 JS)과 `records/<코드>.html`도 스펙에서 자동 생성하는
+   게 다음 자동화 후보다 — 단, `scripts/gen-fr-forms.py`의 기존 `render_html`/
+   `render_js`는 로그인·동기화·전자결재·PWA가 빠진 옛날 버전이라 그대로 재사용
+   하면 안 된다(PART 5-2 참고). 새로 만들려면 지금 실제 배포된 서식 HTML을
+   기준으로 다시 짜야 한다.
 
 ---
 
@@ -278,25 +285,35 @@ CRLF라 실제로 이 문제를 겪고 고쳤다). `layout`처럼 엔진만으�
 가장 빠르다(`data/record-catalog.json`에서 `category`/`period`로 비슷한 걸
 찾는다).
 
-### 5-2. 서식 하나 추가 시 실제로 손대야 하는 파일 (자동화 전 기준)
+### 5-2. 서식 하나 추가 시 실제로 손대야 하는 파일
+
+DKJ-S-02-32(음용수 잔류염소 점검일지)를 실제로 fr-form 엔진으로 처음부터
+끝까지 만들어서 확인한 절차다(2026-09-04). 헤드리스 브라우저로 폼 렌더링 →
+필드 입력 → 저장 → 기록보관함 표시까지 실제로 검증했다.
 
 1. `data/<엔진>-form-specs/<코드>.json` — 문서의 항목을 `fields`/`sections`로
-   옮긴다. 기존 서식 하나를 복사해서 `code`/`title`/`fields`만 바꾸는 게 제일
-   빠르다.
-2. `records/<코드>.html` — 기존 같은 엔진 서식의 HTML을 복사하고 스크립트
-   태그의 코드만 바꾼다(엔진이 `data-code`로 스펙을 찾아 읽는 구조라 HTML
-   자체는 서식마다 거의 동일).
-3. `data/record-catalog.json` — 서식 목록에 항목 추가(`code`/`title`/`period`/
-   `category`/`role`/`file`/`summary`).
-4. `data/console-forms.json` — `groups[].items[]`에 등록. `check.mode`는
-   5-1의 엔진과 거의 1:1 대응한다: `fr-form`→`perDay`, `ledger-form`→`dayRow`,
-   `matrix-form`→`dayColumn`, `ox-form`→`perDay`, `report-form`→`event`.
-5. `data/mdr-catalog.json` — 문서관리대장에 문서번호·개정번호 등록(**문서
-   제목·개정번호의 정본**이므로 서식 제목은 지어내지 말고 여기 기준으로).
-6. `data/print-templates/<코드>.json` — 인쇄 정본 레이아웃(문서번호·제정일·
-   조직명). 화면 서식과 별개라 빠뜨리기 쉽다.
-7. `python scripts/build-catalog-bundles.py` — 위 JSON들을 고쳤으면 반드시
+   옮긴다. **`print` 블록도 이 파일 안에 통째로 들어간다**(레이아웃뿐 아니라
+   `metaFields`/`rows`/`sections`까지) — 기존 서식(예: `FR-042.json`)을 통째로
+   복사해서 `code`/`title`/`fields`/`print`만 바꾸는 게 제일 빠르고 안전하다.
+2. `js/<코드>.js` — **놓치기 쉬운 필수 파일.** `DkjFrForm.mount({...})`
+   하나만 호출하는데, 그 인자는 1번 스펙과 사실상 같은 내용(코드/제목/
+   `pattern:"fr"`/필드/섹션/`print`)을 다시 담는다. 기존 서식의 `js/<코드>.js`를
+   복사해서 내용을 1번 스펙과 맞추면 된다.
+3. `records/<코드>.html` — **`scripts/gen-fr-forms.py`의 `render_html()`/
+   `render_js()`를 쓰지 말 것.** 이 함수들은 fr-form 초기 버전용으로, 지금
+   실제 배포된 서식들이 갖고 있는 로그인(`dkj-auth.js`)·클라우드 동기화
+   (`dkj-cloud-sync.js`)·전자결재 패널(`dkj-approval.js`)·PWA·다국어·접근성
+   스크립트, 캐시 버전(`?v=`) 쿼리스트링을 전혀 넣지 않는다 — 그대로 쓰면
+   로그인도 동기화도 안 되는 반쪽짜리 페이지가 나온다. **반드시 지금 실제로
+   쓰이고 있는 서식(예: `records/FR-042.html`) 하나를 복사해서 코드·제목·
+   필드만 바꾼다.**
+4. 카탈로그 4종 등록 — `python scripts/new-record-catalog-add.py --apply`
+   (PART 3 참고). `print-templates/<코드>.json`은 이 스크립트가 기본형만
+   만드므로, 1번 스펙의 `print` 블록(`metaFields` 등)과 맞춰 내용을 보강한다.
+5. `python scripts/build-catalog-bundles.py` — 위 JSON들을 고쳤으면 반드시
    실행. 화면은 `js/*.bundle.js`를 읽지 JSON을 직접 안 읽는다.
+6. `python scripts/build-sw-precache.py` — 새 HTML/JS/JSON 파일을 오프라인
+   캐시 목록에 추가한다.
 
 ### 5-3. 심사 증거로 쓰이는 기록이라는 것을 잊지 말 것
 

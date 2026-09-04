@@ -105,6 +105,16 @@
             "mode": "perDay",
             "dateField": "workDate"
           }
+        },
+        {
+          "code": "DKJ-S-02-32",
+          "title": "음용수 잔류염소 점검일지",
+          "priority": "normal",
+          "href": "records/DKJ-S-02-32.html",
+          "check": {
+            "mode": "perDay",
+            "dateField": "docDate"
+          }
         }
       ]
     },
