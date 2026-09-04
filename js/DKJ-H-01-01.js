@@ -428,6 +428,10 @@
   function save(lock) {
     var err = validate();
     if (err) { alert(err); return; }
+    // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 화면에 "저장됨"이
+    // 잠깐 떴다가 곧이어 그 타이머가 뒤늦게 "임시저장"으로 덮어써서, 실제로는
+    // 정상 저장됐는데도 작업자가 "임시저장만 된 건가?" 하고 헷갈리게 된다.
+    clearTimeout(draftTimer);
     state.locked = !!lock;
     var rec = DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
       id: editingId || undefined,
