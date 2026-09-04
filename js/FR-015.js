@@ -235,6 +235,9 @@
     var err = validate(data);
     if (err) { alert(err); return; }
     if (editingId) data.id = editingId;
+    // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "작성완료"가 잠깐
+    // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
+    clearTimeout(draftTimer);
     data.locked = !!lock;
     // 기록보관함·엑셀의 '기록제목' 칸에 쓰인다. 없으면 목록에서 어느 부적합 건인지 구분이 안 된다.
     data.title = '부적합 원부자재 처리' +
