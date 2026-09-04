@@ -175,8 +175,15 @@
       if (!isSyncKey(key)) continue;
       cloudKeyCount++;
       var row = cloud[encodedKey];
-      if (!row || !Array.isArray(row.value)) continue;
       var localVal = parse(localStorage.getItem(key)) || [];
+      if (!row || !Array.isArray(row.value)) {
+        // 클라우드 쪽 value 가 배열이 아니다 — 예전 버그로 빈 배열([])이 올라갔다가
+        // RTDB 가 빈 배열 속성 자체를 지워버린 경우가 여기 걸린다. 이 상태로 두면
+        // 이 서식은 어느 기기가 동기화를 돌려도 영원히 건너뛰기만 해서 스스로 못 고친다.
+        // 이 기기에 유효한 기록이 있으면 그걸로 덮어써 복구한다.
+        if (localVal.length) { await legacyPushKey(key); pushedUpdated++; }
+        continue;
+      }
       var merged = mergeRecords(localVal, row.value);
       if (!same(merged, localVal)) { writeLocal(key, merged); touched++; }
       if (!same(merged, row.value)) { await legacyPushKey(key); pushedUpdated++; }
