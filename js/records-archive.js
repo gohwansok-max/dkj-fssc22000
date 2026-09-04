@@ -177,9 +177,15 @@
       }
       btn.disabled = true;
       btn.textContent = '⏳ 동기화 중…';
-      window.DkjCloudSync.sync().then(function () {
-        btn.textContent = '✅ 확인 완료';
-        setTimeout(function () { btn.textContent = '🔄 지금 동기화'; }, 2500);
+      window.DkjCloudSync.sync().then(function (stats) {
+        // "확인 완료"라고만 뜨면 실제로 뭘 받았는지 알 길이 없어서 지연인지 진짜
+        // 안 되는 건지 구분이 안 됐다 — 클라우드에 서식이 몇 종 있었고 그중 몇 건을
+        // 새로 받았는지(pulled) 숫자로 보여준다.
+        var detail = stats
+          ? ' (클라우드 ' + (stats.cloudKeyCount || 0) + '종 · 새로 받음 ' + (stats.pulled || 0) + '건)'
+          : '';
+        btn.textContent = '✅ 확인 완료' + detail;
+        setTimeout(function () { btn.textContent = '🔄 지금 동기화'; }, 6000);
       }).catch(function (err) {
         // 실패 이유를 화면에 그대로 보여준다 — "실패"라고만 뜨면 원인을 알 방법이
         // 없어서 사용자도 나도 다음 대응(네트워크 문제인지, 로그인 문제인지)을
