@@ -209,23 +209,34 @@ Firebase·배포·실기기 검증(PART 1, PART 3)에 쓰는 게 현실적인 �
 | 회사명("동김제농협 산지유통센터") | 100개 넘는 파일 (`.html`/`.js`/`.json`) — 헤더 워드마크, 페이지 타이틀, 문서 서식 정본, 서식별 JS 안의 "OO 계약농가" 류 문구 등 | **자동화됨** — 같은 스크립트가 `--org-full`/`--org-mid`/`--org-short` 세 단계로 치환. `index.html` 헤더는 조합명과 시설유형("산지유통센터")이 별도 태그라 시설유형이 다르면 직접 고쳐야 함(스크립트 실행 결과에 안내됨). CLAUDE.md·docs/**는 의도적으로 건드리지 않음 |
 | 브랜드 로고 | `assets/brand/dkj-icon.svg`, `dkj-icon-maskable.svg`, `nh-symbol.svg`, `nh-symbol-green.svg` | 새 사업장 로고로 교체 (nh-symbol은 농협 공통 심볼이라 재사용 가능할 수 있음) |
 | 문서번호 프리픽스 (`DKJ-*`) | `data/record-catalog.json`, `data/mdr-catalog.json`, `data/print-templates/*.json`, `records/DKJ-*.html`, 다수 `js/DKJ-*.js` | 서식 코드 체계 전체가 `DKJ-` 프리픽스. 완전히 새 프리픽스로 바꾸려면 74개 서식 코드·파일명·사양 JSON을 전부 리네임해야 하는 큰 작업 — 처음엔 `DKJ-`를 유지하고 회사명/로고만 바꾸는 것도 현실적 선택지 |
-| 사업장 고유 데이터 (14개 카탈로그) | `data/*.json` 전체 (`console-forms`, `doc-catalog`, `menu-catalog`, `mdr-catalog`, `staff-roles`, `products`, `production-master`, `process-line`, `drive-document-manifest`, `asset-sources` 등) | 문서 목록·직원 명단·제품 마스터 등 전부 새 사업장 내용으로 교체 필요. 고친 뒤 `python scripts/build-catalog-bundles.py` 필수 |
+| 사업장 고유 데이터 (14개 카탈로그) | `data/*.json` 전체 (`console-forms`, `doc-catalog`, `menu-catalog`, `mdr-catalog`, `staff-roles`, `products`, `production-master`, `process-line`, `drive-document-manifest`, `asset-sources` 등) | 문서 목록·직원 명단·제품 마스터 등 전부 새 사업장 내용으로 교체 필요. 그중 서식 하나를 새로 추가하는 등록 자체는 **자동화됨** — `python scripts/new-record-catalog-add.py --apply` (PART 5 참고). 고친 뒤 `python scripts/build-catalog-bundles.py` 필수 |
 | GitHub Pages 커스텀 도메인 | 저장소 설정(Repo Settings → Pages) — 저장소 안에는 CNAME 파일이 없음 | 새 사업장용 도메인을 새로 연결 |
 | Google Drive 정본 문서 폴더 | `official-documents.html`, `data/drive-document-manifest.json` | 새 사업장의 Drive 폴더로 교체, `scripts/inventory_drive_tree.py` → `build_drive_document_manifest.py` 재실행 |
 | Telegram 봇/불편접수 | `js/dkj-telegram-config.js`, RTDB `system/settings/telegram` | 새 사업장의 텔레그램 Bot Token/Chat ID |
 
+**카탈로그 4종 자동 등록 — 자동화 완료 (2026-09-04)**: `scripts/new-record-catalog-add.py`가
+`record-catalog.json`(`records[]` + `categories[].codes`) / `console-forms.json`
+(`groups[].forms[]`, 엔진에 따라 `check.mode` 자동 결정) / `mdr-catalog.json`
+(`entries[]`, `workflowStatus: 초안` · `status: 검토대기`로 시작 — 사람이 확인하기
+전엔 "완료/운영중"처럼 보이면 안 되므로) / `print-templates/<코드>.json` 4곳에
+한 번에 등록한다. 기본은 미리보기만 하고, `--apply`로 실제 적용. 이미 등록된
+코드는 자동으로 막는다. **원본 파일의 줄바꿈 방식(CRLF/LF)을 그대로 유지한다** —
+안 그러면 한 줄만 고쳐도 파일 전체가 diff에 걸려 나온다(`mdr-catalog.json`이
+CRLF라 실제로 이 문제를 겪고 고쳤다). `layout`처럼 엔진만으로 못 정하는 값은
+일부러 `TODO-CHOOSE-LAYOUT` 같은 명백히 틀린 값을 넣어 반드시 사람이 고치게
+한다. 사용법은 PART 5-2와 스크립트 자체의 `--help`.
+
 **아직 안 된 일** (2026-09-04 기준, 우선순위 순):
-1. **카탈로그 4종(`record-catalog.json`/`console-forms.json`/`mdr-catalog.json`/
-   `print-templates/*.json`) 자동 등록 스크립트.** 지금은 PART 5의 매핑 작업이
-   끝난 뒤 이 4개 파일에 손으로 항목을 추가해야 한다 — 다음 자동화 1순위.
-   `console-forms.json`은 `groups[].items[]`에 서식별 `check.mode`(dayColumn/
-   dayRow/perDay/perPeriod/event)를 지정하는 구조라, 어떤 엔진을 골랐는지에 따라
-   기계적으로 값이 정해진다(PART 5 표 참고) — 자동화 난이도는 낮다.
-2. 회사명·로고·Firebase 설정처럼 "값만 바꾸면 되는" 항목을 모아 설정 파일 하나로
+1. 회사명·로고·Firebase 설정처럼 "값만 바꾸면 되는" 항목을 모아 설정 파일 하나로
    빼내는 리팩터(지금은 여러 파일에 흩어져 있음).
-3. `.claude/skills/new-tenant-scaffold/`가 지금은 사람이 순서대로 밟는 안내
-   위주다 — 1번이 되면 이 스킬이 실제로 "문서 하나 던지면 서식 하나 나온다"에
-   가까워진다.
+2. `data/<엔진>-form-specs/<코드>.json`의 `fields`/`sections` 자체를 문서에서
+   반자동으로 뽑아내는 것 — 이건 판단 작업이라 완전 자동화보다는, Claude가 문서를
+   읽고 초안을 빠르게 만드는 워크플로를 다듬는 쪽이 현실적이다(PART 5).
+3. `python scripts/build-catalog-bundles.py`가 일부 번들 파일(`menu-catalog.bundle.js`,
+   `record-catalog.bundle.js`에서 확인됨)을 원본과 다른 줄바꿈 방식으로 다시 써서,
+   실제 등록 없이 빌드만 다시 돌려도 diff가 수천 줄씩 나오는 문제가 있다 — 위
+   `new-record-catalog-add.py`에서 고친 것과 같은 원인(CRLF/LF)일 가능성이 높다.
+   아직 고치지 않음.
 
 ---
 

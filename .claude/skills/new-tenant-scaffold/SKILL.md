@@ -18,7 +18,8 @@ description: >
 1. **오프라인 문서를 받아서 서식(기록양식)으로 옮기는 판단 작업** — 압도적으로
    오래 걸리고, 사람이 아니라 이 세션(Claude)이 직접 해야 하는 부분. 여기가
    진짜 병목이다.
-2. 카탈로그 JSON 4종에 새 서식 등록 — 기계적이지만 아직 스크립트 없음(수작업).
+2. 카탈로그 JSON 4종에 새 서식 등록 — `scripts/new-record-catalog-add.py`로
+   자동화됨.
 3. 브랜딩(회사명·사번) 치환 — `scripts/new-tenant-rename.py`로 이미 자동화됨.
 4. Firebase 신규 프로젝트·배포·검증 — 체크리스트로 정리돼 있음, 콘솔 클릭은
    사람이 직접 해야 함.
@@ -37,11 +38,28 @@ description: >
    (`fr-form`/`ledger-form`/`matrix-form`/`ox-form`/`report-form`, 또는 예외적으로
    전용 스크립트)에 맞는지 정한다. 애매하면 동김제 74종 중 비슷한 서식의 스펙
    JSON을 찾아 복사해서 시작하는 게 가장 빠르다.
-3. PART 5-2의 7단계(스펙 JSON → HTML 껍데기 → record-catalog.json →
-   console-forms.json → mdr-catalog.json → print-templates → 번들 재생성)를
-   서식마다 반복한다. **문서번호·Rev·작성자/검토자/승인자·한계기준 이탈 시
-   시정조치 필수화 같은 심사 필수 요소를 빠뜨리지 않는다**(PART 5-3, 이 저장소는
-   `quality-record-app-rules` 규칙이 적용되는 A등급 시스템이다).
+3. PART 5-2의 절차를 서식마다 반복한다:
+   a. `data/<엔진>-form-specs/<코드>.json` — 문서의 항목을 직접 옮긴다(판단
+      작업, 자동화 대상 아님). 비슷한 기존 서식 스펙을 복사해서 시작하는 게
+      빠르다.
+   b. `records/<코드>.html` — 같은 엔진의 기존 서식 HTML을 복사해 코드만 바꾼다.
+   c. 카탈로그 4종 등록:
+      ```
+      python scripts/new-record-catalog-add.py --code <코드> --title <제목> \
+          --engine <fr|ledger|matrix|ox|report> --console-group <daily|weekly|event|annual> \
+          --category <record-catalog.json의 기존 category id> --role <담당> \
+          --period <주기 텍스트> --summary <설명> --subtitle <인쇄 정본 부제>
+      ```
+      먼저 `--apply` 없이 미리보기로 확인하고, 이상 없으면 `--apply`. `mdr-catalog.json`
+      항목은 일부러 `초안`/`검토대기` 상태로 시작한다 — 문서관리대장이 정본이므로
+      실제 문서번호·개정번호·심사 상태를 확인한 뒤 사람이 최종 값으로 바꿔야 한다.
+      `print-templates/<코드>.json`의 `layout`이 `TODO-CHOOSE-LAYOUT`으로 나오면
+      스크립트가 출력하는 알려진 layout 값 중에서 직접 고른다.
+   d. `python scripts/build-catalog-bundles.py` — 반드시 실행.
+
+   **문서번호·Rev·작성자/검토자/승인자·한계기준 이탈 시 시정조치 필수화 같은
+   심사 필수 요소를 빠뜨리지 않는다**(PART 5-3, 이 저장소는 `quality-record-app-rules`
+   규칙이 적용되는 A등급 시스템이다).
 4. 서식이 다 옮겨지면 실제 브라우저(`python -m http.server` 로컬 서버)로 하나씩
    열어서 저장·기록보관함 반영까지 확인한다 — 코드만 보고 됐다고 판단하지 않는다
    (PART 4의 교훈).
@@ -86,8 +104,10 @@ description: >
 
 새 사업장을 하나 찍어낼 때마다 겪는 새로운 문제는 `docs/NEW_TENANT_HARNESS.md`에
 PART 2 형식(증상→원인→고침→교훈)으로 추가하고, 자동화할 수 있게 된 단계는 이
-파일과 PART 3 "아직 안 된 일"을 갱신한다. 다음 자동화 1순위는 카탈로그 4종 등록
-스크립트다(PART 3 참고) — 이게 되면 Day 1의 반복 작업이 크게 줄어든다. 이 스킬과
+파일과 PART 3 "아직 안 된 일"을 갱신한다. 카탈로그 4종 등록은
+`scripts/new-record-catalog-add.py`로 자동화됐다(PART 3) — 남은 병목은 서식
+스펙(`fields`/`sections`) 자체를 문서에서 옮기는 판단 작업이니, 다음에 실제로
+서식을 여러 개 옮기게 되면 그 워크플로를 더 빠르게 하는 쪽을 우선한다. 이 스킬과
 하네스 문서는 정본을 `dkj-fssc22000`에 두고, 다음 사업장 저장소들은 필요할 때
 이 문서를 참고만 하면 된다(각자 fork에 복사해서 따로 발전시키지 않는다 — 그러면
 다시 흩어진다).
