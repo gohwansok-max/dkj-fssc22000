@@ -39,7 +39,12 @@
     <section class="dkj-panel">
       <h2>① 점검 기본정보</h2>
       <div class="dkj-field-grid">
-        <div class="dkj-field"><label for="checkDate">점검일자 *</label><input type="date" id="checkDate"></div><div class="dkj-field"><label for="vehicleNo">차량번호 *</label><input type="text" id="vehicleNo" placeholder="예: 전북12가3456"></div><div class="dkj-field"><label for="driver">운전자</label><input type="text" id="driver" placeholder=""></div><div class="dkj-field"><label for="destination">행선/용도</label><input type="text" id="destination" placeholder="출하·회수 등"></div><div class="dkj-field"><label for="shift">시점</label><select id="shift"><option value="상차전">상차전</option><option value="하차후">하차후</option><option value="회차">회차</option></select></div>
+        <div class="dkj-field"><label for="checkDate">점검일자 *</label><input type="date" id="checkDate"></div>
+        <div class="dkj-field"><label for="vehicleNo">차량번호 *</label><select id="vehicleNo"><option value="">-- 차량번호 선택 --</option><option value="__register__">+ 새 차량번호 등록</option></select></div>
+        <div class="dkj-field"><label for="destination">행선/용도</label><select id="destination"><option value="">선택</option><option value="출하">출하</option><option value="회수">회수</option></select></div>
+        <div class="dkj-field"><label for="arrivalPlace">도착지</label><select id="arrivalPlace"><option value="">선택</option><option value="양산">양산</option><option value="오산">오산</option></select></div>
+        <div class="dkj-field"><label for="departTime">출발시간</label><input type="time" id="departTime"></div>
+        <div class="dkj-field"><label for="arriveTime">도착시간</label><input type="time" id="arriveTime"></div>
       </div>
     </section>
     <section class="dkj-panel">

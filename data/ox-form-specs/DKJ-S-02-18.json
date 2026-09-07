@@ -44,30 +44,29 @@
     {
       "id": "vehicleNo",
       "label": "차량번호 *",
-      "type": "text",
-      "placeholder": "예: 전북12가3456"
-    },
-    {
-      "id": "driver",
-      "label": "운전자",
-      "type": "text"
+      "type": "select"
     },
     {
       "id": "destination",
       "label": "행선/용도",
-      "type": "text",
-      "placeholder": "출하·회수 등"
+      "type": "select",
+      "options": ["출하", "회수"]
     },
     {
-      "id": "shift",
-      "label": "시점",
+      "id": "arrivalPlace",
+      "label": "도착지",
       "type": "select",
-      "options": [
-        "상차전",
-        "하차후",
-        "회차"
-      ],
-      "default": "상차전"
+      "options": ["양산", "오산"]
+    },
+    {
+      "id": "departTime",
+      "label": "출발시간",
+      "type": "time"
+    },
+    {
+      "id": "arriveTime",
+      "label": "도착시간",
+      "type": "time"
     }
   ],
   "items": [
@@ -172,9 +171,10 @@
     "sectionTitle": "● 운송차량 위생점검 결과 ●",
     "showMeta": [
       "vehicleNo",
-      "driver",
       "destination",
-      "shift"
+      "arrivalPlace",
+      "departTime",
+      "arriveTime"
     ],
     "metaFields": [
       {
@@ -182,16 +182,20 @@
         "label": "차량번호"
       },
       {
-        "key": "driver",
-        "label": "운전자"
-      },
-      {
         "key": "destination",
         "label": "행선/용도"
       },
       {
-        "key": "shift",
-        "label": "시점"
+        "key": "arrivalPlace",
+        "label": "도착지"
+      },
+      {
+        "key": "departTime",
+        "label": "출발시간"
+      },
+      {
+        "key": "arriveTime",
+        "label": "도착시간"
       }
     ]
   }

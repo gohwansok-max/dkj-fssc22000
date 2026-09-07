@@ -54,105 +54,120 @@
       "label": "파리",
       "width": "4.6%",
       "type": "num",
-      "group": "비래 해충"
+      "group": "비래 해충",
+      "enableIf": { "field": "device", "includes": "포충등" }
     },
     {
       "key": "moth",
       "label": "나방",
       "width": "4.6%",
       "type": "num",
-      "group": "비래 해충"
+      "group": "비래 해충",
+      "enableIf": { "field": "device", "includes": "포충등" }
     },
     {
       "key": "mosq",
       "label": "모기",
       "width": "4.6%",
       "type": "num",
-      "group": "비래 해충"
+      "group": "비래 해충",
+      "enableIf": { "field": "device", "includes": "포충등" }
     },
     {
       "key": "fruitfly",
       "label": "날파리",
       "width": "4.6%",
       "type": "num",
-      "group": "비래 해충"
+      "group": "비래 해충",
+      "enableIf": { "field": "device", "includes": "포충등" }
     },
     {
       "key": "drain",
       "label": "나방파리",
       "width": "4.6%",
       "type": "num",
-      "group": "비래 해충"
+      "group": "비래 해충",
+      "enableIf": { "field": "device", "includes": "포충등" }
     },
     {
       "key": "etc1",
       "label": "기타",
       "width": "4.6%",
       "type": "num",
-      "group": "비래 해충"
+      "group": "비래 해충",
+      "enableIf": { "field": "device", "includes": "포충등" }
     },
     {
       "key": "sum1",
       "label": "합계",
       "width": "4.6%",
       "type": "num",
-      "group": "비래 해충"
+      "group": "비래 해충",
+      "enableIf": { "field": "device", "includes": "포충등" }
     },
     {
       "key": "roach",
       "label": "바퀴",
       "width": "4.6%",
       "type": "num",
-      "group": "보행해충"
+      "group": "보행해충",
+      "enableIf": { "field": "device", "includes": "바퀴트랩" }
     },
     {
       "key": "spider",
       "label": "거미",
       "width": "4.6%",
       "type": "num",
-      "group": "보행해충"
+      "group": "보행해충",
+      "enableIf": { "field": "device", "includes": "바퀴트랩" }
     },
     {
       "key": "ant",
       "label": "개미",
       "width": "4.6%",
       "type": "num",
-      "group": "보행해충"
+      "group": "보행해충",
+      "enableIf": { "field": "device", "includes": "바퀴트랩" }
     },
     {
       "key": "etc2",
       "label": "기타",
       "width": "4.6%",
       "type": "num",
-      "group": "보행해충"
+      "group": "보행해충",
+      "enableIf": { "field": "device", "includes": "바퀴트랩" }
     },
     {
       "key": "sum2",
       "label": "합계",
       "width": "4.6%",
       "type": "num",
-      "group": "보행해충"
+      "group": "보행해충",
+      "enableIf": { "field": "device", "includes": "바퀴트랩" }
     },
     {
       "key": "rat",
       "label": "쥐",
       "width": "4.6%",
       "type": "num",
-      "group": "설치류"
+      "group": "설치류",
+      "enableIf": { "field": "device", "includes": "쥐트랩" }
     },
     {
       "key": "etc3",
       "label": "기타",
       "width": "4.6%",
       "type": "num",
-      "group": "설치류"
+      "group": "설치류",
+      "enableIf": { "field": "device", "includes": "쥐트랩" }
     },
     {
       "key": "sum3",
       "label": "합계",
       "width": "4.6%",
       "type": "num",
-      "group": "설치류"
+      "group": "설치류",
+      "enableIf": { "field": "device", "includes": "쥐트랩" }
     }
   ],
   "defaultRows": [

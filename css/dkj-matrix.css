@@ -393,6 +393,12 @@
   box-shadow: 0 0 0 2px rgba(0, 154, 68, 0.15);
 }
 
+.lgf-table td input.lgf-disabled {
+  background: #ececec;
+  border-color: #dcdcdc;
+  cursor: not-allowed;
+}
+
 .lgf-act { width: 54px; text-align: center; }
 
 .lgf-del {

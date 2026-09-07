@@ -24,13 +24,20 @@
   };
 
   var PRODUCT_OPTIONS = [];
+  /* 이 서식(CCP-2P 금속검출)에서만 제외/추가할 품목 — 생산일지(DKJ-F-053)의
+     BOM 마스터(products.json)는 그대로 두고 이 폼의 드롭다운만 조정한다. */
+  var PRODUCT_EXCLUDE = ['샐러디 채소믹스', '슬로우캘리 채소믹스', '포케올데이 채소믹스', 'NH닭가슴살샐러드'];
+  var PRODUCT_EXTRA = ['급식)바로먹는 유럽피언 샐러드 채소믹스'];
 
   function loadProductOptions() {
-    if (!window.DkjMaster || !DkjMaster.loadProducts) return Promise.resolve([]);
+    if (!window.DkjMaster || !DkjMaster.loadProducts) { PRODUCT_OPTIONS = PRODUCT_EXTRA.slice(); return Promise.resolve(PRODUCT_OPTIONS); }
     return DkjMaster.loadProducts().then(function (data) {
-      PRODUCT_OPTIONS = (data.finishedProducts || []).map(function (p) { return p.name; });
+      var names = (data.finishedProducts || []).map(function (p) { return p.name; })
+        .filter(function (n) { return PRODUCT_EXCLUDE.indexOf(n) === -1; });
+      PRODUCT_EXTRA.forEach(function (n) { if (names.indexOf(n) === -1) names.push(n); });
+      PRODUCT_OPTIONS = names;
       return PRODUCT_OPTIONS;
-    }).catch(function () { return []; });
+    }).catch(function () { PRODUCT_OPTIONS = PRODUCT_EXTRA.slice(); return PRODUCT_OPTIONS; });
   }
 
   function syncProductUi() {
@@ -59,8 +66,8 @@
       equipment: 'MD-01',
       productName: '',
       lot: '',
-      feSize: '1.5',
-      susSize: '2.0',
+      feSize: '2.0',
+      susSize: '3.0',
       weightClass: 'fresh500',
       monitorName: '',
       timing: '시작전',
@@ -237,8 +244,8 @@
     $('equipment').value = state.equipment || 'MD-01';
     syncProductUi();
     $('lot').value = state.lot || '';
-    $('feSize').value = state.feSize || '1.5';
-    $('susSize').value = state.susSize || '2.0';
+    $('feSize').value = state.feSize || '2.0';
+    $('susSize').value = state.susSize || '3.0';
     $('weightClass').value = state.weightClass || 'fresh500';
     renderWeightHint();
     $('monitorName').value = state.monitorName || '';

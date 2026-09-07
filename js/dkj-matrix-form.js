@@ -61,10 +61,31 @@
     return { occurredAt: '', place: '', detail: '', action: '', doneAt: '', actor: '', confirmer: '' };
   }
 
+  /** period='month' 시트가 속한 "달"의 週 시작일만 생성한다(4주·5주는 그 달의 실제
+      주 수에 따라 달라진다 — 항상 5주를 고정으로 만들면 다음 달 날짜가 섞여 나온다). */
+  function monthWeekStarts(refWs, startDow) {
+    var d0 = new Date(refWs + 'T00:00:00');
+    var year = d0.getFullYear(), month = d0.getMonth();
+    var firstOfMonth = toISO(new Date(year, month, 1));
+    var cur = weekStartOf(firstOfMonth, startDow);
+    if (cur < firstOfMonth) cur = addDays(cur, 7); // 그 주 시작이 전달이면 다음 주로 이동
+    var out = [];
+    while (true) {
+      var d = new Date(cur + 'T00:00:00');
+      if (d.getFullYear() !== year || d.getMonth() !== month) break;
+      out.push(cur);
+      cur = addDays(cur, 7);
+    }
+    return out.length ? out : [refWs];
+  }
+
   function emptyState(spec) {
-    var n = spec.days || 6;
-    var ws = weekStartOf(null, spec.weekStartDay === 'sun' ? 0 : 1);
-    var step = spec.period === 'month' ? 7 : 1;
+    var startDow = spec.weekStartDay === 'sun' ? 0 : 1;
+    var refWs = weekStartOf(null, startDow);
+    var isMonth = spec.period === 'month';
+    var days = isMonth ? monthWeekStarts(refWs, startDow) : buildDays(refWs, spec.days || 6, 1);
+    var ws = isMonth ? days[0] : refWs;
+    var n = days.length;
     var checks = {};
     var notes = {};
     flatten(spec).forEach(function (r) {
@@ -77,7 +98,7 @@
     }
     return {
       weekStart: ws,
-      days: buildDays(ws, n, step),
+      days: days,
       checks: checks,
       notes: notes,
       signs: new Array(n).fill(''),
@@ -101,6 +122,7 @@
     var ROWS = flatten(spec);
     var CYCLE_S = spec.cycle || CYCLE;
     var state = emptyState(spec);
+    N = state.days.length;
     var editingId = null;
     var draftTimer = null;
 
@@ -515,9 +537,15 @@
     function bind() {
       if ($('weekStart')) {
         $('weekStart').addEventListener('change', function () {
-          var ws = weekStartOf(this.value, spec.weekStartDay === 'sun' ? 0 : 1);
-          state.weekStart = ws;
-          state.days = buildDays(ws, N, spec.period === 'month' ? 7 : 1);
+          var startDow = spec.weekStartDay === 'sun' ? 0 : 1;
+          var ws = weekStartOf(this.value, startDow);
+          if (spec.period === 'month') {
+            state.days = monthWeekStarts(ws, startDow);
+          } else {
+            state.days = buildDays(ws, N, 1);
+          }
+          state.weekStart = state.days[0];
+          N = state.days.length;
           writeForm();
           scheduleDraft();
         });
@@ -592,8 +620,15 @@
           onClonePrev: function (cloned) {
             if (state.locked) return;
             state = Object.assign(emptyState(spec), cloned);
-            state.weekStart = weekStartOf(null, spec.weekStartDay === 'sun' ? 0 : 1);
-            state.days = buildDays(state.weekStart, N, spec.period === 'month' ? 7 : 1);
+            var startDow = spec.weekStartDay === 'sun' ? 0 : 1;
+            var ws = weekStartOf(null, startDow);
+            if (spec.period === 'month') {
+              state.days = monthWeekStarts(ws, startDow);
+            } else {
+              state.days = buildDays(ws, N, 1);
+            }
+            state.weekStart = state.days[0];
+            N = state.days.length;
             editingId = null;
             writeForm();
             scheduleDraft();

@@ -150,9 +150,15 @@
       }
     }
 
-    function cellInput(c, ri, v) {
+    function cellInput(c, ri, v, row) {
       if (c.readonly) {
         return '<span class="lgf-fixed">' + esc(v) + '</span>';
+      }
+      // 설비 종류에 따라 해당 없는 항목 칸을 회색 처리하고 입력을 막는다
+      // (예: 포충등 행에서는 보행해충·설치류 칸이 해당 없음).
+      if (c.enableIf && row && String(row[c.enableIf.field] || '').indexOf(c.enableIf.includes) === -1) {
+        return '<input type="text" class="lgf-disabled" data-r="' + ri + '" data-c="' + c.key +
+          '" value="" disabled aria-hidden="true">';
       }
       if (c.type === 'choice') {
         return '<select data-r="' + ri + '" data-c="' + c.key + '">' +
@@ -175,7 +181,7 @@
         : '';
       var body = state.rows.map(function (r, ri) {
         return '<tr>' + COLS.map(function (c) {
-          return '<td>' + cellInput(c, ri, r[c.key] || '') + '</td>';
+          return '<td>' + cellInput(c, ri, r[c.key] || '', r) + '</td>';
         }).join('') +
           (spec.defaultRows ? '' :
             '<td class="lgf-act"><button type="button" class="lgf-del" data-del="' + ri +

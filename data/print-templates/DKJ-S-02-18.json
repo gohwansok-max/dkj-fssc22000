@@ -62,9 +62,10 @@
   "sectionTitle": "● 운송차량 위생점검 결과 ●",
   "showMeta": [
     "vehicleNo",
-    "driver",
     "destination",
-    "shift"
+    "arrivalPlace",
+    "departTime",
+    "arriveTime"
   ],
   "metaFields": [
     {
@@ -72,16 +73,20 @@
       "label": "차량번호"
     },
     {
-      "key": "driver",
-      "label": "운전자"
-    },
-    {
       "key": "destination",
       "label": "행선/용도"
     },
     {
-      "key": "shift",
-      "label": "시점"
+      "key": "arrivalPlace",
+      "label": "도착지"
+    },
+    {
+      "key": "departTime",
+      "label": "출발시간"
+    },
+    {
+      "key": "arriveTime",
+      "label": "도착시간"
     }
   ]
 }

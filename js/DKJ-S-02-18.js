@@ -3,6 +3,67 @@
  */
 (function () {
   'use strict';
+
+  /* 차량번호 등록형 드롭다운 — 서식 엔진(dkj-ox-form.js)은 id 로 값만 읽고 쓰므로
+     <select id="vehicleNo"> 의 옵션 목록만 별도로 관리한다. 과거 저장 기록에 있던
+     번호는 자동으로 등록 목록에 편입해, 처음부터 옵션이 비어 있지 않게 한다. */
+  var VEHICLE_KEY = 'dkj:vehicles:DKJ-S-02-18:v1';
+  function loadVehicles() {
+    try { return JSON.parse(localStorage.getItem(VEHICLE_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function saveVehicles(list) {
+    try { localStorage.setItem(VEHICLE_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+  function seedVehiclesFromHistory() {
+    try {
+      var raw = localStorage.getItem('dkj:records:DKJ-S-02-18:list:v1');
+      var recs = raw ? JSON.parse(raw) : [];
+      var known = loadVehicles();
+      var changed = false;
+      recs.forEach(function (r) {
+        if (r.vehicleNo && known.indexOf(r.vehicleNo) === -1) { known.push(r.vehicleNo); changed = true; }
+      });
+      if (changed) saveVehicles(known);
+    } catch (e) {}
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function renderVehicleOptions(selected) {
+    var sel = document.getElementById('vehicleNo');
+    if (!sel) return;
+    var list = loadVehicles();
+    var opts = '<option value="">-- 차량번호 선택 --</option>';
+    list.forEach(function (v) {
+      opts += '<option value="' + escHtml(v) + '"' + (v === selected ? ' selected' : '') + '>' + escHtml(v) + '</option>';
+    });
+    if (selected && list.indexOf(selected) === -1) {
+      opts += '<option value="' + escHtml(selected) + '" selected>' + escHtml(selected) + '</option>';
+    }
+    opts += '<option value="__register__">+ 새 차량번호 등록</option>';
+    sel.innerHTML = opts;
+  }
+  seedVehiclesFromHistory();
+  renderVehicleOptions('');
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'vehicleNo' && e.target.value === '__register__') {
+      var plate = prompt('새 차량번호를 입력하세요 (예: 전북12가3456)');
+      var sel = e.target;
+      if (plate && plate.trim()) {
+        plate = plate.trim();
+        var list = loadVehicles();
+        if (list.indexOf(plate) === -1) { list.push(plate); saveVehicles(list); }
+        renderVehicleOptions(plate);
+        sel.value = plate;
+        sel.dispatchEvent(new Event('input', { bubbles: true }));
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        renderVehicleOptions('');
+      }
+    }
+  });
+
   DkjOxForm.mount({
   "code": "DKJ-S-02-18",
   "title": "운송차량 위생점검표",
@@ -22,30 +83,29 @@
     {
       "id": "vehicleNo",
       "label": "차량번호 *",
-      "type": "text",
-      "placeholder": "예: 전북12가3456"
-    },
-    {
-      "id": "driver",
-      "label": "운전자",
-      "type": "text"
+      "type": "select"
     },
     {
       "id": "destination",
       "label": "행선/용도",
-      "type": "text",
-      "placeholder": "출하·회수 등"
+      "type": "select",
+      "options": ["출하", "회수"]
     },
     {
-      "id": "shift",
-      "label": "시점",
+      "id": "arrivalPlace",
+      "label": "도착지",
       "type": "select",
-      "options": [
-        "상차전",
-        "하차후",
-        "회차"
-      ],
-      "default": "상차전"
+      "options": ["양산", "오산"]
+    },
+    {
+      "id": "departTime",
+      "label": "출발시간",
+      "type": "time"
+    },
+    {
+      "id": "arriveTime",
+      "label": "도착시간",
+      "type": "time"
     }
   ],
   "items": [
@@ -150,9 +210,10 @@
     "sectionTitle": "● 운송차량 위생점검 결과 ●",
     "showMeta": [
       "vehicleNo",
-      "driver",
       "destination",
-      "shift"
+      "arrivalPlace",
+      "departTime",
+      "arriveTime"
     ],
     "metaFields": [
       {
@@ -160,16 +221,20 @@
         "label": "차량번호"
       },
       {
-        "key": "driver",
-        "label": "운전자"
-      },
-      {
         "key": "destination",
         "label": "행선/용도"
       },
       {
-        "key": "shift",
-        "label": "시점"
+        "key": "arrivalPlace",
+        "label": "도착지"
+      },
+      {
+        "key": "departTime",
+        "label": "출발시간"
+      },
+      {
+        "key": "arriveTime",
+        "label": "도착시간"
       }
     ]
   }
