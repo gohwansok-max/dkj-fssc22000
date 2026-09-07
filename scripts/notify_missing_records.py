@@ -14,8 +14,9 @@ draft(임시저장)는 이 기기 로컬에만 있고 클라우드에 없으므�
 "저장됨/안 됨"만 본다(작성 중 상태는 없음) — 알림 목적에는 오히려 더 정확하다.
 
 감시 대상은 console-forms.json의 daily/weekly 그룹뿐이다. daily 그룹은 check.mode가
-무엇이든(perDay/dayColumn/dayRow) 오늘 18시를 마감으로 본다. weekly 그룹은 perPeriod
-(주/월)만 다룬다 — dayColumn/dayRow가 "주 1회를 어느 요일에나 채우면 되는지" 같은
+무엇이든(perDay/dayColumn/dayRow) 오늘 15시를 마감으로 본다(퇴근 16시 전 마지막
+확인 기회). weekly 그룹은 perPeriod(주/월)만 다룬다 — dayColumn/dayRow가 "주 1회를
+어느 요일에나 채우면 되는지" 같은
 실제 운영 의도가 코드만 봐서는 불명확해서, 잘못 판정해 헛알림을 보내는 것보다
 아예 건너뛰는 쪽을 택했다(대상: DKJ-S-02-13 저수조 관리, DKJ-S-02-09 세척소독제
 관리 — 실제 운영 주기를 확인하면 추가할 것).
@@ -52,7 +53,7 @@ OPERATION_CALENDAR_KEY = 'ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE'
 # nodeKey('dkj:alerts:missing-records:v1') — 이 스크립트 전용 알림 상태 저장 위치.
 ALERT_STATE_KEY = 'ZGtqOmFsZXJ0czptaXNzaW5nLXJlY29yZHM6djE'
 
-DEADLINE_HOUR = 18  # 매일/주간·월간 서식 공통 마감 시각(KST) — 필요하면 조정
+DEADLINE_HOUR = 15  # 매일/주간·월간 서식 공통 마감 시각(KST) — 농협 퇴근(16시) 전 마지막 확인 기회
 ESCALATE_HOURS_DAILY = 2   # 매일 서식: 마감 후 2시간마다 재알림
 ESCALATE_HOURS_PERIOD = 24  # 주간/월간 서식: 마감 후 24시간마다 재알림
 MAX_ALERTS_DAILY = 4
