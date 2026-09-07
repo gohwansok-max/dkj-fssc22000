@@ -84,8 +84,9 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 새 화면들은 2026-08-16에 마누스(다른 AI 에이전트)가 PR #26~#35로 main에 직접 merge했습니다.
 각 화면의 배경·운영 절차는 `docs/*.md`(특히 `RTDB_V2_MIGRATION.md`, `ENTRY_LOGIN_AND_ROLE_SETUP.md`,
 `QUALITY_ALERT_AUTOMATION.md`, `GOOGLE_DRIVE_DOCUMENT_LIBRARY.md`, `NEXT_STEPS_AFTER_V2.md`,
-`NEW_TENANT_HARNESS.md` — 다른 농협 사업장을 새로 찍어낼 때 필요한 체크리스트)에
-더 자세히 있습니다. `docs/`는 배포 제외 대상이라 소스에만 있습니다.
+`NEW_TENANT_HARNESS.md` — 다른 농협 사업장을 새로 찍어낼 때 필요한 체크리스트,
+`MISSING_RECORD_ALERT.md` — 일지 미작성 시 텔레그램으로 알리는 GitHub Actions
+스케줄 워크플로)에 더 자세히 있습니다. `docs/`는 배포 제외 대상이라 소스에만 있습니다.
 
 ## AI 도우미 · 불편접수
 
