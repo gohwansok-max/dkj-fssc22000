@@ -57,8 +57,12 @@
           <input type="text" id="equipment" placeholder="호기·관리번호" value="MD-01">
         </div>
         <div class="dkj-field">
-          <label for="productName">품목 *</label>
-          <input type="text" id="productName" placeholder="예: 세척채소 믹스">
+          <label for="productSelect">품목 *</label>
+          <select id="productSelect">
+            <option value="">-- 품목 선택 --</option>
+            <option value="__custom__">✏️ 직접 입력...</option>
+          </select>
+          <input type="text" id="productName" placeholder="품목명 직접 입력" style="display:none;margin-top:6px;">
         </div>
         <div class="dkj-field">
           <label for="lot">LOT *</label>
@@ -95,6 +99,24 @@
             <option value="종료">작업종료</option>
           </select>
         </div>
+    </section>
+
+    <section class="dkj-panel">
+      <h2>①-1 포장재 정보</h2>
+      <div class="dkj-field-grid">
+        <div class="dkj-field">
+          <label for="packagingLot">포장재 LOT</label>
+          <input type="text" id="packagingLot" placeholder="포장재 입고 LOT">
+        </div>
+        <div class="dkj-field">
+          <label for="packagingUsage">사용량</label>
+          <input type="text" id="packagingUsage" placeholder="예: 200 EA / 5 kg">
+        </div>
+        <div class="dkj-field">
+          <label for="packagingDefectCount">부적합 개수</label>
+          <input type="number" id="packagingDefectCount" min="0" step="1" placeholder="0">
+        </div>
+      </div>
     </section>
 
     <section class="dkj-panel">
@@ -186,6 +208,7 @@
   <script src="../js/dkj-approval.js?v=84"></script>
   <script src="../js/dkj-print-form.js?v=84"></script>
   <script src="../js/dkj-print-official.js?v=84"></script>
+  <script src="../js/dkj-master-data.js?v=84"></script>
   <script src="../js/DKJ-H-01-02.js?v=84"></script>
   <script src="../js/dkj-pwa.js?v=84"></script>
   <script src="../js/dkj-quick-nav.js?v=84"></script>

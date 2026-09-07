@@ -11,14 +11,15 @@
   "period": "week",
   "days": 7,
   "divLevels": 1,
+  "weekStartDay": "sun",
   "dayLabels": [
+    "일",
     "월",
     "화",
     "수",
     "목",
     "금",
-    "토",
-    "일"
+    "토"
   ],
   "docNo": "DKJ-S-02-03",
   "rev": "0",

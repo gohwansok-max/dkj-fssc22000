@@ -184,6 +184,12 @@
       '<td class="c" style="width:21%">' + esc(writer) + '</td>' +
       '</tr>' +
       '<tr>' +
+      '<th class="lab">포장재<br>LOT</th>' +
+      '<td class="l">' + esc(state.packagingLot || '') + '</td>' +
+      '<th class="lab">사용량 / 부적합</th>' +
+      '<td class="c">' + esc(state.packagingUsage || '') + ' / ' + esc(state.packagingDefectCount || '0') + '</td>' +
+      '</tr>' +
+      '<tr>' +
       '<th class="lab">위해요소</th>' +
       '<td class="l" colspan="3">Fe, Sus 등 금속성 이물 (금속조각, 볼트, 너트 등)</td>' +
       '</tr>' +
@@ -251,7 +257,7 @@
     var prod = state.productName || '';
     var rows = (state.rows || []).slice();
     while (rows.length < 6) {
-      rows.push({ time: '', ppm: '', soak: '', rinse: '', judge: '' });
+      rows.push({ time: '', ppm: '', soak: '', rinseSec: '', residualCl: '', judge: '' });
     }
 
     var monBody = rows.map(function (r, i) {
@@ -266,7 +272,8 @@
         '<td class="c">' + esc(r.time || '') + '</td>' +
         '<td class="c">' + esc(r.ppm || '') + '</td>' +
         '<td class="c">' + esc(r.soak || '') + '</td>' +
-        '<td class="c">' + ox(r.rinse) + '</td>' +
+        '<td class="c">' + esc(r.rinseSec || '') + '</td>' +
+        '<td class="c">' + esc(r.residualCl || '') + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'
       );
@@ -311,8 +318,10 @@
       '<td class="c">시험지 측정</td></tr>' +
       '<tr><td class="l">침지시간</td><td class="c">≥ ' + esc(state.timeMin || 60) + ' 초</td>' +
       '<td class="c">타이머·관찰</td></tr>' +
-      '<tr><td class="c">헹굼</td><td class="l">헹굼완료</td><td class="c">잔류 소독제 없음</td>' +
-      '<td class="c">육안·촉각 확인</td></tr>' +
+      '<tr><td class="c" rowspan="2">헹굼</td><td class="l">헹굼시간</td><td class="c">50 ~ 60 초</td>' +
+      '<td class="c">타이머·관찰</td></tr>' +
+      '<tr><td class="l">잔류염소농도</td><td class="c">4 ppm 미만</td>' +
+      '<td class="c">시험지 측정</td></tr>' +
       '</table>';
 
     var methodHtml =
@@ -376,9 +385,10 @@
       '<div class="off-sec">● 소독·헹굼공정(CCP-1BC) 모니터링 결과 ●</div>' +
       '<table class="off-grid off-mon">' +
       '<thead><tr>' +
-      '<th style="width:14%">품명</th><th style="width:10%">점검시간</th>' +
-      '<th style="width:12%">유효염소<br>(ppm)</th><th style="width:12%">침지시간<br>(초)</th>' +
-      '<th style="width:8%">헹굼</th><th style="width:10%">판정<br>(○/×)</th><th style="width:10%">서명</th>' +
+      '<th style="width:13%">품명</th><th style="width:9%">점검시간</th>' +
+      '<th style="width:11%">유효염소<br>(ppm)</th><th style="width:11%">침지시간<br>(초)</th>' +
+      '<th style="width:9%">헹굼시간<br>(초)</th><th style="width:9%">잔류염소<br>(ppm)</th>' +
+      '<th style="width:9%">판정<br>(○/×)</th><th style="width:9%">서명</th>' +
       '</tr></thead><tbody>' + monBody + '</tbody></table>' +
 
       '<table class="off-grid off-correct">' +

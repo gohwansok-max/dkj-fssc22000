@@ -23,6 +23,36 @@
     material: { label: '부재료(기타가공품)', adjust: '70', stable: '70' }
   };
 
+  var PRODUCT_OPTIONS = [];
+
+  function loadProductOptions() {
+    if (!window.DkjMaster || !DkjMaster.loadProducts) return Promise.resolve([]);
+    return DkjMaster.loadProducts().then(function (data) {
+      PRODUCT_OPTIONS = (data.finishedProducts || []).map(function (p) { return p.name; });
+      return PRODUCT_OPTIONS;
+    }).catch(function () { return []; });
+  }
+
+  function syncProductUi() {
+    var pSel = $('productSelect');
+    var pInp = $('productName');
+    var val = (state.productName || '').trim();
+    if (!pSel) return;
+
+    var opts = '<option value="">-- 품목 선택 --</option>';
+    PRODUCT_OPTIONS.forEach(function (name) {
+      opts += '<option value="' + esc(name) + '"' + (name === val ? ' selected' : '') + '>' + esc(name) + '</option>';
+    });
+    var isCustom = val && PRODUCT_OPTIONS.indexOf(val) === -1;
+    opts += '<option value="__custom__"' + (isCustom ? ' selected' : '') + '>✏️ 직접 입력...</option>';
+    pSel.innerHTML = opts;
+
+    if (pInp) {
+      pInp.style.display = isCustom ? 'block' : 'none';
+      pInp.value = val;
+    }
+  }
+
   function emptyState() {
     return {
       workDate: today(),
@@ -34,6 +64,9 @@
       weightClass: 'fresh500',
       monitorName: '',
       timing: '시작전',
+      packagingLot: '',
+      packagingUsage: '',
+      packagingDefectCount: '',
       rows: [emptyRow(), emptyRow(), emptyRow()],
       deviation: '',
       corrective: '',
@@ -169,7 +202,15 @@
   function readForm() {
     state.workDate = $('workDate').value;
     state.equipment = $('equipment').value;
-    state.productName = $('productName').value;
+    var pSel = $('productSelect');
+    var pInp = $('productName');
+    if (pSel && pSel.value === '__custom__') {
+      state.productName = pInp ? pInp.value.trim() : '';
+    } else if (pSel && pSel.value) {
+      state.productName = pSel.value;
+    } else {
+      state.productName = pInp ? pInp.value.trim() : '';
+    }
     state.lot = $('lot').value;
     state.feSize = $('feSize').value;
     state.susSize = $('susSize').value;
@@ -180,6 +221,9 @@
     renderWeightHint();
     state.monitorName = $('monitorName').value;
     state.timing = $('timing').value;
+    state.packagingLot = $('packagingLot').value;
+    state.packagingUsage = $('packagingUsage').value;
+    state.packagingDefectCount = $('packagingDefectCount').value;
     state.deviation = $('deviation').value;
     state.corrective = $('corrective').value;
     state.confirmer = $('confirmer').value;
@@ -191,7 +235,7 @@
   function writeForm() {
     $('workDate').value = state.workDate || today();
     $('equipment').value = state.equipment || 'MD-01';
-    $('productName').value = state.productName || '';
+    syncProductUi();
     $('lot').value = state.lot || '';
     $('feSize').value = state.feSize || '1.5';
     $('susSize').value = state.susSize || '2.0';
@@ -199,6 +243,9 @@
     renderWeightHint();
     $('monitorName').value = state.monitorName || '';
     $('timing').value = state.timing || '시작전';
+    $('packagingLot').value = state.packagingLot || '';
+    $('packagingUsage').value = state.packagingUsage || '';
+    $('packagingDefectCount').value = state.packagingDefectCount || '';
     $('deviation').value = state.deviation || '';
     $('corrective').value = state.corrective || '';
     $('confirmer').value = state.confirmer || '';
@@ -301,7 +348,8 @@
 
   function bind() {
     ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize', 'weightClass',
-      'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
+      'monitorName', 'timing', 'packagingLot', 'packagingUsage', 'packagingDefectCount',
+      'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var onFieldInput = function () {
         readForm();
         refreshApproval();
@@ -310,6 +358,22 @@
       $(id).addEventListener('input', onFieldInput);
       $(id).addEventListener('change', onFieldInput);
     });
+    var pSel = $('productSelect');
+    if (pSel) {
+      pSel.addEventListener('change', function () {
+        var pInp = $('productName');
+        if (pSel.value === '__custom__') {
+          if (pInp) { pInp.style.display = 'block'; pInp.value = ''; pInp.focus(); }
+          state.productName = '';
+        } else {
+          if (pInp) { pInp.style.display = 'none'; pInp.value = pSel.value; }
+          state.productName = pSel.value;
+        }
+        readForm();
+        refreshApproval();
+        scheduleDraft();
+      });
+    }
     $('weightClass').addEventListener('change', renderWeightHint);
     $('btnAddRow').addEventListener('click', function () {
       if (state.locked) return;
@@ -360,17 +424,19 @@
   function init() {
     var draft = DkjRecordStore.loadDraft(FORM_ID);
     if (draft) state = Object.assign(emptyState(), draft);
-    writeForm();
-    bind();
-    renderHistory();
-    mountApproval();
-    refreshApproval();
-    if (window.DkjUtil) {
-      window.DkjUtil.autoFillUser(state, ['monitorName', 'confirmer', 'approver'], function () {
-        writeForm();
-      });
-    }
-    setStatus('준비', false);
+    loadProductOptions().then(function () {
+      writeForm();
+      bind();
+      renderHistory();
+      mountApproval();
+      refreshApproval();
+      if (window.DkjUtil) {
+        window.DkjUtil.autoFillUser(state, ['monitorName', 'confirmer', 'approver'], function () {
+          writeForm();
+        });
+      }
+      setStatus('준비', false);
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

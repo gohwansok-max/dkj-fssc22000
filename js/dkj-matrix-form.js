@@ -21,13 +21,20 @@
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
 
-  /** 해당 날짜가 속한 주의 월요일 */
-  function mondayOf(iso) {
+  /** 해당 날짜가 속한 주의 시작일. startDow: 0=일요일 시작, 그 외(기본)=월요일 시작 */
+  function weekStartOf(iso, startDow) {
+    var sdw = startDow === 0 ? 0 : 1;
     var d = iso ? new Date(iso + 'T00:00:00') : new Date();
     var dow = d.getDay();               // 0=일
-    var diff = dow === 0 ? -6 : 1 - dow; // 월요일로 이동
-    d.setDate(d.getDate() + diff);
+    var diff = dow - sdw;
+    if (diff < 0) diff += 7;
+    d.setDate(d.getDate() - diff);
     return toISO(d);
+  }
+
+  /** 해당 날짜가 속한 주의 월요일 (기존 호출부 호환용) */
+  function mondayOf(iso) {
+    return weekStartOf(iso, 1);
   }
 
   function addDays(iso, n) {
@@ -56,7 +63,7 @@
 
   function emptyState(spec) {
     var n = spec.days || 6;
-    var ws = mondayOf(null);
+    var ws = weekStartOf(null, spec.weekStartDay === 'sun' ? 0 : 1);
     var step = spec.period === 'month' ? 7 : 1;
     var checks = {};
     var notes = {};
@@ -508,7 +515,7 @@
     function bind() {
       if ($('weekStart')) {
         $('weekStart').addEventListener('change', function () {
-          var ws = mondayOf(this.value);
+          var ws = weekStartOf(this.value, spec.weekStartDay === 'sun' ? 0 : 1);
           state.weekStart = ws;
           state.days = buildDays(ws, N, spec.period === 'month' ? 7 : 1);
           writeForm();
@@ -585,7 +592,7 @@
           onClonePrev: function (cloned) {
             if (state.locked) return;
             state = Object.assign(emptyState(spec), cloned);
-            state.weekStart = mondayOf(null);
+            state.weekStart = weekStartOf(null, spec.weekStartDay === 'sun' ? 0 : 1);
             state.days = buildDays(state.weekStart, N, spec.period === 'month' ? 7 : 1);
             editingId = null;
             writeForm();
@@ -642,6 +649,7 @@
   global.DkjMatrixForm = {
     mount: mount,
     mondayOf: mondayOf,
+    weekStartOf: weekStartOf,
     buildDays: buildDays,
     emptyState: emptyState
   };
