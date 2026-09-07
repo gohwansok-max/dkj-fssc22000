@@ -285,29 +285,48 @@ def severity(desired: int, max_alerts: int) -> tuple[str, str]:
     return '⏰', '작성 안내'
 
 
-def build_alert_message(form: dict, result: dict, desired: int, hours_over: float) -> str:
-    icon, tag = severity(desired, result['max_alerts'])
-    href = SITE_BASE + str(form.get('href', '')).lstrip('/')
-    return '\n'.join([
-        f'{icon} <b>[동김제농협 스마트 HACCP] 일지 미작성 알림 — {esc(tag)}</b>',
-        '━━━━━━━━━━━━━━━━━━━━',
-        f'📋 <b>서식:</b> {esc(form["code"])} {esc(form["title"])}',
-        f'📅 <b>기준:</b> {result["unit"]} 마감({result["deadline"].strftime("%m/%d %H:%M")}) 이후 미작성',
-        f'⏱ <b>경과:</b> 마감 후 약 {int(hours_over)}시간 · {desired}번째 알림',
-        f'🔗 <b>바로가기:</b> {esc(href)}',
-        '━━━━━━━━━━━━━━━━━━━━',
-        '담당자가 작성했는지 확인해 주세요.'
-    ])
+# 심각도 아이콘의 상대적 순위 — 배치 메시지 헤더에 "가장 급한 것" 아이콘을 쓰기 위함.
+SEVERITY_RANK = {'⏰': 0, '⚠️': 1, '🚨': 2, '🚨🚨': 3}
 
 
-def build_resolved_message(form: dict, result: dict) -> str:
-    return '\n'.join([
-        '✅ <b>[동김제농협 스마트 HACCP] 작성 확인됨</b>',
-        '━━━━━━━━━━━━━━━━━━━━',
-        f'📋 <b>서식:</b> {esc(form["code"])} {esc(form["title"])}',
-        f'{result["unit"]} 몫 작성이 확인되어 알림을 종료합니다.',
-        '━━━━━━━━━━━━━━━━━━━━'
-    ])
+def worst_severity(overdue_items: list) -> tuple[str, str]:
+    worst_icon, worst_tag, worst_rank = '⏰', '작성 안내', -1
+    for item in overdue_items:
+        icon, tag = severity(item['desired'], item['result']['max_alerts'])
+        rank = SEVERITY_RANK.get(icon, 0)
+        if rank > worst_rank:
+            worst_icon, worst_tag, worst_rank = icon, tag, rank
+    return worst_icon, worst_tag
+
+
+def build_batch_message(overdue_items: list, resolved_items: list) -> str:
+    """이번 실행에서 새로 알릴 게 있는 모든 서식을 한 메시지로 묶는다 — 서식마다
+    따로 보내면 한 번에 여러 건이 겹칠 때 톡방에 메시지가 줄줄이 쌓이기 때문."""
+    lines = []
+    if overdue_items:
+        icon, tag = worst_severity(overdue_items)
+        lines.append(f'{icon} <b>[동김제농협 스마트 HACCP] 일지 미작성 알림 — {len(overdue_items)}건 · {esc(tag)}</b>')
+        lines.append('━━━━━━━━━━━━━━━━━━━━')
+        for item in overdue_items:
+            form, result = item['form'], item['result']
+            i_icon, _ = severity(item['desired'], result['max_alerts'])
+            href = SITE_BASE + str(form.get('href', '')).lstrip('/')
+            lines.append(
+                f'{i_icon} <b>{esc(form["code"])}</b> {esc(form["title"])} · '
+                f'{result["unit"]} 마감({result["deadline"].strftime("%H:%M")}) 후 약 '
+                f'{int(item["hours_over"])}시간 · {item["desired"]}번째'
+            )
+            lines.append(f'   {esc(href)}')
+    if resolved_items:
+        if lines:
+            lines.append('━━━━━━━━━━━━━━━━━━━━')
+        lines.append(f'✅ <b>[동김제농협 스마트 HACCP] 작성 확인됨 — {len(resolved_items)}건</b>')
+        for item in resolved_items:
+            form, result = item['form'], item['result']
+            lines.append(f'· {esc(form["code"])} {esc(form["title"])} ({result["unit"]} 몫)')
+    lines.append('━━━━━━━━━━━━━━━━━━━━')
+    lines.append('담당자가 각자 작성했는지 확인해 주세요.')
+    return '\n'.join(lines)
 
 
 def load_alert_state() -> dict:
@@ -381,7 +400,8 @@ def main(now: datetime | None = None) -> int:
         return 0
 
     state = load_alert_state()
-    sent = 0
+    overdue_items = []
+    resolved_items = []
 
     for group in console.get('groups', []):
         if group.get('id') not in ('daily', 'weekly'):
@@ -400,10 +420,9 @@ def main(now: datetime | None = None) -> int:
 
             if result['done']:
                 if entry.get('count', 0) > 0 and not entry.get('resolvedNotified'):
-                    send_telegram(bot_token, chat_id, build_resolved_message(form, result))
+                    resolved_items.append({'form': form, 'result': result})
                     entry['resolvedNotified'] = True
                     state[key] = entry
-                    sent += 1
                 continue
 
             if now < result['deadline']:
@@ -412,15 +431,22 @@ def main(now: datetime | None = None) -> int:
             hours_over = (now - result['deadline']).total_seconds() / 3600
             desired = min(1 + int(hours_over // result['escalate_hours']), result['max_alerts'])
             if entry.get('count', 0) < desired:
-                send_telegram(bot_token, chat_id, build_alert_message(form, result, desired, hours_over))
+                overdue_items.append({'form': form, 'result': result, 'desired': desired, 'hours_over': hours_over})
                 entry['count'] = desired
                 entry['lastNotifiedAt'] = now.isoformat()
                 entry['resolvedNotified'] = False
                 state[key] = entry
-                sent += 1
+
+    # 서식마다 따로 보내지 않고, 이번 실행에서 새로 알릴 게 있으면 전부 모아 한 번에 보낸다.
+    if overdue_items or resolved_items:
+        send_telegram(bot_token, chat_id, build_batch_message(overdue_items, resolved_items))
 
     save_alert_state(state, now)
-    print(f'{sent}건 발송, 상태 {len(state)}건 저장' + (' (dry-run)' if DRY_RUN else ''))
+    print(
+        f'{len(overdue_items)}건 미작성 알림 · {len(resolved_items)}건 해소 알림 '
+        f'(메시지 {1 if (overdue_items or resolved_items) else 0}건 발송), 상태 {len(state)}건 저장'
+        + (' (dry-run)' if DRY_RUN else '')
+    )
     return 0
 
 
