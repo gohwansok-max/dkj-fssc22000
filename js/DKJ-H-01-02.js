@@ -27,7 +27,7 @@
   /* 이 서식(CCP-2P 금속검출)에서만 제외/추가할 품목 — 생산일지(DKJ-F-053)의
      BOM 마스터(products.json)는 그대로 두고 이 폼의 드롭다운만 조정한다. */
   var PRODUCT_EXCLUDE = ['샐러디 채소믹스', '슬로우캘리 채소믹스', '포케올데이 채소믹스', 'NH닭가슴살샐러드'];
-  var PRODUCT_EXTRA = ['급식)바로먹는 유럽피언 샐러드 채소믹스'];
+  var PRODUCT_EXTRA = ['급식)바로먹는 유러피언 샐러드 채소믹스'];
 
   function loadProductOptions() {
     if (!window.DkjMaster || !DkjMaster.loadProducts) { PRODUCT_OPTIONS = PRODUCT_EXTRA.slice(); return Promise.resolve(PRODUCT_OPTIONS); }
