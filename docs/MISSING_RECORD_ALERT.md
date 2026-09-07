@@ -1,0 +1,100 @@
+# 일지 미작성 알림 — 운영 절차
+
+## 1. 무엇을 하는가
+
+이 앱은 서버가 없다(`CLAUDE.md` 참고). 그래서 "화면을 아무도 열어놓지 않아도
+아직 안 쓴 일지를 알아채고 카톡이 가게" 하려면, 바깥에서 주기적으로 찔러주는
+무언가가 필요하다. GitHub Actions 스케줄 워크플로
+(`.github/workflows/missing-record-alert.yml`)가 09:00~23:00(KST) 매시 정각에
+`scripts/notify_missing_records.py`를 실행해서:
+
+1. Firebase RTDB를 REST로 직접 읽는다 — `database.rules.json`이 이미 열어 둔
+   경로만 쓰므로 **규칙 변경·Firebase 콘솔 작업이 전혀 필요 없다.**
+2. `data/console-forms.json`의 `daily`/`weekly` 그룹 서식마다, 마감이 지났는데도
+   해당 기간 몫 기록이 없으면 이미 쓰고 있는 **불편접수용 텔레그램 봇/챗**
+   (`system/settings/telegram`, `js/dkj-telegram-config.js`)으로 알림을 보낸다.
+3. 마감을 넘긴 채로 계속 안 써지면 시간이 지날수록 문구·이모지가 더 강해지는
+   재알림을 보낸다(아래 3절). 나중에 실제로 작성이 확인되면 "작성 확인됨" 종료
+   알림을 한 번 보낸다.
+
+Firebase Blaze 요금제 전환이나 Cloud Functions 배포가 필요 없다 — 지금 저장소
+상태(무료 GitHub Actions + 이미 열려 있는 RTDB 규칙 + 이미 설정된 텔레그램 봇)만
+으로 바로 동작한다. `docs/QUALITY_ALERT_AUTOMATION.md`의 `dispatchQualityAlert`와는
+목적이 다르다 — 그쪽은 "기록이 바뀔 때" 발동하는 트리거라 "안 바뀜(미작성)"은
+애초에 감지하지 못한다. 이 기능은 시간 기반으로 따로 만들었다.
+
+## 2. 판정 기준 — 화면(업무 콘솔)과 동일한 로직
+
+`js/dkj-console.js`의 `evaluate()`(업무 콘솔의 "오늘 미작성" 표시 로직)를 최대한
+그대로 파이썬으로 옮겼다. 화면에 뜨는 판정과 알림의 판정이 서로 다르면 안 되기
+때문이다.
+
+| 그룹 | check.mode | 마감 | 비고 |
+|---|---|---|---|
+| `daily` | `perDay`/`dayColumn`/`dayRow` 전부 | 그날 18:00(KST) | 생산일(운영달력 기준)에만 검사 — 비생산일은 건너뜀 |
+| `weekly` | `perPeriod`(주) | 그 주 금요일 18:00 | 화~목요일 사이에는 아직 판단하지 않음 |
+| `weekly` | `perPeriod`(월) | 그 달 마지막 날 18:00 | 마지막 날이 아니면 판단하지 않음 |
+| `weekly` | `dayColumn`/`dayRow` | — | **의도적으로 감시 대상에서 뺐다** (아래 4절) |
+| `event`/`annual` 그룹 전체 | — | — | 발생 시 작성 서식이라 미작성 알림 대상이 아님 |
+
+마감 시각(18:00)과 재알림 주기는 `scripts/notify_missing_records.py` 상단의
+`DEADLINE_HOUR`/`ESCALATE_HOURS_*`/`MAX_ALERTS_*` 상수로 바뀐다.
+
+## 3. 재알림 강도 단계
+
+| 단계 | 조건(매일 서식 기준, 마감 18:00) | 문구 |
+|---|---|---|
+| 1차 | 마감 즉시 | ⏰ 작성 안내 |
+| 2차 | 마감 후 2시간(20:00) | ⚠️ 재알림 |
+| 3차 | 마감 후 4시간(22:00) | 🚨 경고 — 반복 미작성 |
+| 4차(최대) | 마감 후 6시간(24:00) | 🚨🚨 긴급 — 즉시 확인 필요 |
+
+주간/월간 서식은 재알림 주기가 24시간, 최대 3회로 더 느슨하다(매주/매달 한 번
+쓰는 서식을 2시간마다 재촉하는 건 과하다고 판단). 알림 상태(오늘 몇 번째까지
+보냈는지)는 RTDB `records/ZGtqOmFsZXJ0czptaXNzaW5nLXJlY29yZHM6djE`
+(`nodeKey('dkj:alerts:missing-records:v1')`)에 저장한다 — `dkj-console.js`의
+공유 운영달력과 같은 방식으로, `records/$recordKey`가 `{value, updatedAt}` 형태면
+어떤 키든 이미 쓰기가 열려 있는 걸 그대로 활용했다(규칙 재게시 불필요).
+
+## 4. 알려진 빈틈 — 지금은 감시 안 되는 서식
+
+`weekly` 그룹의 `dayColumn`/`dayRow` 서식 2종(`DKJ-S-02-13` 저수조 관리,
+`DKJ-S-02-09` 세척소독제 관리)은 **의도적으로 이번 알림 대상에서 뺐다.** 이
+서식들은 매트릭스/대장형이라 "오늘 칸이 채워졌는지"는 코드로 볼 수 있지만,
+"주 1회를 어느 요일에 채워야 하는지"라는 실제 운영 의도가 카탈로그 데이터만
+봐서는 불명확하다 — 잘못 짐작해서 헛알림을 보내는 것보다는 빼는 쪽을 택했다.
+실제 운영 주기(예: "매주 월요일에 한 번" 또는 "그 주 아무 날이나")를 확인해
+주면 같은 패턴으로 추가할 수 있다.
+
+## 5. 텔레그램 발송 대상
+
+기존 불편접수(`js/dkj-chatbot.js`)와 **같은 봇·같은 챗**을 그대로 쓴다
+(`system/settings/telegram`의 `botToken`/`chatId`). 별도 봇을 새로 만들지
+않았다 — 관리자(센터장 포함)를 그 텔레그램 방에 초대해 두면 이 알림도 같이
+받는다. 챗을 분리하고 싶어지면 `scripts/notify_missing_records.py`의
+`rtdb_get('system/settings/telegram')` 대신 별도 RTDB 경로(및
+`database.rules.json`에 그 경로를 여는 규칙 추가·재게시)로 바꾸면 된다.
+
+## 6. 테스트·수동 실행
+
+GitHub Actions에서 `일지 미작성 알림` 워크플로를 **Run workflow**로 수동
+실행할 수 있다. 수동 실행은 기본값이 `dry_run: true`라 실제로 텔레그램을 보내지
+않고 콘솔 로그에만 무엇을 보냈을지 출력한다 — 로직만 확인하고 싶을 때 이 값을
+그대로 두고 실행한다. 실제로 테스트 발송까지 확인하려면 `dry_run`을 `false`로
+바꿔 수동 실행한다(사전에 시스템 설정에서 텔레그램 봇/챗이 이미 등록돼 있어야
+한다). 정기 스케줄(cron) 실행은 항상 `dry_run=false`(실제 발송)로 동작한다.
+
+로컬에서 확인하려면(레포 루트에서):
+
+```bash
+DRY_RUN=1 python3 scripts/notify_missing_records.py
+```
+
+## 7. 나중에 확장한다면
+
+- `system/settings/telegram`에 `notifyOnMissingRecord` 같은 별도 on/off
+  플래그를 추가해, 불편접수 알림과 이 알림을 따로 껐다 켰다 하고 싶을 수
+  있다(지금은 `enabled` 하나로 같이 묶여 있음).
+- 정말 완전한 서버형 알림(이메일·카카오 알림톡·문자까지)이 필요해지면
+  `docs/QUALITY_ALERT_AUTOMATION.md`의 인프라를 확장하는 방향으로 가되, 그건
+  Firebase Blaze 전환과 Cloud Scheduler 함수 신규 작성이 필요한 별도 작업이다.
