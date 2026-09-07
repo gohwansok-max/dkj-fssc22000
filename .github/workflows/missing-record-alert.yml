@@ -18,6 +18,10 @@ on:
         description: '실제로 텔레그램을 보내지 않고 콘솔에만 출력'
         type: boolean
         default: true
+      test_send:
+        description: '마감·미작성 여부와 무관하게 텔레그램 테스트 메시지 1건만 발송(연결 확인용). 켜면 dry_run 설정과 무관하게 실제 발송됨'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -36,4 +40,5 @@ jobs:
         env:
           # 스케줄 실행은 항상 실제 발송. 수동 실행(workflow_dispatch)은 기본 dry-run.
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          TEST_SEND: ${{ github.event_name == 'workflow_dispatch' && inputs.test_send || 'false' }}
         run: python3 scripts/notify_missing_records.py
