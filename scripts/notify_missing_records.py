@@ -59,6 +59,8 @@ MAX_ALERTS_DAILY = 4
 MAX_ALERTS_PERIOD = 3
 
 DRY_RUN = os.environ.get('DRY_RUN', '').strip().lower() in ('1', 'true', 'yes')
+# 마감·미작성 여부와 무관하게 텔레그램 발송 경로만 즉시 확인하고 싶을 때 쓰는 스위치.
+TEST_SEND = os.environ.get('TEST_SEND', '').strip().lower() in ('1', 'true', 'yes')
 
 
 def node_key(value: str) -> str:
@@ -323,11 +325,18 @@ def save_alert_state(state: dict, now: datetime) -> None:
     cutoff = (now - timedelta(days=40)).date()
     pruned = {}
     for key, entry in state.items():
+        if key == '_meta':
+            continue
         period_key = key.split('|', 1)[0]
         d = parse_date(period_key) or parse_date(period_key + '-01')
         if d and d < cutoff:
             continue
         pruned[key] = entry
+    # RTDB는 빈 객체를 저장하려 하면 그 속성을 통째로 지운다(harness PART 2-B와
+    # 같은 함정) — 알림 이력이 하나도 없는 첫 실행에서 pruned가 {}가 되면
+    # database.rules.json의 ".validate"(value 필드 존재 요구)를 못 만족해 PUT이
+    # 401로 거부된다. _meta를 항상 넣어서 value가 절대 빈 객체가 되지 않게 한다.
+    pruned['_meta'] = {'lastRunAt': now.isoformat()}
     rtdb_put(f'records/{ALERT_STATE_KEY}', {
         'value': pruned,
         'updatedAt': int(datetime.now(timezone.utc).timestamp() * 1000)
@@ -348,6 +357,26 @@ def main(now: datetime | None = None) -> int:
     chat_id = str(tg.get('chatId') or '').strip()
     if tg.get('enabled') is False or not bot_token or not chat_id:
         print('텔레그램 설정이 없거나 꺼져 있어 알림을 보내지 않습니다.')
+        return 0
+
+    if TEST_SEND:
+        # 마감·미작성 여부·상태 저장을 전부 건너뛰고 텔레그램 발송 경로만 확인한다.
+        # dry_run 체크와 무관하게 실제로 보낸다(연결 확인이 목적이라 dry-run이면 의미가 없다).
+        global DRY_RUN
+        was_dry_run = DRY_RUN
+        DRY_RUN = False
+        try:
+            send_telegram(bot_token, chat_id, '\n'.join([
+                '🔧 <b>[동김제농협 스마트 HACCP] 일지 미작성 알림 — 연결 테스트</b>',
+                '━━━━━━━━━━━━━━━━━━━━',
+                f'실행 시각: {now.strftime("%Y-%m-%d %H:%M")} (KST)',
+                '이 메시지가 보이면 텔레그램 발송 경로가 정상 동작하는 것입니다.',
+                '(실제 미작성 판정과는 무관한 테스트 메시지입니다.)',
+                '━━━━━━━━━━━━━━━━━━━━'
+            ]))
+        finally:
+            DRY_RUN = was_dry_run
+        print('테스트 메시지 발송 완료')
         return 0
 
     state = load_alert_state()
