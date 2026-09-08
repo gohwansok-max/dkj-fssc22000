@@ -24,7 +24,8 @@
       "id": "subject",
       "label": "검토연도/회차 *",
       "type": "text",
-      "required": true
+      "required": true,
+      "staff": false
     },
     {
       "id": "period",

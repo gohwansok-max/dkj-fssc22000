@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Generate HTML/JS for FR-001~047 (excluding FR-014/015 already hand-built)."""
+"""Generate HTML/JS for FR-001~047 (excluding FR-014/015 already hand-built).
+
+⚠️ 이 스크립트는 초기 생성용이고 지금은 낡았다 — 그대로 돌리지 마세요.
+현재 records/FR-*.html 에는 이 템플릿에 없는 것들이 나중에 주입돼 있습니다:
+상단 내비(#dkjNav), 로그인·클라우드동기화(dkj-auth/dkj-cloud-sync), 전자결재
+패널(#approvalPanel + dkj-approval), 딥링크, PWA, 다국어, 접근성 스크립트,
+그리고 캐시버전 ?v=NN. 지금 main 기준으로 돌리면 이게 전부 지워집니다.
+(2026-09-08 실측: FR-023 한 장만 비교해도 58줄 차이)
+
+FR 서식을 한 장만 고칠 때는 records/<코드>.html 을 직접 고치고, 이 파일의 사양
+정의도 같이 맞춰 두세요. 전체 재생성이 필요하면 먼저 render_html() 템플릿을
+현재 배포본에 맞게 되살린 뒤에 돌려야 합니다.
+"""
 from __future__ import annotations
 
 import json
@@ -405,7 +417,7 @@ SPECS: list[dict] = [
     base(
         "FR-023", "경영검토 입력자료", "연간", ["DKJ-P-08"], "mgmt",
         extra_fields=[
-            f("subject", "검토연도/회차 *", required=True),
+            f("subject", "검토연도/회차 *", required=True, staff=False),
             f("period", "대상기간"),
             f("preparedBy", "자료작성"),
         ],
@@ -794,7 +806,11 @@ def render_field(fld: dict) -> str:
     if typ == "textarea":
         return f'<div class="dkj-field full"><label for="{fid}">{label}</label><textarea id="{fid}" placeholder="{esc(fld.get("placeholder", ""))}"></textarea></div>'
     ph = esc(fld.get("placeholder", ""))
-    return f'<div class="dkj-field"><label for="{fid}">{label}</label><input type="{typ}" id="{fid}" placeholder="{ph}"></div>'
+    # dkj-approval.js 의 attachStaffPickers() 는 라벨에 '검토'·'작성' 같은 말이 들어가면
+    # 그 칸을 직원 이름 <select> 로 바꿔 버린다. 사람이 아닌 칸(예: '검토연도/회차')은
+    # staff=False 로 표시해 두면 그 치환에서 빠진다(선택자가 :not([data-dkj-staff-picker])).
+    skip = ' data-dkj-staff-picker="skip"' if fld.get("staff") is False else ""
+    return f'<div class="dkj-field"><label for="{fid}">{label}</label><input type="{typ}" id="{fid}"{skip} placeholder="{ph}"></div>'
 
 
 def build_print(spec: dict) -> dict:
