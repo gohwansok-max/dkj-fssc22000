@@ -294,8 +294,10 @@ CRLF라 실제로 이 문제를 겪고 고쳤다). `layout`처럼 엔진만으�
    옛날 버전(로그인·동기화·전자결재·PWA 누락)에 멈춰 있던 것을 배포본 기준으로
    되살렸고, FR 서식 45종이 HTML·JS 모두 바이트 단위로 같게 재생성되는 것을 확인했다.
    캐시버전(`?v=NN`)도 하드코딩이 아니라 `records/*.html`에서 읽는다.
-   나머지 엔진(ledger/matrix/ox/report)은 아직 HTML 생성기가 없다 — ledger는 부트 JS만
-   `scripts/build-ledger-forms.py`로 사양 JSON에서 생성한다.
+   **ledger 엔진도 같은 날 `scripts/build-ledger-forms.py`로 해결됐다** — 이쪽은
+   `data/ledger-form-specs/<코드>.json`이 정본이고 `records/<코드>.html`과
+   `js/<코드>.js`를 둘 다 생성한다(`--check`로 어긋난 파일만 확인 가능).
+   남은 건 matrix/ox/report 3종이다.
 
 ---
 
@@ -388,8 +390,14 @@ DKJ-S-02-32(음용수 잔류염소 점검일지)를 실제로 fr-form 엔진으�
    접근성 스크립트와 캐시버전(`?v=`)이 전부 들어간다. 실행 후 `git status`로
    **의도한 코드 외에 다른 서식이 바뀌지 않았는지 반드시 확인**한다.
 
-   다른 엔진(ledger/matrix/ox/report)은 HTML 생성기가 없다 — **지금 실제로 쓰이고
-   있는 같은 엔진 서식 하나를 복사해서 코드·제목·필드만 바꾼다.**
+   **ledger 엔진 서식이면 `scripts/build-ledger-forms.py`를 쓴다.** 이쪽은 반대로
+   `data/ledger-form-specs/<코드>.json`이 정본이라, 사양 JSON만 만들어 두고 실행하면
+   `records/<코드>.html`과 `js/<코드>.js`가 나온다. 화면 껍데기가 사양에서 읽는 값은
+   `title`/`subtitle`/`cat`/`defaultRows`/`incident`/`pageClass`/`bulkChoice`다.
+   `--check`를 붙이면 쓰지 않고 어긋난 파일만 알려준다.
+
+   matrix/ox/report 엔진은 아직 HTML 생성기가 없다 — **지금 실제로 쓰이고 있는 같은
+   엔진 서식 하나를 복사해서 코드·제목·필드만 바꾼다.**
 
    > 2026-09-08에 `scripts/gen-ox-forms.py`는 삭제했다. 그 스크립트가 관리하던 12종
    > 중 7종이 이후 다른 엔진으로 이관돼(matrix 3종, ledger 4종) 실행하면 현장 서식을
