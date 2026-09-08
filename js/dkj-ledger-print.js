@@ -82,6 +82,33 @@
     return '';
   }
 
+  /** 휴무일처럼 기재 대상이 아닌 행인지 — spec.disableRowIf 로 지정한다 */
+  function isRowDisabled(spec, row) {
+    var cfg = spec.disableRowIf;
+    if (!cfg || !row) return false;
+    return (cfg.values || []).indexOf(String(row[cfg.key] || '').trim()) !== -1;
+  }
+
+  /** 휴무일 행 — 일자·요일은 그대로 두고 기재란은 하나로 합쳐 '휴무'만 남긴다 */
+  function offRowCells(spec, cols, row) {
+    var label = esc(spec.disableRowIf.label || '휴무');
+    var out = '';
+    var i = 0;
+    while (i < cols.length) {
+      if (cols[i].readonly) {
+        out += '<td class="' + (cols[i].align === 'left' ? 'l' : 'c') + ' lg-cell">' +
+          cellText(cols[i], row[cols[i].key]) + '</td>';
+        i++;
+      } else {
+        var j = i;
+        while (j + 1 < cols.length && !cols[j + 1].readonly) j++;
+        out += '<td class="c lg-cell lg-off" colspan="' + (j - i + 1) + '">' + label + '</td>';
+        i = j + 1;
+      }
+    }
+    return out;
+  }
+
   function gridHtml(spec, state, cols, from, to) {
     var rows = state.rows || [];
     var min = spec.defaultRows ? spec.defaultRows.length : (spec.rows || 12);
@@ -91,6 +118,10 @@
     var body = '';
     for (var i = a; i < b; i++) {
       var r = rows[i] || {};
+      if (isRowDisabled(spec, r)) {
+        body += '<tr class="lg-row-off">' + offRowCells(spec, cols, r) + '</tr>';
+        continue;
+      }
       body += '<tr>' + cols.map(function (c) {
         return '<td class="' + (c.align === 'left' ? 'l' : 'c') + ' lg-cell">' +
           cellText(c, r[c.key]) + '</td>';

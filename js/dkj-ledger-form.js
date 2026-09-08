@@ -112,6 +112,27 @@
         var d = new Date(y, mo - 1, dnum);
         r[cfg.weekdayKey] = (d.getMonth() === mo - 1) ? names[d.getDay()] : '';
       });
+      clearDisabledRows();
+    }
+
+    /** 휴무일로 바뀐 행에 남아 있던 값을 지운다 — 안 지우면 정본에 그대로 인쇄된다 */
+    function clearDisabledRows() {
+      if (!spec.disableRowIf) return;
+      state.rows.forEach(function (r) {
+        if (!isRowDisabled(r)) return;
+        (spec.columns || []).forEach(function (c) {
+          if (!c.readonly && r[c.key]) r[c.key] = '';
+        });
+      });
+    }
+
+    /* dkj-approval.js 의 attachStaffPickers() 는 라벨에 '점검'·'작성' 같은 말이 들어가면
+       그 입력칸을 직원 이름 <select> 로 바꿔 버린다. '점검 일시'·'점검 월' 처럼 사람이
+       아닌 칸까지 잡혀 필수 항목을 아예 못 쓰는 서식이 있었다. 사양에서 staff:false 로
+       지정하면 이 표시를 달아 치환에서 제외한다(선택자가
+       input:not([data-dkj-staff-picker]) 이라 표시만 있으면 건너뛴다). */
+    function noStaff(f) {
+      return f.staff === false ? ' data-dkj-staff-picker="skip"' : '';
     }
 
     function renderInfo() {
@@ -119,12 +140,17 @@
       if (!host) return;
       host.innerHTML = (spec.infoFields || []).map(function (f) {
         var v = state.info[f.id] || '';
-        var input = f.type === 'date'
-          ? '<input type="date" data-info="' + f.id + '" value="' + esc(v) + '">'
-          : f.type === 'month'
-            ? '<input type="month" data-info="' + f.id + '" value="' + esc(v) + '">'
-            : '<input type="text" data-info="' + f.id + '" value="' + esc(v) + '" placeholder="' +
-              esc(f.placeholder || '') + '">';
+        // readonly 는 서식에서 값이 고정된 칸(예: 자체 처리하는 폐기물 수거업체)이다.
+        // disabled 대신 readonly 를 쓰면 값이 그대로 state 에 남아 정본에도 인쇄된다.
+        var input = f.readonly
+          ? '<input type="text" data-info="' + f.id + '" data-fixed="1" value="' + esc(v) +
+            '" readonly disabled>'
+          : f.type === 'date'
+            ? '<input type="date" data-info="' + f.id + '" value="' + esc(v) + '">'
+            : f.type === 'month'
+              ? '<input type="month" data-info="' + f.id + '" value="' + esc(v) + '">'
+              : '<input type="text" data-info="' + f.id + '"' + noStaff(f) + ' value="' + esc(v) +
+                '" placeholder="' + esc(f.placeholder || '') + '">';
         return '<div class="dkj-field"><label>' + esc(f.label) + '</label>' + input + '</div>';
       }).join('');
       // dkj-approval.js 의 직원 자동선택 기능(attachStaffPickers)이 '점검자' 같은 인원 칸을
@@ -150,6 +176,24 @@
       }
     }
 
+    /** 휴무일처럼 아예 기재하지 않는 행인지 — spec.disableRowIf 로 지정한다 */
+    function isRowDisabled(row) {
+      var cfg = spec.disableRowIf;
+      if (!cfg || !row) return false;
+      return (cfg.values || []).indexOf(String(row[cfg.key] || '').trim()) !== -1;
+    }
+
+    /** 터치 O/X 버튼 묶음 — 태블릿에서 드롭다운을 여닫지 않고 한 번에 찍는다 */
+    function toggleInput(c, ri, v) {
+      var choices = (c.choices || []).slice();
+      // 예전 기록(적/부 등 지금 선택지에 없는 값)이 조용히 사라지지 않도록 그대로 보여준다
+      if (v && choices.indexOf(v) === -1) choices.push(v);
+      return '<div class="lgf-tg" role="group">' + choices.map(function (o) {
+        return '<button type="button" class="lgf-tg-btn' + (v === o ? ' on' : '') +
+          '" data-r="' + ri + '" data-tg="' + c.key + '" data-v="' + esc(o) + '">' + esc(o) + '</button>';
+      }).join('') + '</div>';
+    }
+
     function cellInput(c, ri, v, row) {
       if (c.readonly) {
         return '<span class="lgf-fixed">' + esc(v) + '</span>';
@@ -160,6 +204,9 @@
         return '<input type="text" class="lgf-disabled" data-r="' + ri + '" data-c="' + c.key +
           '" value="" disabled aria-hidden="true">';
       }
+      if (c.ui === 'toggle' && c.type === 'choice') {
+        return toggleInput(c, ri, v);
+      }
       if (c.type === 'choice') {
         return '<select data-r="' + ri + '" data-c="' + c.key + '">' +
           '<option value=""></option>' +
@@ -167,9 +214,45 @@
             return '<option value="' + esc(o) + '"' + (v === o ? ' selected' : '') + '>' + esc(o) + '</option>';
           }).join('') + '</select>';
       }
+      // combo — 자주 쓰는 품목을 목록에서 고르되 목록에 없는 것도 직접 칠 수 있다
+      if (c.type === 'combo') {
+        return '<input type="text" list="lgfList_' + c.key + '" data-r="' + ri + '" data-c="' + c.key +
+          '" value="' + esc(v) + '" placeholder="' + esc(c.placeholder || '선택/입력') + '">';
+      }
       var t = c.type === 'num' ? 'number' : (c.type === 'date' ? 'date' : 'text');
       return '<input type="' + t + '" data-r="' + ri + '" data-c="' + c.key + '" value="' +
         esc(v) + '" placeholder="' + esc(c.unit || '') + '">';
+    }
+
+    /** 휴무일 행 — 일자·요일만 남기고 기재란은 하나로 합쳐 '휴무'만 표시한다.
+        칸마다 '휴무'를 반복해 찍으면 가로로 긴 온도표에서 읽기가 더 나빠진다. */
+    function offRowCells(row) {
+      var label = esc(spec.disableRowIf.label || '휴무');
+      var out = '';
+      var i = 0;
+      while (i < COLS.length) {
+        if (COLS[i].readonly) {
+          out += '<td>' + cellInput(COLS[i], -1, row[COLS[i].key] || '', row) + '</td>';
+          i++;
+        } else {
+          var j = i;
+          while (j + 1 < COLS.length && !COLS[j + 1].readonly) j++;
+          out += '<td class="lgf-off-cell" colspan="' + (j - i + 1) + '">' +
+            '<span class="lgf-off">' + label + '</span></td>';
+          i = j + 1;
+        }
+      }
+      return out;
+    }
+
+    /** combo 열이 참조하는 <datalist> 를 표 앞에 한 번만 깐다 */
+    function datalistHtml() {
+      return COLS.filter(function (c) { return c.type === 'combo' && (c.choices || []).length; })
+        .map(function (c) {
+          return '<datalist id="lgfList_' + c.key + '">' + c.choices.map(function (o) {
+            return '<option value="' + esc(o) + '"></option>';
+          }).join('') + '</datalist>';
+        }).join('');
     }
 
     function renderGrid() {
@@ -180,19 +263,35 @@
             spec.defaultRows ? COLS : COLS.concat([{ key: '__act', label: '' }]))
         : '';
       var body = state.rows.map(function (r, ri) {
-        return '<tr>' + COLS.map(function (c) {
-          return '<td>' + cellInput(c, ri, r[c.key] || '', r) + '</td>';
-        }).join('') +
+        var cells = isRowDisabled(r)
+          ? offRowCells(r)
+          : COLS.map(function (c) {
+              return '<td>' + cellInput(c, ri, r[c.key] || '', r) + '</td>';
+            }).join('');
+        return '<tr' + (isRowDisabled(r) ? ' class="lgf-row-off"' : '') + '>' + cells +
           (spec.defaultRows ? '' :
             '<td class="lgf-act"><button type="button" class="lgf-del" data-del="' + ri +
             '">삭제</button></td>') + '</tr>';
       }).join('');
-      host.innerHTML = '<table class="lgf-table"><thead>' + thead + '</thead><tbody>' + body + '</tbody></table>';
+      host.innerHTML = datalistHtml() +
+        '<table class="lgf-table"><thead>' + thead + '</thead><tbody>' + body + '</tbody></table>';
 
       host.querySelectorAll('[data-r]').forEach(function (el) {
         var ev = el.tagName === 'SELECT' ? 'change' : 'input';
         el.addEventListener(ev, function () {
           state.rows[Number(el.getAttribute('data-r'))][el.getAttribute('data-c')] = el.value;
+          scheduleDraft();
+        });
+      });
+      host.querySelectorAll('[data-tg]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (state.locked) return;
+          var row = state.rows[Number(b.getAttribute('data-r'))];
+          var key = b.getAttribute('data-tg');
+          var val = b.getAttribute('data-v');
+          // 같은 버튼을 다시 누르면 해제 — 잘못 찍었을 때 지우는 유일한 방법이다
+          row[key] = row[key] === val ? '' : val;
+          renderGrid();
           scheduleDraft();
         });
       });
@@ -237,16 +336,23 @@
       if (!host) return;
       host.classList.toggle('is-locked', !!state.locked);
       host.querySelectorAll('#ledgerGrid input, #ledgerGrid select, #ledgerGrid button, '
-        + '#infoFields input, #incidentGrid input')
+        + '#infoFields input, #infoFields select, #incidentGrid input')
         .forEach(function (el) { el.disabled = !!state.locked; });
+      // 잠금 해제 시에도 서식상 읽기전용인 칸은 계속 막아 둔다
+      host.querySelectorAll('#infoFields [data-fixed]').forEach(function (el) { el.disabled = true; });
       ['btnBulkOk', 'btnBulkNg'].forEach(function (id) {
         if ($(id)) $(id).disabled = !!state.locked;
       });
     }
 
     function filledRows() {
+      // 서식에 미리 인쇄된 칸(구역·점검항목·고정 수거업체 등)과 휴무일 행은 '기재됨'으로
+      // 세지 않는다. 세면 아무것도 안 쓴 시트가 검증을 통과하고 건수도 부풀려진다.
+      var inputCols = COLS.filter(function (c) { return !c.readonly; });
+      var cols = inputCols.length ? inputCols : COLS;
       return state.rows.filter(function (r) {
-        return COLS.some(function (c) { return String(r[c.key] || '').trim(); });
+        if (isRowDisabled(r)) return false;
+        return cols.some(function (c) { return String(r[c.key] || '').trim(); });
       });
     }
 
@@ -254,6 +360,7 @@
       var keys = spec.bulkChoiceKeys || [];
       if (state.locked || !keys.length) return;
       state.rows.forEach(function (row) {
+        if (isRowDisabled(row)) return;
         keys.forEach(function (key) { row[key] = value; });
       });
       renderGrid();

@@ -14,7 +14,8 @@
       "label": "점검 월",
       "type": "text",
       "placeholder": "2026 . 08",
-      "required": true
+      "required": true,
+      "staff": false
     },
     {
       "id": "inspector",

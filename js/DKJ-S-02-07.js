@@ -55,7 +55,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "비래 해충",
-      "enableIf": { "field": "device", "includes": "포충등" }
+      "enableIf": {
+        "field": "device",
+        "includes": "포충등"
+      }
     },
     {
       "key": "moth",
@@ -63,7 +66,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "비래 해충",
-      "enableIf": { "field": "device", "includes": "포충등" }
+      "enableIf": {
+        "field": "device",
+        "includes": "포충등"
+      }
     },
     {
       "key": "mosq",
@@ -71,7 +77,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "비래 해충",
-      "enableIf": { "field": "device", "includes": "포충등" }
+      "enableIf": {
+        "field": "device",
+        "includes": "포충등"
+      }
     },
     {
       "key": "fruitfly",
@@ -79,7 +88,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "비래 해충",
-      "enableIf": { "field": "device", "includes": "포충등" }
+      "enableIf": {
+        "field": "device",
+        "includes": "포충등"
+      }
     },
     {
       "key": "drain",
@@ -87,7 +99,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "비래 해충",
-      "enableIf": { "field": "device", "includes": "포충등" }
+      "enableIf": {
+        "field": "device",
+        "includes": "포충등"
+      }
     },
     {
       "key": "etc1",
@@ -95,7 +110,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "비래 해충",
-      "enableIf": { "field": "device", "includes": "포충등" }
+      "enableIf": {
+        "field": "device",
+        "includes": "포충등"
+      }
     },
     {
       "key": "sum1",
@@ -103,7 +121,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "비래 해충",
-      "enableIf": { "field": "device", "includes": "포충등" }
+      "enableIf": {
+        "field": "device",
+        "includes": "포충등"
+      }
     },
     {
       "key": "roach",
@@ -111,7 +132,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "보행해충",
-      "enableIf": { "field": "device", "includes": "바퀴트랩" }
+      "enableIf": {
+        "field": "device",
+        "includes": "바퀴트랩"
+      }
     },
     {
       "key": "spider",
@@ -119,7 +143,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "보행해충",
-      "enableIf": { "field": "device", "includes": "바퀴트랩" }
+      "enableIf": {
+        "field": "device",
+        "includes": "바퀴트랩"
+      }
     },
     {
       "key": "ant",
@@ -127,7 +154,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "보행해충",
-      "enableIf": { "field": "device", "includes": "바퀴트랩" }
+      "enableIf": {
+        "field": "device",
+        "includes": "바퀴트랩"
+      }
     },
     {
       "key": "etc2",
@@ -135,7 +165,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "보행해충",
-      "enableIf": { "field": "device", "includes": "바퀴트랩" }
+      "enableIf": {
+        "field": "device",
+        "includes": "바퀴트랩"
+      }
     },
     {
       "key": "sum2",
@@ -143,7 +176,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "보행해충",
-      "enableIf": { "field": "device", "includes": "바퀴트랩" }
+      "enableIf": {
+        "field": "device",
+        "includes": "바퀴트랩"
+      }
     },
     {
       "key": "rat",
@@ -151,7 +187,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "설치류",
-      "enableIf": { "field": "device", "includes": "쥐트랩" }
+      "enableIf": {
+        "field": "device",
+        "includes": "쥐트랩"
+      }
     },
     {
       "key": "etc3",
@@ -159,7 +198,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "설치류",
-      "enableIf": { "field": "device", "includes": "쥐트랩" }
+      "enableIf": {
+        "field": "device",
+        "includes": "쥐트랩"
+      }
     },
     {
       "key": "sum3",
@@ -167,7 +209,10 @@
       "width": "4.6%",
       "type": "num",
       "group": "설치류",
-      "enableIf": { "field": "device", "includes": "쥐트랩" }
+      "enableIf": {
+        "field": "device",
+        "includes": "쥐트랩"
+      }
     }
   ],
   "defaultRows": [

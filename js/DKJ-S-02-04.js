@@ -51,19 +51,21 @@
     {
       "key": "item",
       "label": "점검 기준 & 항목",
-      "width": "40%",
+      "width": "37%",
       "readonly": true,
       "align": "left"
     },
     {
       "key": "result",
       "label": "점검결과 ( O / X )",
-      "width": "10%",
+      "width": "13%",
       "type": "choice",
       "choices": [
         "O",
-        "X"
-      ]
+        "X",
+        "-"
+      ],
+      "ui": "toggle"
     },
     {
       "key": "remark",
@@ -438,6 +440,6 @@
       }
     ]
   },
-  "legend": "※ 평가 - 양호 : O, 부적합 : X.  X 판정 시 이상 발생 내역에 조치 결과를 기록한다."
+  "legend": "※ 평가 - 양호 : O, 부적합 : X, 해당없음 : -.  X 판정 시 이상 발생 내역에 조치 결과를 기록한다."
 });
 })();

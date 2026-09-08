@@ -21,7 +21,8 @@
       "type": "text",
       "placeholder": "202 년 월 일 ~ 202 년 월 일",
       "required": true,
-      "span": 3
+      "span": 3,
+      "staff": false
     },
     {
       "id": "inspector",
@@ -45,7 +46,9 @@
     {
       "id": "company",
       "label": "수거업체",
-      "type": "text"
+      "type": "text",
+      "default": "자체",
+      "readonly": true
     }
   ],
   "columns": [
@@ -82,9 +85,11 @@
       "key": "company",
       "label": "수거업체",
       "width": "18%",
-      "align": "left"
+      "align": "left",
+      "default": "자체",
+      "readonly": true
     }
   ],
-  "legend": "※ 폐기물은 지정 장소에 보관하고 반출 시 수거업체 인수인계를 확인한다."
+  "legend": "※ 폐기물은 지정 장소에 보관하고 반출 시 인수인계를 확인한다.  ※ 수거업체 : 자체 처리(고정)."
 });
 })();

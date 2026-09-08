@@ -60,6 +60,69 @@
     }
   }
 
+  /* 포장재 정보 — 한 번의 점검에 포장재가 여러 건 들어가므로 5행 고정 표로 받는다. */
+  var PACK_ROWS = 5;
+
+  function emptyPackagings() {
+    var out = [];
+    for (var i = 0; i < PACK_ROWS; i++) out.push({ lot: '', usage: '', defect: '' });
+    return out;
+  }
+
+  /** 예전 기록(포장재 1건을 낱개 필드로 저장하던 구조)을 5행 표로 옮긴다.
+      이 이관을 빼면 이미 저장된 CCP 기록의 포장재 LOT 이 화면에서 사라진다. */
+  function normalizePackagings(st) {
+    var list = Array.isArray(st.packagings) ? st.packagings.slice(0, PACK_ROWS) : [];
+    // 빈 5행은 '아직 없음'과 같다 — 이걸 값이 있는 것으로 보면 옛 기록의 낱개 필드가
+    // 영영 이관되지 않는다(기록 불러오기는 emptyState() 위에 덮어쓰기 때문).
+    var hasAny = list.some(function (r) {
+      return r && (String(r.lot || '') || String(r.usage || '') || String(r.defect || ''));
+    });
+    if (!hasAny && (st.packagingLot || st.packagingUsage || st.packagingDefectCount)) {
+      list = [{
+        lot: st.packagingLot || '',
+        usage: st.packagingUsage || '',
+        defect: st.packagingDefectCount || ''
+      }];
+    }
+    while (list.length < PACK_ROWS) list.push({ lot: '', usage: '', defect: '' });
+    st.packagings = list.map(function (r) {
+      return { lot: (r && r.lot) || '', usage: (r && r.usage) || '', defect: (r && r.defect) || '' };
+    });
+    // 낱개 필드는 더 쓰지 않지만, 옛 기록을 다시 열었을 때 값이 되살아나지 않도록 지운다
+    delete st.packagingLot;
+    delete st.packagingUsage;
+    delete st.packagingDefectCount;
+    return st;
+  }
+
+  function renderPackagings() {
+    var body = $('packBody');
+    if (!body) return;
+    body.innerHTML = state.packagings.map(function (row, i) {
+      return '<tr data-p="' + i + '">' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td><input type="text" class="mon-in pack-in" data-pf="lot" value="' +
+        esc(row.lot) + '" placeholder="포장재 입고 LOT"></td>' +
+        '<td><input type="text" class="mon-in pack-in" data-pf="usage" value="' +
+        esc(row.usage) + '" placeholder="예: 200 EA / 5 kg"></td>' +
+        '<td><input type="number" class="mon-in pack-in" data-pf="defect" min="0" step="1" value="' +
+        esc(row.defect) + '" placeholder="0"></td>' +
+        '</tr>';
+    }).join('');
+    body.querySelectorAll('.pack-in').forEach(function (inp) {
+      inp.disabled = !!state.locked;
+      var onPackInput = function (e) {
+        if (state.locked) return;
+        var i = Number(e.target.closest('tr').getAttribute('data-p'));
+        state.packagings[i][e.target.getAttribute('data-pf')] = e.target.value;
+        scheduleDraft();
+      };
+      inp.addEventListener('input', onPackInput);
+      inp.addEventListener('change', onPackInput);
+    });
+  }
+
   function emptyState() {
     return {
       workDate: today(),
@@ -71,9 +134,7 @@
       weightClass: 'fresh500',
       monitorName: '',
       timing: '시작전',
-      packagingLot: '',
-      packagingUsage: '',
-      packagingDefectCount: '',
+      packagings: emptyPackagings(),
       rows: [emptyRow(), emptyRow(), emptyRow()],
       deviation: '',
       corrective: '',
@@ -228,9 +289,6 @@
     renderWeightHint();
     state.monitorName = $('monitorName').value;
     state.timing = $('timing').value;
-    state.packagingLot = $('packagingLot').value;
-    state.packagingUsage = $('packagingUsage').value;
-    state.packagingDefectCount = $('packagingDefectCount').value;
     state.deviation = $('deviation').value;
     state.corrective = $('corrective').value;
     state.confirmer = $('confirmer').value;
@@ -250,15 +308,14 @@
     renderWeightHint();
     $('monitorName').value = state.monitorName || '';
     $('timing').value = state.timing || '시작전';
-    $('packagingLot').value = state.packagingLot || '';
-    $('packagingUsage').value = state.packagingUsage || '';
-    $('packagingDefectCount').value = state.packagingDefectCount || '';
     $('deviation').value = state.deviation || '';
     $('corrective').value = state.corrective || '';
     $('confirmer').value = state.confirmer || '';
     $('approver').value = state.approver || '';
     $('remark').value = state.remark || '';
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
+    normalizePackagings(state);
+    renderPackagings();
     renderRows();
     syncApprovals();
     refreshApproval();
@@ -355,8 +412,7 @@
 
   function bind() {
     ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize', 'weightClass',
-      'monitorName', 'timing', 'packagingLot', 'packagingUsage', 'packagingDefectCount',
-      'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
+      'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var onFieldInput = function () {
         readForm();
         refreshApproval();

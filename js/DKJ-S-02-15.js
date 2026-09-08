@@ -70,10 +70,12 @@
       "width": "7%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "점검사항"
+      "group": "점검사항",
+      "ui": "toggle"
     },
     {
       "key": "printState",
@@ -81,10 +83,12 @@
       "width": "7%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "점검사항"
+      "group": "점검사항",
+      "ui": "toggle"
     },
     {
       "key": "pack",
@@ -92,10 +96,12 @@
       "width": "7%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "점검사항"
+      "group": "점검사항",
+      "ui": "toggle"
     },
     {
       "key": "dirty",
@@ -103,10 +109,12 @@
       "width": "7%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "점검사항"
+      "group": "점검사항",
+      "ui": "toggle"
     },
     {
       "key": "seal",
@@ -114,10 +122,12 @@
       "width": "7%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "점검사항"
+      "group": "점검사항",
+      "ui": "toggle"
     },
     {
       "key": "doc",
@@ -126,8 +136,10 @@
       "type": "choice",
       "choices": [
         "유",
-        "무"
-      ]
+        "무",
+        "-"
+      ],
+      "ui": "toggle"
     },
     {
       "key": "judge",
@@ -152,6 +164,6 @@
       "required": true
     }
   ],
-  "legend": "※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다."
+  "legend": "※ 점검사항 - 적합 : O, 부적합 : X, 해당없음 : -  (서류검토는 유 / 무 / - 로 기재)  ※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다."
 });
 })();
