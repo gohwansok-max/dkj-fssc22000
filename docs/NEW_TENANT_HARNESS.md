@@ -294,10 +294,12 @@ CRLF라 실제로 이 문제를 겪고 고쳤다). `layout`처럼 엔진만으�
    옛날 버전(로그인·동기화·전자결재·PWA 누락)에 멈춰 있던 것을 배포본 기준으로
    되살렸고, FR 서식 45종이 HTML·JS 모두 바이트 단위로 같게 재생성되는 것을 확인했다.
    캐시버전(`?v=NN`)도 하드코딩이 아니라 `records/*.html`에서 읽는다.
-   **ledger 엔진도 같은 날 `scripts/build-ledger-forms.py`로 해결됐다** — 이쪽은
-   `data/ledger-form-specs/<코드>.json`이 정본이고 `records/<코드>.html`과
+   **나머지 네 엔진도 같은 날 해결됐다** — ledger는 `scripts/build-ledger-forms.py`,
+   matrix·ox·report는 `scripts/build-form-shells.py`가 맡는다. 이쪽은
+   `data/<엔진>-form-specs/<코드>.json`이 정본이고 `records/<코드>.html`과
    `js/<코드>.js`를 둘 다 생성한다(`--check`로 어긋난 파일만 확인 가능).
-   남은 건 matrix/ox/report 3종이다.
+   **이제 서식 74종이 전부 사양에서 생성된다** — 새 사업장을 찍어낼 때 서식 껍데기는
+   손으로 만들 필요가 없다.
 
 ---
 
@@ -390,14 +392,19 @@ DKJ-S-02-32(음용수 잔류염소 점검일지)를 실제로 fr-form 엔진으�
    접근성 스크립트와 캐시버전(`?v=`)이 전부 들어간다. 실행 후 `git status`로
    **의도한 코드 외에 다른 서식이 바뀌지 않았는지 반드시 확인**한다.
 
-   **ledger 엔진 서식이면 `scripts/build-ledger-forms.py`를 쓴다.** 이쪽은 반대로
-   `data/ledger-form-specs/<코드>.json`이 정본이라, 사양 JSON만 만들어 두고 실행하면
-   `records/<코드>.html`과 `js/<코드>.js`가 나온다. 화면 껍데기가 사양에서 읽는 값은
-   `title`/`subtitle`/`cat`/`defaultRows`/`incident`/`pageClass`/`bulkChoice`다.
-   `--check`를 붙이면 쓰지 않고 어긋난 파일만 알려준다.
+   **나머지 네 엔진은 사양 JSON이 정본이다.** 사양만 만들어 두고 해당 스크립트를
+   실행하면 `records/<코드>.html`과 `js/<코드>.js`가 나온다. 둘 다 `--check`로
+   쓰지 않고 어긋난 파일만 확인할 수 있다.
 
-   matrix/ox/report 엔진은 아직 HTML 생성기가 없다 — **지금 실제로 쓰이고 있는 같은
-   엔진 서식 하나를 복사해서 코드·제목·필드만 바꾼다.**
+   | 엔진 | 스크립트 | 화면 관련 사양 키 |
+   |---|---|---|
+   | ledger | `build-ledger-forms.py` | `cat` `defaultRows` `incident` `pageClass` `bulkChoice` |
+   | matrix | `build-form-shells.py` | `screen{newLabel,periodLabel,startLabel,sectionTitle,fillAria,fillText,hint}` `headerLinks` `footerLinks` |
+   | ox | `build-form-shells.py` | `fields` `sectionOxTitle` `customBoot` `headerLinks` `footerLinks` |
+   | report | `build-form-shells.py` | 제목·부제 외 변형 없음 |
+
+   예외는 `js/DKJ-STORE-01.js` 하나다 — FR-014 입고 연계 파라미터를 읽는 손으로 쓴
+   코드가 `mount()` 앞뒤에 있어 생성 대상에서 뺐다(HTML은 생성한다).
 
    > 2026-09-08에 `scripts/gen-ox-forms.py`는 삭제했다. 그 스크립트가 관리하던 12종
    > 중 7종이 이후 다른 엔진으로 이관돼(matrix 3종, ledger 4종) 실행하면 현장 서식을

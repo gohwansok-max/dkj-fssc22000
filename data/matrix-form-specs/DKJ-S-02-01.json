@@ -1,7 +1,7 @@
 {
   "code": "DKJ-S-02-01",
   "title": "작업장 위생점검 일지",
-  "subtitle": "선행요건 · 매일 점검 · 주 단위 결재 · PRP-001/002 연계",
+  "subtitle": "선행요건 · 매일 점검 · 주 단위 결재 · 35항목 × 7일 · PRP-001/002 연계",
   "pattern": "matrix",
   "period": "week",
   "days": 7,
@@ -326,6 +326,43 @@
           ]
         }
       ]
+    }
+  ],
+  "screen": {
+    "newLabel": "새 주차",
+    "periodLabel": "점검 주차",
+    "startLabel": "점검 주차 시작일(월) *",
+    "sectionTitle": "위생점검",
+    "fillAria": "일괄 입력 대상일",
+    "fillText": "해당일 미입력 전체 ○",
+    "hint": "※ <strong>1장 = 1주(월~일 7일)</strong> 이며, 결재는 주 단위로 실시합니다. 생산이 없는 요일은 아래 점검표 상단의 요일 버튼으로 제외할 수 있습니다."
+  },
+  "headerLinks": [
+    {
+      "label": "← 기록목록",
+      "href": "../records-center.html?cat=daily"
+    },
+    {
+      "label": "PRP-001",
+      "href": "../doc-viewer.html?id=PRP-001"
+    }
+  ],
+  "footerLinks": [
+    {
+      "label": "일지 정본",
+      "href": "../doc-viewer.html?id=DKJ-S-02-01"
+    },
+    {
+      "label": "PRP-001 영업장",
+      "href": "../doc-viewer.html?id=PRP-001"
+    },
+    {
+      "label": "PRP-002 위생",
+      "href": "../doc-viewer.html?id=PRP-002"
+    },
+    {
+      "label": "CCP-1BC →",
+      "href": "DKJ-H-01-01.html"
     }
   ]
 }

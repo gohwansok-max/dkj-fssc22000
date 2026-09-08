@@ -1,5 +1,5 @@
 /**
- * DKJ-H-01-06 - matrix(annual) boot (SSOT: data/matrix-form-specs/DKJ-H-01-06.json)
+ * DKJ-H-01-06 - matrix boot (SSOT: data/matrix-form-specs/DKJ-H-01-06.json)
  */
 (function () {
   'use strict';

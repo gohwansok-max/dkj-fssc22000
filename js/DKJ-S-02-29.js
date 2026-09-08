@@ -1,5 +1,5 @@
 /**
- * DKJ-S-02-29 — generated boot
+ * DKJ-S-02-29 - ox boot (SSOT: data/ox-form-specs/DKJ-S-02-29.json)
  */
 (function () {
   'use strict';
@@ -31,7 +31,7 @@
       ],
       "default": "주간"
     },
-   {
+    {
       "id": "team",
       "label": "작업팀/라인",
       "type": "text"
@@ -56,7 +56,7 @@
       "label": "발열·오한 증상 없음",
       "hint": "37.5℃ 이상 배제"
     },
-   {
+    {
       "key": "h02",
       "group": "소화기",
       "label": "설사·구토·복통 없음",
