@@ -123,4 +123,98 @@
       localStorage.removeItem(draftKey(formId));
     }
   };
+
+  /* ---------- 1회성 데이터 정정 ----------
+   * 서식을 고쳐도 이미 저장된 기록에는 옛 값이 남는다. 기록은 브라우저 localStorage 가
+   * 정본이고 서버가 없어서, 중앙에서 한 번에 고칠 방법이 없다 — 그래서 각 기기가 앱을
+   * 열 때 스스로 한 번 고친다. 고친 결과는 dkj-cloud-sync.js 의 updatedAt 비교 병합을
+   * 타고 다른 기기·클라우드로 퍼진다(그래서 updatedAt 을 반드시 올린다. 안 올리면
+   * 아직 옛 값을 가진 기기가 다음 동기화 때 되돌려 놓는다).
+   *
+   * 여기 넣어도 되는 것은 '뜻이 달라지지 않는 값 교정'뿐이다. 기록 내용을 바꾸는
+   * 것은 절대 넣지 말 것 — 작성완료(잠금)된 기록의 수정을 막는 dkj-approval.js 의
+   * 저장 훅을 이 코드가 우회하기 때문이다(그 훅은 DkjRecordStore.save 만 감싼다).
+   */
+  var MIGRATION_KEY = 'dkj:migrations:v1';
+
+  var MIGRATIONS = [
+    {
+      // DKJ-S-02-12 점검구역 '작업장 전체' 의 저장값이 '점체' 로 오타나 있었다.
+      // 화면에 보이던 라벨은 '작업장 전체' 로 맞았고 내부 값만 틀렸으므로, 작업자가
+      // 무엇을 점검했는지(기록의 뜻)는 그대로다. 서식은 2026-09-08 에 고쳤고
+      // 그 전에 저장된 기록을 여기서 맞춘다.
+      id: 'DKJ-S-02-12-area-typo',
+      formId: 'DKJ-S-02-12',
+      field: 'area',
+      from: '점체',
+      to: '전체',
+      detail: '점검구역 저장값 오타 정정 (점체 → 전체)'
+    }
+  ];
+
+  function appliedIds() {
+    var v = readJson(MIGRATION_KEY, []);
+    return Array.isArray(v) ? v : [];
+  }
+
+  function markApplied(id) {
+    var done = appliedIds();
+    if (done.indexOf(id) === -1) {
+      done.push(id);
+      localStorage.setItem(MIGRATION_KEY, JSON.stringify(done));
+    }
+  }
+
+  function applyMigration(m) {
+    var now = new Date().toISOString();
+    // list() 는 deleted 를 걸러낸다 — 삭제 표식이 지워지지 않도록 원본 배열로 읽고 쓴다.
+    var list = readJson(listKey(m.formId), []);
+    var fixed = 0;
+    list.forEach(function (rec) {
+      if (!rec || rec[m.field] !== m.from) return;
+      rec[m.field] = m.to;
+      // 감사이력에 정정 사실을 남긴다. 해시 체인이라 반드시 DkjApproval.append 로
+      // 붙여야 무결성 검증이 깨지지 않는다.
+      global.DkjApproval.append(rec, 'FIX', '시스템', m.detail);
+      rec.updatedAt = now;
+      fixed++;
+    });
+    if (fixed) writeJson(listKey(m.formId), list);
+
+    // 작성 중이던 임시본에도 옛 값이 남아 있을 수 있다(감사이력 대상 아님).
+    var draft = readJson(draftKey(m.formId), null);
+    if (draft && draft[m.field] === m.from) {
+      draft[m.field] = m.to;
+      writeJson(draftKey(m.formId), draft);
+    }
+    return fixed;
+  }
+
+  function runMigrations() {
+    var done = appliedIds();
+    MIGRATIONS.forEach(function (m) {
+      if (done.indexOf(m.id) !== -1) return;
+      // 감사이력을 남길 수 없는 화면(dkj-approval.js 를 안 싣는 페이지)에서는 건너뛴다.
+      // 완료 표시를 하지 않으므로 서식 화면을 열면 그때 정정된다.
+      if (!global.DkjApproval || typeof global.DkjApproval.append !== 'function') return;
+      try {
+        var n = applyMigration(m);
+        markApplied(m.id);
+        if (n) {
+          try {
+            console.info('[DkjRecordStore] 기록 정정 ' + m.id + ': ' + n + '건');
+          } catch (e) {}
+        }
+      } catch (e) {
+        // 정정 실패가 앱을 막지 않는다 — 다음 접속 때 다시 시도한다.
+      }
+    });
+  }
+
+  // 스크립트 순서상 dkj-approval.js 가 아직 안 실렸을 수 있어 로드 완료 후에 돈다.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runMigrations);
+  } else {
+    runMigrations();
+  }
 })(window);
