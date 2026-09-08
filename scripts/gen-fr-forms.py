@@ -1,17 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Generate HTML/JS for FR-001~047 (excluding FR-014/015 already hand-built).
+"""FR-001~047 서식의 HTML/JS/사양/인쇄템플릿을 한 벌로 생성한다(FR-014/015 제외).
 
-⚠️ 이 스크립트는 초기 생성용이고 지금은 낡았다 — 그대로 돌리지 마세요.
-현재 records/FR-*.html 에는 이 템플릿에 없는 것들이 나중에 주입돼 있습니다:
-상단 내비(#dkjNav), 로그인·클라우드동기화(dkj-auth/dkj-cloud-sync), 전자결재
-패널(#approvalPanel + dkj-approval), 딥링크, PWA, 다국어, 접근성 스크립트,
-그리고 캐시버전 ?v=NN. 지금 main 기준으로 돌리면 이게 전부 지워집니다.
-(2026-09-08 실측: FR-023 한 장만 비교해도 58줄 차이)
+`SPECS` 가 정본이고, 아래 파일들이 여기서 생성된다.
 
-FR 서식을 한 장만 고칠 때는 records/<코드>.html 을 직접 고치고, 이 파일의 사양
-정의도 같이 맞춰 두세요. 전체 재생성이 필요하면 먼저 render_html() 템플릿을
-현재 배포본에 맞게 되살린 뒤에 돌려야 합니다.
+    records/<코드>.html          화면 껍데기
+    js/<코드>.js                 부트 스크립트(DkjFrForm.mount)
+    data/fr-form-specs/<코드>.json
+    data/print-templates/<코드>.json
+    data/record-catalog.json     (해당 코드 항목만 upsert)
+
+render_html() 이 내는 껍데기는 지금 배포본과 같아야 한다 — 상단 내비, 로그인·클라우드
+동기화, 전자결재 패널, 딥링크, PWA, 다국어, 접근성 스크립트, 그리고 캐시버전 `?v=NN`.
+2026-09-08 에 이 템플릿이 초기 버전(이것들이 전부 빠진)에 멈춰 있던 것을 배포본 기준으로
+되살렸고, FR 서식 45종이 바이트 단위로 같게 재생성되는 것을 확인했다.
+
+**고치고 나면 반드시 재생성 결과가 기존 파일과 같은지 먼저 확인하고 커밋할 것.**
+
+    git status --short          # 의도한 파일만 바뀌었는지
+    python scripts/smoke-check.py
+
+캐시버전은 하드코딩하지 않는다 — records/*.html 에서 실제로 쓰이는 값을 읽어 온다.
+전체 버전을 올릴 때는 CLAUDE.md 의 절차(sed 일괄 치환 + scripts/inject-*.py 동반 갱신
++ build-sw-precache.py)를 따르고, 이 스크립트는 그 결과를 그대로 따라간다.
 """
 from __future__ import annotations
 
@@ -26,6 +37,22 @@ PRINT_DIR = ROOT / "data" / "print-templates"
 CATALOG = ROOT / "data" / "record-catalog.json"
 
 SKIP = {"FR-014", "FR-015"}
+
+# 캐시버전(?v=NN) — 배포본에서 실제로 쓰이는 값을 읽는다. 여기 숫자를 박아 두면
+# 전체 버전을 올릴 때마다 이 파일만 뒤처져서, 나중에 재생성했을 때 옛 버전 태그가
+# 되살아난다(2026-08 에 scripts/inject-*.py 가 실제로 그렇게 v=38 에 멈춰 있었다).
+CACHE_VERSION_FALLBACK = "85"
+
+
+def cache_version() -> str:
+    """records/*.html 에서 가장 많이 쓰인 ?v=NN 을 캐시버전으로 본다."""
+    import collections
+    import re as _re
+
+    seen: collections.Counter[str] = collections.Counter()
+    for path in REC_DIR.glob("*.html"):
+        seen.update(_re.findall(r"\?v=(\d+)", path.read_text(encoding="utf-8")))
+    return seen.most_common(1)[0][0] if seen else CACHE_VERSION_FALLBACK
 
 
 def f(id_, label, type_="text", **kw):
@@ -877,23 +904,28 @@ def render_html(spec: dict) -> str:
         for l in spec.get("footerLinks", [])
     )
     header = "".join(
-        f'<a class="pill-btn ghost" href="{esc(l["href"])}" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">{esc(l["label"])}</a>'
+        f'<a class="pill-btn ghost" href="{esc(l["href"])}">{esc(l["label"])}</a>'
         for l in spec.get("headerLinks", [])
     )
+    v = cache_version()
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#008352">
+  <meta name="theme-color" content="#009a44">
   <title>{esc(code)} {esc(spec["title"])} | 동김제농협</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/dkj-portal.css">
-  <link rel="stylesheet" href="../css/dkj-form.css">
-  <link rel="stylesheet" href="../css/dkj-print.css">
+  <link rel="stylesheet" href="../css/dkj-tokens.css?v={v}">
+  <link rel="stylesheet" href="../css/dkj-form.css?v={v}">
+  <link rel="stylesheet" href="../css/dkj-print.css?v={v}">
+  <link rel="manifest" href="../manifest.json?v={v}">
+  <link rel="stylesheet" href="../css/dkj-quick-nav.css?v={v}">
+  <link rel="stylesheet" href="../css/dkj-accessibility.css?v={v}">
 </head>
 <body class="dkj-form-page">
   <div class="screen-only">
+  <nav id="dkjNav"></nav>
   <header class="dkj-form-header">
     <div class="container">
       <div>
@@ -931,15 +963,30 @@ def render_html(spec: dict) -> str:
       </div>
       <div class="dkj-link-bar">{footer}</div>
     </section>
+    <section class="dkj-panel">
+      <h2>전자결재 · 감사이력</h2>
+      <div id="approvalPanel"></div>
+    </section>
     <section class="dkj-panel history"><h2>{hist_n} 최근 저장</h2><div id="historyList"></div></section>
   </main>
   </div>
   <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
-  <script src="../js/dkj-record-store.js"></script>
-  <script src="../js/dkj-print-official.js"></script>
-  <script src="../js/dkj-print-form.js"></script>
-  <script src="../js/dkj-fr-form.js"></script>
-  <script src="../js/{esc(code)}.js"></script>
+  <script src="../js/dkj-util.js?v={v}"></script>
+  <script src="../js/dkj-firebase-config.js?v={v}"></script>
+  <script src="../js/dkj-auth.js?v={v}"></script>
+  <script src="../js/dkj-cloud-sync.js?v={v}"></script>
+  <script src="../js/dkj-nav-bar.js?v={v}"></script>
+  <script src="../js/dkj-record-store.js?v={v}"></script>
+  <script src="../js/dkj-approval.js?v={v}"></script>
+  <script src="../js/dkj-deeplink.js?v={v}"></script>
+  <script src="../js/dkj-print-official.js?v={v}"></script>
+  <script src="../js/dkj-print-form.js?v={v}"></script>
+  <script src="../js/dkj-fr-form.js?v={v}"></script>
+  <script src="../js/{esc(code)}.js?v={v}"></script>
+  <script src="../js/dkj-pwa.js?v={v}"></script>
+  <script src="../js/dkj-quick-nav.js?v={v}"></script>
+  <script src="../js/dkj-i18n.js?v={v}"></script>
+  <script src="../js/dkj-accessibility.js?v={v}"></script>
 </body>
 </html>
 """
@@ -1024,10 +1071,12 @@ def main() -> None:
         n += 1
         print("OK", spec["code"])
     print(f"DONE {n} FR forms")
-    # rebuild bundles
+    # rebuild bundles — "python" 이 없는 환경(python3 만 있는 리눅스)에서도 돌게
+    # 지금 이 스크립트를 실행 중인 인터프리터를 그대로 쓴다.
     import subprocess
+    import sys
 
-    subprocess.check_call(["python", str(ROOT / "scripts" / "build-catalog-bundles.py")])
+    subprocess.check_call([sys.executable, str(ROOT / "scripts" / "build-catalog-bundles.py")])
 
 
 if __name__ == "__main__":
