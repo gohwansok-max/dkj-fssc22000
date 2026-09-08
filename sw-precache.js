@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-17d09cc74970';
+self.DKJ_SW_VERSION = 'v1-93051e220d26';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -94,11 +94,7 @@ self.DKJ_PRECACHE = [
   './data/matrix-form-specs/DKJ-S-02-16.json',
   './data/mdr-catalog.json',
   './data/menu-catalog.json',
-  './data/ox-form-specs/DKJ-S-02-02.json',
-  './data/ox-form-specs/DKJ-S-02-04.json',
-  './data/ox-form-specs/DKJ-S-02-05.json',
   './data/ox-form-specs/DKJ-S-02-06.json',
-  './data/ox-form-specs/DKJ-S-02-07.json',
   './data/ox-form-specs/DKJ-S-02-12.json',
   './data/ox-form-specs/DKJ-S-02-18.json',
   './data/ox-form-specs/DKJ-S-02-29.json',

@@ -58,9 +58,23 @@ python -m http.server 5500
 ```bash
 python scripts/build-catalog-bundles.py   # data/*.json → js/*.bundle.js  (JSON 고쳤으면 필수)
 python scripts/build-sw-precache.py       # sw-precache.js 재생성 (배포 때 자동으로도 돌아감)
+python scripts/build-ledger-forms.py      # data/ledger-form-specs/*.json → js/<코드>.js (대장 서식 사양 고쳤으면 필수)
+python scripts/gen-fr-forms.py            # FR 서식 45종의 HTML·부트JS·사양·인쇄템플릿 일괄 생성
 python scripts/sync-fssc-catalog.py       # 원본 문서 → doc-catalog / menu-catalog
 powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   # 절차서 PDF 생성 (Word 필요)
 ```
+
+`gen-fr-forms.py` 는 파일 안의 `SPECS` 가 정본이고, FR 서식 45종을 통째로 다시 씁니다.
+템플릿이 옛 버전(로그인·전자결재·PWA 누락)에 멈춰 있던 것을 2026-09-08 에 배포본 기준으로
+되살렸고, 지금은 실행해도 기존 파일과 바이트 단위로 같게 나옵니다. **FR 서식을 손으로
+고쳤다면 이 스크립트의 `SPECS` 에도 같이 반영해야** 다음 실행 때 되돌아가지 않습니다.
+실행 후 `git status` 로 의도한 파일만 바뀌었는지 확인하세요.
+
+`scripts/gen-ox-forms.py` 는 2026-09-08 에 삭제했습니다 — 관리하던 12종 중 7종이 이후
+matrix·ledger 엔진으로 이관돼, 실행하면 현장 서식을 옛 O/X 버전으로 덮어썼습니다.
+같은 코드 목록을 건드리는 `scripts/batch-official-print.py` 도 1회성 스크립트라 다시
+돌리면 안 됩니다(파일 상단 경고 참고). ox·ledger·matrix·report 엔진 서식을 새로 만들 때는
+지금 쓰이는 같은 엔진 서식 HTML 을 복사하세요.
 
 ## 화면 구성
 

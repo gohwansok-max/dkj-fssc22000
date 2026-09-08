@@ -289,11 +289,13 @@ CRLF라 실제로 이 문제를 겪고 고쳤다). `layout`처럼 엔진만으�
 2. `data/<엔진>-form-specs/<코드>.json`의 `fields`/`sections` 자체를 문서에서
    반자동으로 뽑아내는 것 — 이건 판단 작업이라 완전 자동화보다는, Claude가 문서를
    읽고 초안을 빠르게 만드는 워크플로를 다듬는 쪽이 현실적이다(PART 5).
-3. `js/<코드>.js` 셸(부트 JS)과 `records/<코드>.html`도 스펙에서 자동 생성하는
-   게 다음 자동화 후보다 — 단, `scripts/gen-fr-forms.py`의 기존 `render_html`/
-   `render_js`는 로그인·동기화·전자결재·PWA가 빠진 옛날 버전이라 그대로 재사용
-   하면 안 된다(PART 5-2 참고). 새로 만들려면 지금 실제 배포된 서식 HTML을
-   기준으로 다시 짜야 한다.
+3. ~~`js/<코드>.js` 셸(부트 JS)과 `records/<코드>.html`도 스펙에서 자동 생성~~
+   → **fr 엔진은 2026-09-08에 해결됐다.** `scripts/gen-fr-forms.py`의 `render_html()`이
+   옛날 버전(로그인·동기화·전자결재·PWA 누락)에 멈춰 있던 것을 배포본 기준으로
+   되살렸고, FR 서식 45종이 HTML·JS 모두 바이트 단위로 같게 재생성되는 것을 확인했다.
+   캐시버전(`?v=NN`)도 하드코딩이 아니라 `records/*.html`에서 읽는다.
+   나머지 엔진(ledger/matrix/ox/report)은 아직 HTML 생성기가 없다 — ledger는 부트 JS만
+   `scripts/build-ledger-forms.py`로 사양 JSON에서 생성한다.
 
 ---
 
@@ -378,14 +380,22 @@ DKJ-S-02-32(음용수 잔류염소 점검일지)를 실제로 fr-form 엔진으�
    하나만 호출하는데, 그 인자는 1번 스펙과 사실상 같은 내용(코드/제목/
    `pattern:"fr"`/필드/섹션/`print`)을 다시 담는다. 기존 서식의 `js/<코드>.js`를
    복사해서 내용을 1번 스펙과 맞추면 된다.
-3. `records/<코드>.html` — **`scripts/gen-fr-forms.py`의 `render_html()`/
-   `render_js()`를 쓰지 말 것.** 이 함수들은 fr-form 초기 버전용으로, 지금
-   실제 배포된 서식들이 갖고 있는 로그인(`dkj-auth.js`)·클라우드 동기화
-   (`dkj-cloud-sync.js`)·전자결재 패널(`dkj-approval.js`)·PWA·다국어·접근성
-   스크립트, 캐시 버전(`?v=`) 쿼리스트링을 전혀 넣지 않는다 — 그대로 쓰면
-   로그인도 동기화도 안 되는 반쪽짜리 페이지가 나온다. **반드시 지금 실제로
-   쓰이고 있는 서식(예: `records/FR-042.html`) 하나를 복사해서 코드·제목·
-   필드만 바꾼다.**
+3. `records/<코드>.html` — **fr 엔진 서식이면 `scripts/gen-fr-forms.py`를 쓴다.**
+   이 스크립트의 `SPECS`에 항목을 추가하고 실행하면 HTML·부트 JS·사양 JSON·
+   인쇄 템플릿·record-catalog 등록까지 한 번에 된다. 2026-09-08에 템플릿을
+   배포본 기준으로 되살려서, 로그인(`dkj-auth.js`)·클라우드 동기화
+   (`dkj-cloud-sync.js`)·전자결재 패널(`dkj-approval.js`)·상단 내비·PWA·다국어·
+   접근성 스크립트와 캐시버전(`?v=`)이 전부 들어간다. 실행 후 `git status`로
+   **의도한 코드 외에 다른 서식이 바뀌지 않았는지 반드시 확인**한다.
+
+   다른 엔진(ledger/matrix/ox/report)은 HTML 생성기가 없다 — **지금 실제로 쓰이고
+   있는 같은 엔진 서식 하나를 복사해서 코드·제목·필드만 바꾼다.**
+
+   > 2026-09-08에 `scripts/gen-ox-forms.py`는 삭제했다. 그 스크립트가 관리하던 12종
+   > 중 7종이 이후 다른 엔진으로 이관돼(matrix 3종, ledger 4종) 실행하면 현장 서식을
+   > 옛 O/X 버전으로 덮어쓰고 record-catalog·menu-catalog까지 되돌렸다.
+   > `scripts/batch-official-print.py`도 같은 코드 목록을 건드리는 1회성 스크립트라
+   > 다시 돌리면 안 된다(파일 상단 경고 참고).
 4. 카탈로그 4종 등록 — `python scripts/new-record-catalog-add.py --apply`
    (PART 3 참고). `print-templates/<코드>.json`은 이 스크립트가 기본형만
    만드므로, 1번 스펙의 `print` 블록(`metaFields` 등)과 맞춰 내용을 보강한다.

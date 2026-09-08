@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Batch-upgrade remaining 12 forms to official HWP print layouts."""
+"""12개 서식을 정본(HWP) 인쇄 레이아웃으로 일괄 전환했던 1회성 마이그레이션.
+
+⚠️ 이미 적용된 스크립트다 — 다시 돌리지 마세요.
+아래 OX_FORMS 표의 코드 중 DKJ-S-02-01/03/13 은 그 뒤 matrix 엔진으로,
+DKJ-S-02-02/04/05/07 은 ledger 엔진으로 이관됐습니다. 지금 실행하면 patch_js_boot() 가
+그 서식들의 부트 스크립트를 옛 O/X 버전으로 덮어써 현장 서식이 깨집니다.
+(같은 이유로 짝이던 scripts/gen-ox-forms.py 는 2026-09-08 에 삭제했습니다.)
+
+남겨 둔 이유는 아래 OX_FORMS/LUX_FORM 표가 서식별 정본 인쇄 레이아웃(layout,
+columnMode, metaFields)을 어떻게 정했는지 보여주는 유일한 기록이기 때문입니다.
+지금 정본 레이아웃의 정본은 data/print-templates/<코드>.json 입니다.
+"""
 from __future__ import annotations
 
 import json
