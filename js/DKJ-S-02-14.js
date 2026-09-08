@@ -49,7 +49,18 @@
       "label": "품 목 명",
       "width": "11%",
       "align": "left",
-      "required": true
+      "required": true,
+      "type": "combo",
+      "choices": [
+        "로메인",
+        "프릴",
+        "카이피라",
+        "라디치오",
+        "케일",
+        "양상추",
+        "양상추(중국산)"
+      ],
+      "placeholder": "선택/입력"
     },
     {
       "key": "qty",
@@ -77,10 +88,12 @@
       "width": "5%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "입고 검사 점검 사항"
+      "group": "입고 검사 점검 사항",
+      "ui": "toggle"
     },
     {
       "key": "carState",
@@ -88,10 +101,12 @@
       "width": "5%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "입고 검사 점검 사항"
+      "group": "입고 검사 점검 사항",
+      "ui": "toggle"
     },
     {
       "key": "pallet",
@@ -99,10 +114,12 @@
       "width": "5%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "입고 검사 점검 사항"
+      "group": "입고 검사 점검 사항",
+      "ui": "toggle"
     },
     {
       "key": "foreign",
@@ -111,9 +128,11 @@
       "type": "choice",
       "choices": [
         "유",
-        "무"
+        "무",
+        "-"
       ],
-      "group": "입고 검사 점검 사항"
+      "group": "입고 검사 점검 사항",
+      "ui": "toggle"
     },
     {
       "key": "pack",
@@ -121,10 +140,12 @@
       "width": "5%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "입고 검사 점검 사항"
+      "group": "입고 검사 점검 사항",
+      "ui": "toggle"
     },
     {
       "key": "label",
@@ -132,10 +153,12 @@
       "width": "5%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "입고 검사 점검 사항"
+      "group": "입고 검사 점검 사항",
+      "ui": "toggle"
     },
     {
       "key": "allergen",
@@ -144,9 +167,11 @@
       "type": "choice",
       "choices": [
         "유",
-        "무"
+        "무",
+        "-"
       ],
-      "group": "입고 검사 점검 사항"
+      "group": "입고 검사 점검 사항",
+      "ui": "toggle"
     },
     {
       "key": "doc",
@@ -154,10 +179,12 @@
       "width": "5%",
       "type": "choice",
       "choices": [
-        "적",
-        "부"
+        "O",
+        "X",
+        "-"
       ],
-      "group": "입고 검사 점검 사항"
+      "group": "입고 검사 점검 사항",
+      "ui": "toggle"
     },
     {
       "key": "judge",
@@ -182,6 +209,6 @@
       "required": true
     }
   ],
-  "legend": "※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다."
+  "legend": "※ 점검사항 - 적합 : O, 부적합 : X, 해당없음 : -  (이물혼입여부·알러지 유무는 유 / 무 / - 로 기재)  ※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다."
 });
 })();

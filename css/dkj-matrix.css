@@ -393,10 +393,66 @@
   box-shadow: 0 0 0 2px rgba(0, 154, 68, 0.15);
 }
 
+/* 토글 열이 늘어나면 표 전체가 넓어지면서 업체명·품목명 같은 글자칸이 짜부라진다.
+   가로 스크롤은 어차피 되므로, 글자칸에는 읽을 수 있는 최소폭을 준다. */
+.lgf-table td input[type="text"],
+.lgf-table td input[type="date"] { min-width: 100px; }
+
 .lgf-table td input.lgf-disabled {
   background: #ececec;
   border-color: #dcdcdc;
   cursor: not-allowed;
+}
+
+/* 터치 O/X 버튼 — 태블릿에서 드롭다운을 열지 않고 바로 찍는다 */
+.lgf-tg {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.lgf-tg-btn {
+  flex: 1 1 auto;
+  min-width: 34px;
+  min-height: 40px;
+  padding: 0 2px;
+  border: 2px solid #dce2de;
+  border-radius: 6px;
+  background: #fff;
+  color: #7b8781;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+
+.lgf-tg-btn:disabled { cursor: not-allowed; opacity: .55; }
+
+/* 적합 계열(O·적·무)은 초록, 부적합 계열(X·부·유)은 빨강, 해당없음(-)은 회색 */
+.lgf-tg-btn.on { background: #eef7f1; border-color: #009a44; color: #00753a; }
+.lgf-tg-btn[data-v="X"].on,
+.lgf-tg-btn[data-v="부"].on,
+.lgf-tg-btn[data-v="유"].on { background: #fdf1f0; border-color: #d93025; color: #b3261e; }
+.lgf-tg-btn[data-v="-"].on { background: #f0f1f0; border-color: #9aa5a0; color: #5b6660; }
+
+/* 휴무일(예: 토요일) 행 — 기재 대상이 아니므로 통째로 잠근다 */
+.lgf-table tr.lgf-row-off td { background: #f2f3f2; }
+
+/* 가로로 긴 표(온도점검일지)에서 '휴무'가 스크롤 밖으로 밀려나지 않게 왼쪽에 붙인다.
+   합쳐진 칸이 화면보다 넓어서, 가운데 정렬로 두면 글자가 스크롤 밖으로 나간다. */
+.lgf-table td.lgf-off-cell { text-align: left; padding-left: 10px; }
+.lgf-table td.lgf-off-cell .lgf-off { text-align: left; }
+
+.lgf-off {
+  display: block;
+  padding: 6px 4px;
+  color: #8b948f;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .lgf-act { width: 54px; text-align: center; }

@@ -12,14 +12,15 @@
   "code": "DKJ-S-02-09",
   "title": "세척 소독제 관리대장",
   "subtitle": "선행요건 · 일자별 재고 관리 · 월 단위 시트",
-  "docNo": "DKJ-S-02-9",
+  "docNo": "DKJ-S-02-09",
   "infoFields": [
     {
       "id": "month",
       "label": "점검 월",
       "type": "text",
       "placeholder": "2026 . 08",
-      "required": true
+      "required": true,
+      "staff": false
     },
     {
       "id": "inspector",

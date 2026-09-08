@@ -138,6 +138,23 @@
       '<td class="c">1.5mm이상 불검출</td><td class="c">2.5mm이상 불검출</td><td class="c">70</td><td class="c">70</td></tr>' +
       '</table>';
 
+    /* 포장재 정보 — 화면과 같은 5행 고정 표. 예전 기록(낱개 필드 1건)도 그대로 인쇄된다. */
+    var packRows = Array.isArray(state.packagings) && state.packagings.length
+      ? state.packagings
+      : [{ lot: state.packagingLot || '', usage: state.packagingUsage || '',
+           defect: state.packagingDefectCount || '' }];
+    var packagingTable = '<table class="off-nest">' +
+      '<tr class="off-nest-hd"><th style="width:10%">순번</th><th>포장재 LOT</th>' +
+      '<th style="width:24%">사용량</th><th style="width:18%">부적합 개수</th></tr>';
+    for (var pi = 0; pi < 5; pi++) {
+      var pr = packRows[pi] || {};
+      packagingTable += '<tr><td class="c">' + (pi + 1) + '</td>' +
+        '<td class="l">' + esc(pr.lot || '') + '</td>' +
+        '<td class="c">' + esc(pr.usage || '') + '</td>' +
+        '<td class="c">' + esc(pr.defect || '') + '</td></tr>';
+    }
+    packagingTable += '</table>';
+
     var methodHtml =
       '*작업시작 전에 금속검출기 감도 및 정상 작동여부 확인 ※ 반드시 표준시편(Fe, Sus) 알코올 소독 후 실시<br>' +
       '*표준시편(Fe 1.5/2.0/2.5/3.0mm, Sus 2.5/3.0/3.5mm) 만 통과시켜 검출 여부 확인, 기록<br>' +
@@ -184,10 +201,8 @@
       '<td class="c" style="width:21%">' + esc(writer) + '</td>' +
       '</tr>' +
       '<tr>' +
-      '<th class="lab">포장재<br>LOT</th>' +
-      '<td class="l">' + esc(state.packagingLot || '') + '</td>' +
-      '<th class="lab">사용량 / 부적합</th>' +
-      '<td class="c">' + esc(state.packagingUsage || '') + ' / ' + esc(state.packagingDefectCount || '0') + '</td>' +
+      '<th class="lab">포장재<br>정보</th>' +
+      '<td class="pad0" colspan="3">' + packagingTable + '</td>' +
       '</tr>' +
       '<tr>' +
       '<th class="lab">위해요소</th>' +

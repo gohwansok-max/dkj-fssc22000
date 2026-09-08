@@ -34,8 +34,17 @@
       "key": "room",
       "label": "작업실",
       "width": "13%",
-      "align": "left",
-      "required": true
+      "required": true,
+      "type": "choice",
+      "choices": [
+        "소독/헹굼실",
+        "내포장실",
+        "전처리실",
+        "외포장실",
+        "소분작업장",
+        "원재료 냉장창고",
+        "완제품 냉장창고"
+      ]
     },
     {
       "key": "item",
@@ -48,7 +57,12 @@
       "key": "kind",
       "label": "이물 유형",
       "width": "13%",
-      "align": "left"
+      "type": "choice",
+      "choices": [
+        "플라스틱",
+        "금속",
+        "유리"
+      ]
     },
     {
       "key": "qty",
