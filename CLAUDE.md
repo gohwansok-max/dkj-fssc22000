@@ -58,7 +58,7 @@ python -m http.server 5500
 ```bash
 python scripts/build-catalog-bundles.py   # data/*.json → js/*.bundle.js  (JSON 고쳤으면 필수)
 python scripts/build-sw-precache.py       # sw-precache.js 재생성 (배포 때 자동으로도 돌아감)
-python scripts/build-ledger-forms.py      # data/ledger-form-specs/*.json → js/<코드>.js (대장 서식 사양 고쳤으면 필수)
+python scripts/build-ledger-forms.py      # data/ledger-form-specs/*.json → records/<코드>.html + js/<코드>.js (대장 서식 사양 고쳤으면 필수)
 python scripts/gen-fr-forms.py            # FR 서식 45종의 HTML·부트JS·사양·인쇄템플릿 일괄 생성
 python scripts/sync-fssc-catalog.py       # 원본 문서 → doc-catalog / menu-catalog
 powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   # 절차서 PDF 생성 (Word 필요)
@@ -70,10 +70,16 @@ powershell -ExecutionPolicy Bypass -File scripts\sync-dkj-assets.ps1 -PdfOnly   
 고쳤다면 이 스크립트의 `SPECS` 에도 같이 반영해야** 다음 실행 때 되돌아가지 않습니다.
 실행 후 `git status` 로 의도한 파일만 바뀌었는지 확인하세요.
 
+`build-ledger-forms.py` 는 반대로 **JSON 이 정본**입니다 — `data/ledger-form-specs/<코드>.json`
+을 고치고 이걸 돌리면 `records/<코드>.html` 과 `js/<코드>.js` 가 다시 만들어집니다.
+`--check` 를 붙이면 파일을 쓰지 않고 사양과 어긋난 파일만 알려줍니다(어긋나면 종료코드 1).
+화면 껍데기에 필요한 것(제목·부제·`cat`·`defaultRows`·`incident`·`pageClass`·`bulkChoice`)도
+전부 사양에서 읽으므로, 대장 서식은 HTML 을 직접 손대지 말고 사양만 고치세요.
+
 `scripts/gen-ox-forms.py` 는 2026-09-08 에 삭제했습니다 — 관리하던 12종 중 7종이 이후
 matrix·ledger 엔진으로 이관돼, 실행하면 현장 서식을 옛 O/X 버전으로 덮어썼습니다.
 같은 코드 목록을 건드리는 `scripts/batch-official-print.py` 도 1회성 스크립트라 다시
-돌리면 안 됩니다(파일 상단 경고 참고). ox·ledger·matrix·report 엔진 서식을 새로 만들 때는
+돌리면 안 됩니다(파일 상단 경고 참고). ox·matrix·report 엔진은 아직 HTML 생성기가 없으니
 지금 쓰이는 같은 엔진 서식 HTML 을 복사하세요.
 
 ## 화면 구성
