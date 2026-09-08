@@ -1,13 +1,12 @@
 /**
  * DKJ-S-02-01 - matrix boot (SSOT: data/matrix-form-specs/DKJ-S-02-01.json)
- * paper original: 선행_1.작업장위생점검일지.hwp (35 items / 6 days / 2 pages)
  */
 (function () {
   'use strict';
   DkjMatrixForm.mount({
   "code": "DKJ-S-02-01",
   "title": "작업장 위생점검 일지",
-  "subtitle": "선행요건 · 매일 점검 · 주 단위 결재 · PRP-001/002 연계",
+  "subtitle": "선행요건 · 매일 점검 · 주 단위 결재 · 35항목 × 7일 · PRP-001/002 연계",
   "pattern": "matrix",
   "period": "week",
   "days": 7,

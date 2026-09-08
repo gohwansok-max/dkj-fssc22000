@@ -193,5 +193,20 @@
         }
       ]
     }
+  ],
+  "screen": {
+    "newLabel": "새 월",
+    "periodLabel": "점검 월",
+    "startLabel": "점검 월 시작일 *",
+    "sectionTitle": "점검",
+    "fillAria": "일괄 입력 대상",
+    "fillText": "해당 열 미입력 전체 ○",
+    "hint": "※ 종이 정본과 동일하게 <strong>1장 = 1개월(1~5주)</strong> 입니다."
+  },
+  "headerLinks": [
+    {
+      "label": "← 기록목록",
+      "href": "../records-center.html?cat=daily"
+    }
   ]
 }

@@ -1,5 +1,5 @@
 /**
- * DKJ-S-02-06 — generated boot
+ * DKJ-S-02-06 - ox boot (SSOT: data/ox-form-specs/DKJ-S-02-06.json)
  */
 (function () {
   'use strict';
@@ -36,11 +36,26 @@
       "label": "점검구역",
       "type": "select",
       "options": [
-        "전처리",
-        "소독헹굼",
-        "포장",
-        "냉장",
-        "전체"
+        {
+          "value": "전처리",
+          "label": "전처리실"
+        },
+        {
+          "value": "소독헹굼",
+          "label": "소독·헹굼실"
+        },
+        {
+          "value": "포장",
+          "label": "포장실"
+        },
+        {
+          "value": "냉장",
+          "label": "냉장창고"
+        },
+        {
+          "value": "전체",
+          "label": "작업장 전체"
+        }
       ],
       "optionLabels": {
         "전처리": "전처리실",

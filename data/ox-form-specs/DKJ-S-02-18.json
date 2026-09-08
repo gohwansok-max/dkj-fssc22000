@@ -44,19 +44,43 @@
     {
       "id": "vehicleNo",
       "label": "차량번호 *",
-      "type": "select"
+      "type": "select",
+      "options": [
+        {
+          "value": "",
+          "label": "-- 차량번호 선택 --"
+        },
+        {
+          "value": "__register__",
+          "label": "+ 새 차량번호 등록"
+        }
+      ]
     },
     {
       "id": "destination",
       "label": "행선/용도",
       "type": "select",
-      "options": ["출하", "회수"]
+      "options": [
+        {
+          "value": "",
+          "label": "선택"
+        },
+        "출하",
+        "회수"
+      ]
     },
     {
       "id": "arrivalPlace",
       "label": "도착지",
       "type": "select",
-      "options": ["양산", "오산"]
+      "options": [
+        {
+          "value": "",
+          "label": "선택"
+        },
+        "양산",
+        "오산"
+      ]
     },
     {
       "id": "departTime",

@@ -253,5 +253,20 @@
         }
       ]
     }
+  ],
+  "screen": {
+    "newLabel": "새 주차",
+    "periodLabel": "점검 주차",
+    "startLabel": "점검 주차 시작일(월) *",
+    "sectionTitle": "점검",
+    "fillAria": "일괄 입력 대상",
+    "fillText": "해당 열 미입력 전체 ○",
+    "hint": "※ <strong>1장 = 1주(월~일 7일)</strong> 입니다. 생산이 없는 요일은 아래 점검표 상단의 요일 버튼으로 제외할 수 있습니다."
+  },
+  "headerLinks": [
+    {
+      "label": "← 기록목록",
+      "href": "../records-center.html?cat=daily"
+    }
   ]
 }
