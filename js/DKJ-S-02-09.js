@@ -251,7 +251,7 @@
       "day": "31일"
     }
   ],
-  "legend": "※ 현재 재고 = 전일재고 + 금일 입고 - 금일 사용.  잔량 부족 시 즉시 발주한다.  ※ 토요일은 휴무일로 기재 대상이 아니다.",
+  "legend": "※ 현재 재고 = 전일재고 + 금일 입고 - 금일 사용 (자동 계산).  금일 입고·금일사용만 기재하면 전일재고와 현재 재고는 자동으로 채워진다.  1일 전일재고만 전월 이월값을 직접 적는다.  잔량 부족 시 즉시 발주한다.  ※ 토요일은 휴무일로 기재 대상이 아니다.",
   "autoWeekday": {
     "monthField": "month",
     "dayKey": "day",
@@ -267,6 +267,36 @@
   "printDensity": {
     "rowHeight": "18pt",
     "fontSize": "7pt"
+  },
+  "runningStock": {
+    "openingRow": 0,
+    "decimals": 1,
+    "chains": [
+      {
+        "prev": "p1_prev",
+        "in": "p1_in",
+        "use": "p1_use",
+        "now": "p1_now"
+      },
+      {
+        "prev": "p2_prev",
+        "in": "p2_in",
+        "use": "p2_use",
+        "now": "p2_now"
+      },
+      {
+        "prev": "p3_prev",
+        "in": "p3_in",
+        "use": "p3_use",
+        "now": "p3_now"
+      },
+      {
+        "prev": "p4_prev",
+        "in": "p4_in",
+        "use": "p4_use",
+        "now": "p4_now"
+      }
+    ]
   }
 });
 })();

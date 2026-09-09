@@ -438,6 +438,20 @@
 .lgf-tg-btn[data-v="유"].on { background: #fdf1f0; border-color: #d93025; color: #b3261e; }
 .lgf-tg-btn[data-v="-"].on { background: #f0f1f0; border-color: #9aa5a0; color: #5b6660; }
 
+/* 자동계산 칸(전일재고·현재 재고) — 옅은 회색으로 '여기는 적는 칸이 아니다'를
+   한눈에 보이게 한다. 값은 그대로 읽히고 인쇄 정본에는 흰 바탕으로 나간다
+   (종이로 쓸 때는 손으로 적는 칸이므로). */
+.lgf-table input.lgf-calc {
+  background: #eef0ef;
+  color: #2f3a35;
+  border-color: #d3d9d6;
+  font-weight: 600;
+  text-align: center;
+  cursor: default;
+}
+
+.lgf-table input.lgf-calc:focus { outline: none; box-shadow: none; }
+
 /* 휴무일(예: 토요일) 행 — 기재 대상이 아니므로 통째로 잠근다 */
 .lgf-table tr.lgf-row-off td { background: #f2f3f2; }
 
