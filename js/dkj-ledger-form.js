@@ -125,15 +125,17 @@
       state.rows.forEach(function (r) {
         if (!isRowDisabled(r)) return;
         (spec.columns || []).forEach(function (c) {
-          if (!c.readonly && r[c.key]) r[c.key] = '';
+          if (isColOff(c) && r[c.key]) r[c.key] = '';
         });
       });
     }
 
-    /** 휴무행인데 값이 남아 있는가 — 예전에 저장된 기록이거나 휴무일에 실제로 작업한 경우 */
+    /** 휴무행인데 잠긴 칸에 값이 남아 있는가 — 예전에 저장된 기록이거나 휴무일에
+     *  실제로 작업한 경우. 계속 기재하는 열(냉장창고 등)은 원래 값이 들어오는 칸이라
+     *  여기서 세지 않는다 — 세면 냉장창고 온도를 적는 순간 행 전체가 읽기전용이 된다. */
     function offRowHasValues(row) {
       return (spec.columns || []).some(function (c) {
-        return !c.readonly && String(row[c.key] || '').trim();
+        return isColOff(c) && String(row[c.key] || '').trim();
       });
     }
 
@@ -210,6 +212,112 @@
       return (cfg.values || []).indexOf(String(row[cfg.key] || '').trim()) !== -1;
     }
 
+    /** 휴무행에서도 계속 기재하는 열인가 — disableRowIf.keepGroups / keepColumns.
+     *  휴무라고 해서 설비가 멈추는 것은 아니다. 냉장창고는 휴무일에도 제품이 들어
+     *  있어 온도가 이탈할 수 있으므로 모니터링을 이어가야 한다. 그 칸까지 잠그면
+     *  '휴무일 보관온도 기록 없음'이 되어 심사에서 그대로 지적된다. */
+    function isColKept(c) {
+      var cfg = spec.disableRowIf;
+      if (!cfg || !c) return false;
+      if ((cfg.keepColumns || []).indexOf(c.key) !== -1) return true;
+      return !!c.group && (cfg.keepGroups || []).indexOf(c.group) !== -1;
+    }
+
+    /** 휴무행에서 잠기는 입력열인가 (미리 인쇄된 칸과 계속 기재하는 칸은 제외) */
+    function isColOff(c) {
+      return !c.readonly && !isColKept(c);
+    }
+
+    /* ── 이어지는 재고 자동계산 (spec.runningStock) ────────────────────────────
+       세척 소독제 관리대장처럼 [전일재고 · 금일 입고 · 금일사용 · 현재 재고] 가
+       한 묶음인 대장은, 사람이 금일 입고·금일사용만 적으면 나머지는 산술로 정해진다.
+         전일재고 = 직전에 기재한 날의 현재 재고
+         현재 재고 = 전일재고 + 금일 입고 - 금일 사용
+       손으로 옮겨 적다 어긋나는 것이 이 대장의 가장 흔한 지적 사항이라 계산으로
+       고정한다. 1일 전일재고만 전월 이월값이어서 사람이 적는다(openingRow). */
+
+    var STOCK = spec.runningStock || null;
+    /** 열 key → 'prev' | 'now' (자동계산 대상 열) */
+    var STOCK_CALC = {};
+    /** 열 key → true (계산을 다시 돌려야 하는 입력 열) */
+    var STOCK_INPUT = {};
+    if (STOCK) {
+      (STOCK.chains || []).forEach(function (ch) {
+        if (ch.prev) { STOCK_CALC[ch.prev] = 'prev'; STOCK_INPUT[ch.prev] = true; }
+        if (ch.now) STOCK_CALC[ch.now] = 'now';
+        if (ch['in']) STOCK_INPUT[ch['in']] = true;
+        if (ch.use) STOCK_INPUT[ch.use] = true;
+      });
+    }
+    function stockOpeningRow() {
+      return STOCK && STOCK.openingRow != null ? Number(STOCK.openingRow) : 0;
+    }
+    /** 이 칸이 자동계산 칸인가 — 첫 행의 전일재고(전월 이월)만 사람이 적는다 */
+    function isCalcCell(c, ri) {
+      var kind = STOCK_CALC[c.key];
+      if (!kind) return false;
+      return !(kind === 'prev' && ri === stockOpeningRow());
+    }
+    /** 계산열인가 (행과 무관) — 기재 건수·필수 검증에서 빼야 한다 */
+    function isCalcCol(c) { return !!STOCK_CALC[c.key]; }
+
+    function stockNum(v) {
+      var t = String(v == null ? '' : v).trim();
+      if (!t) return null;
+      var n = Number(t);
+      return isFinite(n) ? n : null;
+    }
+    /** 0.1 씩 더하고 빼면 131.60000000000002 가 나온다 — 자리수를 고정한다 */
+    function stockFix(n, dec) {
+      var r = Number(n.toFixed(dec));
+      return String(r);
+    }
+
+    /** 전일재고·현재 재고를 처음부터 다시 계산한다.
+     *  - 휴무행은 건너뛴다. 그 날 재고는 움직이지 않으니 다음 기재일이 직전 기재일의
+     *    현재 재고를 그대로 이어받는다(금요일 → 일요일).
+     *  - 금일 입고·금일사용이 둘 다 빈 행은 채우지 않는다. 채우면 아직 아무것도
+     *    적지 않은 날까지 기재된 것처럼 보인다. */
+    function recalcStock() {
+      if (!STOCK) return;
+      var dec = STOCK.decimals == null ? 1 : Number(STOCK.decimals);
+      var open = stockOpeningRow();
+      (STOCK.chains || []).forEach(function (ch) {
+        var carry = null;
+        state.rows.forEach(function (r, i) {
+          if (isRowDisabled(r)) return;
+          if (i === open) {
+            var o = stockNum(r[ch.prev]);
+            if (o !== null) carry = o;
+          } else {
+            r[ch.prev] = carry === null ? '' : stockFix(carry, dec);
+          }
+          var got = stockNum(r[ch['in']]);
+          var used = stockNum(r[ch.use]);
+          if (got === null && used === null) {
+            // 미기재 행 — 이어지는 재고(carry)는 그대로 두고 칸만 비운다
+            if (i !== open) r[ch.prev] = '';
+            r[ch.now] = '';
+            return;
+          }
+          if (carry === null) { r[ch.now] = ''; return; }
+          carry = Number((carry + (got || 0) - (used || 0)).toFixed(dec));
+          r[ch.now] = stockFix(carry, dec);
+        });
+      });
+    }
+
+    /** 계산 결과를 표 전체를 다시 그리지 않고 그 칸에만 반영한다
+     *  (다시 그리면 지금 치고 있던 칸에서 포커스가 튄다) */
+    function syncCalcCells() {
+      var host = $('ledgerGrid');
+      if (!host || !STOCK) return;
+      host.querySelectorAll('[data-calc]').forEach(function (el) {
+        var r = state.rows[Number(el.getAttribute('data-r'))];
+        el.value = r ? (r[el.getAttribute('data-c')] || '') : '';
+      });
+    }
+
     /** 터치 O/X 버튼 묶음 — 태블릿에서 드롭다운을 여닫지 않고 한 번에 찍는다 */
     function toggleInput(c, ri, v) {
       var choices = (c.choices || []).slice();
@@ -224,6 +332,13 @@
     function cellInput(c, ri, v, row) {
       if (c.readonly) {
         return '<span class="lgf-fixed">' + esc(v) + '</span>';
+      }
+      // 자동계산 칸(전일재고·현재 재고) — 값은 보이되 손으로 고칠 수 없다.
+      // 계산으로 정해지는 값을 덧쓰게 두면 표 안에서 앞뒤가 안 맞는 기록이 남는다.
+      if (isCalcCell(c, ri)) {
+        return '<input type="text" class="lgf-calc" data-r="' + ri + '" data-c="' + c.key +
+          '" data-calc="1" value="' + esc(v) + '" readonly tabindex="-1"' +
+          ' aria-readonly="true" title="자동 계산 칸입니다 — 금일 입고·금일사용을 적으면 채워집니다">';
       }
       // 설비 종류에 따라 해당 없는 항목 칸을 회색 처리하고 입력을 막는다
       // (예: 포충등 행에서는 보행해충·설치류 칸이 해당 없음).
@@ -251,28 +366,30 @@
         esc(v) + '" placeholder="' + esc(c.unit || '') + '">';
     }
 
-    /** 휴무일 행 — 일자·요일만 남기고 기재란은 하나로 합쳐 '휴무'만 표시한다.
-        칸마다 '휴무'를 반복해 찍으면 가로로 긴 온도표에서 읽기가 더 나빠진다. */
-    function offRowCells(row) {
+    /** 휴무일 행 — 잠기는 기재란은 하나로 합쳐 '휴무'만 표시한다. 칸마다 '휴무'를
+        반복해 찍으면 가로로 긴 온도표에서 읽기가 더 나빠진다. 계속 기재하는 열
+        (disableRowIf.keepGroups / keepColumns)은 평일과 똑같이 입력칸으로 남긴다. */
+    function offRowCells(row, ri) {
       var label = esc(spec.disableRowIf.label || '휴무');
-      // 값이 있는 휴무행은 숨기지 않는다. 저장된 기록을 화면에서 지워 보이게 하면
-      // 데이터는 남았는데 아무도 못 보는 상태가 된다.
+      // 잠긴 칸에 값이 있는 휴무행은 숨기지 않는다. 저장된 기록을 화면에서 지워
+      // 보이게 하면 데이터는 남았는데 아무도 못 보는 상태가 된다.
       if (offRowHasValues(row)) {
         return COLS.map(function (c) {
-          return '<td>' + (c.readonly
-            ? cellInput(c, -1, row[c.key] || '', row)
+          return '<td>' + (c.readonly || isColKept(c)
+            ? cellInput(c, ri, row[c.key] || '', row)
             : '<span class="lgf-fixed">' + esc(row[c.key] || '') + '</span>') + '</td>';
         }).join('');
       }
       var out = '';
       var i = 0;
       while (i < COLS.length) {
-        if (COLS[i].readonly) {
-          out += '<td>' + cellInput(COLS[i], -1, row[COLS[i].key] || '', row) + '</td>';
+        if (!isColOff(COLS[i])) {
+          out += '<td' + (isColKept(COLS[i]) ? ' class="lgf-keep-cell"' : '') + '>' +
+            cellInput(COLS[i], ri, row[COLS[i].key] || '', row) + '</td>';
           i++;
         } else {
           var j = i;
-          while (j + 1 < COLS.length && !COLS[j + 1].readonly) j++;
+          while (j + 1 < COLS.length && isColOff(COLS[j + 1])) j++;
           out += '<td class="lgf-off-cell" colspan="' + (j - i + 1) + '">' +
             '<span class="lgf-off">' + label + '</span></td>';
           i = j + 1;
@@ -300,7 +417,7 @@
         : '';
       var body = state.rows.map(function (r, ri) {
         var cells = isRowDisabled(r)
-          ? offRowCells(r)
+          ? offRowCells(r, ri)
           : COLS.map(function (c) {
               return '<td>' + cellInput(c, ri, r[c.key] || '', r) + '</td>';
             }).join('');
@@ -315,7 +432,9 @@
       host.querySelectorAll('[data-r]').forEach(function (el) {
         var ev = el.tagName === 'SELECT' ? 'change' : 'input';
         el.addEventListener(ev, function () {
-          state.rows[Number(el.getAttribute('data-r'))][el.getAttribute('data-c')] = el.value;
+          var key = el.getAttribute('data-c');
+          state.rows[Number(el.getAttribute('data-r'))][key] = el.value;
+          if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
           scheduleDraft();
         });
       });
@@ -384,20 +503,28 @@
     function filledRows() {
       // 서식에 미리 인쇄된 칸(구역·점검항목·고정 수거업체 등)과 휴무일 행은 '기재됨'으로
       // 세지 않는다. 세면 아무것도 안 쓴 시트가 검증을 통과하고 건수도 부풀려진다.
-      var inputCols = COLS.filter(function (c) { return !c.readonly; });
+      // 자동계산 칸(전일재고·현재 재고)도 사람이 적은 것이 아니라 세지 않는다
+      var inputCols = COLS.filter(function (c) { return !c.readonly && !isCalcCol(c); });
       var cols = inputCols.length ? inputCols : COLS;
       return state.rows.filter(function (r) {
-        if (isRowDisabled(r)) return false;
-        return cols.some(function (c) { return String(r[c.key] || '').trim(); });
+        // 휴무행은 계속 기재하는 열(냉장창고 등)에 값이 있을 때만 센다
+        var use = isRowDisabled(r) ? cols.filter(isColKept) : cols;
+        return use.some(function (c) { return String(r[c.key] || '').trim(); });
       });
     }
 
     function applyBulkChoice(value) {
       var keys = spec.bulkChoiceKeys || [];
       if (state.locked || !keys.length) return;
+      var byKey = {};
+      COLS.forEach(function (c) { byKey[c.key] = c; });
       state.rows.forEach(function (row) {
-        if (isRowDisabled(row)) return;
-        keys.forEach(function (key) { row[key] = value; });
+        var off = isRowDisabled(row);
+        keys.forEach(function (key) {
+          // 휴무행에서는 계속 기재하는 열에만 넣는다 — 잠긴 칸을 채우면 안 된다
+          if (off && !isColKept(byKey[key])) return;
+          row[key] = value;
+        });
       });
       renderGrid();
       scheduleDraft();
@@ -413,7 +540,9 @@
       if (!filledRows().length) return '최소 1건 이상 기록하세요.';
       var reqCols = COLS.filter(function (c) { return c.required; });
       var bad = filledRows().find(function (r) {
-        return reqCols.some(function (c) { return !String(r[c.key] || '').trim(); });
+        // 휴무행은 계속 기재하는 열만 필수로 본다 — 잠근 칸을 채우라고 할 수는 없다
+        var use = isRowDisabled(r) ? reqCols.filter(isColKept) : reqCols;
+        return use.some(function (c) { return !String(r[c.key] || '').trim(); });
       });
       if (bad) return '기재한 행의 필수 항목(' +
         reqCols.map(function (c) { return c.label; }).join(', ') + ')을 채우세요.';

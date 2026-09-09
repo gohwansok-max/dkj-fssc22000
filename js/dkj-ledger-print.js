@@ -97,15 +97,31 @@
     return (cfg.values || []).indexOf(String(row[cfg.key] || '').trim()) !== -1;
   }
 
-  /** 휴무일 행 — 일자·요일은 그대로 두고 기재란은 하나로 합쳐 '휴무'만 남긴다 */
+  /** 휴무행에서도 계속 기재하는 열인가 — disableRowIf.keepGroups / keepColumns.
+   *  휴무일에도 제품이 들어 있는 냉장창고처럼, 설비가 멈추지 않는 항목은 정본에도
+   *  기재란이 남아 있어야 한다. 화면 엔진(dkj-ledger-form.js)과 같은 판단이다. */
+  function isColKept(spec, c) {
+    var cfg = spec.disableRowIf;
+    if (!cfg || !c) return false;
+    if ((cfg.keepColumns || []).indexOf(c.key) !== -1) return true;
+    return !!c.group && (cfg.keepGroups || []).indexOf(c.group) !== -1;
+  }
+
+  /** 휴무행에서 잠기는 입력열인가 (미리 인쇄된 칸과 계속 기재하는 칸은 제외) */
+  function isColOff(spec, c) {
+    return !c.readonly && !isColKept(spec, c);
+  }
+
+  /** 휴무일 행 — 일자·요일과 계속 기재하는 열은 그대로 두고, 잠기는 기재란만
+   *  하나로 합쳐 '휴무'만 남긴다 */
   function offRowCells(spec, cols, row) {
     var label = esc(spec.disableRowIf.label || '휴무');
-    // 값이 남아 있는 휴무행은 '휴무' 로 덮지 않고 그대로 인쇄한다 — 저장된 기록이
-    // 정본에서 사라지면 심사에서 기록 누락으로 보인다.
+    // 잠긴 칸에 값이 남아 있는 휴무행은 '휴무' 로 덮지 않고 그대로 인쇄한다 — 저장된
+    // 기록이 정본에서 사라지면 심사에서 기록 누락으로 보인다.
     // 열 묶음(columnPages)으로 여러 쪽에 나눠 인쇄하는 서식도 있으므로, 판단은
     // 이 쪽의 열이 아니라 서식 전체 열로 한다 — 쪽마다 다르게 나오면 안 된다.
     var hasValues = (spec.columns || cols).some(function (c) {
-      return !c.readonly && String(row[c.key] || '').trim();
+      return isColOff(spec, c) && String(row[c.key] || '').trim();
     });
     if (hasValues) {
       return cols.map(function (c) {
@@ -116,13 +132,14 @@
     var out = '';
     var i = 0;
     while (i < cols.length) {
-      if (cols[i].readonly) {
-        out += '<td class="' + (cols[i].align === 'left' ? 'l' : 'c') + ' lg-cell">' +
+      if (!isColOff(spec, cols[i])) {
+        out += '<td class="' + (cols[i].align === 'left' ? 'l' : 'c') + ' lg-cell' +
+          (cols[i].readonly ? ' lg-fix' : ' lg-keep') + '">' +
           cellText(cols[i], row[cols[i].key]) + '</td>';
         i++;
       } else {
         var j = i;
-        while (j + 1 < cols.length && !cols[j + 1].readonly) j++;
+        while (j + 1 < cols.length && isColOff(spec, cols[j + 1])) j++;
         out += '<td class="c lg-cell lg-off" colspan="' + (j - i + 1) + '">' + label + '</td>';
         i = j + 1;
       }

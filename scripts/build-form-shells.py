@@ -48,7 +48,7 @@ JS_DIR = ROOT / "js"
 
 # 캐시버전(?v=NN) — 배포본에서 실제로 쓰이는 값을 읽는다. 여기 숫자를 박아 두면 전체
 # 버전을 올릴 때마다 이 파일만 뒤처져서, 나중에 재생성했을 때 옛 버전 태그가 되살아난다.
-CACHE_VERSION_FALLBACK = "88"
+CACHE_VERSION_FALLBACK = "89"
 
 ENGINES = {
     "matrix": {"spec_dir": "matrix-form-specs", "mount": "DkjMatrixForm",
