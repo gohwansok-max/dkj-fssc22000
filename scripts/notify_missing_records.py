@@ -206,6 +206,25 @@ def day_column_done(recs: list, target_iso: str) -> bool:
 
 
 def day_row_done(recs: list, day_num: int, day_key: str = 'day') -> bool:
+    """js/dkj-console.js 의 evaluate() dayRow 분기와 정확히 같은 기준을 쓴다 —
+    그 행의 칸 중 **하나라도** 값이 있으면 '오늘 행 입력됨'(done)이다. 예전엔
+    '행의 모든 칸이 채워져야 done'으로 더 엄격하게 짰는데, 그게 실제로 오늘
+    기록한 서식을 미작성으로 잘못 알리는 원인이었다(2026-09-09).
+
+    원인은 두 가지가 겹친다.
+      1) 이 대장들의 행은 손댄 칸만 키로 남는다(`js/dkj-ledger-form.js`) — 안 쓴
+         구역은 애초에 키가 없다. 그래서 '모든 칸' 기준이라도 사람이 실제로
+         쓴 칸끼리는 항상 다 채워진 것처럼 보이기 쉬운데, 문제는 다음이다.
+      2) DKJ-S-02-09(세척 소독제 관리대장)의 이어지는 재고 자동계산
+         (`runningStock`)은 시트 안 아무 칸이나 한 번만 고쳐도 그 달 전체
+         행에 계산 칸(prev/now)을 채워 넣는다 — 그 제품을 이번 달에 한 번도
+         안 썼으면 그 칸은 빈 문자열로 채워진다. 그러면 오늘 행에 실제로
+         적은 제품(예: 2종)은 다 채워졌는데도, 안 쓴 다른 제품의 계산 칸이
+         빈 채로 같이 끼어들어 '모든 칸'을 못 채운 것처럼 보였다.
+
+    화면(dkj-console.js)은 애초에 이런 자동계산 칸까지 다 채우라고 요구하지
+    않는다 — 그 행에 뭐라도 적혀 있으면 오늘 쓴 것으로 본다. 알림도 같아야
+    한다. """
     for r in recs:
         rows = r.get('rows')
         if not isinstance(rows, list):
@@ -215,8 +234,7 @@ def day_row_done(recs: list, day_num: int, day_key: str = 'day') -> bool:
             if not digits or int(digits) != day_num:
                 continue
             values = [k for k in row.keys() if k not in (day_key, 'dow')]
-            written = [k for k in values if str(row.get(k, '')).strip()]
-            if values and len(written) == len(values):
+            if any(str(row.get(k, '')).strip() for k in values):
                 return True
     return False
 
