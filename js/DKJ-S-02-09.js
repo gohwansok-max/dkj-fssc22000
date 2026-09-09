@@ -17,8 +17,8 @@
     {
       "id": "month",
       "label": "점검 월",
-      "type": "text",
-      "placeholder": "2026 . 08",
+      "type": "month",
+      "placeholder": "2026-08",
       "required": true,
       "staff": false
     },
@@ -34,118 +34,124 @@
     {
       "key": "day",
       "label": "일자",
-      "width": "8%",
+      "width": "6%",
+      "readonly": true
+    },
+    {
+      "key": "dow",
+      "label": "점검 요일",
+      "width": "6%",
       "readonly": true
     },
     {
       "key": "p1_prev",
       "label": "전일재고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "바이오크린콜 (알콜75%)"
     },
     {
       "key": "p1_in",
       "label": "금일 입고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "바이오크린콜 (알콜75%)"
     },
     {
       "key": "p1_use",
       "label": "금일사용",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "바이오크린콜 (알콜75%)"
     },
     {
       "key": "p1_now",
       "label": "현재 재고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "바이오크린콜 (알콜75%)"
     },
     {
       "key": "p2_prev",
       "label": "전일재고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "하이락스 (차아염소산나트륨4%)"
     },
     {
       "key": "p2_in",
       "label": "금일 입고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "하이락스 (차아염소산나트륨4%)"
     },
     {
       "key": "p2_use",
       "label": "금일사용",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "하이락스 (차아염소산나트륨4%)"
     },
     {
       "key": "p2_now",
       "label": "현재 재고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "하이락스 (차아염소산나트륨4%)"
     },
     {
       "key": "p3_prev",
       "label": "전일재고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "퐁퐁"
     },
     {
       "key": "p3_in",
       "label": "금일 입고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "퐁퐁"
     },
     {
       "key": "p3_use",
       "label": "금일사용",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "퐁퐁"
     },
     {
       "key": "p3_now",
       "label": "현재 재고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "퐁퐁"
     },
     {
       "key": "p4_prev",
       "label": "전일재고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "HDC-1 손세정제"
     },
     {
       "key": "p4_in",
       "label": "금일 입고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "HDC-1 손세정제"
     },
     {
       "key": "p4_use",
       "label": "금일사용",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "HDC-1 손세정제"
     },
     {
       "key": "p4_now",
       "label": "현재 재고",
-      "width": "5.75%",
+      "width": "5.5%",
       "type": "num",
       "group": "HDC-1 손세정제"
     }
@@ -245,6 +251,18 @@
       "day": "31일"
     }
   ],
-  "legend": "※ 현재 재고 = 전일재고 + 금일 입고 - 금일 사용.  잔량 부족 시 즉시 발주한다."
+  "legend": "※ 현재 재고 = 전일재고 + 금일 입고 - 금일 사용.  잔량 부족 시 즉시 발주한다.  ※ 토요일은 휴무일로 기재 대상이 아니다.",
+  "autoWeekday": {
+    "monthField": "month",
+    "dayKey": "day",
+    "weekdayKey": "dow"
+  },
+  "disableRowIf": {
+    "key": "dow",
+    "values": [
+      "토"
+    ],
+    "label": "휴무"
+  }
 });
 })();

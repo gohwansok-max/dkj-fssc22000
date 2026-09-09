@@ -75,6 +75,16 @@ window.DKJ_CONSOLE_FORMS={
           }
         },
         {
+          "code": "DKJ-S-02-09",
+          "title": "세척소독제 관리",
+          "priority": "normal",
+          "href": "records/DKJ-S-02-09.html",
+          "check": {
+            "mode": "dayRow",
+            "dayKey": "day"
+          }
+        },
+        {
           "code": "DKJ-H-01-01",
           "title": "CCP-1BC 소독·헹굼",
           "priority": "critical",
@@ -148,15 +158,6 @@ window.DKJ_CONSOLE_FORMS={
             "mode": "perPeriod",
             "period": "month",
             "dateField": "checkDate"
-          }
-        },
-        {
-          "code": "DKJ-S-02-09",
-          "title": "세척소독제 관리",
-          "href": "records/DKJ-S-02-09.html",
-          "check": {
-            "mode": "dayRow",
-            "dayKey": "day"
           }
         }
       ]

@@ -92,6 +92,19 @@
   /** 휴무일 행 — 일자·요일은 그대로 두고 기재란은 하나로 합쳐 '휴무'만 남긴다 */
   function offRowCells(spec, cols, row) {
     var label = esc(spec.disableRowIf.label || '휴무');
+    // 값이 남아 있는 휴무행은 '휴무' 로 덮지 않고 그대로 인쇄한다 — 저장된 기록이
+    // 정본에서 사라지면 심사에서 기록 누락으로 보인다.
+    // 열 묶음(columnPages)으로 여러 쪽에 나눠 인쇄하는 서식도 있으므로, 판단은
+    // 이 쪽의 열이 아니라 서식 전체 열로 한다 — 쪽마다 다르게 나오면 안 된다.
+    var hasValues = (spec.columns || cols).some(function (c) {
+      return !c.readonly && String(row[c.key] || '').trim();
+    });
+    if (hasValues) {
+      return cols.map(function (c) {
+        return '<td class="' + (c.align === 'left' ? 'l' : 'c') + ' lg-cell">' +
+          cellText(c, row[c.key]) + '</td>';
+      }).join('');
+    }
     var out = '';
     var i = 0;
     while (i < cols.length) {
