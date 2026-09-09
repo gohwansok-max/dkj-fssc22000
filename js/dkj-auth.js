@@ -92,6 +92,31 @@
     return Promise.resolve(payload);
   }
 
+  /** item 을 RTDB system/users/<uid> 에 올린다. 성공/실패를 호출자가 알 수 있게
+   *  Promise 로 돌려준다({sent:false} = 클라우드 미설정·로그인 전이라 아예 시도
+   *  안 함 — 오프라인 사용은 정상 동작이라 실패가 아니다. {sent:true} = 실제로
+   *  올라감). 클라우드가 설정돼 있는데 요청 자체가 실패하면 reject 한다 — 호출자가
+   *  "저장은 됐지만 다른 기기 동기화는 안 됐다"를 사용자에게 알릴 수 있어야 한다.
+   *
+   *  database.rules.json 의 system/users/$uid 규칙은 저장하는 값에 uid 필드가
+   *  있고 그 값이 URL 의 $uid 와 같아야 통과한다(newData.hasChildren(['uid', ...])
+   *  && newData.child('uid').val() === $uid). item.uid 가 아예 없는 채로 올리면
+   *  이 검증에서 거부돼 400 이 온다 — 시스템 관리자(4343)처럼 addUser() 를 거치지
+   *  않고 DEFAULT_DIRECTORY 로 생긴 계정이 그랬다(2026-09-09 발견: PC에서 4343
+   *  비밀번호를 바꿔도 다른 기기에 전혀 동기화되지 않던 원인). 그래서 uid 가
+   *  없으면 여기서 채워 넣고 로컬 디렉터리에도 같이 저장해 다음부터는 안 비게
+   *  한다. */
+  function pushUserToCloud(item) {
+    if (!item.uid) item.uid = 'uid-' + (item.empId || '');
+    if (!configured() || !state.token) return Promise.resolve({ sent: false });
+    var uidToWrite = item.uid;
+    return cloudUserPayload(item).then(function (payload) {
+      return request('system/users/' + encodeURIComponent(uidToWrite), 'PUT', payload);
+    }).then(function () {
+      return { sent: true };
+    });
+  }
+
   /** 로그인 시 비밀번호 대조 — 이 기기에 평문이 있으면 그걸로, 없고 해시만 있으면(다른
    * 기기에서 등록된 뒤 클라우드로 넘어온 계정) 해시로 비교한다. 아예 비밀번호가 없는
    * 레코드는(과거 동작 유지) 통과시킨다. */
@@ -286,12 +311,15 @@
     };
     dir[id] = item;
     saveDirectory(dir);
-    if (configured() && state.token) {
-      cloudUserPayload(item).then(function (payload) {
-        return request('system/users/' + encodeURIComponent(item.uid), 'PUT', payload);
-      })['catch'](function () {});
-    }
-    return item;
+    // cloudSync 는 item(=디렉터리에 저장되는 값이자 dir 안의 실제 참조) 에는
+    // 얹지 않는다 — 나중에 이 item 이 다시 saveDirectory() 로 저장될 때
+    // Promise 가 JSON.stringify 로 {} 가 돼 디렉터리 파일에 그대로 섞여 들어간다.
+    // 호출자가 결과를 기다리고 싶으면 반환값의 .cloudSync 를 쓴다.
+    var cloudSync = pushUserToCloud(item)['catch'](function (e) {
+      console.error('[DkjAuth] 신규 계정을 클라우드에 올리지 못했습니다(' + id + '): ' + (e && e.message || e));
+      throw e;
+    });
+    return { item: item, cloudSync: cloudSync };
   }
 
   function saveUser(empId, data) {
@@ -299,6 +327,10 @@
     var dir = getDirectory();
     if (!dir[oldId]) throw new Error('사용자를 찾을 수 없습니다.');
     var item = dir[oldId];
+    // DEFAULT_DIRECTORY 로 생긴 4343 처럼 addUser() 를 거치지 않은 옛 항목은
+    // uid 가 아예 없다 — 여기서 채워야 이번 저장부터 로컬에도 남는다(그래야
+    // pushUserToCloud() 가 뒤늦게 채우는 것보다 먼저 localStorage 스냅샷에 실린다).
+    if (!item.uid) item.uid = 'uid-' + oldId;
 
     // ID(사번) 변경 처리
     var newId = data.newEmpId || data.empId;
@@ -326,13 +358,11 @@
     var currentId = item.empId || oldId;
     dir[currentId] = item;
     saveDirectory(dir);
-    if (configured() && state.token) {
-      var uidToWrite = item.uid || ('uid-' + currentId);
-      cloudUserPayload(item).then(function (payload) {
-        return request('system/users/' + encodeURIComponent(uidToWrite), 'PUT', payload);
-      })['catch'](function () {});
-    }
-    return item;
+    var cloudSync = pushUserToCloud(item)['catch'](function (e) {
+      console.error('[DkjAuth] 계정 정보를 클라우드에 올리지 못했습니다(' + currentId + '): ' + (e && e.message || e));
+      throw e;
+    });
+    return { item: item, cloudSync: cloudSync };
   }
 
   function deleteUser(empId) {
