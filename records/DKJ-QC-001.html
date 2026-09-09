@@ -8,12 +8,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>DKJ-QC-001 일일 공정검사일지 (QC 순회) | 동김제농협</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/dkj-tokens.css?v=90">
-  <link rel="stylesheet" href="../css/dkj-form.css?v=90">
-  <link rel="stylesheet" href="../css/dkj-print.css?v=90">
-  <link rel="manifest" href="../manifest.json?v=90">
-  <link rel="stylesheet" href="../css/dkj-quick-nav.css?v=90">
-  <link rel="stylesheet" href="../css/dkj-accessibility.css?v=90">
+  <link rel="stylesheet" href="../css/dkj-tokens.css?v=91">
+  <link rel="stylesheet" href="../css/dkj-form.css?v=91">
+  <link rel="stylesheet" href="../css/dkj-print.css?v=91">
+  <link rel="manifest" href="../manifest.json?v=91">
+  <link rel="stylesheet" href="../css/dkj-quick-nav.css?v=91">
+  <link rel="stylesheet" href="../css/dkj-accessibility.css?v=91">
   <style>
     /* ==========================================================
        스마트폰 & 태블릿 전용 터치 최적화 UI / CSS
@@ -237,6 +237,47 @@
     }
 
     /* Tables & Responsive Wrapper */
+    /* 작업장 온도 일보 연동 안내 — 값이 어디서 왔는지 보이지 않으면 확인할 수가 없다 */
+    .qc-templink-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 10px 0 6px;
+    }
+
+    .qc-templink {
+      flex: 1 1 320px;
+      padding: 8px 12px;
+      border: 1px solid #cfe3d6;
+      border-left: 4px solid #009a44;
+      border-radius: 6px;
+      background: #f2f9f5;
+      color: #1d3a2a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .qc-templink.warn {
+      border-color: #f0d9a8;
+      border-left-color: #d98c00;
+      background: #fdf7ea;
+      color: #6b4a00;
+    }
+
+    .qc-link-tag {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 1px 6px;
+      border: 1px solid #9fc9b0;
+      border-radius: 10px;
+      background: #eef7f1;
+      color: #1d6b3f;
+      font-size: 11px;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+
     .qc-table-wrap {
       width: 100%;
       overflow-x: auto;
@@ -767,6 +808,11 @@
         🚨 <strong>한계기준/규격 이탈 감지</strong> — 하단 특이사항 및 이탈조치 란에 조치 결과를 필히 기록하세요.
       </div>
 
+      <div class="qc-templink-row screen-only">
+        <div id="qcTempLink" class="qc-templink" hidden></div>
+        <button type="button" id="btnTempSync" class="pill-btn ghost sm">🌡 온도 다시 불러오기</button>
+      </div>
+
       <div class="qc-table-wrap">
         <table class="qc-table" id="mainCheckTable">
           <thead>
@@ -920,18 +966,18 @@
   <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
 
   <!-- Scripts -->
-  <script src="../js/dkj-util.js?v=90"></script>
-  <script src="../js/dkj-firebase-config.js?v=90"></script>
-  <script src="../js/dkj-auth.js?v=90"></script>
-  <script src="../js/dkj-cloud-sync.js?v=90"></script>
-  <script src="../js/dkj-nav-bar.js?v=90"></script>
-  <script src="../js/dkj-record-store.js?v=90"></script>
-  <script src="../js/dkj-approval.js?v=90"></script>
-  <script src="../js/dkj-master-data.js?v=90"></script>
-  <script src="../js/DKJ-QC-001.js?v=90"></script>
-  <script src="../js/dkj-pwa.js?v=90"></script>
-  <script src="../js/dkj-quick-nav.js?v=90"></script>
-  <script src="../js/dkj-i18n.js?v=90"></script>
-  <script src="../js/dkj-accessibility.js?v=90"></script>
+  <script src="../js/dkj-util.js?v=91"></script>
+  <script src="../js/dkj-firebase-config.js?v=91"></script>
+  <script src="../js/dkj-auth.js?v=91"></script>
+  <script src="../js/dkj-cloud-sync.js?v=91"></script>
+  <script src="../js/dkj-nav-bar.js?v=91"></script>
+  <script src="../js/dkj-record-store.js?v=91"></script>
+  <script src="../js/dkj-approval.js?v=91"></script>
+  <script src="../js/dkj-master-data.js?v=91"></script>
+  <script src="../js/DKJ-QC-001.js?v=91"></script>
+  <script src="../js/dkj-pwa.js?v=91"></script>
+  <script src="../js/dkj-quick-nav.js?v=91"></script>
+  <script src="../js/dkj-i18n.js?v=91"></script>
+  <script src="../js/dkj-accessibility.js?v=91"></script>
 </body>
 </html>
