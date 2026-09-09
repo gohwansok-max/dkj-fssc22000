@@ -225,27 +225,48 @@
     }
   }
 
+  /** 등록된 계정으로 직원 목록을 채운다.
+   *  정본은 system-settings.html(시스템 관리자 4343)에서 등록·수정하는 계정
+   *  디렉터리이고, RTDB system/users 로 기기 간에 맞춰진다.
+   *
+   *  예전에는 실명 7명을 이 파일에 박아 뒀다. 공개 배포되는 파일에 실명이 남는
+   *  것도 문제지만(GitHub Pages 는 저장소가 비공개여도 누구나 열람 가능),
+   *  실제와 어긋나는 것이 더 문제였다 — 등록에 없는 사람이 목록에 뜨고,
+   *  나중에 등록한 직원은 아무리 등록해도 이 목록에 나타나지 않았다. */
+  function fillStaffDatalist(dl) {
+    var staff = {};
+    try {
+      staff = (global.DkjAuth && global.DkjAuth.staff && global.DkjAuth.staff()) || {};
+    } catch (e) { staff = {}; }
+    var label = function (role) { return role || ''; };
+    try {
+      if (global.DkjAuth && global.DkjAuth.roleLabel) label = global.DkjAuth.roleLabel;
+    } catch (e) {}
+    dl.innerHTML = Object.keys(staff).sort().map(function (id) {
+      var s = staff[id] || {};
+      var name = String(s.name || '').trim() || ('사번 ' + id);
+      return '<option value="' + esc(name) + '">' + esc(name) +
+        ' (' + esc(id) + ' · ' + esc(label(s.role)) + ')</option>';
+    }).join('');
+  }
+
   /** 직원 목록 datalist 주입 (드롭다운 선택 + 직접입력 동시 지원) */
   function ensureStaffDatalist() {
-    var existing = document.getElementById('dkjStaffList');
-    if (existing) return existing;
-    var dl = document.createElement('datalist');
-    dl.id = 'dkjStaffList';
-    var staff = [
-      { name: '이다은', role: '작성' },
-      { name: '권화선', role: '검토' },
-      { name: '최재원', role: '승인' },
-      { name: '최민재', role: '작성/책임자' },
-      { name: '김영호', role: '책임자' },
-      { name: '박서준', role: '책임자' },
-      { name: '관리자', role: '시스템 관리자' }
-    ];
-    dl.innerHTML = staff.map(function (s) {
-      return '<option value="' + esc(s.name) + '">' + esc(s.name) + ' (' + esc(s.role) + ')</option>';
-    }).join('');
-    if (document.body) document.body.appendChild(dl);
+    var dl = document.getElementById('dkjStaffList');
+    if (!dl) {
+      dl = document.createElement('datalist');
+      dl.id = 'dkjStaffList';
+      if (document.body) document.body.appendChild(dl);
+    }
+    fillStaffDatalist(dl);
     return dl;
   }
+
+  // 계정 디렉터리는 로그인·RTDB 동기화 뒤에 채워지므로 그때 목록을 다시 만든다.
+  // (예전 하드코딩 목록은 갱신할 것이 없어 이 배선이 아예 없었다.)
+  ['dkj:staff-loaded', 'dkj:auth-ready'].forEach(function (ev) {
+    document.addEventListener(ev, function () { ensureStaffDatalist(); });
+  });
 
   /** 저장(계속 수정 가능)과 작성완료(잠금·이후 새 이력으로만 수정) 버튼이
       나란히 있으면 처음 쓰는 사람은 뭘 눌러야 할지 헷갈릴 수 있다. title

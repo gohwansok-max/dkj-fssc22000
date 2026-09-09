@@ -208,18 +208,22 @@
       var roleText = role ? ' · ' + role : '';
       byId[key] = { value: label, label: label + (id ? ' (' + id + roleText + ')' : '') };
     }
-    // 기본 상주 인원
-    add('0001', '이다은', '작업자');
-    add('0002', '권화선', '관리자');
-    add('0003', '최민재', '책임자');
-    add('0004', '최재원', '승인자');
-    add('4343', '관리자', '시스템 관리자');
-
+    /* 직원 목록은 system-settings.html 에서 등록한 계정(DkjAuth 디렉터리, RTDB
+       system/users 로 기기 간 동기화)만 쓴다. 예전에는 실명 5명을 여기에 박아
+       뒀는데, 공개 배포되는 파일에 실명이 남는 것도 문제지만 실제와 어긋나는
+       것이 더 문제였다 — 등록에 없는 사람이 목록에 뜨고, 나중에 입사한 직원은
+       뜨지 않았다. 사람이 바뀌면 시스템 설정 화면에서 고친다. */
     try {
       var fixed = global.DkjAuth && global.DkjAuth.staff && global.DkjAuth.staff();
       Object.keys(fixed || {}).forEach(function (id) {
         var item = fixed[id] || {};
-        add(id, item.name, item.role);
+        var label = item.name;
+        // role 은 'worker' 같은 코드라 화면에는 '작업자' 로 보여준다
+        var roleName = item.role;
+        try {
+          if (global.DkjAuth && global.DkjAuth.roleLabel) roleName = global.DkjAuth.roleLabel(item.role);
+        } catch (e2) {}
+        add(id, label, roleName);
       });
     } catch (e) {}
     try {

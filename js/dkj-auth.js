@@ -223,8 +223,13 @@
     return '';
   }
   var DIRECTORY_KEY = 'dkj:auth:directory:v3';
+  /* 새 기기에서 아직 디렉터리를 못 받아왔을 때만 쓰는 최소 계정이다.
+     GitHub Pages 는 저장소가 비공개여도 누구나 열람할 수 있으므로 여기에 실명을
+     적지 않는다(data/staff-roles.json 과 같은 방침). 표시이름은 시스템 관리자가
+     system-settings.html 에서 정한 값이 정본이고, 첫 로그인 직후 RTDB
+     system/users 에서 받아와 이 값을 덮는다. */
   var DEFAULT_DIRECTORY = {
-    '4343': { empId: '4343', name: '고환석', role: 'system_admin', password: '4343', createdAt: '2026-08-01T00:00:00.000Z' }
+    '4343': { empId: '4343', name: '4343', role: 'system_admin', password: '4343', createdAt: '2026-08-01T00:00:00.000Z' }
   };
 
   function getDirectory() {
@@ -612,7 +617,7 @@
     login: login, logout: logout, resume: resume, reauth: reauth, requireLogin: requireLogin,
     configured: configured, user: user, token: function () { return state.token; }, role: function () { return state.role; },
     roleLabel: roleLabel, roles: function () { return ROLES; }, isSystemAdmin: isSystemAdmin,
-    request: request, loadAssignedRole: loadAssignedRole, loadStaff: loadStaff, loadUsers: loadUsers, staff: function () { return staffCache; },
+    request: request, loadAssignedRole: loadAssignedRole, loadStaff: loadStaff, loadUsers: loadUsers, staff: function () { if (!staffCache) loadStaff(); return staffCache; },
     getDirectory: getDirectory, addUser: addUser, saveUser: saveUser, deleteUser: deleteUser,
     can: can, denyReason: denyReason
   };
