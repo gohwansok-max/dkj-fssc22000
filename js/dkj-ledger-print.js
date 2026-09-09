@@ -72,11 +72,19 @@
     return '<tr>' + r1 + '</tr><tr>' + r2 + '</tr>';
   }
 
+  /* 미기재 칸에 선택지를 흐리게 남기는 힌트의 길이 한도.
+     '적 / 부', 'O / X / -' 처럼 짧은 것은 수기 대응에 도움이 되지만, 작업실 7개처럼
+     긴 목록은 좁은 칸에서 여러 줄로 접혀 행 높이를 밀어올린다(DKJ-S-02-31 이 그래서
+     행당 8mm 까지 커져 정본이 3장이 됐다). 긴 목록은 힌트를 넣지 않는다. */
+  var OPT_HINT_MAX = 20;
+
   function cellText(col, v) {
     if (v != null && v !== '') return esc(v);
     // 미기재 칸은 종이 정본처럼 선택지를 흐리게 남겨 수기 대응이 가능하게 한다
     if (col.type === 'choice' && col.choices && col.choices.length) {
-      return '<span class="lg-opt">' + esc(col.choices.join(' / ')) + '</span>';
+      var hint = col.choices.join(' / ');
+      if (hint.length > OPT_HINT_MAX) return '';
+      return '<span class="lg-opt">' + esc(hint) + '</span>';
     }
     if (col.unit) return '<span class="lg-opt">' + esc(col.unit) + '</span>';
     return '';
@@ -136,8 +144,10 @@
         continue;
       }
       body += '<tr>' + cols.map(function (c) {
-        return '<td class="' + (c.align === 'left' ? 'l' : 'c') + ' lg-cell">' +
-          cellText(c, r[c.key]) + '</td>';
+        // lg-fix = 서식에 미리 인쇄된 칸(구역·항목 등). 길이를 알고 있어서 조밀
+        // 인쇄에서 한 줄로 눌러도 되지만, 사람이 적는 칸은 눌러선 안 된다.
+        return '<td class="' + (c.align === 'left' ? 'l' : 'c') + ' lg-cell' +
+          (c.readonly ? ' lg-fix' : '') + '">' + cellText(c, r[c.key]) + '</td>';
       }).join('') + '</tr>';
     }
     return '<table class="off-grid lg-grid"><thead>' + theadHtml(cols) + '</thead><tbody>' +
@@ -218,7 +228,18 @@
         ' · ' + esc(spec.docNo || '') + ' · ' + (i + 1) + ' / ' + plan.length + '</div>' +
         '</section>';
     }).join('');
-    return '<div class="off-ccp off-matrix off-ledger">' + html + '</div>';
+    /* printDensity — A4 1쪽에 담아야 하는 서식만 치수를 직접 지정한다.
+       { rowHeight, fontSize } 를 주면 조밀 인쇄 클래스(lg-dense)와 함께 그 값이
+       CSS 변수로 내려간다. 행 수가 서식마다 다르므로(28~55행) 한 값으로는 어떤 건
+       넘치고 어떤 건 아래가 텅 빈다 — 그래서 서식별로 정한다.
+       지정하지 않은 대장 서식의 정본 밀도는 그대로다. */
+    var d = spec.printDensity;
+    if (!d) return '<div class="off-ccp off-matrix off-ledger">' + html + '</div>';
+    var vars = [];
+    if (d.rowHeight) vars.push('--lg-row-h:' + d.rowHeight);
+    if (d.fontSize) vars.push('--lg-font:' + d.fontSize);
+    return '<div class="off-ccp off-matrix off-ledger lg-dense"' +
+      (vars.length ? ' style="' + vars.join(';') + '"' : '') + '>' + html + '</div>';
   }
 
   global.DkjLedgerPrint = { render: render, theadHtml: theadHtml };

@@ -549,6 +549,10 @@
     "aria": "냉장창고 적합 여부 일괄 입력",
     "okText": "전체 적",
     "ngText": "전체 부"
+  },
+  "printDensity": {
+    "rowHeight": "18pt",
+    "fontSize": "7pt"
   }
 });
 })();

@@ -767,6 +767,10 @@
       "",
       ""
     ]
+  },
+  "printDensity": {
+    "rowHeight": "13pt",
+    "fontSize": "6pt"
   }
 });
 })();

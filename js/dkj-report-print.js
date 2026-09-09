@@ -116,7 +116,15 @@
       if (b.type === 'signs') return signsHtml(b, v);
       return '';
     }).join('');
-    return '<div class="off-ccp off-matrix off-report">' +
+    /* printDensity — 내용이 A4 1쪽을 살짝 넘기는 보고서만 치수를 낮춘다.
+       { fontSize, rowHeight } 가 CSS 변수로 내려가고 rp-dense 가 붙는다
+       (대장·매트릭스 인쇄와 같은 규약). */
+    var d = spec.printDensity || null;
+    var vars = [];
+    if (d && d.rowHeight) vars.push('--rp-row-h:' + d.rowHeight);
+    if (d && d.fontSize) vars.push('--rp-font:' + d.fontSize);
+    return '<div class="off-ccp off-matrix off-report' + (d ? ' rp-dense' : '') + '"' +
+      (vars.length ? ' style="' + vars.join(';') + '"' : '') + '>' +
       '<section class="mx-page rp-page">' +
       headHtml(spec, st) + body +
       (spec.legend ? '<div class="off-box tiny">' + esc(spec.legend) + '</div>' : '') +

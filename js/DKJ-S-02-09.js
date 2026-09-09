@@ -263,6 +263,10 @@
       "토"
     ],
     "label": "휴무"
+  },
+  "printDensity": {
+    "rowHeight": "18pt",
+    "fontSize": "7pt"
   }
 });
 })();
