@@ -98,8 +98,9 @@
       }, 400);
     }
 
-    /** 점검 월(YYYY-MM 또는 '2026 . 08')이 바뀌면 요일 열을 다시 계산한다 */
-    function applyAutoWeekday() {
+    /** 점검 월(YYYY-MM 또는 '2026 . 08')이 바뀌면 요일 열을 다시 계산한다.
+     *  monthChanged=true 는 사용자가 점검 월을 직접 바꾼 경우다 — 그때만 휴무행을 비운다. */
+    function applyAutoWeekday(monthChanged) {
       var cfg = spec.autoWeekday;
       if (!cfg) return;
       var raw = String(state.info[cfg.monthField] || '');
@@ -112,10 +113,13 @@
         var d = new Date(y, mo - 1, dnum);
         r[cfg.weekdayKey] = (d.getMonth() === mo - 1) ? names[d.getDay()] : '';
       });
-      clearDisabledRows();
+      if (monthChanged) clearDisabledRows();
     }
 
-    /** 휴무일로 바뀐 행에 남아 있던 값을 지운다 — 안 지우면 정본에 그대로 인쇄된다 */
+    /** 점검 월을 바꿨을 때 휴무일로 바뀐 행의 이전 달 값을 비운다.
+     *  기록을 불러올 때는 절대 부르지 않는다 — 이미 저장된 값을 지우면 기록 변조다.
+     *  그래서 값이 남아 있는 휴무행은 아래 offRowCells() 가 '휴무'로 가리지 않고
+     *  그 값을 그대로 보여준다(인쇄 정본도 같다). */
     function clearDisabledRows() {
       if (!spec.disableRowIf) return;
       state.rows.forEach(function (r) {
@@ -126,11 +130,29 @@
       });
     }
 
+    /** 휴무행인데 값이 남아 있는가 — 예전에 저장된 기록이거나 휴무일에 실제로 작업한 경우 */
+    function offRowHasValues(row) {
+      return (spec.columns || []).some(function (c) {
+        return !c.readonly && String(row[c.key] || '').trim();
+      });
+    }
+
     /* dkj-approval.js 의 attachStaffPickers() 는 라벨에 '점검'·'작성' 같은 말이 들어가면
        그 입력칸을 직원 이름 <select> 로 바꿔 버린다. '점검 일시'·'점검 월' 처럼 사람이
        아닌 칸까지 잡혀 필수 항목을 아예 못 쓰는 서식이 있었다. 사양에서 staff:false 로
        지정하면 이 표시를 달아 치환에서 제외한다(선택자가
        input:not([data-dkj-staff-picker]) 이라 표시만 있으면 건너뛴다). */
+    /** '2026 . 08' 처럼 손으로 적어 저장된 점검 월을 <input type="month"> 가 받는
+     *  YYYY-MM 으로 맞춘다. 예전 기록을 열었을 때 월 칸이 빈칸으로 보이는 것을 막는다.
+     *  화면 표기만 맞추는 것이고 저장은 하지 않는다 — 사용자가 저장할 때 정리된 값이
+     *  들어간다(기록을 여는 것만으로 저장 데이터를 바꾸지 않는다). */
+    function normMonth(v) {
+      var raw = String(v == null ? '' : v).trim();
+      if (/^\d{4}-\d{2}$/.test(raw)) return raw;
+      var m = raw.match(/(\d{4})\D+(\d{1,2})/);
+      return m ? m[1] + '-' + String(Number(m[2])).padStart(2, '0') : '';
+    }
+
     function noStaff(f) {
       return f.staff === false ? ' data-dkj-staff-picker="skip"' : '';
     }
@@ -140,6 +162,11 @@
       if (!host) return;
       host.innerHTML = (spec.infoFields || []).map(function (f) {
         var v = state.info[f.id] || '';
+        if (f.type === 'month') {
+          v = normMonth(v);
+          // autoWeekday·검증이 같은 값을 보도록 state 도 맞춘다(저장 아님).
+          state.info[f.id] = v;
+        }
         // readonly 는 서식에서 값이 고정된 칸(예: 자체 처리하는 폐기물 수거업체)이다.
         // disabled 대신 readonly 를 쓰면 값이 그대로 state 에 남아 정본에도 인쇄된다.
         var input = f.readonly
@@ -167,7 +194,7 @@
             if (!el || !host.contains(el)) return;
             state.info[el.getAttribute('data-info')] = el.value;
             if (spec.autoWeekday && el.getAttribute('data-info') === spec.autoWeekday.monthField) {
-              applyAutoWeekday();
+              applyAutoWeekday(true);
               renderGrid();
             }
             scheduleDraft();
@@ -228,6 +255,15 @@
         칸마다 '휴무'를 반복해 찍으면 가로로 긴 온도표에서 읽기가 더 나빠진다. */
     function offRowCells(row) {
       var label = esc(spec.disableRowIf.label || '휴무');
+      // 값이 있는 휴무행은 숨기지 않는다. 저장된 기록을 화면에서 지워 보이게 하면
+      // 데이터는 남았는데 아무도 못 보는 상태가 된다.
+      if (offRowHasValues(row)) {
+        return COLS.map(function (c) {
+          return '<td>' + (c.readonly
+            ? cellInput(c, -1, row[c.key] || '', row)
+            : '<span class="lgf-fixed">' + esc(row[c.key] || '') + '</span>') + '</td>';
+        }).join('');
+      }
       var out = '';
       var i = 0;
       while (i < COLS.length) {
