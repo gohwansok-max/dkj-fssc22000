@@ -535,13 +535,20 @@
     "dayKey": "day",
     "weekdayKey": "dow"
   },
-  "legend": "※ 관리기준 이탈 시 즉시 조치하고 비고란에 기록한다.  적합 : 적 / 부적합 : 부  ※ 토요일은 휴무일로 점검 대상이 아니다.",
+  "legend": "※ 관리기준 이탈 시 즉시 조치하고 비고란에 기록한다.  적합 : 적 / 부적합 : 부  ※ 토요일은 작업장 휴무일로 작업실 온도는 점검 대상이 아니나, 냉장창고( 0 ~ 5℃ )는 제품이 보관돼 있어 온도 점검을 계속한다.",
   "disableRowIf": {
     "key": "dow",
     "values": [
       "토"
     ],
-    "label": "휴무"
+    "label": "휴무",
+    "keepGroups": [
+      "원재료 냉장창고 ( 0 ~ 5℃ )",
+      "완제품 냉장창고 ( 0 ~ 5℃ )"
+    ],
+    "keepColumns": [
+      "remark"
+    ]
   },
   "pageClass": "temperature-log-page",
   "bulkChoice": {
