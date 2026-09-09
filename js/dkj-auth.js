@@ -225,7 +225,7 @@
   var DIRECTORY_KEY = 'dkj:auth:directory:v3';
   /* 새 기기에서 아직 디렉터리를 못 받아왔을 때만 쓰는 최소 계정이다.
      GitHub Pages 는 저장소가 비공개여도 누구나 열람할 수 있으므로 여기에 실명을
-     적지 않는다(data/staff-roles.json 과 같은 방침). 표시이름은 시스템 관리자가
+     적지 않는다. 표시이름은 시스템 관리자가
      system-settings.html 에서 정한 값이 정본이고, 첫 로그인 직후 RTDB
      system/users 에서 받아와 이 값을 덮는다. */
   var DEFAULT_DIRECTORY = {
