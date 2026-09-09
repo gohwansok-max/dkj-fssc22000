@@ -287,7 +287,16 @@
         ' · ' + esc(spec.docNo || '') + ' · ' + (pi + 1) + ' / ' + pages.length + '</div>'
       );
     }).join('');
-    return '<div class="off-ccp off-matrix">' + html + '</div>';
+    /* printDensity — A4 1쪽에 담아야 하는 서식만 치수를 직접 지정한다.
+       { rowHeight, fontSize } 가 CSS 변수로 내려가고 mx-dense 클래스가 붙는다.
+       지정하지 않은 서식의 정본 밀도는 그대로다(대장 쪽 dkj-ledger-print.js 와 같은 규약). */
+    var d = spec.printDensity;
+    if (!d) return '<div class="off-ccp off-matrix">' + html + '</div>';
+    var vars = [];
+    if (d.rowHeight) vars.push('--mx-row-h:' + d.rowHeight);
+    if (d.fontSize) vars.push('--mx-font:' + d.fontSize);
+    return '<div class="off-ccp off-matrix mx-dense"' +
+      (vars.length ? ' style="' + vars.join(';') + '"' : '') + '>' + html + '</div>';
   }
 
   global.DkjMatrixPrint = {

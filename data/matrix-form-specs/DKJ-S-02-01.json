@@ -20,9 +20,7 @@
   "enactDate": "2026. 02. 13",
   "reviseDate": "-",
   "orgName": "동김제농협 산지유통센터",
-  "pageBreakAfter": [
-    20
-  ],
+  "pageBreakAfter": [],
   "legend": "* 평가 - 양호 : ○, 부적합(시정조치 필요) : ×    * 주기 (D) : 매일    * 상단의 결재는 주 단위로 실시한다.",
   "signRowLabel": "작 성",
   "incident": {
@@ -364,5 +362,9 @@
       "label": "CCP-1BC →",
       "href": "DKJ-H-01-01.html"
     }
-  ]
+  ],
+  "printDensity": {
+    "rowHeight": "12pt",
+    "fontSize": "6.5pt"
+  }
 }

@@ -452,6 +452,40 @@
   .mx-grid .mx-day { width: 5.4%; font-size: 7.5pt; line-height: 1.15; }
   .mx-grid .mx-note { width: 10%; }
 
+  /* ----- printDensity (매트릭스) -----
+     항목이 많아 A4 1쪽을 넘기는 서식만. 행 높이는 최소값이고, 항목 글자가 접히면
+     그만큼 늘어난다 — 글자를 자르지 않고 다 보여주는 쪽을 택했다.
+     .mx-grid 가 남는 높이를 흡수하므로 결과적으로 한 쪽을 꽉 채운다. */
+  .off-matrix.mx-dense .mx-grid tbody td,
+  .off-matrix.mx-dense .mx-grid tbody th {
+    height: var(--mx-row-h, 12pt);
+    font-size: var(--mx-font, 6.5pt);
+    line-height: 1.15;
+    padding: 0 2pt;
+  }
+
+  .off-matrix.mx-dense .mx-grid thead th {
+    height: 12pt;
+    font-size: calc(var(--mx-font, 6.5pt) - 0.3pt);
+  }
+
+  .off-matrix.mx-dense .mx-grid .mx-day { font-size: calc(var(--mx-font, 6.5pt) - 0.5pt); }
+  .off-matrix.mx-dense .mx-sign { height: 26pt; }
+
+  /* ----- printDensity (보고서) ----- */
+  .off-report.rp-dense .rp-lab,
+  .off-report.rp-dense .rp-val,
+  .off-report.rp-dense .rp-tlab,
+  .off-report.rp-dense .rp-tbody,
+  .off-report.rp-dense .rp-table thead th {
+    font-size: var(--rp-font, 7.5pt);
+    line-height: 1.2;
+  }
+
+  .off-report.rp-dense .rp-table tbody td,
+  .off-report.rp-dense .rp-table tbody th { height: var(--rp-row-h, 14pt); }
+  .off-report.rp-dense .rp-sign { height: 26pt; }
+
   .mx-dow {
     font-size: 6.5pt;
     font-weight: 500;
@@ -590,9 +624,9 @@
   }
 
   .off-ledger.lg-dense .lg-cell {
-    font-size: 6.5pt;
+    font-size: var(--lg-font, 6.5pt);
     line-height: 1.1;
-    height: 10pt;
+    height: var(--lg-row-h, 10pt);
     padding: 0 2pt;
   }
 
@@ -604,11 +638,17 @@
     overflow: hidden;
   }
 
-  .off-ledger.lg-dense .lg-opt { font-size: 6pt; }
+  .off-ledger.lg-dense .lg-opt { font-size: calc(var(--lg-font, 6.5pt) - 0.5pt); }
   .off-ledger.lg-dense .lg-ilab,
   .off-ledger.lg-dense .lg-ival { font-size: 7pt; }
   .off-ledger.lg-dense .lg-info { margin-bottom: 2pt; }
   .off-ledger.lg-dense .lg-legend { margin-top: 2pt; font-size: 6.5pt; }
+
+  /* .mx-page 의 기본 min-height(262mm)에 헤더·범례의 바깥 여백이 더해지면 A4 세로
+     인쇄영역 275mm 를 넘어 한 장을 더 넘긴다(DKJ-S-02-31 실측 270.2mm → 2장).
+     조밀 인쇄는 그 값을 낮춰 여백을 확보한다 — 표가 남는 높이를 흡수하는 동작은
+     그대로라 종이 정본처럼 꽉 찬 모양은 유지된다. */
+  .off-ledger.lg-dense .mx-page { min-height: 250mm; }
 
   /* 이상 발생 내역표도 같이 줄인다 */
   .off-ledger.lg-dense .mx-inc th,
@@ -617,11 +657,6 @@
     height: 11pt;
     padding: 0 2pt;
   }
-
-  /* 1쪽짜리 정본은 표가 남는 높이를 흡수하지 않게 둔다 — 55행이 세로로 늘어나면
-     행마다 높이가 벌어져 결국 다음 장으로 넘어간다. */
-  .off-ledger.lg-dense .mx-page { min-height: 0; }
-  .off-ledger.lg-dense .lg-grid { flex: 0 0 auto; height: auto; }
 
   /* 휴무일 행 — 심사에서 '빈칸 방치'로 보이지 않게 사유를 남긴다 */
   .off-ledger .lg-row-off td { background: #f2f2f2; }

@@ -777,5 +777,9 @@
       "label": "← 기록목록",
       "href": "../records-center.html?cat=daily"
     }
-  ]
+  ],
+  "printDensity": {
+    "rowHeight": "13pt",
+    "fontSize": "6pt"
+  }
 }

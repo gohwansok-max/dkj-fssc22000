@@ -438,6 +438,9 @@
     ]
   },
   "legend": "※ 평가 - 양호 : O, 부적합 : X, 해당없음 : -.  X 판정 시 이상 발생 내역에 조치 결과를 기록한다.",
-  "printDensity": "compact"
+  "printDensity": {
+    "rowHeight": "10pt",
+    "fontSize": "6.5pt"
+  }
 });
 })();
