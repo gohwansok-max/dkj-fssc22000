@@ -178,7 +178,8 @@ Web Speech API(`SpeechRecognition`/`webkitSpeechRecognition`)를 사용하며 �
 >
 > 표시이름 — `system-settings.html`에서 관리자가 지정한 이름이 정본입니다(로컬 디렉터리에
 > 저장, RTDB `system/users`로 기기 간 동기화). `data/staff-roles.json`의 `name`은 항상 빈
-> 문자열입니다(아래 참고).
+> 문자열입니다(아래 참고). **JS·HTML 어디에도 직원 이름을 하드코딩하지 마세요** —
+> 카탈로그 절의 '직원 목록·표시이름의 정본은 하나입니다' 참고.
 >
 > 주의 — GitHub Pages 사이트는 저장소가 비공개여도 **누구나 열람 가능**합니다.
 > `data/staff-roles.json` 이 공개 주소에서 읽히기 때문에, 여기 실명·사번을 같이 적어
@@ -362,13 +363,34 @@ JSON fetch 대신 번들을 씁니다). 번들만 고치면 다음 생성 때 �
 | `menu-catalog.json` | 상단 메뉴 구성 |
 | `console-forms.json` | 업무 콘솔의 주기별 그룹(매일/주간·월간/발생 시/연간) |
 | `mdr-catalog.json` | 문서관리대장 — **문서 제목·개정번호의 정본** |
-| `staff-roles.json` | 직원별 **기본** 역할·결재 권한 — 실제 운영 권한은 RTDB `system/users`가 우선 |
+| `staff-roles.json` | 직원별 기본 역할표 — **2026-09-09 확인 결과 어느 화면도 읽지 않습니다**(아래) |
 
-`staff-roles.json` 이 localStorage 가 아니라 배포 파일인 이유: 역할표는 모든 태블릿에서
-같아야 하는데 `js/dkj-cloud-sync.js` 는 기록 키(`dkj:records:*:list:v1`)만 동기화합니다.
-`staff` 가 비어 있으면 아무도 막지 않습니다(지금까지 동작 그대로). 실제 사번을 채우는
-순간부터 제한이 걸리고, 표에 없는 사번은 결재를 확정할 수 없습니다. 로그인 자체가 없는
-상태(클라우드 미설정)에서는 누구인지 모르므로 역시 막지 않습니다.
+**`staff-roles.json` 은 지금 죽은 파일입니다.** 번들이 만들어내는 `window.DKJ_STAFF_ROLES`
+를 참조하는 코드가 하나도 없고, `js/staff-roles.bundle.js` 를 싣는 HTML 도 없습니다.
+그런데 실명 4명이 그대로 들어 있어 공개 주소에서 읽히고 있었습니다(2026-09-09 에 비움).
+지우는 것은 별건으로 남겨 뒀습니다 — 지울 때 이 표와 아래 설명도 같이 정리하세요.
+
+### 직원 목록·표시이름의 정본은 하나입니다
+
+`system-settings.html`(시스템 관리자 4343)에서 등록·수정하는 **계정 디렉터리**
+(`js/dkj-auth.js`, localStorage `dkj:auth:directory:v3`, RTDB `system/users` 로 기기 간
+동기화)가 유일한 정본입니다. 화면의 인원 드롭다운은 전부 여기서 나옵니다.
+
+| 어디 | 무엇 |
+|---|---|
+| `js/dkj-approval.js` `staffOptions()` | 결재란·인원 칸 `<select>` (`attachStaffPickers`) |
+| `js/dkj-util.js` `ensureStaffDatalist()` | `list="dkjStaffList"` datalist (ledger·matrix 표 안의 인원 칸) |
+
+**어느 쪽에도 이름을 하드코딩하지 마세요.** 2026-09-09 전까지 두 곳에 실명이 박혀
+있었는데, 공개 배포 파일에 실명이 남는 것보다 **실제와 어긋나는 것이 더 문제였습니다** —
+등록에 없는 사람(김영호·박서준)이 목록에 뜨고, 나중에 등록한 직원(임석용·고현호·김도성)은
+아무리 등록해도 datalist 에 나타나지 않았습니다(`ensureStaffDatalist()` 가 디렉터리를
+아예 보지 않았음). 지금은 `dkj:staff-loaded`·`dkj:auth-ready` 에 다시 채웁니다.
+
+`js/dkj-auth.js` 의 `DEFAULT_DIRECTORY`(새 기기가 아직 디렉터리를 못 받았을 때 쓰는 4343
+한 명)도 같은 이유로 이름을 사번으로만 둡니다. 서식 HTML 의 입력칸 `value` 에 사람 이름을
+기본값으로 넣는 것도 금지입니다 — 늘 같은 이름이 미리 채워져 있으면 확인 없이 그대로
+저장돼 추적성이 깨집니다(`records/DKJ-QC-001.html` 의 검토자·승인자가 그랬습니다).
 
 서식 제목이나 문서명이 필요하면 지어내지 말고 `mdr-catalog.json`(문서관리대장)에서
 가져오세요. 주기 분류는 `console-forms.json` 의 그룹을 따릅니다.
