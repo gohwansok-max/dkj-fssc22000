@@ -161,15 +161,26 @@
     try { document.dispatchEvent(new CustomEvent('dkj:auth-ready', { detail: user() })); } catch (e) {}
   }
 
-  function persist(empId, name, idToken, refreshToken, uid, role) {
+  /** 로그인에 쓴 비밀번호가 사번 그대로인가 — 사번은 4자리로 채워지므로('1' → '0001')
+   *  입력한 그대로와 채운 값 둘 다 견준다. 사번은 서식·기록에 다 적혀 있어서 사실상
+   *  공개된 값이고, 그걸 비밀번호로 쓰면 아무나 그 사람 이름으로 결재할 수 있다. */
+  function isWeakPassword(rawId, normalizedId, password) {
+    var pw = String(password == null ? '' : password).trim();
+    if (!pw) return false;
+    return pw === String(rawId || '').trim() || pw === String(normalizedId || '').trim();
+  }
+
+  function persist(empId, name, idToken, refreshToken, uid, role, weakPassword) {
     state = {
       token: idToken || '',
       uid: uid || '',
       empId: String(empId || ''),
       name: name || String(empId || ''),
-      role: normalizeRole(role || defaultRole(empId))
+      role: normalizeRole(role || defaultRole(empId)),
+      weakPassword: !!weakPassword
     };
-    var saved = { token: state.token, uid: state.uid, empId: state.empId, name: state.name, role: state.role };
+    var saved = { token: state.token, uid: state.uid, empId: state.empId, name: state.name,
+      role: state.role, weakPassword: state.weakPassword };
     setStored('sessionStorage', SESSION_KEY, JSON.stringify(saved));
     setStored('localStorage', USER_KEY, JSON.stringify({ empId: state.empId, name: state.name, role: state.role }));
     if (refreshToken) setStored('localStorage', refreshKey(state.empId), refreshToken);
@@ -449,7 +460,8 @@
        * 아래 request()의 401 재인증 로직이 그 흔적을 집어 들고 로컬 세션을 깨진 진짜 토큰으로
        * 덮어써 버린다 — 로컬 로그인이 확정되는 순간 그 흔적을 지운다. */
       removeStored('localStorage', refreshKey(activeId));
-      persist(activeId, localUser.name || activeId, 'local-token-' + activeId, null, 'uid-' + activeId, localUser.role);
+      persist(activeId, localUser.name || activeId, 'local-token-' + activeId, null, 'uid-' + activeId,
+        localUser.role, isWeakPassword(raw, id, password));
       if (global.DkjCloudSync) global.DkjCloudSync.start();
       return user();
     }
@@ -479,9 +491,10 @@
       var sessLocalUser = dir[sess.empId];
       if (sessLocalUser && isRealToken(sess.token)) {
         removeStored('localStorage', refreshKey(sess.empId));
-        persist(sess.empId, sessLocalUser.name || sess.empId, 'local-token-' + sess.empId, null, 'uid-' + sess.empId, sessLocalUser.role);
+        persist(sess.empId, sessLocalUser.name || sess.empId, 'local-token-' + sess.empId, null,
+          'uid-' + sess.empId, sessLocalUser.role, sess.weakPassword);
       } else {
-        persist(sess.empId, sess.name, sess.token, null, sess.uid, sess.role);
+        persist(sess.empId, sess.name, sess.token, null, sess.uid, sess.role, sess.weakPassword);
       }
       await loadAssignedRole();
       if (global.DkjCloudSync) global.DkjCloudSync.start();
@@ -557,7 +570,10 @@
       '.dkj-auth-card input:focus{outline:none;border-color:#009a44}.dkj-auth-card button{width:100%;padding:14px;font-size:16px;font-weight:700;color:#fff;background:#009a44;border:0;border-radius:10px;cursor:pointer}',
       '.dkj-auth-card button:disabled{background:#94a3b8;cursor:default}.dkj-auth-err{margin:14px 0 0;font-size:13px;color:#b91c1c;line-height:1.6;min-height:1em}',
       '.dkj-auth-bar{display:flex;align-items:center;gap:9px;justify-content:flex-end;padding:6px 14px;font-size:12px;color:#475569;background:#f1f5f9;border-bottom:1px solid #e2e8f0}.dkj-auth-bar b{color:#0f172a}.dkj-auth-role{color:#007a35;font-weight:800}',
-      '.dkj-auth-bar button{border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;color:#475569}@media print{.dkj-auth-bar,.dkj-auth-mask{display:none!important}}'
+      '.dkj-auth-bar button{border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;color:#475569}@media print{.dkj-auth-bar,.dkj-auth-mask,.dkj-auth-weak{display:none!important}}',
+      '.dkj-auth-weak{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;font-size:13px;line-height:1.6;color:#7c2d12;background:#fff7ed;border-bottom:2px solid #fb923c}',
+      '.dkj-auth-weak b{color:#9a3412}.dkj-auth-weak a{color:#9a3412;font-weight:700}',
+      '.dkj-auth-weak button{flex:none;border:1px solid #fdba74;background:#fff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer;color:#9a3412}'
     ].join('');
     document.head.appendChild(s);
   }
@@ -599,6 +615,37 @@
     bar.querySelector('button').addEventListener('click', logout);
     document.body.insertBefore(bar, document.body.firstChild);
     Array.prototype.forEach.call(document.querySelectorAll('[data-system-admin]'), function (el) { el.hidden = !isSystemAdmin(); });
+    renderWeakPasswordNotice();
+  }
+
+  /** 비밀번호가 사번 그대로일 때 띄우는 경고.
+   *  사번은 서식·기록에 다 적혀 있어 사실상 공개된 값이다. 그걸 비밀번호로 쓰면 누구나
+   *  그 사람 이름으로 로그인해 결재까지 할 수 있어, 기록의 '누가 썼는가'가 무너진다.
+   *  막지는 않는다 — 현장 작업을 세우지 않기로 했다(2026-09-09 협의). 닫으면 그 세션
+   *  동안만 감춘다(새로 로그인하면 다시 뜬다). */
+  var WEAK_DISMISS_KEY = 'dkj:auth:weakpw-dismissed:v1';
+  function renderWeakPasswordNotice() {
+    if (!state.weakPassword || !state.empId) return;
+    if (document.querySelector('.dkj-auth-weak')) return;
+    if (getStored('sessionStorage', WEAK_DISMISS_KEY) === state.empId) return;
+    styles();
+    var el = document.createElement('div');
+    el.className = 'dkj-auth-weak';
+    // 시스템 관리자만 계정 화면에서 비밀번호를 바꿀 수 있다(system-settings.html 은 4343 전용).
+    var how = isSystemAdmin()
+      ? '<a href="' + (/\/records\//i.test(location.pathname) ? '../' : '') +
+        'system-settings.html">시스템 설정</a>에서 바꿔 주세요.'
+      : '시스템 관리자에게 비밀번호 변경을 요청하세요.';
+    el.innerHTML = '<span>⚠ <b>비밀번호가 사번과 같습니다.</b> 사번은 서식과 기록에 그대로 적혀 있어, ' +
+      '누구나 이 계정으로 로그인해 결재까지 할 수 있습니다. ' + how + '</span>' +
+      '<button type="button">닫기</button>';
+    el.querySelector('button').addEventListener('click', function () {
+      setStored('sessionStorage', WEAK_DISMISS_KEY, state.empId);
+      if (el.parentNode) el.parentNode.removeChild(el);
+    });
+    var bar = document.querySelector('.dkj-auth-bar');
+    if (bar && bar.nextSibling) document.body.insertBefore(el, bar.nextSibling);
+    else document.body.insertBefore(el, document.body.firstChild);
   }
   function isPublicPage() { return /\/company-profile\.html$/i.test(location.pathname); }
   function requireLogin() {
