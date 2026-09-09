@@ -130,6 +130,164 @@
     return raw + '-01';
   }
 
+  /* ── 작업장 온도 일보(DKJ-S-02-05) 연동 ────────────────────────────────────
+     같은 온도를 두 서식에 두 번 적으면 값이 어긋나고, 어긋난 순간 어느 쪽이
+     맞는지 알 수 없어 심사에서 그대로 지적된다. 온도 기록의 정본은 온도 일보로
+     두고, 이 순회일지는 그 값을 읽어와 보여주기만 한다(쓰지 않는다 — 다른 서식의
+     저장 기록을 프로그램이 고치면 기록 변조가 된다).
+
+     회차·구역이 1:1 로 맞지 않아 아래 규칙으로 정했다(2026-09-09 협의).
+       작업장 온도(c03)  1차 ← 전처리실 오전, 2차 ← 전처리실 오후,
+                        3차 ← 연동 없음(온도 일보에 3회차 칸이 없다. 직접 적는다)
+       냉장창고 온도(c04) 회차별로 원재료·완제품 중 관리기준(0~5℃)에서 더 벗어난
+                        값을 보여준다 — 이탈을 놓치지 않는 쪽으로 고른다 */
+  var TEMP_FORM_ID = 'DKJ-S-02-05';
+  var TEMP_LINK = {
+    c03: { r1: ['z1_am'], r2: ['z1_pm'], r3: [] },
+    c04: { r1: ['z6_am', 'z7_am'], r2: ['z6_pm', 'z7_pm'], r3: ['z6_3', 'z7_3'] }
+  };
+  var TEMP_RANGE = { c04: { min: 0, max: 5 } };
+
+  function tempNum(v) {
+    var t = String(v == null ? '' : v).trim();
+    if (!t) return null;
+    var n = Number(t);
+    return isFinite(n) ? n : null;
+  }
+
+  /** 관리기준에서 벗어난 정도 — 기준 안이면 0 */
+  function tempOutBy(n, range) {
+    if (!range) return 0;
+    return Math.max(0, n - range.max) + Math.max(0, range.min - n);
+  }
+
+  /** 여러 구역 값 중 하나를 고른다.
+   *  기준을 벗어난 것이 있으면 가장 많이 벗어난 값, 모두 기준 안이면 가장 높은 값
+   *  (냉장은 올라가는 쪽이 위험하다). */
+  function pickTempValue(row, keys, range) {
+    var best = null;
+    (keys || []).forEach(function (k) {
+      var n = tempNum(row[k]);
+      if (n === null) return;
+      if (best === null) { best = n; return; }
+      var a = tempOutBy(n, range), b = tempOutBy(best, range);
+      if (a > b || (a === b && n > best)) best = n;
+    });
+    return best === null ? '' : String(best);
+  }
+
+  /** 그 날짜의 온도 일보 행을 찾는다.
+   *  같은 달 시트가 여러 건이면 가장 최근에 저장된 것을 쓴다. */
+  function findTempRow(dateStr) {
+    var d = String(dateStr || '').trim();
+    var m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m || !global.DkjRecordStore) return null;
+    var ym = m[1] + '-' + m[2];
+    var day = String(Number(m[3]));
+    var list = [];
+    try { list = global.DkjRecordStore.list(TEMP_FORM_ID) || []; } catch (e) { return null; }
+    var hit = list.filter(function (r) {
+      var raw = String((r.info && r.info.month) || '').trim();
+      // 예전 기록은 '2026 . 08' 처럼 손으로 적힌 값이라 숫자만 뽑아 견준다
+      var mm = raw.match(/(\d{4})\D+(\d{1,2})/);
+      var norm = /^\d{4}-\d{2}$/.test(raw) ? raw
+        : (mm ? mm[1] + '-' + ('0' + Number(mm[2])).slice(-2) : '');
+      return norm === ym;
+    }).sort(function (a, b) {
+      return (Number(b.updatedAt) || 0) - (Number(a.updatedAt) || 0);
+    })[0];
+    if (!hit) return null;
+    var rows = hit.rows || [];
+    for (var i = 0; i < rows.length; i++) {
+      if (String((rows[i] || {}).day || '').replace(/\D/g, '') === day) {
+        return { row: rows[i], record: hit };
+      }
+    }
+    return null;
+  }
+
+  /** 연동 대상 칸을 모두 비운다 — 날짜를 바꿨는데 앞 날짜 값이 남으면
+   *  그 날 재지 않은 온도가 기록으로 남는다. */
+  function clearLinkedCells() {
+    var n = 0;
+    Object.keys(TEMP_LINK).forEach(function (ck) {
+      ['r1', 'r2', 'r3'].forEach(function (rk) {
+        if (!(TEMP_LINK[ck][rk] || []).length) return;
+        if (String(state.checks[rk][ck] || '') !== '') n++;
+        state.checks[rk][ck] = '';
+      });
+    });
+    return n;
+  }
+
+  /** 온도 일보 값을 순회일지 칸에 채운다.
+   *  @param {boolean} clearMissing 온도 일보에 값이 없는 칸을 비울지.
+   *    날짜를 바꿨거나 사용자가 다시 불러오기를 누른 경우 true — 앞 날짜 값이
+   *    남으면 안 된다. 작성 중이던 임시본을 복원할 때는 false — 그 날짜 기준으로
+   *    이미 적어 둔 값을 지우면 안 된다.
+   *  @returns {{filled:number, blanked:number, missing:boolean}} */
+  function applyTempLink(clearMissing) {
+    state.tempLink = { source: '', filled: 0, at: '' };
+    var found = findTempRow(state.workDate);
+    if (!found) {
+      return { filled: 0, blanked: clearMissing ? clearLinkedCells() : 0, missing: true };
+    }
+    var filled = 0, blanked = 0;
+    Object.keys(TEMP_LINK).forEach(function (ck) {
+      ['r1', 'r2', 'r3'].forEach(function (rk) {
+        var keys = TEMP_LINK[ck][rk] || [];
+        if (!keys.length) return;   // 연동 대상이 아닌 회차(작업장 3차)는 건드리지 않는다
+        var v = pickTempValue(found.row, keys, TEMP_RANGE[ck]);
+        if (v === '') {
+          // 온도 일보에 그 회차 값이 없으면 비운다. 안 비우면 앞서 보던 날짜의
+          // 값이 남아 '토요일 작업장 온도' 자리에 수요일 값이 들어가 버린다.
+          if (!clearMissing) return;
+          if (String(state.checks[rk][ck] || '') !== '') blanked++;
+          state.checks[rk][ck] = '';
+          return;
+        }
+        state.checks[rk][ck] = v;
+        filled++;
+      });
+    });
+    if (filled) {
+      state.tempLink = {
+        source: TEMP_FORM_ID,
+        recordId: found.record.id || '',
+        filled: filled,
+        at: state.workDate
+      };
+    }
+    return { filled: filled, blanked: blanked, missing: false };
+  }
+
+  /** 연동 상태를 화면에 알린다 — 값이 어디서 왔는지 안 보이면 확인할 수가 없다 */
+  function renderTempLinkNotice(res) {
+    var el = $('qcTempLink');
+    if (!el) return;
+    if (!res) { el.hidden = true; return; }
+    el.hidden = false;
+    if (res.missing) {
+      el.className = 'qc-templink warn';
+      el.textContent = '작업장 온도 일보(DKJ-S-02-05)에 ' + (state.workDate || '') +
+        ' 기록이 없어 온도를 가져오지 못했습니다.' +
+        (res.blanked ? ' 앞서 보던 날짜의 값이 남지 않도록 온도 ' + res.blanked +
+          '칸을 비웠습니다.' : '') +
+        ' 온도 일보에 먼저 적거나, 이 화면에서 직접 적어 주세요.';
+    } else if (!res.filled) {
+      el.className = 'qc-templink warn';
+      el.textContent = '작업장 온도 일보에 ' + (state.workDate || '') +
+        ' 행은 있으나 온도가 비어 있습니다. 온도는 직접 적어 주세요.';
+    } else {
+      el.className = 'qc-templink ok';
+      el.textContent = '작업장 온도 일보(DKJ-S-02-05) ' + (state.workDate || '') +
+        ' 기록에서 온도 ' + res.filled + '칸을 가져왔습니다.' +
+        (res.blanked ? ' 온도 일보에 값이 없는 ' + res.blanked + '칸은 비웠습니다 —' +
+          ' 그 회차는 온도 일보에 먼저 적어 주세요.' : '') +
+        ' 작업장 3차(연동 없음)는 직접 적습니다.';
+    }
+  }
+
   function emptyState() {
     var defProd = PRODUCTS[0];
     var curDate = todayStr();
@@ -435,7 +593,11 @@
         rowsHtml += '<td rowspan="' + groupCounts[it.group] + '" class="' + grpCellCls + '">' + it.group + '</td>';
       }
       rowsHtml += '<td style="font-weight:600;">' + it.proc + '</td>';
-      rowsHtml += '<td class="left-txt" style="font-weight:700;">' + (it.isCcp ? '<span style="color:#b71c1c;">[CCP] </span>' : '') + it.label + '</td>';
+      // 온도 일보에서 값을 가져오는 항목임을 화면에서 알린다 (정본 인쇄에는 붙이지 않는다)
+      var linkTag = TEMP_LINK[it.key]
+        ? ' <span class="qc-link-tag" title="작업장 온도 일보(DKJ-S-02-05)에서 가져옵니다">온도일보 연동</span>'
+        : '';
+      rowsHtml += '<td class="left-txt" style="font-weight:700;">' + (it.isCcp ? '<span style="color:#b71c1c;">[CCP] </span>' : '') + it.label + linkTag + '</td>';
       rowsHtml += '<td class="left-txt" style="font-size:12px;color:#475467;">' + it.std + '</td>';
       rowsHtml += '<td>' + renderCell('r1', r1Val, r1Bad) + '</td>';
       rowsHtml += '<td>' + renderCell('r2', r2Val, r2Bad) + '</td>';
@@ -938,6 +1100,9 @@
         editingId = r.id;
         state = Object.assign(emptyState(), r);
         writeForm();
+        // 저장된 기록은 그 자체가 그날의 증거다. 지금 온도 일보 값으로 덮으면
+        // 기록 변조가 되므로 연동을 적용하지 않는다(필요하면 '온도 다시 불러오기').
+        renderTempLinkNotice(null);
         setStatus('기록 불러옴', true);
       });
     });
@@ -1132,7 +1297,26 @@
       $('workDate').addEventListener('change', function () {
         var d = $('workDate').value || todayStr();
         if ($('lot')) $('lot').value = makeLot(d);
+        state.workDate = d;
+        // 날짜가 바뀌면 그 날의 온도 일보를 다시 읽는다
+        renderTempLinkNotice(applyTempLink(true));
+        renderMainCheckTable();
+        checkDeviations();
         scheduleDraft();
+      });
+    }
+
+    if ($('btnTempSync')) {
+      $('btnTempSync').addEventListener('click', function () {
+        if (state.locked) { setStatus('작성완료된 기록은 고칠 수 없습니다.', false); return; }
+        readForm();
+        var res = applyTempLink(true);
+        renderTempLinkNotice(res);
+        renderMainCheckTable();
+        checkDeviations();
+        scheduleDraft();
+        setStatus(res.filled ? ('온도 일보에서 ' + res.filled + '칸을 가져왔습니다.')
+          : '가져올 온도 기록이 없습니다.', !!res.filled);
       });
     }
 
@@ -1300,7 +1484,14 @@
       approver: state.approver
     };
 
+    // 작성 중인 시트는 열 때마다 온도 일보 값으로 맞춘다 — 온도 기록의 정본은
+    // 온도 일보이고, 두 서식에 서로 다른 값이 남는 것을 막는 것이 연동의 목적이다.
+    // 저장된 기록을 불러올 때는 덮지 않는다(아래 renderHistory 의 불러오기).
+    // 임시본을 복원한 경우에는 이미 적어 둔 값을 지우지 않는다(clearMissing=false).
+    var initLink = applyTempLink(!draft);
+
     writeForm();
+    renderTempLinkNotice(initLink);
     bind();
     renderHistory();
 

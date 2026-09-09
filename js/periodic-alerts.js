@@ -178,8 +178,11 @@
 
     var quickEl = $('paQuickStaff');
     if (quickEl) {
+      // 개인 주소는 여기에 두지 않는다. 이 파일은 GitHub Pages 로 공개 배포되므로
+      // 개인 이메일을 적어 두면 사이트 주소만 아는 사람에게 그대로 노출되고 수집된다.
+      // 부서 대표 주소만 남기고, 개인 수신자는 아래 입력칸으로 등록한다
+      // (등록된 수신자 목록은 설정에 저장되므로 한 번만 넣으면 된다).
       quickEl.innerHTML = '<span>💡 빠른 추가:</span> ' +
-        '<button type="button" data-add-email="gohwansok@gmail.com">+ 고환석 (gohwansok@gmail.com)</button> ' +
         '<button type="button" data-add-email="quality@donggimje.nonghyup.com">+ 품질관리팀</button> ' +
         '<button type="button" data-add-email="haccp@donggimje.nonghyup.com">+ HACCP팀</button>';
     }
