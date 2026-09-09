@@ -48,8 +48,10 @@ EXCLUDE_NAME_SUBSTRINGS = ('html2pdf',)
 TEXT_SUFFIXES = {'.html', '.js', '.json', '.svg'}
 
 # 시스템 관리자 사번(4343)이 실제로 하드코딩된 것으로 확인된 파일만 정확히 지정한다
-# (2026-09-04 grep으로 검증). data/staff-roles.json이 정본이고, js/staff-roles.bundle.js는
-# 거기서 자동 생성되므로 손대지 않는다 — build-catalog-bundles.py가 반영한다.
+# (2026-09-04 grep으로 검증, 2026-09-09 재확인).
+# data/staff-roles.json 은 2026-09-09 에 삭제했다 — 아무 화면도 읽지 않는데 실명·사번만
+# 공개 배포되고 있었다. 직원 역할·표시이름의 정본은 system-settings.html 에서 등록하는
+# 계정 디렉터리(dkj:auth:directory:v3, RTDB system/users)뿐이다.
 ADMIN_EMP_ID_FILES = [
     'js/dkj-approval.js',
     'js/dkj-auth.js',
@@ -59,7 +61,6 @@ ADMIN_EMP_ID_FILES = [
     'js/records-archive.js',
     'js/system-settings.js',
     'system-settings.html',
-    'data/staff-roles.json',
 ]
 
 

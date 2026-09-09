@@ -21,7 +21,6 @@ BUNDLES = [
     # 생산일지(DKJ-F-053) 기준설정 — js/dkj-master-data.js 가 읽는다
     ("production-master.json", "production-master.bundle.js", "DKJ_PRODUCTION_MASTER"),
     # 직원별 결재 권한 — js/dkj-auth.js 가 읽는다
-    ("staff-roles.json", "staff-roles.bundle.js", "DKJ_STAFF_ROLES"),
     # MDR 카탈로그
     ("mdr-catalog.json", "mdr-catalog.bundle.js", "DKJ_MDR_CATALOG"),
     # Google Drive 정본 문서 매니페스트

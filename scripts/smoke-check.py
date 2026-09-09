@@ -93,7 +93,6 @@ def check_generated_bundles() -> None:
         "doc-catalog.json": "doc-catalog.bundle.js",
         "menu-catalog.json": "menu-catalog.bundle.js",
         "mdr-catalog.json": "mdr-catalog.bundle.js",
-        "staff-roles.json": "staff-roles.bundle.js",
     }
     for source, bundle in pairs.items():
         src = DATA / source
