@@ -27,33 +27,33 @@
     {
       "key": "zone",
       "label": "구역",
-      "width": "9%",
+      "width": "11%",
       "readonly": true
     },
     {
       "key": "kind",
       "label": "이물 유형",
-      "width": "18%",
+      "width": "29%",
       "readonly": true,
       "align": "left"
     },
     {
       "key": "cat",
       "label": "구분",
-      "width": "9%",
+      "width": "7.5%",
       "readonly": true
     },
     {
       "key": "item",
       "label": "점검 기준 & 항목",
-      "width": "37%",
+      "width": "33.5%",
       "readonly": true,
       "align": "left"
     },
     {
       "key": "result",
       "label": "점검결과 ( O / X )",
-      "width": "13%",
+      "width": "8%",
       "type": "choice",
       "choices": [
         "O",
@@ -65,7 +65,7 @@
     {
       "key": "remark",
       "label": "비고",
-      "width": "14%",
+      "width": "11%",
       "align": "left"
     }
   ],
@@ -401,9 +401,6 @@
       "item": "원부재료/완제품 포장상태 및 훼손 여부"
     }
   ],
-  "rowPageBreak": [
-    29
-  ],
   "incident": {
     "label": "이상 발생 내역",
     "rows": 4,
@@ -435,5 +432,6 @@
       }
     ]
   },
-  "legend": "※ 평가 - 양호 : O, 부적합 : X, 해당없음 : -.  X 판정 시 이상 발생 내역에 조치 결과를 기록한다."
+  "legend": "※ 평가 - 양호 : O, 부적합 : X, 해당없음 : -.  X 판정 시 이상 발생 내역에 조치 결과를 기록한다.",
+  "printDensity": "compact"
 }

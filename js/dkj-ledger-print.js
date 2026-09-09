@@ -136,8 +136,10 @@
         continue;
       }
       body += '<tr>' + cols.map(function (c) {
-        return '<td class="' + (c.align === 'left' ? 'l' : 'c') + ' lg-cell">' +
-          cellText(c, r[c.key]) + '</td>';
+        // lg-fix = 서식에 미리 인쇄된 칸(구역·항목 등). 길이를 알고 있어서 조밀
+        // 인쇄에서 한 줄로 눌러도 되지만, 사람이 적는 칸은 눌러선 안 된다.
+        return '<td class="' + (c.align === 'left' ? 'l' : 'c') + ' lg-cell' +
+          (c.readonly ? ' lg-fix' : '') + '">' + cellText(c, r[c.key]) + '</td>';
       }).join('') + '</tr>';
     }
     return '<table class="off-grid lg-grid"><thead>' + theadHtml(cols) + '</thead><tbody>' +
@@ -218,7 +220,10 @@
         ' · ' + esc(spec.docNo || '') + ' · ' + (i + 1) + ' / ' + plan.length + '</div>' +
         '</section>';
     }).join('');
-    return '<div class="off-ccp off-matrix off-ledger">' + html + '</div>';
+    // printDensity: 'compact' — 행이 많아 A4 1쪽에 담아야 하는 서식(예: 이물관리
+    // 점검일지 55행)만 조밀한 치수를 쓴다. 다른 대장 서식의 정본 밀도는 그대로 둔다.
+    var dense = spec.printDensity === 'compact' ? ' lg-dense' : '';
+    return '<div class="off-ccp off-matrix off-ledger' + dense + '">' + html + '</div>';
   }
 
   global.DkjLedgerPrint = { render: render, theadHtml: theadHtml };

@@ -576,6 +576,53 @@
     font-size: 7pt;
   }
 
+  /* ----- printDensity: 'compact' -----
+     행이 많은 대장(이물관리 점검일지 55행)을 A4 1쪽에 담는 치수.
+     A4 세로 여백 10/12mm → 쓸 수 있는 높이 275mm(780pt). 헤더·정보행·표머리·
+     이상내역·범례·꼬리가 약 180pt 를 쓰므로 본문 55행에 남는 것이 600pt,
+     한 행에 11pt 다. 이 클래스는 사양에 printDensity 를 준 서식에만 붙는다. */
+  .off-ledger.lg-dense .lg-grid thead th {
+    font-size: 6.5pt;
+    line-height: 1.1;
+    height: 14pt;
+    padding: 1pt 2pt;
+    white-space: normal;
+  }
+
+  .off-ledger.lg-dense .lg-cell {
+    font-size: 6.5pt;
+    line-height: 1.1;
+    height: 10pt;
+    padding: 0 2pt;
+  }
+
+  /* 미리 인쇄된 칸만 한 줄로 고정한다. 폭을 그 칸의 최장 문자열에 맞춰 뒀다.
+     비고처럼 사람이 적는 칸은 줄바꿈시켜 쓴 내용이 잘리지 않게 한다 — 길게 적어
+     한 장을 넘기는 것이, 적은 내용이 안 보이는 것보다 낫다. */
+  .off-ledger.lg-dense .lg-cell.lg-fix {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .off-ledger.lg-dense .lg-opt { font-size: 6pt; }
+  .off-ledger.lg-dense .lg-ilab,
+  .off-ledger.lg-dense .lg-ival { font-size: 7pt; }
+  .off-ledger.lg-dense .lg-info { margin-bottom: 2pt; }
+  .off-ledger.lg-dense .lg-legend { margin-top: 2pt; font-size: 6.5pt; }
+
+  /* 이상 발생 내역표도 같이 줄인다 */
+  .off-ledger.lg-dense .mx-inc th,
+  .off-ledger.lg-dense .mx-inc td {
+    font-size: 6.5pt;
+    height: 11pt;
+    padding: 0 2pt;
+  }
+
+  /* 1쪽짜리 정본은 표가 남는 높이를 흡수하지 않게 둔다 — 55행이 세로로 늘어나면
+     행마다 높이가 벌어져 결국 다음 장으로 넘어간다. */
+  .off-ledger.lg-dense .mx-page { min-height: 0; }
+  .off-ledger.lg-dense .lg-grid { flex: 0 0 auto; height: auto; }
+
   /* 휴무일 행 — 심사에서 '빈칸 방치'로 보이지 않게 사유를 남긴다 */
   .off-ledger .lg-row-off td { background: #f2f2f2; }
 
