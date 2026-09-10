@@ -230,8 +230,58 @@
       scheduleDraft();
     }
 
+    /** 등록된 값을 한 줄에 하나씩 담은 텍스트를 프롬프트로 보여주고, 사용자가 고친
+     *  내용을 그대로 레지스트리에 반영한다 — 줄을 지우면 삭제, 글자를 고치면 수정,
+     *  줄을 추가하면 등록이다. 별도 삭제·수정 화면을 새로 만들지 않고 기존 prompt()
+     *  패턴 하나로 세 가지를 다 처리한다. 이미 저장된 기록은 건드리지 않는다 —
+     *  여기서 바뀌는 건 다음에 고를 수 있는 목록뿐이다. */
+    function manageRegistry(field, el) {
+      var key = registryKeyFor(spec, field);
+      var registry = loadRegistry(key);
+      if (!registry.length) { alert('등록된 항목이 없습니다.'); return; }
+      var label = String(field.label || '항목').replace(/\s*\*\s*$/, '');
+      var text = window.prompt(
+        label + ' 목록입니다. 줄을 지우면 삭제, 고치면 수정됩니다(취소하면 그대로 둡니다).',
+        registry.join('\n')
+      );
+      if (text === null) return;
+      var next = text.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+      var seen = {};
+      next = next.filter(function (v) { return seen[v] ? false : (seen[v] = true); });
+      next.sort(function (a, b) { return String(a).localeCompare(String(b), 'ko'); });
+      saveRegistry(key, next);
+      renderRegistryOptions(field);
+      // 지금 골라져 있던 값이 방금 지워졌거나 이름이 바뀌었으면 선택을 비운다 —
+      // 없는 값을 그대로 들고 있으면 화면엔 빈칸으로 보이면서 state 에는 옛 값이 남는다.
+      var fixedValues = (field.options || []).map(function (o) { return (o && o.value !== undefined) ? o.value : o; });
+      if (state[field.id] && fixedValues.indexOf(state[field.id]) === -1 && next.indexOf(state[field.id]) === -1) {
+        state[field.id] = '';
+      }
+      if (el) el.value = state[field.id] || '';
+      readForm();
+      refreshApproval();
+      scheduleDraft();
+    }
+
+    /** 등록형 select 옆에 목록 관리 링크를 한 번만 붙인다. writeForm() 이 기록을
+     *  불러올 때마다 다시 불릴 수 있어, 이미 붙어 있으면 다시 만들지 않는다. */
+    function ensureManageLink(field) {
+      var el = $(field.id);
+      if (!el || !el.parentNode) return;
+      if (el.parentNode.querySelector('.dkj-registry-manage')) return;
+      var link = document.createElement('button');
+      link.type = 'button';
+      link.className = 'dkj-registry-manage';
+      link.style.cssText = 'display:block;margin-top:4px;background:none;border:none;padding:0;' +
+        'font-size:12px;color:#2563eb;text-decoration:underline;cursor:pointer;';
+      link.textContent = '목록 관리(수정·삭제)';
+      link.addEventListener('click', function () { manageRegistry(field, el); });
+      el.parentNode.appendChild(link);
+    }
+
     function writeForm() {
       REGISTRABLE.forEach(renderRegistryOptions);
+      REGISTRABLE.forEach(ensureManageLink);
       ids.forEach(function (id) {
         var el = $(id);
         if (!el) return;
