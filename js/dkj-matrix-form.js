@@ -443,6 +443,11 @@
       renderSummary();
       refreshApproval();
       applyLock();
+      // 주차 시작일이 바뀔 때마다(월 변경·새 시트·기록 불러오기·이전 복사 등)
+      // 표 헤더만 새 날짜로 다시 그려지고 이 드롭다운은 그대로 남아 있던 버그 —
+      // "해당 열 미입력 전체 ○" 대상을 고를 때 표에 보이는 날짜와 다른 날짜가
+      // 나왔다(2026-09-11 현장 지적, 저수조관리 금요일 전환 확인 중 발견).
+      fillDayOptions();
     }
 
     function applyLock() {
@@ -696,7 +701,6 @@
       var draft = DkjRecordStore.loadDraft(FORM_ID);
       if (draft) state = Object.assign(emptyState(spec), draft);
       writeForm();
-      fillDayOptions();
       bind();
       renderHistory();
       mountApproval();
