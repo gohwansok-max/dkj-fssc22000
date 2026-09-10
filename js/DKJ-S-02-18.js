@@ -13,6 +13,12 @@
     "checkDate",
     "vehicleNo"
   ],
+  "vehicleRegistry": {
+    "fieldId": "vehicleNo",
+    "registerValue": "__register__",
+    "prompt": "새 차량번호를 입력하세요.\n예: 12가 3456",
+    "requiredMessage": "차량번호를 선택하거나 새 차량번호를 등록하세요."
+  },
   "fields": [
     {
       "id": "checkDate",
