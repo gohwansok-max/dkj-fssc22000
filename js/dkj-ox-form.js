@@ -163,6 +163,60 @@
       renderJudge();
       syncApprovals();
       refreshApproval();
+      renderVehicleOptions();
+    }
+
+    /**
+     * 운송차량 위생점검표는 새 차량을 현장에서 바로 등록할 수 있다. 목록은 내부 마스터
+     * 기록으로 저장되어 기존 기록 동기화·전체 백업에는 포함하되, 기록보관함에는 나타나지 않는다.
+     */
+    function vehicleRegistryConfig() {
+      return spec.vehicleRegistry || null;
+    }
+
+    function vehicleFieldId() {
+      var cfg = vehicleRegistryConfig();
+      return cfg && cfg.fieldId ? cfg.fieldId : 'vehicleNo';
+    }
+
+    function vehicleRegisterValue() {
+      var cfg = vehicleRegistryConfig();
+      return (cfg && cfg.registerValue) || '__register__';
+    }
+
+    function addVehicleOption(select, vehicleNo, registerOption) {
+      if (!select || !vehicleNo) return;
+      var exists = Array.prototype.some.call(select.options || [], function (option) {
+        return option.value === vehicleNo;
+      });
+      if (exists) return;
+      var option = document.createElement('option');
+      option.value = vehicleNo;
+      option.textContent = vehicleNo;
+      option.setAttribute('data-dkj-vehicle-registry', 'true');
+      select.insertBefore(option, registerOption || null);
+    }
+
+    function renderVehicleOptions() {
+      var cfg = vehicleRegistryConfig();
+      if (!cfg || !global.DkjVehicleRegistry) return;
+      var select = $(vehicleFieldId());
+      if (!select) return;
+      var registerOption = Array.prototype.find.call(select.options || [], function (option) {
+        return option.value === vehicleRegisterValue();
+      });
+      Array.prototype.slice.call(select.options || []).forEach(function (option) {
+        if (option.getAttribute && option.getAttribute('data-dkj-vehicle-registry') === 'true') {
+          option.remove();
+        }
+      });
+      global.DkjVehicleRegistry.list().forEach(function (vehicleNo) {
+        addVehicleOption(select, vehicleNo, registerOption);
+      });
+      // 과거 기록을 불러온 경우에도 해당 차량번호가 선택 상태로 복원되어야 한다.
+      var selected = state[vehicleFieldId()];
+      if (selected && selected !== vehicleRegisterValue()) addVehicleOption(select, selected, registerOption);
+      select.value = selected || '';
     }
 
     function scheduleDraft() {
@@ -178,6 +232,13 @@
       readForm();
       var dateVal = state.checkDate || state.storeDate;
       if (!dateVal) return '점검일자를 입력하세요.';
+      var vehicleCfg = vehicleRegistryConfig();
+      if (vehicleCfg) {
+        var vehicleNo = String(state[vehicleFieldId()] || '').trim();
+        if (!vehicleNo || vehicleNo === vehicleRegisterValue()) {
+          return vehicleCfg.requiredMessage || '차량번호를 선택하거나 새 차량번호를 등록하세요.';
+        }
+      }
       if (!state.inspector) return '점검자(담당자)를 입력하세요.';
       if (!state.judge) return '종합판정을 선택하세요.';
       if (state.judge === '부적합' && !(state.corrective || '').trim()) {
@@ -263,6 +324,36 @@
       // 바꿔치기하면서, 개별 요소에 건 리스너는 그 요소와 함께 사라진다. document 위임
       // 리스너를 쓰면 요소가 나중에 바뀌어도 계속 잡힌다 — readForm()은 매번 id로 다시
       // 조회해서 읽으므로 어떤 요소가 지금 거기 있든 상관없다.
+      var onVehicleRegistration = function (e) {
+        var cfg = vehicleRegistryConfig();
+        if (!cfg || !e.target || e.target.id !== vehicleFieldId() || e.target.value !== vehicleRegisterValue()) return;
+        if (state.locked) {
+          e.target.value = state[vehicleFieldId()] || '';
+          return;
+        }
+        if (!global.DkjVehicleRegistry) {
+          alert('차량번호 등록 기능을 불러오지 못했습니다. 새로고침 후 다시 시도하세요.');
+          e.target.value = state[vehicleFieldId()] || '';
+          return;
+        }
+        var entered = global.prompt(cfg.prompt || '새 차량번호를 입력하세요.', '');
+        if (entered == null) {
+          e.target.value = state[vehicleFieldId()] || '';
+          return;
+        }
+        var result = global.DkjVehicleRegistry.register(entered);
+        if (!result.ok) {
+          alert(result.message || '차량번호를 등록하지 못했습니다.');
+          e.target.value = state[vehicleFieldId()] || '';
+          return;
+        }
+        state[vehicleFieldId()] = result.vehicleNo;
+        renderVehicleOptions();
+        e.target.value = result.vehicleNo;
+        setStatus(result.duplicate ? '등록된 차량번호 선택됨' : '차량번호 등록됨', false);
+        scheduleDraft();
+      };
+      document.addEventListener('change', onVehicleRegistration);
       var onFieldInput = function (e) {
         if (!e.target || ids.indexOf(e.target.id) === -1) return;
         readForm();
@@ -338,6 +429,9 @@
       if (draft) state = Object.assign(emptyState(spec), draft);
       writeForm();
       bind();
+      if (vehicleRegistryConfig() && global.DkjVehicleRegistry) {
+        global.DkjVehicleRegistry.subscribe(renderVehicleOptions);
+      }
       if (typeof spec.afterInit === 'function') {
         spec.afterInit({
           state: state,
