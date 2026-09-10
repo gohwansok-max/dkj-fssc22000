@@ -397,7 +397,8 @@
       '<td class="l">' + esc(prod) + ' / ' + esc(state.lot || '') +
       ' · 소독제: ' + esc(state.disinfectant || 'NaOCl') + '</td>' +
       '<th class="lab">교체 시각<br>(3시간마다)</th>' +
-      '<td class="l">' + esc(state.waterChangeTimes || '') + '</td></tr>' +
+      '<td class="l">' + (state.preWorkTime ? '작업시작 전 확인 ' + esc(state.preWorkTime) + ' · ' : '') +
+      esc(state.waterChangeTimes || '') + '</td></tr>' +
       '</table>' +
 
       '<div class="off-sec">● 소독·헹굼공정(CCP-1BC) 모니터링 결과 ●</div>' +

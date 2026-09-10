@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-a6343c43c5c1';
+self.DKJ_SW_VERSION = 'v1-2a5cd7bf8e5d';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',

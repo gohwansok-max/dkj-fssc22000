@@ -24,13 +24,6 @@
   var RINSE_SEC_PRESETS = ['50', '52', '54', '55', '56', '58', '60'];
   var RESIDUAL_CL_PRESETS = ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5'];
 
-  var TIME_SLOTS = [
-    '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
-    '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
-    '18:00', '18:30', '19:00', '19:30', '20:00'
-  ];
-
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -59,7 +52,9 @@
       disinfectant: 'NaOCl',
       productName: '',
       lot: dateToLot(td),
+      preWorkTime: '',
       waterChangeTimes: '08:00, 11:00, 14:00',
+      changeTimes: ['08:00', '11:00', '14:00'],
       clMin: 200,
       clMax: 300,
       timeMin: 20,
@@ -502,25 +497,56 @@
     }
   }
 
-  function syncWaterPresetUi() {
-    var wSel = $('waterPresetSelect');
-    var wInp = $('waterChangeTimes');
-    if (!wSel || !wInp) return;
-
-    var val = (state.waterChangeTimes || '').trim();
-    wInp.value = val;
-
-    var found = false;
-    for (var i = 0; i < wSel.options.length; i++) {
-      if (wSel.options[i].value === val) {
-        wSel.selectedIndex = i;
-        found = true;
-        break;
-      }
+  /** state.changeTimes(배열)가 정본이고, state.waterChangeTimes(콤마 문자열)는
+   *  저장·인쇄(ccp1bc())가 읽는 파생값이다 — 구조를 바꾸지 않고 계속 쓰려고
+   *  둘을 함께 맞춘다. 옛 기록은 changeTimes 가 없으므로 문자열에서 되살린다. */
+  function ensureChangeTimes() {
+    if (!Array.isArray(state.changeTimes) || !state.changeTimes.length) {
+      var fromStr = (state.waterChangeTimes || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      state.changeTimes = fromStr.length ? fromStr : [''];
     }
-    if (!found) {
-      wSel.value = val ? '__custom__' : '';
-    }
+  }
+
+  function syncWaterChangeTimesString() {
+    state.waterChangeTimes = state.changeTimes.filter(Boolean).join(', ');
+  }
+
+  /** 소독액·헹굼수 교체 시각 — 하루 1~2회로 들쭉날쭉해서 칸을 자유롭게
+   *  늘리고 줄일 수 있게 한다. 각 칸은 type=time 이라 탭하면 시계 picker 가 뜬다. */
+  function renderChangeTimeList() {
+    var host = $('changeTimeList');
+    if (!host) return;
+    ensureChangeTimes();
+
+    host.innerHTML = state.changeTimes.map(function (t, i) {
+      return '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<input type="time" class="mon-in" data-ct="' + i + '" value="' + esc(t) + '" style="flex:1;min-width:140px;max-width:220px;">' +
+        (state.changeTimes.length > 1
+          ? '<button type="button" class="pill-btn ghost" data-ct-del="' + i + '">삭제</button>'
+          : '') +
+        '</div>';
+    }).join('');
+
+    host.querySelectorAll('[data-ct]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        if (state.locked) return;
+        var i = Number(inp.getAttribute('data-ct'));
+        state.changeTimes[i] = inp.value;
+        syncWaterChangeTimesString();
+        scheduleDraft();
+      });
+    });
+    host.querySelectorAll('[data-ct-del]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (state.locked) return;
+        var i = Number(btn.getAttribute('data-ct-del'));
+        state.changeTimes.splice(i, 1);
+        if (!state.changeTimes.length) state.changeTimes = [''];
+        syncWaterChangeTimesString();
+        renderChangeTimeList();
+        scheduleDraft();
+      });
+    });
   }
 
   function readForm() {
@@ -538,7 +564,7 @@
     }
 
     state.lot = $('lot').value.trim();
-    state.waterChangeTimes = $('waterChangeTimes').value.trim();
+    state.preWorkTime = $('preWorkTime').value;
     state.clMin = Number($('clMin').value) || 0;
     state.clMax = Number($('clMax').value) || 0;
     state.timeMin = Number($('timeMin').value) || 0;
@@ -555,6 +581,7 @@
     $('workDate').value = state.workDate || today();
     $('disinfectant').value = state.disinfectant || 'NaOCl';
     $('lot').value = state.lot || dateToLot(state.workDate || today());
+    $('preWorkTime').value = state.preWorkTime || '';
     $('clMin').value = state.clMin;
     $('clMax').value = state.clMax;
     $('timeMin').value = state.timeMin;
@@ -566,7 +593,7 @@
     $('remark').value = state.remark || '';
 
     syncProductUi();
-    syncWaterPresetUi();
+    renderChangeTimeList();
 
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
     renderRows();
@@ -663,94 +690,9 @@
     });
   }
 
-  /* 시간 선택 모달 다이얼로그 제어 */
-  var selectedModalTimes = [];
-
-  function updateModalPreview() {
-    var prevEl = $('modalSelectedPreview');
-    if (!prevEl) return;
-    prevEl.textContent = selectedModalTimes.length ? selectedModalTimes.join(', ') : '-';
-  }
-
-  function renderModalTimeGrid() {
-    var grid = $('modalTimeGrid');
-    if (!grid) return;
-
-    grid.innerHTML = TIME_SLOTS.map(function (t) {
-      var active = selectedModalTimes.indexOf(t) !== -1 ? ' active' : '';
-      return '<button type="button" class="dkj-time-chip-btn' + active + '" data-time="' + t + '">' + t + '</button>';
-    }).join('');
-
-    grid.querySelectorAll('[data-time]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var t = btn.getAttribute('data-time');
-        var idx = selectedModalTimes.indexOf(t);
-        if (idx === -1) {
-          selectedModalTimes.push(t);
-        } else {
-          selectedModalTimes.splice(idx, 1);
-        }
-        selectedModalTimes.sort();
-        renderModalTimeGrid();
-        updateModalPreview();
-      });
-    });
-    updateModalPreview();
-  }
-
-  function openTimeModal() {
-    var dlg = $('waterTimeModal');
-    if (!dlg) return;
-
-    var cur = ($('waterChangeTimes').value || '').trim();
-    selectedModalTimes = cur ? cur.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : [];
-    renderModalTimeGrid();
-
-    if (typeof dlg.showModal === 'function') {
-      dlg.showModal();
-    } else {
-      dlg.setAttribute('open', '');
-    }
-  }
-
-  function closeTimeModal() {
-    var dlg = $('waterTimeModal');
-    if (!dlg) return;
-    if (typeof dlg.close === 'function') {
-      dlg.close();
-    } else {
-      dlg.removeAttribute('open');
-    }
-  }
-
-  function applyTimeModal() {
-    var res = selectedModalTimes.join(', ');
-    $('waterChangeTimes').value = res;
-    state.waterChangeTimes = res;
-    syncWaterPresetUi();
-    scheduleDraft();
-    closeTimeModal();
-  }
-
-  function autoCalc3HourTimes() {
-    var start = $('modalStartHour') ? $('modalStartHour').value : '08:00';
-    var parts = start.split(':');
-    var h = parseInt(parts[0], 10);
-    var m = parts[1] || '00';
-
-    selectedModalTimes = [];
-    for (var i = 0; i < 3; i++) {
-      var curH = h + (i * 3);
-      if (curH <= 23) {
-        selectedModalTimes.push(String(curH).padStart(2, '0') + ':' + m);
-      }
-    }
-    renderModalTimeGrid();
-  }
-
   function bind() {
     // 기본 필드 이벤트 바인딩
-    ['workDate', 'disinfectant', 'productName', 'lot', 'waterChangeTimes', 'clMin', 'clMax', 'timeMin',
+    ['workDate', 'disinfectant', 'productName', 'lot', 'preWorkTime', 'clMin', 'clMax', 'timeMin',
       'monitorName', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var el = $(id);
       if (!el) return;
@@ -852,46 +794,17 @@
       });
     }
 
-    // 소독액 교체 시각 드롭다운 바인딩
-    var wSel = $('waterPresetSelect');
-    if (wSel) {
-      wSel.addEventListener('change', function () {
-        if (wSel.value === '__custom__') {
-          $('waterChangeTimes').focus();
-        } else if (wSel.value) {
-          $('waterChangeTimes').value = wSel.value;
-          state.waterChangeTimes = wSel.value;
-          scheduleDraft();
-        }
+    // 소독액·헹굼수 교체 시각 — ＋ 누르면 칸이 하나 더 생긴다(하루 1~2회로 들쭉날쭉)
+    var btnAddChangeTime = $('btnAddChangeTime');
+    if (btnAddChangeTime) {
+      btnAddChangeTime.addEventListener('click', function () {
+        if (state.locked) return;
+        ensureChangeTimes();
+        state.changeTimes.push('');
+        renderChangeTimeList();
+        scheduleDraft();
       });
     }
-
-    // 소독액 교체 시각 칩 바인딩
-    var waterChips = $('waterChips');
-    if (waterChips) {
-      waterChips.querySelectorAll('[data-water]').forEach(function (chip) {
-        chip.addEventListener('click', function () {
-          if (state.locked) return;
-          var val = chip.getAttribute('data-water');
-          $('waterChangeTimes').value = val;
-          state.waterChangeTimes = val;
-          syncWaterPresetUi();
-          scheduleDraft();
-        });
-      });
-    }
-
-    // 시간 모달 팝업 바인딩
-    var btnOpenTimePicker = $('btnOpenTimePicker');
-    if (btnOpenTimePicker) btnOpenTimePicker.addEventListener('click', openTimeModal);
-    var btnCloseTimeModal = $('btnCloseTimeModal');
-    if (btnCloseTimeModal) btnCloseTimeModal.addEventListener('click', closeTimeModal);
-    var btnCancelTimeModal = $('btnCancelTimeModal');
-    if (btnCancelTimeModal) btnCancelTimeModal.addEventListener('click', closeTimeModal);
-    var btnApplyTimeModal = $('btnApplyTimeModal');
-    if (btnApplyTimeModal) btnApplyTimeModal.addEventListener('click', applyTimeModal);
-    var btnAutoCalcTimes = $('btnAutoCalcTimes');
-    if (btnAutoCalcTimes) btnAutoCalcTimes.addEventListener('click', autoCalc3HourTimes);
 
     // 툴바 버튼 바인딩
     $('btnAddRow').addEventListener('click', function () {
