@@ -14,6 +14,12 @@
     return { time: '', fe: '', sus: '', prodOnly: '', prodFe: '', prodSus: '', judge: '' };
   }
 
+  /* 작업일자 → LOT 자동생성: "2026-09-11" → "20260911-1" (하이픈 제거 + "-1" 접미) */
+  function dateToLot(d) {
+    if (!d) return '';
+    return String(d).replace(/[^0-9]/g, '') + '-1';
+  }
+
   /* 물성보정/안정도 — 인쇄물 한계기준표의 중량구간별 고정값(임시 운영값, 확정 전).
      매 행마다 같은 값이라 행 데이터로 안 두고 중량구간 선택 하나로 도출한다. */
   var WEIGHT_CLASS = {
@@ -123,12 +129,79 @@
     });
   }
 
+  /** 제품 날인(일부인) 촬영본 — 1일 3회 고정 슬롯. 촬영본은 dkj-util.js 의
+   *  compressImageToDataUrl 로 압축해 그대로 상태에 저장한다(서버가 없는 구조라
+   *  여기 dataURL 이 정본). 인쇄 시 맨 뒤 별첨으로도 나간다 — ccp2p() 참고. */
+  function buildStampSlot(i) {
+    var photo = state.stampPhotos[i];
+    var label = (i + 1) + '차 날인';
+    if (photo) {
+      return '<div class="dkj-photo-card">' +
+        '<img src="' + photo + '" data-view-stamp="' + i + '" title="클릭하여 원본보기">' +
+        '<div class="dkj-photo-card-cap">' + label + '</div>' +
+        '<div class="dkj-photo-card-actions">' +
+        '<button type="button" class="pill-btn ghost sm" data-del-stamp="' + i + '">사진 삭제</button>' +
+        '</div></div>';
+    }
+    return '<label class="dkj-photo-dropzone">' +
+      '<input type="file" accept="image/*" capture="environment" data-stamp-inp="' + i + '">' +
+      '<span class="icon">📷</span><span class="txt">' + label + ' 촬영</span>' +
+      '</label>';
+  }
+
+  function renderStampPhotos() {
+    var host = $('stampPhotos');
+    if (!host) return;
+    if (!Array.isArray(state.stampPhotos)) state.stampPhotos = [];
+    while (state.stampPhotos.length < 3) state.stampPhotos.push(null);
+
+    host.innerHTML = [0, 1, 2].map(buildStampSlot).join('');
+
+    host.querySelectorAll('[data-stamp-inp]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        if (state.locked) return;
+        var i = Number(inp.getAttribute('data-stamp-inp'));
+        var file = inp.files && inp.files[0];
+        if (!file) return;
+        var apply = function (dataUrl) {
+          state.stampPhotos[i] = dataUrl;
+          renderStampPhotos();
+          scheduleDraft();
+          if (window.DkjUtil && window.DkjUtil.toast) window.DkjUtil.toast('📷 ' + (i + 1) + '차 날인 사진이 첨부되었습니다.');
+        };
+        if (window.DkjUtil && window.DkjUtil.compressImageToDataUrl) {
+          window.DkjUtil.compressImageToDataUrl(file, apply);
+        } else {
+          var reader = new FileReader();
+          reader.onload = function (e) { apply(e.target.result); };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+    host.querySelectorAll('[data-view-stamp]').forEach(function (img) {
+      img.addEventListener('click', function () {
+        var i = Number(img.getAttribute('data-view-stamp'));
+        if (state.stampPhotos[i]) window.open(state.stampPhotos[i]);
+      });
+    });
+    host.querySelectorAll('[data-del-stamp]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (state.locked) return;
+        var i = Number(btn.getAttribute('data-del-stamp'));
+        state.stampPhotos[i] = null;
+        renderStampPhotos();
+        scheduleDraft();
+      });
+    });
+  }
+
   function emptyState() {
+    var td = today();
     return {
-      workDate: today(),
+      workDate: td,
       equipment: 'MD-01',
       productName: '',
-      lot: '',
+      lot: dateToLot(td),
       feSize: '2.0',
       susSize: '3.0',
       weightClass: 'fresh500',
@@ -136,6 +209,8 @@
       timing: '시작전',
       packagings: emptyPackagings(),
       rows: [emptyRow(), emptyRow(), emptyRow()],
+      // 제품 날인(일부인) 촬영본 — 1일 3회(1차/2차/3차). 인쇄 시 맨 뒤에 별첨으로 붙는다.
+      stampPhotos: [null, null, null],
       deviation: '',
       corrective: '',
       confirmer: '',
@@ -301,7 +376,7 @@
     $('workDate').value = state.workDate || today();
     $('equipment').value = state.equipment || 'MD-01';
     syncProductUi();
-    $('lot').value = state.lot || '';
+    $('lot').value = state.lot || dateToLot(state.workDate || today());
     $('feSize').value = state.feSize || '2.0';
     $('susSize').value = state.susSize || '3.0';
     $('weightClass').value = state.weightClass || 'fresh500';
@@ -317,6 +392,7 @@
     normalizePackagings(state);
     renderPackagings();
     renderRows();
+    renderStampPhotos();
     syncApprovals();
     refreshApproval();
   }
@@ -413,13 +489,25 @@
   function bind() {
     ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize', 'weightClass',
       'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
       var onFieldInput = function () {
+        if (id === 'workDate') {
+          // 작업일자 변경 시 LOT가 빈값이거나 이전 날짜의 자동생성 형태(YYYYMMDD-1)일 때만 자동 동기화 —
+          // 사용자가 LOT를 직접 고쳐 썼으면 덮어쓰지 않는다.
+          var newLot = dateToLot(el.value);
+          var curLot = $('lot').value;
+          if (!curLot || /^\d{8}-1$/.test(curLot)) {
+            $('lot').value = newLot;
+            state.lot = newLot;
+          }
+        }
         readForm();
         refreshApproval();
         scheduleDraft();
       };
-      $(id).addEventListener('input', onFieldInput);
-      $(id).addEventListener('change', onFieldInput);
+      el.addEventListener('input', onFieldInput);
+      el.addEventListener('change', onFieldInput);
     });
     var pSel = $('productSelect');
     if (pSel) {
@@ -438,6 +526,20 @@
       });
     }
     $('weightClass').addEventListener('change', renderWeightHint);
+    var btnSyncLot = $('btnSyncLot');
+    if (btnSyncLot) {
+      btnSyncLot.addEventListener('click', function () {
+        if (state.locked) return;
+        var d = $('workDate').value || today();
+        var l = dateToLot(d);
+        $('lot').value = l;
+        state.lot = l;
+        scheduleDraft();
+        if (window.DkjUtil && window.DkjUtil.toast) {
+          window.DkjUtil.toast('LOT를 ' + l + ' (으)로 생성했습니다.');
+        }
+      });
+    }
     $('btnAddRow').addEventListener('click', function () {
       if (state.locked) return;
       state.rows.push(emptyRow());

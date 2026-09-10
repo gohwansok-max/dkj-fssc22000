@@ -14,6 +14,12 @@
   "reviseDate": "-",
   "orgName": "동김제농협 산지유통센터",
   "rows": 10,
+  "autoCopyColumns": [
+    {
+      "from": "inDate",
+      "to": "mfgDate"
+    }
+  ],
   "infoFields": [
     {
       "id": "checkDate",
@@ -78,7 +84,8 @@
       "key": "carTemp",
       "label": "차량 온도",
       "width": "5%",
-      "type": "num",
+      "type": "text",
+      "default": "-",
       "unit": "℃",
       "group": "냉장"
     },

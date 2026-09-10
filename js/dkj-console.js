@@ -273,12 +273,13 @@
       }
       return bestState || { state: 'todo', note: '이번 시트 없음' };
     }
-    if (mode === 'dayRow') {
+    if (mode === 'dayRow' || mode === 'monthRows') {
       var dayKey = form.check.dayKey || 'day';
       var monthField = form.check.monthField || 'month';
       var dayNum = date.getDate();
       var targetYm = date.getFullYear() * 100 + (date.getMonth() + 1);
       var rowState = null;
+      var monthRec = null;
       for (var j = 0; j < recs.length; j++) {
         var rowRecord = recs[j];
         if (!rowRecord || !rowRecord.rows) continue;
@@ -286,6 +287,7 @@
         // 확인해야 한다. 안 그러면 지난달 같은 날짜 행이 채워져 있다는 이유로
         // 이번 달 미작성을 '완료'로 잘못 판정한다(2026-09-10).
         if (yearMonthOf(rowRecord, monthField) !== targetYm) continue;
+        monthRec = rowRecord;
         var row = rowRecord.rows.find(function (item) { return Number(String(item[dayKey] || '').replace(/\D/g, '')) === dayNum; });
         if (!row) continue;
         var values = Object.keys(row).filter(function (key) { return key !== dayKey && key !== 'dow'; });
@@ -310,7 +312,32 @@
           if (draftWritten) return { state: 'part', note: '작성 중' };
         }
       }
-      return rowState || { state: 'todo', note: '이번 시트 없음' };
+      if (!rowState) return { state: 'todo', note: '이번 시트 없음' };
+      // monthRows — 매일 적는 대장이지만 월 단위로 마감하는 서식(예: 작업장 온도).
+      // 오늘 행만 채워졌다고 바로 '완료'로 숨기면, 한 달 중 하루만 적고도 완료된
+      // 일지로 분류되어 다음날 다시 찾으려면 '완료된 일지 숨기기'를 눌러야 하는
+      // 불편이 있었다(2026-09-11). 오늘 행이 비어 있으면 기존 dayRow 와 똑같이
+      // '작성 필요'로 재촉하되, 오늘 행을 채운 뒤에도 이번 달 나머지 생산일 행이
+      // 다 채워지기 전까지는 '작성 중'으로 남겨 목록에서 사라지지 않게 한다.
+      if (mode === 'monthRows' && rowState.state === 'done' && monthRec) {
+        var daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+        var needDays = [];
+        for (var d = 1; d <= daysInMonth; d++) {
+          var dd = new Date(date.getFullYear(), date.getMonth(), d);
+          if (isProductionDay(dd)) needDays.push(d);
+        }
+        var filledDays = needDays.filter(function (nd) {
+          var r = monthRec.rows.find(function (item) { return Number(String(item[dayKey] || '').replace(/\D/g, '')) === nd; });
+          if (!r) return false;
+          var vals = Object.keys(r).filter(function (key) { return key !== dayKey && key !== 'dow'; });
+          return vals.some(function (key) { return String(r[key] || '').trim(); });
+        }).length;
+        if (filledDays < needDays.length) {
+          return { state: 'part', note: '오늘 입력됨 · 이번 달 ' + filledDays + '/' + needDays.length + ' 완료' };
+        }
+        return { state: 'done', note: '이번 달 전체(' + needDays.length + '일) 입력 완료' };
+      }
+      return rowState;
     }
     return { state: 'none', note: '' };
   }

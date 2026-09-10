@@ -14,8 +14,13 @@
     return document.getElementById(id);
   }
 
+  // type: 'divider' 는 입력칸이 아니라 "🚚 차량 1" 처럼 기본정보 칸을 두 묶음으로
+  // 나눠 보여주는 구분선이다(예: DKJ-S-02-18 이 하루 2대를 한 시트에 적을 때). id 가
+  // 있어도 실제 저장값이 없으니 상태·읽기/쓰기 대상에서 뺀다.
   function fieldIds(spec) {
-    return (spec.fields || []).map(function (f) { return f.id; });
+    return (spec.fields || [])
+      .filter(function (f) { return f.id && f.type !== 'divider'; })
+      .map(function (f) { return f.id; });
   }
 
   /** select 필드의 options 안에 {value:'__register__'} 가 있으면 그 필드는
@@ -63,6 +68,7 @@
       locked: false
     };
     (spec.fields || []).forEach(function (f) {
+      if (!f.id || f.type === 'divider') return;
       if (f.type === 'date') st[f.id] = today();
       else if (f.default !== undefined) st[f.id] = f.default;
       else if (f.type === 'number') st[f.id] = f.default != null ? f.default : '';

@@ -48,7 +48,7 @@ JS_DIR = ROOT / "js"
 
 # 캐시버전(?v=NN) — 배포본에서 실제로 쓰이는 값을 읽는다. 여기 숫자를 박아 두면 전체
 # 버전을 올릴 때마다 이 파일만 뒤처져서, 나중에 재생성했을 때 옛 버전 태그가 되살아난다.
-CACHE_VERSION_FALLBACK = "96"
+CACHE_VERSION_FALLBACK = "97"
 
 ENGINES = {
     "matrix": {"spec_dir": "matrix-form-specs", "mount": "DkjMatrixForm",
@@ -194,6 +194,7 @@ def render_matrix(code: str, spec: dict, v: str) -> str:
         <div class="mxf-quick">
           <select id="fillDay" aria-label="{esc(sc.get("fillAria", "일괄 입력 대상"))}"></select>
           <button type="button" class="pill-btn ghost" id="btnFillO">{esc(sc.get("fillText", "해당 열 미입력 전체 ○"))}</button>
+          <button type="button" class="pill-btn ghost" id="btnUndoFillO" disabled title="방금 '해당 열 미입력 전체 ○'로 채운 칸만 원래대로 비웁니다">↩ 방금 채운 열 되돌리기</button>
         </div>
       </div>
       <div class="mxf-scroll" id="matrixGrid"></div>
@@ -219,6 +220,10 @@ def render_matrix(code: str, spec: dict, v: str) -> str:
 def ox_field(f: dict) -> str:
     fid, label = f["id"], esc(f["label"])
     typ = f.get("type", "text")
+    if typ == "divider":
+        # 입력칸이 아니라 기본정보를 두 묶음(예: 차량 1 / 차량 2)으로 나누는 구분선.
+        # dkj-ox-form.js 의 fieldIds() 가 id 있는 divider 도 상태에서 걸러 낸다.
+        return f'<div class="dkj-field full" style="margin:2px 0 -8px;"><strong style="font-size:13px;color:var(--nh-green,#009a44);">{label}</strong></div>'
     if typ == "select":
         # 선택지는 문자열(저장값=표시값) 또는 {value, label} 둘 다 받는다.
         # 점검구역처럼 저장값('전처리')과 화면 표시('전처리실')가 다른 칸이 있다.

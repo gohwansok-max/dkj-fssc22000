@@ -14,6 +14,13 @@
   "reviseDate": "-",
   "orgName": "동김제농협 산지유통센터",
   "rows": 10,
+  "autoCopyColumns": [
+    {
+      "from": "inDate",
+      "to": "lot",
+      "format": "yyyymmdd"
+    }
+  ],
   "infoFields": [
     {
       "id": "period",

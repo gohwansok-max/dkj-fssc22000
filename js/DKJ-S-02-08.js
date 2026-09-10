@@ -14,6 +14,10 @@
   "reviseDate": "-",
   "orgName": "동김제농협 산지유통센터",
   "rows": 14,
+  "autoDateRange": {
+    "dateKey": "date",
+    "infoId": "period"
+  },
   "infoFields": [
     {
       "id": "period",
@@ -22,7 +26,8 @@
       "placeholder": "202 년 월 일 ~ 202 년 월 일",
       "required": true,
       "span": 3,
-      "staff": false
+      "staff": false,
+      "readonly": true
     },
     {
       "id": "inspector",
@@ -64,7 +69,9 @@
       "label": "폐기물명",
       "width": "22%",
       "align": "left",
-      "required": true
+      "required": true,
+      "default": "농산물",
+      "readonly": true
     },
     {
       "key": "amount",
@@ -90,6 +97,6 @@
       "readonly": true
     }
   ],
-  "legend": "※ 폐기물은 지정 장소에 보관하고 반출 시 인수인계를 확인한다.  ※ 수거업체 : 자체 처리(고정)."
+  "legend": "※ 폐기물은 지정 장소에 보관하고 반출 시 인수인계를 확인한다.  ※ 폐기물명 : 농산물(고정) · 수거업체 : 자체 처리(고정)."
 });
 })();

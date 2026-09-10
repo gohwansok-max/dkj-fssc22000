@@ -116,6 +116,25 @@
       if (monthChanged) clearDisabledRows();
     }
 
+    /** 날짜 열(spec.autoDateRange.dateKey)에 적힌 값들의 최솟값·최댓값으로
+     *  '점검 일시' 같은 infoField(spec.autoDateRange.infoId) 를 채운다.
+     *  손으로 옮겨 적다 실제 기재 범위(첫 날짜~끝 날짜)와 어긋나는 것을 막는다. */
+    function fmtKDate(iso) {
+      if (!iso || iso.length < 10) return '';
+      return iso.slice(0, 4) + ' 년 ' + iso.slice(5, 7) + ' 월 ' + iso.slice(8, 10) + ' 일';
+    }
+    function applyAutoDateRange() {
+      var cfg = spec.autoDateRange;
+      if (!cfg) return;
+      var dates = state.rows
+        .map(function (r) { return r[cfg.dateKey]; })
+        .filter(function (v) { return v && /^\d{4}-\d{2}-\d{2}$/.test(v); })
+        .sort();
+      if (!dates.length) return;
+      var min = dates[0], max = dates[dates.length - 1];
+      state.info[cfg.infoId] = (min === max) ? fmtKDate(min) : (fmtKDate(min) + ' ~ ' + fmtKDate(max));
+    }
+
     /** 점검 월을 바꿨을 때 휴무일로 바뀐 행의 이전 달 값을 비운다.
      *  기록을 불러올 때는 절대 부르지 않는다 — 이미 저장된 값을 지우면 기록 변조다.
      *  그래서 값이 남아 있는 휴무행은 아래 offRowCells() 가 '휴무'로 가리지 않고
@@ -171,14 +190,18 @@
         }
         // readonly 는 서식에서 값이 고정된 칸(예: 자체 처리하는 폐기물 수거업체)이다.
         // disabled 대신 readonly 를 쓰면 값이 그대로 state 에 남아 정본에도 인쇄된다.
+        // id 도 같이 달아야 dkj-approval.js 의 attachStaffPickers() 가 '점검자' 같은
+        // 인원 칸(명시적 id 목록: inspector/writer/confirmer 등)을 직원 <select> 로
+        // 바꿔치기할 수 있다. data-info 만으로는 라벨 텍스트 휴리스틱에 의존하게 되는데
+        // '점 검 자'처럼 글자 사이에 공백을 넣은 라벨은 personWords 매칭에 걸리지 않는다.
         var input = f.readonly
-          ? '<input type="text" data-info="' + f.id + '" data-fixed="1" value="' + esc(v) +
+          ? '<input type="text" id="' + esc(f.id) + '" data-info="' + f.id + '" data-fixed="1" value="' + esc(v) +
             '" readonly disabled>'
           : f.type === 'date'
-            ? '<input type="date" data-info="' + f.id + '" value="' + esc(v) + '">'
+            ? '<input type="date" id="' + esc(f.id) + '" data-info="' + f.id + '" value="' + esc(v) + '">'
             : f.type === 'month'
-              ? '<input type="month" data-info="' + f.id + '" value="' + esc(v) + '">'
-              : '<input type="text" data-info="' + f.id + '"' + noStaff(f) + ' value="' + esc(v) +
+              ? '<input type="month" id="' + esc(f.id) + '" data-info="' + f.id + '" value="' + esc(v) + '">'
+              : '<input type="text" id="' + esc(f.id) + '" data-info="' + f.id + '"' + noStaff(f) + ' value="' + esc(v) +
                 '" placeholder="' + esc(f.placeholder || '') + '">';
         return '<div class="dkj-field"><label>' + esc(f.label) + '</label>' + input + '</div>';
       }).join('');
@@ -429,12 +452,40 @@
       host.innerHTML = datalistHtml() +
         '<table class="lgf-table"><thead>' + thead + '</thead><tbody>' + body + '</tbody></table>';
 
+      // 숫자 칸(온도 등)에 포커스가 있는 상태로 마우스 휠을 굴리면 브라우저가 값을
+      // 슬쩍 올리고 내린다 — 표를 스크롤하려던 손짓이 값을 조용히 바꿔 버려서
+      // 위험하다(2026-09-11 현장 지적). 스피너 화살표 클릭은 그대로 두고 휠만 막는다.
+      host.querySelectorAll('input[type="number"]').forEach(function (el) {
+        el.addEventListener('wheel', function (e) {
+          if (document.activeElement === el) e.preventDefault();
+        }, { passive: false });
+      });
+
       host.querySelectorAll('[data-r]').forEach(function (el) {
         var ev = el.tagName === 'SELECT' ? 'change' : 'input';
         el.addEventListener(ev, function () {
           var key = el.getAttribute('data-c');
-          state.rows[Number(el.getAttribute('data-r'))][key] = el.value;
+          var ri = Number(el.getAttribute('data-r'));
+          state.rows[ri][key] = el.value;
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
+          if (spec.autoDateRange && key === spec.autoDateRange.dateKey) {
+            applyAutoDateRange();
+            renderInfo();
+          }
+          // 예: 입고일자를 적으면 제조일자(소비기한) 칸·로트번호 칸에 같은 날짜를
+          // 한 번 채워 준다(형식은 cfg.format 으로 바꿀 수 있다 — 예: 로트번호는
+          // 'yyyymmdd'). 실제로는 다른 값으로 고쳐야 하는 경우가 많아 그대로 두지
+          // 않고 손으로 고칠 수 있어야 하므로, 이미 값(자동이든 수동이든)이 있는
+          // 칸은 절대 덮어쓰지 않는다. 전체를 다시 그리면(renderGrid) 지금 입력
+          // 중이던 칸의 포커스가 날아가므로 그 칸 하나만 DOM 에서 직접 갱신한다.
+          (spec.autoCopyColumns || []).forEach(function (cfg) {
+            if (cfg.from !== key) return;
+            if (String(state.rows[ri][cfg.to] || '').trim()) return;
+            var v = cfg.format === 'yyyymmdd' ? String(el.value || '').replace(/[^0-9]/g, '') : el.value;
+            state.rows[ri][cfg.to] = v;
+            var target = host.querySelector('[data-r="' + ri + '"][data-c="' + cfg.to + '"]');
+            if (target) target.value = v;
+          });
           scheduleDraft();
         });
       });
@@ -608,6 +659,7 @@
         if ($(k)) $(k).value = state.approvals[k] || '';
       });
       if ($('remark')) $('remark').value = state.remark || '';
+      applyAutoDateRange();
       renderInfo();
       applyAutoWeekday();
       renderGrid();

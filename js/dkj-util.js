@@ -294,6 +294,49 @@
     explainSaveButtons();
   }
 
+  /** 카메라/갤러리로 고른 이미지 파일을 캔버스로 축소·압축해 dataURL 로 돌려준다.
+   *  localStorage 용량과 정본 인쇄 크기를 감안해 기본 900px·JPEG 80% 로 줄인다
+   *  (DKJ-QC-001 의 증빙사진 처리 방식을 그대로 가져옴). 여러 서식(CCP-1BC 시험지
+   *  사진, CCP-2P 날인 사진 등)이 같은 로직을 쓰므로 여기 하나로 모은다. */
+  function compressImageToDataUrl(file, callback, opts) {
+    if (!file || typeof callback !== 'function') return;
+    var maxDim = (opts && opts.maxDim) || 900;
+    var quality = (opts && opts.quality) || 0.8;
+
+    function drawAndCallback(img) {
+      var canvas = document.createElement('canvas');
+      var width = img.width, height = img.height;
+      if (width > height) {
+        if (width > maxDim) { height = Math.round((height * maxDim) / width); width = maxDim; }
+      } else {
+        if (height > maxDim) { width = Math.round((width * maxDim) / height); height = maxDim; }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    }
+
+    try {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () { URL.revokeObjectURL(url); drawAndCallback(img); };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var fbImg = new Image();
+          fbImg.onload = function () { drawAndCallback(fbImg); };
+          fbImg.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      };
+      img.src = url;
+    } catch (err) {
+      console.error('이미지 처리 실패', err);
+    }
+  }
+
   global.esc = esc;
   global.today = today;
   global.DkjUtil = {
@@ -304,6 +347,7 @@
     attachChips: attachChips,
     attachQuickToolbar: attachQuickToolbar,
     ensureStaffDatalist: ensureStaffDatalist,
+    compressImageToDataUrl: compressImageToDataUrl,
     DEFAULT_PRESETS: DEFAULT_PRESETS
   };
 })(window);

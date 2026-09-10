@@ -45,7 +45,10 @@
   function emptyRow() {
     return {
       time: '', ppm: '', soak: '', rinseSec: '', residualCl: '', judge: '',
-      isCustomPpm: false, isCustomSoak: false, isCustomRinseSec: false, isCustomResidualCl: false
+      isCustomPpm: false, isCustomSoak: false, isCustomRinseSec: false, isCustomResidualCl: false,
+      // paper(시험지)로 실측한 유효염소·잔류염소 결과를 사진으로 남긴다(측정행당 1장).
+      // 인쇄 시 맨 뒤에 별첨으로 붙는다 — ccp1bc() 의 photoAttachmentHtml 참고.
+      photo: null
     };
   }
 
@@ -259,6 +262,22 @@
       '</div>';
   }
 
+  /** 유효염소·잔류염소를 시험지로 실측한 결과를 사진으로 남기는 칸(측정행당 1장).
+   *  촬영본은 dkj-util.js 의 compressImageToDataUrl 로 압축해 그대로 상태에 저장한다
+   *  (별도 서버가 없는 구조라 여기 dataURL 이 정본). 인쇄 시 맨 뒤 별첨으로도 나간다
+   *  — dkj-print-official.js 의 ccp1bc() 참고. */
+  function buildPhotoCell(row, i) {
+    if (row.photo) {
+      return '<div class="dkj-photo-thumb-wrap">' +
+        '<img src="' + row.photo + '" class="dkj-photo-thumb" data-view-photo="' + i + '" title="클릭하여 원본보기">' +
+        '<button type="button" class="dkj-photo-del" data-del-photo="' + i + '" title="사진 삭제">✕</button>' +
+        '</div>';
+    }
+    return '<label class="dkj-photo-cam-btn" title="시험지 촬영">📷' +
+      '<input type="file" accept="image/*" capture="environment" data-photo-inp="' + i + '">' +
+      '</label>';
+  }
+
   function renderRows() {
     var body = $('monBody');
     if (!body) return;
@@ -272,6 +291,7 @@
         '<td>' + buildRinseSecCell(row, i) + '</td>' +
         '<td>' + buildResidualClCell(row, i) + '</td>' +
         '<td class="mon-judge ' + (row.judge === 'X' ? 'ng' : row.judge === 'O' ? 'ok' : '') + '">' + (row.judge || '·') + '</td>' +
+        '<td class="dkj-photo-cell">' + buildPhotoCell(row, i) + '</td>' +
         '<td><button type="button" class="pill-btn ghost mon-del" data-del="' + i + '">삭제</button></td>' +
         '</tr>';
     }).join('');
@@ -332,7 +352,67 @@
       });
     });
 
+    body.querySelectorAll('[data-photo-inp]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        if (state.locked) return;
+        var i = Number(inp.getAttribute('data-photo-inp'));
+        var file = inp.files && inp.files[0];
+        if (!file) return;
+        var apply = function (dataUrl) {
+          state.rows[i].photo = dataUrl;
+          renderRows();
+          scheduleDraft();
+          if (window.DkjUtil && window.DkjUtil.toast) window.DkjUtil.toast('📷 시험지 사진이 첨부되었습니다.');
+        };
+        if (window.DkjUtil && window.DkjUtil.compressImageToDataUrl) {
+          window.DkjUtil.compressImageToDataUrl(file, apply);
+        } else {
+          var reader = new FileReader();
+          reader.onload = function (e) { apply(e.target.result); };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+
+    body.querySelectorAll('[data-view-photo]').forEach(function (img) {
+      img.addEventListener('click', function () {
+        var i = Number(img.getAttribute('data-view-photo'));
+        var photo = state.rows[i] && state.rows[i].photo;
+        if (photo) window.open(photo);
+      });
+    });
+
+    body.querySelectorAll('[data-del-photo]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (state.locked) return;
+        var i = Number(btn.getAttribute('data-del-photo'));
+        state.rows[i].photo = null;
+        renderRows();
+        scheduleDraft();
+      });
+    });
+
     refreshDeviation();
+    renderPhotoAppendix();
+  }
+
+  /** 화면 하단 "④ 별첨 — 소독수 시험지 사진" 갤러리. 인쇄본의 별첨 표(ccp1bc())와
+   *  같은 사진·같은 순서를 보여준다 — 화면에서 본 것과 인쇄물이 달라 보이면 안 된다. */
+  function renderPhotoAppendix() {
+    var host = $('photoAppendix');
+    if (!host) return;
+    var withPhoto = state.rows.filter(function (r) { return r.photo; });
+    if (!withPhoto.length) {
+      host.innerHTML = '<p class="dkj-photo-empty">촬영된 시험지 사진이 없습니다. 위 ② 모니터링 표의 📷 버튼으로 측정행마다 촬영하세요.</p>';
+      return;
+    }
+    host.innerHTML = '<div class="dkj-photo-gallery">' + withPhoto.map(function (r) {
+      var cap = '시각 ' + (r.time || '-') + ' · 유효염소 ' + (r.ppm || '-') + 'ppm · 잔류염소 ' + (r.residualCl || '-') + 'ppm · 판정 ' + (r.judge || '-');
+      return '<div class="dkj-photo-card">' +
+        '<img src="' + r.photo + '" onclick="window.open(this.src)" title="클릭하여 원본보기">' +
+        '<div class="dkj-photo-card-cap">' + esc(cap) + '</div>' +
+        '</div>';
+    }).join('') + '</div>';
   }
 
   function onRowInput(e) {

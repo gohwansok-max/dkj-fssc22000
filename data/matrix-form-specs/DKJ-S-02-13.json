@@ -7,6 +7,7 @@
   "days": 5,
   "divLevels": 2,
   "dayMode": "week",
+  "weekStartDay": 5,
   "dayLabels": [
     "1주",
     "2주",

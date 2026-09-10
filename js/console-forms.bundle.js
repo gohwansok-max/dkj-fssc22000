@@ -3,6 +3,7 @@ window.DKJ_CONSOLE_FORMS={
   "_modes": {
     "dayColumn": "매트릭스 서식 — 시트는 주/월 단위지만 기입은 날짜 열마다 한다. 오늘 열이 채워졌는지 본다.",
     "dayRow": "대장 서식 — 행이 1~31일이다. 오늘 일자 행이 채워졌는지 본다.",
+    "monthRows": "대장 서식(dayRow와 동일한 데이터) — 오늘 행이 비어 있으면 dayRow처럼 '작성 필요'로 재촉하되, 오늘 행을 채워도 이번 달 생산일 행이 전부 채워지기 전까지는 '완료'로 숨기지 않고 '작성 중'으로 남긴다. 매일 적지만 월 단위로 마감하는 서식(작업장 온도 등)용.",
     "perDay": "1일 1장 — info 날짜가 오늘인 기록이 있는지 본다.",
     "perPeriod": "주/월 1장 — 이번 주(월)에 해당하는 기록이 있는지 본다.",
     "event": "발생 시 작성 — 미작성 판정을 하지 않고 최근 기록만 보여준다."
@@ -70,7 +71,7 @@ window.DKJ_CONSOLE_FORMS={
           "priority": "high",
           "href": "records/DKJ-S-02-05.html",
           "check": {
-            "mode": "dayRow",
+            "mode": "monthRows",
             "dayKey": "day"
           }
         },

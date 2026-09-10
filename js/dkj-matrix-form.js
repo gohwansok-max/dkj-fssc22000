@@ -21,9 +21,10 @@
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
 
-  /** 해당 날짜가 속한 주의 시작일. startDow: 0=일요일 시작, 그 외(기본)=월요일 시작 */
+  /** 해당 날짜가 속한 주의 시작일. startDow: 0=일요일 시작 ~ 6=토요일 시작,
+   *  그 외(undefined 등)는 기본값인 월요일 시작. */
   function weekStartOf(iso, startDow) {
-    var sdw = startDow === 0 ? 0 : 1;
+    var sdw = (typeof startDow === 'number' && startDow >= 0 && startDow <= 6) ? startDow : 1;
     var d = iso ? new Date(iso + 'T00:00:00') : new Date();
     var dow = d.getDay();               // 0=일
     var diff = dow - sdw;
@@ -35,6 +36,17 @@
   /** 해당 날짜가 속한 주의 월요일 (기존 호출부 호환용) */
   function mondayOf(iso) {
     return weekStartOf(iso, 1);
+  }
+
+  /** spec.weekStartDay → 요일 번호(0=일 ~ 6=토). 기존 'sun' 문자열 값과, 실제로
+   *  점검하는 요일이 월요일이 아닌 서식(예: 매주 금요일 저수조 점검)을 위한 숫자 값을
+   *  둘 다 받는다. 지정이 없으면 기존 기본값(월요일)을 그대로 쓴다. */
+  function resolveStartDow(spec) {
+    var w = spec && spec.weekStartDay;
+    if (w === 'sun') return 0;
+    if (w === 'mon') return 1;
+    if (typeof w === 'number' && w >= 0 && w <= 6) return w;
+    return 1;
   }
 
   function addDays(iso, n) {
@@ -80,7 +92,7 @@
   }
 
   function emptyState(spec) {
-    var startDow = spec.weekStartDay === 'sun' ? 0 : 1;
+    var startDow = resolveStartDow(spec);
     var refWs = weekStartOf(null, startDow);
     var isMonth = spec.period === 'month';
     var days = isMonth ? monthWeekStarts(refWs, startDow) : buildDays(refWs, spec.days || 6, 1);
@@ -125,7 +137,15 @@
     N = state.days.length;
     var editingId = null;
     var draftTimer = null;
+    // 직전 "해당 열 미입력 전체 ○" 클릭으로 실제로 채운 칸만 기억한다(되돌리기용).
+    // 이미 값이 있던 칸은 건드리지 않으므로, 되돌릴 때도 그 칸들만 원래대로 비운다.
+    var lastFillO = null;
 
+    function refreshUndoFillO() {
+      var btn = $('btnUndoFillO');
+      if (!btn) return;
+      btn.disabled = !lastFillO || !lastFillO.keys.length || !!state.locked;
+    }
 
     /* 전자결재 패널 — 모듈이 없으면 그냥 건너뛴다 */
     var apvUi = null;
@@ -405,6 +425,9 @@
     /* ---------- 폼 <-> 상태 ---------- */
 
     function writeForm() {
+      // 새 시트를 그리는 시점(새 일보/불러오기/주차 변경 등)에는 되돌릴 직전 클릭이
+      // 없다 — lastFillO 는 화면에 떠 있는 시트에 대한 것이라 저장하지 않는다.
+      lastFillO = null;
       if ($('weekStart')) $('weekStart').value = state.weekStart;
       if ($('weekRange')) {
         $('weekRange').textContent = state.days.length
@@ -430,6 +453,7 @@
         if (el.id === 'weekStart' || el.closest('.dkj-form-toolbar')) return;
         el.disabled = !!state.locked;
       });
+      refreshUndoFillO();
     }
 
     /* ---------- 검증 / 저장 ---------- */
@@ -537,7 +561,7 @@
     function bind() {
       if ($('weekStart')) {
         $('weekStart').addEventListener('change', function () {
-          var startDow = spec.weekStartDay === 'sun' ? 0 : 1;
+          var startDow = resolveStartDow(spec);
           var ws = weekStartOf(this.value, startDow);
           if (spec.period === 'month') {
             state.days = monthWeekStarts(ws, startDow);
@@ -590,10 +614,31 @@
         $('btnFillO').addEventListener('click', function () {
           if (state.locked) return;
           var d = Number($('fillDay') && $('fillDay').value || 0);
+          var changed = [];
           ROWS.forEach(function (r) {
             if (!state.checks[r.key]) state.checks[r.key] = new Array(N).fill('');
-            if (!state.checks[r.key][d]) state.checks[r.key][d] = 'O';
+            if (!state.checks[r.key][d]) {
+              state.checks[r.key][d] = 'O';
+              changed.push(r.key);
+            }
           });
+          // 잘못 눌렀을 때를 위한 되돌리기 — 이 클릭으로 실제 바뀐 칸만 기억해 둔다
+          // (이미 X·— 등이 적혀 있던 칸은 안 건드렸으니 되돌릴 것도 없다).
+          lastFillO = changed.length ? { day: d, keys: changed } : null;
+          refreshUndoFillO();
+          renderMatrix();
+          renderSummary();
+          scheduleDraft();
+        });
+      }
+      if ($('btnUndoFillO')) {
+        $('btnUndoFillO').addEventListener('click', function () {
+          if (state.locked || !lastFillO) return;
+          lastFillO.keys.forEach(function (key) {
+            if (state.checks[key]) state.checks[key][lastFillO.day] = '';
+          });
+          lastFillO = null;
+          refreshUndoFillO();
           renderMatrix();
           renderSummary();
           scheduleDraft();
@@ -620,7 +665,7 @@
           onClonePrev: function (cloned) {
             if (state.locked) return;
             state = Object.assign(emptyState(spec), cloned);
-            var startDow = spec.weekStartDay === 'sun' ? 0 : 1;
+            var startDow = resolveStartDow(spec);
             var ws = weekStartOf(null, startDow);
             if (spec.period === 'month') {
               state.days = monthWeekStarts(ws, startDow);

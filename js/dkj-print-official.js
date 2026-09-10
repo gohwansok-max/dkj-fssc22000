@@ -261,7 +261,10 @@
       '</tr></thead><tbody>' + devBody + '</tbody></table>' +
 
       '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · DKJ-H-01-02</div>' +
-      '</div>'
+      '</div>' +
+      photoAppendixHtml('DKJ-H-01-02 CCP-2P 제품 날인(일부인) 사진', (state.stampPhotos || [])
+        .map(function (photo, idx) { return photo ? { photo: photo, cap: (idx + 1) + '차 날인' } : null; })
+        .filter(Boolean))
     );
   }
 
@@ -426,6 +429,36 @@
       '</tr></thead><tbody>' + devBody + '</tbody></table>' +
 
       '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000 · DKJ-H-01-01</div>' +
+      '</div>' +
+      photoAppendixHtml('DKJ-H-01-01 CCP-1BC 소독수 유효염소·잔류염소 시험지 사진', (state.rows || [])
+        .filter(function (r) { return r.photo; })
+        .map(function (r, idx) {
+          return {
+            photo: r.photo,
+            cap: '측정 ' + (idx + 1) + '회차 · 시각 ' + (r.time || '-') +
+              ' · 유효염소 ' + (r.ppm || '-') + 'ppm · 잔류염소 ' + (r.residualCl || '-') + 'ppm · 판정 ' + (r.judge || '-')
+          };
+        }))
+    );
+  }
+
+  /** paper(시험지) 촬영본을 정본 맨 뒤에 별첨 페이지로 붙인다 — CCP-1BC/CCP-2P 등
+   *  여러 정본이 같은 모양으로 쓰므로 공용 함수로 뺐다. 사진이 하나도 없으면
+   *  빈 문자열(별첨 페이지 자체를 만들지 않는다 — 안 찍은 날까지 빈 별첨 장이 붙으면
+   *  오히려 "사진 누락"처럼 보인다). */
+  function photoAppendixHtml(title, items) {
+    if (!items || !items.length) return '';
+    var cards = items.map(function (it) {
+      return '<div class="off-photo-card">' +
+        '<img src="' + it.photo + '">' +
+        '<div class="off-photo-cap">' + esc(it.cap || '') + '</div>' +
+        '</div>';
+    }).join('');
+    return (
+      '<div class="ps-page off-photo-appendix">' +
+      '<div class="off-photo-appendix-title">[별첨] ' + esc(title) + '</div>' +
+      '<div class="off-photo-grid">' + cards + '</div>' +
+      '<div class="off-foot">동김제농협 산지유통센터 · FSSC22000</div>' +
       '</div>'
     );
   }
