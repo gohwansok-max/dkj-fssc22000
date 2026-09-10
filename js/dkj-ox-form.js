@@ -18,6 +18,30 @@
     return (spec.fields || []).map(function (f) { return f.id; });
   }
 
+  /** select 필드의 options 안에 {value:'__register__'} 가 있으면 그 필드는
+   *  "새 항목 등록" 을 지원한다 — 예: DKJ-S-02-18 의 차량번호. 값이 사양에
+   *  없으니(운행 차량은 계속 늘어난다) localStorage 레지스트리에 사용자가
+   *  직접 추가한다. */
+  function registrableFields(spec) {
+    return (spec.fields || []).filter(function (f) {
+      return f.type === 'select' && (f.options || []).some(function (o) {
+        return o && o.value === '__register__';
+      });
+    });
+  }
+  function registryKeyFor(spec, field) {
+    return field.registryKey || ('dkj:registry:' + spec.code + ':' + field.id + ':v1');
+  }
+  function loadRegistry(key) {
+    try {
+      var list = JSON.parse(localStorage.getItem(key) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+  }
+  function saveRegistry(key, list) {
+    try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) {}
+  }
+
   function emptyState(spec) {
     var checks = {};
     (spec.items || []).forEach(function (c) { checks[c.key] = ''; });
@@ -65,6 +89,9 @@
     var editingId = null;
     var draftTimer = null;
     var ids = fieldIds(spec).concat(['corrective', 'inspector', 'confirmer', 'remark']);
+    var REGISTRABLE = registrableFields(spec);
+    var REGISTRABLE_BY_ID = {};
+    REGISTRABLE.forEach(function (f) { REGISTRABLE_BY_ID[f.id] = f; });
 
     function setStatus(msg, saved) {
       var el = $('saveStatus');
@@ -149,7 +176,62 @@
       syncApprovals();
     }
 
+    /** 레지스트리(등록된 값) + 사양에 박힌 고정 옵션을 합쳐 select 를 다시 그린다.
+     *  '__register__' 항목 바로 앞에 끼워 넣어, "+ 새 OO 등록" 은 항상 맨 끝에 남는다.
+     *  현재 state 값이 레지스트리에도 고정 옵션에도 없으면(다른 기기에서 등록했거나
+     *  이 기능이 생기기 전에 저장된 옛 기록) 그 값도 레지스트리에 편입해, 불러온
+     *  기록이 빈 선택으로 보이는 일이 없게 한다. */
+    function renderRegistryOptions(field) {
+      var el = $(field.id);
+      if (!el) return;
+      var key = registryKeyFor(spec, field);
+      var registry = loadRegistry(key);
+      var current = state[field.id];
+      var fixedValues = (field.options || []).map(function (o) { return (o && o.value !== undefined) ? o.value : o; });
+      if (current && fixedValues.indexOf(current) === -1 && registry.indexOf(current) === -1) {
+        registry.push(current);
+        registry.sort(function (a, b) { return String(a).localeCompare(String(b), 'ko'); });
+        saveRegistry(key, registry);
+      }
+      var parts = [];
+      (field.options || []).forEach(function (o) {
+        var v = (o && o.value !== undefined) ? o.value : o;
+        if (v === '__register__') {
+          registry.forEach(function (rv) {
+            parts.push('<option value="' + esc(rv) + '">' + esc(rv) + '</option>');
+          });
+        }
+        var label = (o && o.label !== undefined) ? o.label : o;
+        parts.push('<option value="' + esc(v) + '">' + esc(label) + '</option>');
+      });
+      el.innerHTML = parts.join('');
+    }
+
+    /** '+ 새 OO 등록' 을 고르면 프롬프트로 값을 받아 레지스트리에 더하고 곧바로
+     *  선택 상태로 만든다. 취소하거나 빈 값이면 이전 선택으로 되돌린다 — '__register__'
+     *  가 실제 값으로 저장되는 일은 없어야 한다. */
+    function promptRegister(field, el) {
+      var label = String(field.label || '항목').replace(/\s*\*\s*$/, '');
+      var raw = window.prompt(label + '을(를) 입력하세요.', '');
+      var value = (raw || '').trim();
+      if (!value) { el.value = state[field.id] || ''; return; }
+      var key = registryKeyFor(spec, field);
+      var registry = loadRegistry(key);
+      if (registry.indexOf(value) === -1) {
+        registry.push(value);
+        registry.sort(function (a, b) { return String(a).localeCompare(String(b), 'ko'); });
+        saveRegistry(key, registry);
+      }
+      state[field.id] = value;
+      renderRegistryOptions(field);
+      el.value = value;
+      readForm();
+      refreshApproval();
+      scheduleDraft();
+    }
+
     function writeForm() {
+      REGISTRABLE.forEach(renderRegistryOptions);
       ids.forEach(function (id) {
         var el = $(id);
         if (!el) return;
@@ -265,6 +347,11 @@
       // 조회해서 읽으므로 어떤 요소가 지금 거기 있든 상관없다.
       var onFieldInput = function (e) {
         if (!e.target || ids.indexOf(e.target.id) === -1) return;
+        var registrable = REGISTRABLE_BY_ID[e.target.id];
+        if (registrable && e.target.value === '__register__') {
+          promptRegister(registrable, e.target);
+          return;
+        }
         readForm();
         refreshApproval();
         scheduleDraft();

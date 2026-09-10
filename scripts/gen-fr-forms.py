@@ -41,7 +41,7 @@ SKIP = {"FR-014", "FR-015"}
 # 캐시버전(?v=NN) — 배포본에서 실제로 쓰이는 값을 읽는다. 여기 숫자를 박아 두면
 # 전체 버전을 올릴 때마다 이 파일만 뒤처져서, 나중에 재생성했을 때 옛 버전 태그가
 # 되살아난다(2026-08 에 scripts/inject-*.py 가 실제로 그렇게 v=38 에 멈춰 있었다).
-CACHE_VERSION_FALLBACK = "94"
+CACHE_VERSION_FALLBACK = "95"
 
 
 def cache_version() -> str:
