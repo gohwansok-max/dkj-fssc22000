@@ -261,31 +261,170 @@
     return { filled: filled, blanked: blanked, missing: false };
   }
 
-  /** 연동 상태를 화면에 알린다 — 값이 어디서 왔는지 안 보이면 확인할 수가 없다 */
-  function renderTempLinkNotice(res) {
+
+  /* ── CCP-1BC 소독·헹굼 일지(DKJ-H-01-01) / CCP-2P 금속검출 일지(DKJ-H-01-02) 연동 ──
+     온도 일보와 같은 이유·같은 원칙(읽기 전용, 저장된 기록은 안 건드림)이다.
+     차이는 온도 일보가 '월 시트 안의 날짜 행'인 반면 이 둘은 '하루 1건' 기록이고,
+     회차가 고정 시각(작업장 3회)이 아니라 그날그날 실제로 점검한 시각을
+     자유 입력하므로(행을 더 추가할 수도 있다), 회차 매칭을 QC 순회의 각 회차
+     목표시각(roundTimes)에 가장 가까운 시각의 행으로 한다 — 같은 날 두 서식을
+     보는 사람이 "3번째 순회 = 그쪽 3번째 점검"이라고 당연히 여기기 쉬운데, 그
+     서식은 하루 2번만 점검했을 수도 있어 순서(인덱스)로 맞추면 어긋난다. */
+  var CCP1_FORM_ID = 'DKJ-H-01-01';
+  var CCP2_FORM_ID = 'DKJ-H-01-02';
+  // 항목명 옆 연동 배지(화면 전용)에 쓴다 — 어느 항목이 어느 서식에서 오는지.
+  var LINKED_KEYS_CCP1 = { c09: 1, c10: 1, c11: 1 };
+  var LINKED_KEYS_CCP2 = { c18: 1, c19: 1, c20: 1, c21: 1 };
+  var LINK_TAG_SHORT = { 'DKJ-S-02-05': '온도일보', 'DKJ-H-01-01': 'CCP-1BC', 'DKJ-H-01-02': 'CCP-2P' };
+  var LINK_TAG_LABEL = {
+    'DKJ-S-02-05': '작업장 온도 일보', 'DKJ-H-01-01': 'CCP-1BC 소독·헹굼 일지', 'DKJ-H-01-02': 'CCP-2P 금속검출 일지'
+  };
+
+  function timeToMinutes(hhmm) {
+    var m = String(hhmm == null ? '' : hhmm).match(/^(\d{1,2}):(\d{2})$/);
+    return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+  }
+
+  /** 그 날짜의 perDay 기록(작업일자 = 오늘)을 찾는다. 같은 날짜로 여러 건
+   *  저장돼 있으면(재작성 등) 가장 최근 저장분을 쓴다. */
+  function findDayRecord(formId, dateStr) {
+    if (!global.DkjRecordStore || !dateStr) return null;
+    var list;
+    try { list = global.DkjRecordStore.list(formId) || []; } catch (e) { return null; }
+    var hits = list.filter(function (r) {
+      return (r.workDate || (r.info && r.info.workDate)) === dateStr;
+    });
+    if (!hits.length) return null;
+    hits.sort(function (a, b) { return (Number(b.updatedAt) || 0) - (Number(a.updatedAt) || 0); });
+    return hits[0];
+  }
+
+  /** rows 중 목표 시각(HH:MM)에 가장 가까운 시각이 적힌 행을 고른다.
+   *  시각이 적힌 행이 하나도 없으면(전부 빈 시각) null. */
+  function nearestRowByTime(rows, targetHHMM) {
+    var target = timeToMinutes(targetHHMM);
+    if (target === null || !Array.isArray(rows)) return null;
+    var best = null, bestDiff = Infinity;
+    rows.forEach(function (r) {
+      var t = timeToMinutes(r && r.time);
+      if (t === null) return;
+      var diff = Math.abs(t - target);
+      if (diff < bestDiff) { bestDiff = diff; best = r; }
+    });
+    return best;
+  }
+
+  /** CCP-1BC 자체 판정 기준(js/DKJ-H-01-01.js 의 rinseSecOk/residualClOk)을 그대로
+   *  옮긴다 — 헹굼 50~60초, 잔류염소 4ppm 미만. 그 서식의 정본 기준과 이 순회일지의
+   *  판정이 어긋나면 안 된다. */
+  function ccp1RinseOk(row) {
+    var rs = parseFloat(row && row.rinseSec);
+    var rc = parseFloat(row && row.residualCl);
+    if (isNaN(rs) || isNaN(rc)) return '';
+    return (rs >= 50 && rs <= 60 && rc < 4) ? 'O' : 'X';
+  }
+
+  /** 이 회차 칸에 값을 채우거나(있으면), clearMissing 이면 비운다(없으면).
+   *  counts 는 호출부가 filled/blanked 를 누적하는 공유 카운터. */
+  function setLinkedCell(counts, rk, key, val, clearMissing) {
+    if (val) {
+      state.checks[rk][key] = val;
+      counts.filled++;
+      return;
+    }
+    if (!clearMissing) return;
+    if (String(state.checks[rk][key] || '') !== '') counts.blanked++;
+    state.checks[rk][key] = '';
+  }
+
+  function applyCcp1Link(clearMissing) {
+    var counts = { filled: 0, blanked: 0 };
+    var rec = findDayRecord(CCP1_FORM_ID, state.workDate);
+    ['r1', 'r2', 'r3'].forEach(function (rk) {
+      var target = (state.roundTimes && state.roundTimes[rk]) || '';
+      var row = rec ? nearestRowByTime(rec.rows, target) : null;
+      setLinkedCell(counts, rk, 'c09', row ? row.ppm : '', clearMissing);
+      setLinkedCell(counts, rk, 'c10', row ? row.soak : '', clearMissing);
+      setLinkedCell(counts, rk, 'c11', row ? ccp1RinseOk(row) : '', clearMissing);
+    });
+    return { source: CCP1_FORM_ID, recordId: rec ? rec.id || '' : '', missing: !rec,
+      filled: counts.filled, blanked: counts.blanked };
+  }
+
+  function applyCcp2Link(clearMissing) {
+    var counts = { filled: 0, blanked: 0 };
+    var rec = findDayRecord(CCP2_FORM_ID, state.workDate);
+    ['r1', 'r2', 'r3'].forEach(function (rk) {
+      var target = (state.roundTimes && state.roundTimes[rk]) || '';
+      var row = rec ? nearestRowByTime(rec.rows, target) : null;
+      // Fe/SUS 시편 크기는 그날 하루 고정값(state.feSize/susSize)이라 회차마다 같다 —
+      // 행별 값이 아니라 기록 자체에서 가져온다.
+      setLinkedCell(counts, rk, 'c18', rec ? rec.feSize : '', clearMissing);
+      setLinkedCell(counts, rk, 'c19', rec ? rec.susSize : '', clearMissing);
+      // c20 '제품+시편(복합검출)' = 그 서식의 제품+Fe, 제품+SUS 두 항목을 합친 것 —
+      // 둘 중 하나라도 X 면 이탈, 둘 다 O 여야 적합.
+      var combo = '';
+      if (row) {
+        if (row.prodFe === 'X' || row.prodSus === 'X') combo = 'X';
+        else if (row.prodFe === 'O' && row.prodSus === 'O') combo = 'O';
+      }
+      setLinkedCell(counts, rk, 'c20', combo, clearMissing);
+      setLinkedCell(counts, rk, 'c21', row ? row.prodOnly : '', clearMissing);
+    });
+    return { source: CCP2_FORM_ID, recordId: rec ? rec.id || '' : '', missing: !rec,
+      filled: counts.filled, blanked: counts.blanked };
+  }
+
+  /** 온도 일보 + CCP-1BC + CCP-2P 를 한 번에 채운다(또는 비운다). 세 곳 다
+   *  같은 원칙 — 저장된 기록을 불러올 때는 절대 안 부르고, 작성 중인 시트에서
+   *  날짜를 바꾸거나 '연동 다시 불러오기'를 눌렀을 때만 clearMissing=true 로 부른다. */
+  function applyAllLinks(clearMissing) {
+    var temp = applyTempLink(clearMissing);
+    var ccp1 = applyCcp1Link(clearMissing);
+    var ccp2 = applyCcp2Link(clearMissing);
+    state.ccpLink = {
+      ccp1: ccp1.filled ? { source: ccp1.source, recordId: ccp1.recordId, filled: ccp1.filled } : null,
+      ccp2: ccp2.filled ? { source: ccp2.source, recordId: ccp2.recordId, filled: ccp2.filled } : null
+    };
+    return { temp: temp, ccp1: ccp1, ccp2: ccp2 };
+  }
+
+  /** 세 연동 결과를 한 배너에 모아 알린다 — 어디서 가져왔고 뭐가 비었는지
+   *  안 보이면 확인할 수가 없다. */
+  function renderLinkNotice(res) {
     var el = $('qcTempLink');
     if (!el) return;
     if (!res) { el.hidden = true; return; }
     el.hidden = false;
-    if (res.missing) {
-      el.className = 'qc-templink warn';
-      el.textContent = '작업장 온도 일보(DKJ-S-02-05)에 ' + (state.workDate || '') +
-        ' 기록이 없어 온도를 가져오지 못했습니다.' +
-        (res.blanked ? ' 앞서 보던 날짜의 값이 남지 않도록 온도 ' + res.blanked +
-          '칸을 비웠습니다.' : '') +
-        ' 온도 일보에 먼저 적거나, 이 화면에서 직접 적어 주세요.';
-    } else if (!res.filled) {
-      el.className = 'qc-templink warn';
-      el.textContent = '작업장 온도 일보에 ' + (state.workDate || '') +
-        ' 행은 있으나 온도가 비어 있습니다. 온도는 직접 적어 주세요.';
+    var lines = [];
+    var anyBad = false;
+
+    if (res.temp.missing) {
+      anyBad = true;
+      lines.push('작업장 온도 일보(DKJ-S-02-05)에 ' + (state.workDate || '') + ' 기록 없음 — 온도는 직접 적어 주세요.');
+    } else if (!res.temp.filled) {
+      anyBad = true;
+      lines.push('작업장 온도 일보에 ' + (state.workDate || '') + ' 행은 있으나 값이 비어 있습니다.');
     } else {
-      el.className = 'qc-templink ok';
-      el.textContent = '작업장 온도 일보(DKJ-S-02-05) ' + (state.workDate || '') +
-        ' 기록에서 온도 ' + res.filled + '칸을 가져왔습니다.' +
-        (res.blanked ? ' 온도 일보에 값이 없는 ' + res.blanked + '칸은 비웠습니다 —' +
-          ' 그 회차는 온도 일보에 먼저 적어 주세요.' : '') +
-        ' 작업장 3차(연동 없음)는 직접 적습니다.';
+      lines.push('작업장 온도 일보에서 ' + res.temp.filled + '칸' + (res.temp.blanked ? '(비운 ' + res.temp.blanked + '칸 포함)' : '') + ' 가져옴 — 작업장 3차는 직접 적습니다.');
     }
+
+    if (res.ccp1.missing) {
+      anyBad = true;
+      lines.push('CCP-1BC 소독·헹굼 일지(DKJ-H-01-01)에 ' + (state.workDate || '') + ' 기록 없음 — 직접 적어 주세요.');
+    } else if (res.ccp1.filled) {
+      lines.push('CCP-1BC 소독·헹굼 일지에서 ' + res.ccp1.filled + '칸 가져옴(소독액·헹굼수 교체 확인은 직접 적습니다).');
+    }
+
+    if (res.ccp2.missing) {
+      anyBad = true;
+      lines.push('CCP-2P 금속검출 일지(DKJ-H-01-02)에 ' + (state.workDate || '') + ' 기록 없음 — 직접 적어 주세요.');
+    } else if (res.ccp2.filled) {
+      lines.push('CCP-2P 금속검출 일지에서 ' + res.ccp2.filled + '칸 가져옴(시편 단독 검출 여부는 연동 대상이 아닙니다).');
+    }
+
+    el.className = 'qc-templink ' + (anyBad ? 'warn' : 'ok');
+    el.textContent = lines.join(' ');
   }
 
   function emptyState() {
@@ -593,9 +732,12 @@
         rowsHtml += '<td rowspan="' + groupCounts[it.group] + '" class="' + grpCellCls + '">' + it.group + '</td>';
       }
       rowsHtml += '<td style="font-weight:600;">' + it.proc + '</td>';
-      // 온도 일보에서 값을 가져오는 항목임을 화면에서 알린다 (정본 인쇄에는 붙이지 않는다)
-      var linkTag = TEMP_LINK[it.key]
-        ? ' <span class="qc-link-tag" title="작업장 온도 일보(DKJ-S-02-05)에서 가져옵니다">온도일보 연동</span>'
+      // 다른 서식에서 값을 가져오는 항목임을 화면에서 알린다 (정본 인쇄에는 붙이지 않는다)
+      var linkSrc = TEMP_LINK[it.key] ? 'DKJ-S-02-05' :
+        LINKED_KEYS_CCP1[it.key] ? 'DKJ-H-01-01' :
+        LINKED_KEYS_CCP2[it.key] ? 'DKJ-H-01-02' : '';
+      var linkTag = linkSrc
+        ? ' <span class="qc-link-tag" title="' + esc(LINK_TAG_LABEL[linkSrc]) + '(' + linkSrc + ')에서 가져옵니다">' + esc(LINK_TAG_SHORT[linkSrc]) + ' 연동</span>'
         : '';
       rowsHtml += '<td class="left-txt" style="font-weight:700;">' + (it.isCcp ? '<span style="color:#b71c1c;">[CCP] </span>' : '') + it.label + linkTag + '</td>';
       rowsHtml += '<td class="left-txt" style="font-size:12px;color:#475467;">' + it.std + '</td>';
@@ -1102,7 +1244,7 @@
         writeForm();
         // 저장된 기록은 그 자체가 그날의 증거다. 지금 온도 일보 값으로 덮으면
         // 기록 변조가 되므로 연동을 적용하지 않는다(필요하면 '온도 다시 불러오기').
-        renderTempLinkNotice(null);
+        renderLinkNotice(null);
         setStatus('기록 불러옴', true);
       });
     });
@@ -1299,7 +1441,7 @@
         if ($('lot')) $('lot').value = makeLot(d);
         state.workDate = d;
         // 날짜가 바뀌면 그 날의 온도 일보를 다시 읽는다
-        renderTempLinkNotice(applyTempLink(true));
+        renderLinkNotice(applyAllLinks(true));
         renderMainCheckTable();
         checkDeviations();
         scheduleDraft();
@@ -1310,13 +1452,14 @@
       $('btnTempSync').addEventListener('click', function () {
         if (state.locked) { setStatus('작성완료된 기록은 고칠 수 없습니다.', false); return; }
         readForm();
-        var res = applyTempLink(true);
-        renderTempLinkNotice(res);
+        var res = applyAllLinks(true);
+        renderLinkNotice(res);
         renderMainCheckTable();
         checkDeviations();
         scheduleDraft();
-        setStatus(res.filled ? ('온도 일보에서 ' + res.filled + '칸을 가져왔습니다.')
-          : '가져올 온도 기록이 없습니다.', !!res.filled);
+        var total = res.temp.filled + res.ccp1.filled + res.ccp2.filled;
+        setStatus(total ? ('연동 서식에서 ' + total + '칸을 가져왔습니다.')
+          : '가져올 연동 기록이 없습니다.', !!total);
       });
     }
 
@@ -1488,10 +1631,10 @@
     // 온도 일보이고, 두 서식에 서로 다른 값이 남는 것을 막는 것이 연동의 목적이다.
     // 저장된 기록을 불러올 때는 덮지 않는다(아래 renderHistory 의 불러오기).
     // 임시본을 복원한 경우에는 이미 적어 둔 값을 지우지 않는다(clearMissing=false).
-    var initLink = applyTempLink(!draft);
+    var initLink = applyAllLinks(!draft);
 
     writeForm();
-    renderTempLinkNotice(initLink);
+    renderLinkNotice(initLink);
     bind();
     renderHistory();
 

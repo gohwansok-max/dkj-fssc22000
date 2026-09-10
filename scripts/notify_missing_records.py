@@ -32,6 +32,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.parse
@@ -205,7 +206,15 @@ def day_column_done(recs: list, target_iso: str) -> bool:
     return False
 
 
-def day_row_done(recs: list, day_num: int, day_key: str = 'day') -> bool:
+def parse_year_month(value) -> tuple[int, int] | None:
+    m = re.search(r'(\d{4})\D+(\d{1,2})', str(value or ''))
+    if not m:
+        return None
+    return int(m.group(1)), int(m.group(2))
+
+
+def day_row_done(recs: list, year: int, month: int, day_num: int,
+                  day_key: str = 'day', month_field: str = 'month') -> bool:
     """js/dkj-console.js 의 evaluate() dayRow 분기와 정확히 같은 기준을 쓴다 —
     그 행의 칸 중 **하나라도** 값이 있으면 '오늘 행 입력됨'(done)이다. 예전엔
     '행의 모든 칸이 채워져야 done'으로 더 엄격하게 짰는데, 그게 실제로 오늘
@@ -224,10 +233,18 @@ def day_row_done(recs: list, day_num: int, day_key: str = 'day') -> bool:
 
     화면(dkj-console.js)은 애초에 이런 자동계산 칸까지 다 채우라고 요구하지
     않는다 — 그 행에 뭐라도 적혀 있으면 오늘 쓴 것으로 본다. 알림도 같아야
-    한다. """
+    한다.
+
+    day_key(행 안의 '몇 일'인지)만으로 매칭하면 매달 1~31 같은 번호가 반복되므로,
+    지난달 기록에 오늘과 같은 일(日)의 행이 채워져 있으면 이번 달을 아직 안 썼어도
+    '완료'로 잘못 판정한다(2026-09-10 발견 — 9/10 미작성인데 콘솔이 완료로 표시).
+    그래서 레코드의 점검 월(info.month)이 지금 연·월과 같은 레코드만 본다. """
     for r in recs:
         rows = r.get('rows')
         if not isinstance(rows, list):
+            continue
+        ym = parse_year_month(field_value(r, month_field))
+        if ym != (year, month):
             continue
         for row in rows:
             digits = ''.join(ch for ch in str(row.get(day_key, '')) if ch.isdigit())
@@ -262,7 +279,9 @@ def evaluate_form(form: dict, group_id: str, now: datetime, calendar: dict):
             return {**common, 'done': day_column_done(recs, target_iso)}
         if mode == 'dayRow':
             recs = read_record_list(form['code'])
-            return {**common, 'done': day_row_done(recs, today.day, check.get('dayKey', 'day'))}
+            done = day_row_done(recs, today.year, today.month, today.day,
+                                 check.get('dayKey', 'day'), check.get('monthField', 'month'))
+            return {**common, 'done': done}
         return None  # event 등은 미작성 알림 대상 아님
 
     if group_id == 'weekly':
