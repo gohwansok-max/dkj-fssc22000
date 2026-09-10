@@ -183,6 +183,14 @@
     return x;
   }
   function hasDate(list, value) { return (list || []).indexOf(value) !== -1; }
+  /** '2026-08' 뿐 아니라 '2026 . 08' 처럼 손으로 적힌 옛 형식도 읽는다(js/dkj-ledger-form.js
+   *  의 applyAutoWeekday()와 같은 패턴). 못 읽으면 null — 그 레코드는 어느 달인지 몰라
+   *  day 번호만으로 매칭하면 위험하므로 매칭 대상에서 제외한다. */
+  function yearMonthOf(record, monthField) {
+    var raw = String((record && record.info && record.info[monthField]) || '');
+    var m = raw.match(/(\d{4})\D+(\d{1,2})/);
+    return m ? (Number(m[1]) * 100 + Number(m[2])) : null;
+  }
   function isProductionDay(date) {
     var day = iso(date);
     if (hasDate(operationCalendar.productionDates, day)) return true;
@@ -267,11 +275,17 @@
     }
     if (mode === 'dayRow') {
       var dayKey = form.check.dayKey || 'day';
+      var monthField = form.check.monthField || 'month';
       var dayNum = date.getDate();
+      var targetYm = date.getFullYear() * 100 + (date.getMonth() + 1);
       var rowState = null;
       for (var j = 0; j < recs.length; j++) {
         var rowRecord = recs[j];
         if (!rowRecord || !rowRecord.rows) continue;
+        // day 번호(1~31)는 매달 반복된다 — 이 레코드가 오늘과 같은 달인지부터
+        // 확인해야 한다. 안 그러면 지난달 같은 날짜 행이 채워져 있다는 이유로
+        // 이번 달 미작성을 '완료'로 잘못 판정한다(2026-09-10).
+        if (yearMonthOf(rowRecord, monthField) !== targetYm) continue;
         var row = rowRecord.rows.find(function (item) { return Number(String(item[dayKey] || '').replace(/\D/g, '')) === dayNum; });
         if (!row) continue;
         var values = Object.keys(row).filter(function (key) { return key !== dayKey && key !== 'dow'; });
@@ -282,7 +296,7 @@
       }
       // 입력 중인 임시본은 기록보관함의 확정 기록이 아니다. 따라서 값이
       // 채워져 있어도 완료가 아니라 작성 중으로만 표시한다.
-      if (draft && draft.rows && (!rowState || rowState.state === 'todo')) {
+      if (draft && draft.rows && yearMonthOf(draft, monthField) === targetYm && (!rowState || rowState.state === 'todo')) {
         var draftRow = draft.rows.find(function (item) {
           return Number(String(item[dayKey] || '').replace(/\D/g, '')) === dayNum;
         });
