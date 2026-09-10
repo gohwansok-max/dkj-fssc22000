@@ -149,7 +149,7 @@
     if (!password) { setStatus('초기 비밀번호를 입력하세요.', 'bad'); $('newPassword').focus(); return; }
 
     try {
-      window.DkjAuth.addUser({
+      var result = window.DkjAuth.addUser({
         empId: empId,
         name: name,
         role: role,
@@ -162,9 +162,28 @@
       $('newPassword').value = '';
       renderUsers();
       setStatus('사용자 ' + name + '(' + empId + ') 계정을 성공적으로 등록했습니다! 비밀번호: [' + password + ']', 'ok');
+      // 로컬 저장은 이미 끝났다 — 뒤이어 다른 기기 동기화(클라우드 반영) 결과만
+      // 조용히 확인해서, 실패했을 때만 경고로 바꿔 알린다(성공하면 문구를 안 건드림).
+      warnIfCloudSyncFailed(result && result.cloudSync, name + '(' + empId + ')');
     } catch (e) {
       setStatus('사용자 등록 실패: ' + e.message, 'bad');
     }
+  }
+
+  /** addUser()/saveUser() 가 돌려주는 cloudSync 프로미스가 실패하면(클라우드는
+   *  설정돼 있는데 실제 업로드가 거부된 경우) 상태 문구를 경고로 바꾼다. 클라우드가
+   *  아예 설정 안 돼 있거나 로그인 전이면 cloudSync 는 {sent:false} 로 조용히
+   *  끝나므로(오프라인 사용은 정상 동작) 여기서 아무 것도 안 한다.
+   *  2026-09-09 — 이 확인이 없어서 저장은 로컬에서 항상 "성공"으로 보였지만,
+   *  시스템 관리자(4343) 계정은 업로드가 매번 거부되고 있었는데도 아무도 몰랐다. */
+  function warnIfCloudSyncFailed(cloudSync, who) {
+    if (!cloudSync || typeof cloudSync.then !== 'function') return;
+    cloudSync.then(function (r) {
+      if (r && r.sent === false) return; // 클라우드 미설정 — 오프라인 사용, 정상
+    })['catch'](function () {
+      setStatus('⚠ ' + who + ' 계정을 저장은 했지만 다른 기기 동기화에 실패했습니다. ' +
+        '인터넷 연결을 확인하고 다시 저장해 주세요 — 지금 상태로는 다른 태블릿·휴대폰에 이 변경이 보이지 않습니다.', 'bad');
+    });
   }
 
   function saveRow(tr) {
@@ -187,10 +206,11 @@
       }
       detail += ' · 비밀번호 저장(' + pw + ')';
 
-      window.DkjAuth.saveUser(oldEmpId, updateData);
+      var result = window.DkjAuth.saveUser(oldEmpId, updateData);
       addAudit('사용자 계정 정보 수정', newEmpId, detail);
       renderUsers();
       setStatus('사용자 ' + name + '(' + newEmpId + ') 계정 정보를 저장했습니다. (비밀번호: ' + pw + ')', 'ok');
+      warnIfCloudSyncFailed(result && result.cloudSync, name + '(' + newEmpId + ')');
     } catch (e) {
       setStatus('저장 실패: ' + e.message, 'bad');
     }

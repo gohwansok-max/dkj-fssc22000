@@ -189,6 +189,20 @@ Web Speech API(`SpeechRecognition`/`webkitSpeechRecognition`)를 사용하며 �
 > 실제 비밀번호를 그대로 둔 채 하드코딩만 지우면 새 기기에서 아무 비밀번호나 통과하는
 > 더 나쁜 상태가 됩니다. 순서는 ① 화면에서 비밀번호 변경 → ② 하드코딩 제거입니다.
 >
+> **계정 정보 변경이 다른 기기에 동기화되지 않던 버그 (2026-09-09 발견·수정).**
+> `saveUser()`/`addUser()` 가 RTDB `system/users/$uid` 에 올리는 값에 `uid` 필드가
+> 빠져 있으면 `database.rules.json` 의 `.validate`(`hasChildren(['uid','empId','role'])`
+> `&& newData.child('uid').val() === $uid`)가 그 쓰기 자체를 거부합니다(HTTP 400).
+> `DEFAULT_DIRECTORY` 로 생긴 4343 계정은 `addUser()` 를 거치지 않아 `uid` 가 원래
+> 없었고, 그 상태로 아무리 저장해도 클라우드 업로드가 **매번 조용히 실패**했습니다
+> (`['catch'](function(){})` 가 오류를 그대로 삼켰습니다) — PC 에서 4343 비밀번호를
+> 바꿔도 로컬에만 남고 다른 기기에는 영영 전달되지 않았습니다. 지금은 `saveUser()`
+> 가 `uid` 없는 항목을 만나면 채워 넣고(`'uid-' + 사번`), `addUser()`/`saveUser()`
+> 둘 다 클라우드 업로드 결과를 `{item, cloudSync}` 로 돌려줘 `system-settings.js`
+> 가 실패를 감지해 경고 문구를 띄울 수 있습니다(`warnIfCloudSyncFailed`). **이
+> 수정 이전에 4343 비밀번호를 바꾼 적이 있다면, 그 변경은 클라우드에 올라가지
+> 않았습니다 — 배포 후 한 번 더 저장해야 다른 기기에 실제로 반영됩니다.**
+>
 > 표시이름 — `system-settings.html`에서 관리자가 지정한 이름이 정본입니다(로컬 디렉터리에
 > 저장, RTDB `system/users`로 기기 간 동기화). **JS·HTML·JSON 어디에도 직원 이름을
 > 하드코딩하지 마세요** — 카탈로그 절의 '직원 목록·표시이름의 정본은 하나입니다' 참고.
