@@ -71,6 +71,7 @@ test('saved temperature record is completed and appears in the archive', () => {
     [key]: JSON.stringify([{
       id: 'r-temperature-1',
       formId: 'DKJ-S-02-05',
+      info: { month: '2026년 8월' },
       rows: [temperatureRow(21, '12')],
       locked: true,
       createdAt: '2026-08-21T01:00:00.000Z',
@@ -84,4 +85,22 @@ test('saved temperature record is completed and appears in the archive', () => {
   assert.equal(records.length, 1);
   assert.equal(records[0].formId, 'DKJ-S-02-05');
   assert.equal(records[0].id, 'r-temperature-1');
+});
+
+test('previous-month saved row does not complete the same day in the current month', () => {
+  const key = 'dkj:records:DKJ-S-02-05:list:v1';
+  const localStorage = storage({
+    [key]: JSON.stringify([{
+      id: 'r-temperature-previous-month',
+      formId: 'DKJ-S-02-05',
+      info: { month: '2026년 8월' },
+      rows: [temperatureRow(21, '12')],
+      locked: true,
+      createdAt: '2026-08-21T01:00:00.000Z',
+      updatedAt: '2026-08-21T01:00:00.000Z'
+    }])
+  });
+  const api = loadConsole(localStorage);
+  const form = { code: 'DKJ-S-02-05', check: { mode: 'dayRow', dayKey: 'day' } };
+  assert.equal(api.evaluate(form, new Date(2026, 8, 21)).state, 'todo');
 });
