@@ -28,7 +28,9 @@ TYPE_LABELS = {
     'pdf': 'PDF', 'hwp': 'HWP', 'docx': 'Word', 'pptx': 'PowerPoint',
     'xlsx': 'Excel', 'xls': 'Excel', 'ppt': 'PowerPoint',
 }
-CODE_RE = re.compile(r'(DKJ-(?:[A-Z0-9]+-)+[A-Z0-9]+)', re.I)
+CODE_RE = re.compile(
+    r'\b((?:DKJ|DOC|DT|EDU|FSC|HC|IA|MDR|MR|PP|PRP|REF)(?:-[A-Z0-9]+)+)', re.I
+)
 
 
 def extension(name: str) -> str:
