@@ -89,5 +89,9 @@
   if (search) search.addEventListener('input', render);
   if (typeFilter) typeFilter.addEventListener('change', render);
   renderStats();
+  // 다른 화면(doc-viewer.html 등)에서 문서번호를 미리 채워 넘겨줄 때 쓴다 —
+  // 예: official-documents.html?q=PRP-001
+  var presetQuery = new URLSearchParams(location.search).get('q');
+  if (presetQuery && search) search.value = presetQuery;
   render();
 })();
