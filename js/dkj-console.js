@@ -346,6 +346,15 @@
   var PRIORITY = { normal: 1, high: 2, critical: 3 };
   var LABEL = { todo: '작성 필요', done: '작성 완료', part: '작성 중', ng: '부적합', none: '발생 기록', off: '작성 의무 없음' };
   var PRIORITY_LABEL = { normal: '일반', high: '중요', critical: 'CCP 최우선' };
+  // '오늘 작성할 일지' 목록은 항상 생산일에만 그려지고 daily 서식은 전부
+  // _dailyDuty 이므로, 여기 등장하는 상태는 이 넷뿐이다('event' 모드나
+  // 비생산일에서만 나오는 'none'/'off'는 나타나지 않는다).
+  var STATE_GROUPS = [
+    { state: 'ng', label: LABEL.ng },
+    { state: 'todo', label: LABEL.todo },
+    { state: 'part', label: LABEL.part },
+    { state: 'done', label: LABEL.done }
+  ];
   function best(a, b) { return !a || (b && RANK[b.state] > RANK[a.state]) ? b : a; }
   function priorityValue(form) { return PRIORITY[form.priority] || (form.ccp ? 3 : 1); }
   function stateSort(a, b) {
@@ -503,42 +512,17 @@
       if (!production) {
         todayEl.innerHTML = '<div class="ck-empty ck-empty-prominent">오늘은 <strong>비생산일</strong>입니다. 정기 일지 작성 의무가 없으며, 발생 기록만 필요 시 작성하세요.</div>';
       } else {
-        var incomplete = evals.filter(function (x) { return x.ev.state === 'todo' || x.ev.state === 'part' || x.ev.state === 'ng'; });
-        var complete = evals.filter(function (x) { return x.ev.state === 'done'; });
-
-        var html = incomplete.map(function (x) { return tileHtml(x.f, x.ev); }).join('');
-
-        if (complete.length > 0) {
-          html += '<button class="ck-section-toggle" id="ckToggleCompleted" aria-expanded="false">' +
-            '<span class="ck-section-toggle-icon">▼</span>' +
-            '<span>완료된 일지 ' + complete.length + '개 보기</span>' +
-            '</button>' +
-            '<div class="ck-tiles ck-tiles-completed" id="ckCompletedTiles" aria-hidden="true">' +
-            complete.map(function (x) { return tileHtml(x.f, x.ev); }).join('') +
-            '</div>';
-        }
-
-        todayEl.innerHTML = html;
-
-        // 완료 항목 토글 이벤트
-        var toggleBtn = document.getElementById('ckToggleCompleted');
-        var completedTiles = document.getElementById('ckCompletedTiles');
-        if (toggleBtn && completedTiles) {
-          toggleBtn.addEventListener('click', function () {
-            var isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
-            if (isExpanded) {
-              toggleBtn.setAttribute('aria-expanded', 'false');
-              completedTiles.setAttribute('aria-hidden', 'true');
-              completedTiles.classList.remove('is-visible');
-              toggleBtn.querySelector('span:last-child').textContent = '완료된 일지 ' + complete.length + '개 보기';
-            } else {
-              toggleBtn.setAttribute('aria-expanded', 'true');
-              completedTiles.setAttribute('aria-hidden', 'false');
-              completedTiles.classList.add('is-visible');
-              toggleBtn.querySelector('span:last-child').textContent = '완료된 일지 숨기기';
-            }
-          });
-        }
+        // 숨기지 않고 전부 보여주되, 상태별로 묶어 어디가 작성 필요/작성 중/작성
+        // 완료인지 한눈에 보이게 한다(2026-09-11, '완료된 일지 숨기기' 토글 폐지).
+        todayEl.innerHTML = STATE_GROUPS.map(function (group) {
+          var items = evals.filter(function (x) { return x.ev.state === group.state; });
+          if (!items.length) return '';
+          return '<div class="ck-tile-group-head is-' + group.state + '">' +
+            '<span>' + group.label + '</span>' +
+            '<span class="ck-tile-group-count">' + items.length + '</span>' +
+            '</div>' +
+            items.map(function (x) { return tileHtml(x.f, x.ev); }).join('');
+        }).join('');
       }
     }
     var count = document.getElementById('ckTodayCount');
