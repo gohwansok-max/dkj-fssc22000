@@ -3,12 +3,12 @@ window.DKJ_DRIVE_DOCUMENTS={
   "source": "Google Drive 동김제농협 FSSC22000 V6 운영체계구축 최종본260714",
   "rootFolderId": "1rwH0kGjBAQJ5kPalSPX_I9I2xYkCIE61",
   "counts": {
-    "documents": 268,
-    "withPdfPair": 63,
+    "documents": 269,
+    "withPdfPair": 64,
     "byType": {
       "docx": 48,
       "hwp": 54,
-      "pdf": 66,
+      "pdf": 67,
       "ppt": 1,
       "pptx": 21,
       "xls": 10,
@@ -230,6 +230,10 @@ window.DKJ_DRIVE_DOCUMENTS={
     },
     {
       "name": "PDF 변환본 · HACCP 기준서_동김제농협.pdf",
+      "count": 1
+    },
+    {
+      "name": "PDF 변환본 · PP-00_PRP 체계 인덱스_Rev0_동김제농협_FSSC22000.pdf",
       "count": 1
     },
     {
@@ -1442,7 +1446,14 @@ window.DKJ_DRIVE_DOCUMENTS={
       "size": 55178,
       "viewUrl": "https://drive.google.com/file/d/1jiuZ6eyK1eXSkyvXlr0_I8V0RPcG73VG/view",
       "previewUrl": "https://drive.google.com/file/d/1jiuZ6eyK1eXSkyvXlr0_I8V0RPcG73VG/preview",
-      "downloadUrl": "https://drive.google.com/uc?export=download&id=1jiuZ6eyK1eXSkyvXlr0_I8V0RPcG73VG"
+      "downloadUrl": "https://drive.google.com/uc?export=download&id=1jiuZ6eyK1eXSkyvXlr0_I8V0RPcG73VG",
+      "pdf": {
+        "id": "1hodQLofBscjaU6VNiqRPXt0ugxjrnLKe",
+        "name": "PP-00_PRP 체계 인덱스_Rev0_동김제농협_FSSC22000.pdf",
+        "viewUrl": "https://drive.google.com/file/d/1hodQLofBscjaU6VNiqRPXt0ugxjrnLKe/view",
+        "previewUrl": "https://drive.google.com/file/d/1hodQLofBscjaU6VNiqRPXt0ugxjrnLKe/preview",
+        "downloadUrl": "https://drive.google.com/uc?export=download&id=1hodQLofBscjaU6VNiqRPXt0ugxjrnLKe"
+      }
     },
     {
       "id": "1J2mx9lPPWAY_JUtluV2VJLarazSF2duO",
@@ -4732,6 +4743,22 @@ window.DKJ_DRIVE_DOCUMENTS={
       "viewUrl": "https://drive.google.com/file/d/1jb8u9e5wV7ELPRQXQtwJOTPmy4n2Mpfu/view",
       "previewUrl": "https://drive.google.com/file/d/1jb8u9e5wV7ELPRQXQtwJOTPmy4n2Mpfu/preview",
       "downloadUrl": "https://drive.google.com/uc?export=download&id=1jb8u9e5wV7ELPRQXQtwJOTPmy4n2Mpfu"
+    },
+    {
+      "id": "1hodQLofBscjaU6VNiqRPXt0ugxjrnLKe",
+      "name": "PP-00_PRP 체계 인덱스_Rev0_동김제농협_FSSC22000.pdf",
+      "title": "PP-00_PRP 체계 인덱스_Rev0_동김제농협_FSSC22000",
+      "fileType": "pdf",
+      "fileTypeLabel": "PDF",
+      "mimeType": "application/pdf",
+      "code": "PP-00",
+      "category": "PDF 변환본 · PP-00_PRP 체계 인덱스_Rev0_동김제농협_FSSC22000.pdf",
+      "relativePath": "pdf/PP-00_PRP 체계 인덱스_Rev0_동김제농협_FSSC22000.pdf",
+      "modifiedTime": "2026-09-11T04:08:20.041Z",
+      "size": 244754,
+      "viewUrl": "https://drive.google.com/file/d/1hodQLofBscjaU6VNiqRPXt0ugxjrnLKe/view",
+      "previewUrl": "https://drive.google.com/file/d/1hodQLofBscjaU6VNiqRPXt0ugxjrnLKe/preview",
+      "downloadUrl": "https://drive.google.com/uc?export=download&id=1hodQLofBscjaU6VNiqRPXt0ugxjrnLKe"
     },
     {
       "id": "1B_--Yluqlm2GqXvIJD51Cul49-2QQwKk",
