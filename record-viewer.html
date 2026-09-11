@@ -59,14 +59,15 @@
       }
 
       DkjLinks.loadRecords().then(function (cat) {
-        var rec = cat.records.find(function (r) { return r.id === id; });
+        var rec = cat.records.find(function (r) { return r.code === id; });
         if (!rec) {
           meta.innerHTML = '<h1>양식 없음</h1><p>' + id + '</p>';
           return;
         }
         document.title = rec.code + ' ' + rec.title;
+        var metaLine = [rec.rev, rec.period].filter(Boolean).join(' · ');
         meta.innerHTML = '<h1><span class="doc-code">' + rec.code + '</span> ' + rec.title + '</h1>' +
-          '<p>' + rec.rev + ' · ' + rec.frequency + ' · ' + rec.fileType.toUpperCase() + '</p>';
+          (metaLine ? '<p>' + metaLine + '</p>' : '');
 
         return Promise.all([
           DkjLinks.proceduresForRecord(id),
@@ -84,21 +85,17 @@
           body.innerHTML =
             '<section class="viewer-panel"><h2>연결 절차서</h2><div class="link-chip-row">' + procLinks + '</div></section>' +
             (sops.length ? '<section class="viewer-panel"><h2>연결 SOP</h2><div class="link-chip-row">' + sopLinks + '</div></section>' : '') +
-            (rec.htmlReady
-              ? '<section class="viewer-panel" style="background:var(--st-done-bg);border-color:var(--st-done-line);">' +
-                '<h2>태블릿 작성 (HTML)</h2>' +
-                '<p style="margin:0 0 12px;line-height:1.6;">이 양식은 <strong>HTML 기록</strong>으로 작성할 수 있습니다.</p>' +
-                '<a class="pill-btn green" href="' + rec.htmlPath + '">지금 작성하기 →</a>' +
-                '</section>'
-              : '<section class="viewer-panel"><h2>작성 안내</h2>' +
-              '<p style="line-height:1.7;color:var(--ink-2);">현재 <strong>xlsx</strong> 양식(Rev1 초보자 O/X)으로 운영 중입니다. HTML 전환 예정.</p>' +
-              '<div class="viewer-notice" style="margin-top:12px;">정본: FSSC 기록양식(Form)</div></section>') +
+            '<section class="viewer-panel" style="background:var(--st-done-bg);border-color:var(--st-done-line);">' +
+              '<h2>태블릿 작성 (HTML)</h2>' +
+              '<p style="margin:0 0 12px;line-height:1.6;">이 양식은 <strong>HTML 기록</strong>으로 작성할 수 있습니다.</p>' +
+              '<a class="pill-btn green" href="' + rec.file + '">지금 작성하기 →</a>' +
+              '</section>' +
             '<section class="viewer-panel"><h2>같은 절차서의 다른 양식</h2><div id="siblingForms">…</div></section>';
 
           if (procs[0]) {
             DkjLinks.recordsForProcedure(procs[0].id).then(function (siblings) {
-              var chips = siblings.filter(function (s) { return s.id !== id; }).map(function (s) {
-                return '<a class="link-chip" href="record-viewer.html?id=' + encodeURIComponent(s.id) + '">' + s.code + '</a>';
+              var chips = siblings.filter(function (s) { return s.code !== id; }).map(function (s) {
+                return '<a class="link-chip" href="record-viewer.html?id=' + encodeURIComponent(s.code) + '">' + s.code + '</a>';
               }).join('') || '<span class="doc-tag">없음</span>';
               document.getElementById('siblingForms').innerHTML = chips;
             });

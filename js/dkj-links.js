@@ -188,7 +188,7 @@
 
   function proceduresForRecord(recordId) {
     return Promise.all([loadRecords(), loadDocs()]).then(function (res) {
-      var rec = (res[0].records || []).find(function (r) { return r.id === recordId; });
+      var rec = (res[0].records || []).find(function (r) { return r.code === recordId; });
       if (!rec) return [];
       var ids = rec.relatedProcedures || [];
       return (res[1].documents || []).filter(function (d) { return ids.indexOf(d.id) !== -1; });
@@ -197,7 +197,7 @@
 
   function sopsForRecord(recordId) {
     return Promise.all([loadRecords(), loadDocs()]).then(function (res) {
-      var rec = (res[0].records || []).find(function (r) { return r.id === recordId; });
+      var rec = (res[0].records || []).find(function (r) { return r.code === recordId; });
       if (!rec || !rec.relatedSops) return [];
       return (res[1].documents || []).filter(function (d) {
         return (rec.relatedSops || []).indexOf(d.id) !== -1;
