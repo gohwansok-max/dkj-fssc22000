@@ -38,7 +38,7 @@
     var head = document.getElementById('categoryHead');
     if (!head) return;
     if (activeCategory === 'all') {
-      head.innerHTML = '<h2>📋 기록양식 FR (Rev1 초보자 O/X)</h2><p style="margin:6px 0 0;color:#666;font-size:14px;">절차서·SOP와 연결된 현장 작성 양식 — HTML 전환 예정</p>';
+      head.innerHTML = '<h2>📋 기록양식 FR</h2><p style="margin:6px 0 0;color:#666;font-size:14px;">절차서·SOP와 연결된 현장 작성 양식</p>';
       return;
     }
     var cat = catalog.categories.find(function (c) { return c.id === activeCategory; });
@@ -57,9 +57,9 @@
     var codes = categoryCodes();
     return catalog.records.filter(function (rec) {
       if (codes && codes.indexOf(rec.code) === -1) return false;
-      if (freqFilter !== 'all' && rec.frequency !== freqFilter) return false;
+      if (freqFilter !== 'all' && (rec.period || '').indexOf(freqFilter) !== 0) return false;
       if (!searchQuery) return true;
-      var hay = [rec.code, rec.title, (rec.relatedProcedures || []).join(' ')].join(' ').toLowerCase();
+      var hay = [rec.code, rec.title, rec.summary || ''].join(' ').toLowerCase();
       return hay.indexOf(searchQuery) !== -1;
     });
   }
@@ -75,23 +75,15 @@
     }
 
     listEl.innerHTML = items.map(function (rec) {
-      var procs = (rec.relatedProcedures || []).map(function (p) {
-        return '<a class="link-chip sm" href="doc-viewer.html?id=' + encodeURIComponent(p) + '">' + p + '</a>';
-      }).join('');
-      var htmlBadge = rec.htmlReady
-        ? '<span class="badge done">HTML</span>'
-        : '<span class="badge wip">xlsx</span>';
-      var writeBtn = rec.htmlReady
-        ? '<a class="pill-btn green" href="' + rec.htmlPath + '">작성</a>'
-        : '<a class="pill-btn green" href="record-viewer.html?id=' + encodeURIComponent(rec.id) + '">상세</a>';
+      var rev = rec.rev ? ' <span class="doc-rev">' + rec.rev + '</span>' : '';
 
       return '<article class="doc-row">' +
         '<div class="doc-row-main">' +
-          '<h3><span class="doc-code">' + rec.code + '</span> ' + rec.title +
-          ' <span class="doc-rev">' + rec.rev + '</span></h3>' +
-          '<div class="doc-tags"><span class="doc-tag">' + rec.frequency + '</span>' + procs + '</div>' +
+          '<h3><span class="doc-code">' + rec.code + '</span> ' + rec.title + rev + '</h3>' +
+          '<div class="doc-tags"><span class="doc-tag">' + (rec.period || '') + '</span></div>' +
         '</div>' +
-        '<div class="doc-actions">' + htmlBadge + writeBtn +
+        '<div class="doc-actions"><span class="badge done">HTML</span>' +
+          '<a class="pill-btn green" href="' + rec.file + '">작성</a>' +
         '</div>' +
       '</article>';
     }).join('');

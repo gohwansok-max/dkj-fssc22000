@@ -154,6 +154,7 @@
           var pdf = res[0];
           var driveDoc = res[1];
           var panel = document.getElementById('pdfPanel');
+          var btnPrint = document.getElementById('btnPrintPdf');
           var pdfDownload = pdf ?
             '<a class="pill-btn ghost" href="' + pdf + '" download="' + doc.code + '_' + doc.title + '.pdf" target="_blank" rel="noopener">PDF 다운로드</a> ' : '';
           var sourceDownload = driveDoc && driveDoc.downloadUrl ?
@@ -197,7 +198,7 @@
             panel.innerHTML =
               '<div class="viewer-notice">' +
               '📄 연결된 PDF 또는 Drive 원본이 없습니다. 정본 열람실에서 전체 문서를 검색하거나 문서관리 담당자에게 확인하세요.<br><br>' +
-              '<a class="pill-btn green" href="official-documents.html">정본 문서 열람실 열기</a>' +
+              '<a class="pill-btn green" href="official-documents.html?q=' + encodeURIComponent(doc.code || '') + '">정본 문서 열람실에서 "' + doc.code + '" 찾아보기</a>' +
               '</div>';
             if (btnPrint) btnPrint.hidden = true;
           }

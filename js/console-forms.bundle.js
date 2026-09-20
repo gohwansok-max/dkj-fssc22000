@@ -126,6 +126,15 @@ window.DKJ_CONSOLE_FORMS={
             "mode": "perDay",
             "dateField": "docDate"
           }
+        },
+        {
+          "code": "DKJ-S-02-06",
+          "title": "환기·급배기 점검",
+          "priority": "normal",
+          "href": "records/DKJ-S-02-06.html",
+          "check": {
+            "mode": "dayColumn"
+          }
         }
       ]
     },

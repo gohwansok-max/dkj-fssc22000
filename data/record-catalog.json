@@ -409,9 +409,9 @@
       "id": "DKJ-S-02-06",
       "code": "DKJ-S-02-06",
       "title": "환기 및 급·배기시설점검표",
-      "rev": "Rev0",
+      "rev": "Rev1",
       "fileType": "html",
-      "frequency": "월간",
+      "frequency": "매일",
       "relatedProcedures": [
         "PRP-001"
       ],
