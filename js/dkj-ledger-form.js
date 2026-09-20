@@ -579,7 +579,9 @@
       });
       renderGrid();
       scheduleDraft();
-      setStatus('냉장창고 적/부 전체 ' + value + ' 입력됨', false);
+      // bulkChoiceLabel — 서식마다 문구가 다르다(예: DKJ-S-02-05 "냉장창고 적/부 전체",
+      // DKJ-S-02-04 "점검결과 전체"). 지정 안 하면 그냥 "전체"로 표시한다.
+      setStatus((spec.bulkChoiceLabel || '전체') + ' ' + value + ' 입력됨', false);
     }
 
     function validate() {
@@ -702,8 +704,12 @@
         renderGrid();
         scheduleDraft();
       });
-      if ($('btnBulkOk')) $('btnBulkOk').addEventListener('click', function () { applyBulkChoice('적'); });
-      if ($('btnBulkNg')) $('btnBulkNg').addEventListener('click', function () { applyBulkChoice('부'); });
+      // bulkChoiceValues — 지정 안 하면 기존 냉장창고 온도(DKJ-S-02-05) 그대로 '적'/'부'.
+      // O/X 판정 서식(예: DKJ-S-02-04)은 spec에서 ['O'] 처럼 하나만 줄 수 있다(btnBulkNg는
+      // 그 서식 HTML에 아예 없으면 자동으로 안 붙는다).
+      var bulkValues = spec.bulkChoiceValues || ['적', '부'];
+      if ($('btnBulkOk')) $('btnBulkOk').addEventListener('click', function () { applyBulkChoice(bulkValues[0]); });
+      if ($('btnBulkNg') && bulkValues[1]) $('btnBulkNg').addEventListener('click', function () { applyBulkChoice(bulkValues[1]); });
       if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
       if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
       if ($('btnNew')) $('btnNew').addEventListener('click', function () {

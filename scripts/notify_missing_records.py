@@ -14,12 +14,14 @@ draft(임시저장)는 이 기기 로컬에만 있고 클라우드에 없으므�
 "저장됨/안 됨"만 본다(작성 중 상태는 없음) — 알림 목적에는 오히려 더 정확하다.
 
 감시 대상은 console-forms.json의 daily/weekly 그룹뿐이다. daily 그룹은 check.mode가
-무엇이든(perDay/dayColumn/dayRow) 오늘 15시를 마감으로 본다(퇴근 16시 전 마지막
-확인 기회). weekly 그룹은 perPeriod(주/월)만 다룬다 — dayColumn/dayRow가 "주 1회를
-어느 요일에나 채우면 되는지" 같은
-실제 운영 의도가 코드만 봐서는 불명확해서, 잘못 판정해 헛알림을 보내는 것보다
-아예 건너뛰는 쪽을 택했다(대상: DKJ-S-02-13 저수조 관리, DKJ-S-02-09 세척소독제
-관리 — 실제 운영 주기를 확인하면 추가할 것).
+무엇이든(perDay/dayColumn/dayRow/monthRows) 오늘 15시를 마감으로 본다(퇴근 16시
+전 마지막 확인 기회). weekly 그룹은 perPeriod(주/월)만 다룬다 — dayColumn/dayRow는
+운영 주기가 분명해도(예: DKJ-S-02-13 저수조 관리 = 매주 금요일 점검·월 단위 결재)
+일부러 건너뛴다. 이런 서식은 한 주·한 달 동안 나눠 쓰다가 마지막에 한 번에
+결재하는 방식이라, 결재 전까지는 "진행 중"이 정상 상태다 — 매일 마감을 재촉하는
+이 알림(퇴근 전 마지막 확인)의 취지와 맞지 않는다(2026-09-18, 사용자 요청). 화면
+(js/dkj-console.js)의 "이번 주/달 진행 중" 배지로 충분히 안내되므로 텔레그램
+재촉 알림은 보내지 않는다. 자세한 배경은 docs/MISSING_RECORD_ALERT.md 4절 참고.
 
 알림 상태(오늘 몇 번째 알림을 보냈는지)는 records/<고정키> 에 저장한다. 이건
 dkj-console.js의 공유 운영달력(records/ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE)과
@@ -286,7 +288,7 @@ def evaluate_form(form: dict, group_id: str, now: datetime, calendar: dict):
 
     if group_id == 'weekly':
         if mode != 'perPeriod':
-            return None  # dayColumn/dayRow는 실제 운영 주기가 불명확해 이번엔 건너뜀
+            return None  # dayColumn/dayRow는 주/월 단위로 모아 쓰다 한 번에 결재하는 서식이라 매일 재촉하지 않음
         period = check.get('period', 'week')
         date_field = check.get('dateField', 'checkDate')
         if period == 'month':

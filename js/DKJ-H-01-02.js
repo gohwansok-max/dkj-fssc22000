@@ -11,7 +11,34 @@
   var draftTimer = null;
 
   function emptyRow() {
-    return { time: '', fe: '', sus: '', prodOnly: '', prodFe: '', prodSus: '', judge: '' };
+    return { item: '', time: '', fe: '', sus: '', prodOnly: '', prodFe: '', prodSus: '', judge: '' };
+  }
+
+  /* 품목 칸의 특수값 3종 — 실제 제품이 아니라 '점검 시점'을 나타낸다(인쇄물 참고).
+     이 값이거나 그 외(실제 제품명)인지로 검출확인 범례 기본값을 다르게 채운다. */
+  var ITEM_TIMEPOINTS = ['작업시작전', '작업전', '작업종료시'];
+
+  /* 품목 선택에 따라 검출확인 O/X 기본값을 채운다 — 표준시편(Fe/SUS)은 항상 검출(O)
+     이어야 하고, 실제 제품이 지나갈 때만 제품만/제품+시편 칸이 의미가 있다(2026-09-18
+     현장 요청). 이미 값이 있어도 품목을 바꾸면 그 품목의 기본값으로 다시 맞춘다 —
+     필요하면 그 다음에 사용자가 직접 O/X 셀렉트로 고칠 수 있다. */
+  function applyItemDefaults(row) {
+    var v = (row.item || '').trim();
+    if (!v) return;
+    if (ITEM_TIMEPOINTS.indexOf(v) !== -1) {
+      row.fe = 'O'; row.sus = 'O'; row.prodOnly = ''; row.prodFe = ''; row.prodSus = '';
+    } else {
+      row.fe = 'O'; row.sus = 'O'; row.prodOnly = 'X'; row.prodFe = 'O'; row.prodSus = 'O';
+    }
+  }
+
+  /* 품목 칸의 자동완성 목록 — 작업시작전/작업전/작업종료시 + 품목 마스터. datalist라
+     드롭다운처럼 고르거나 목록에 없는 이름도 그대로 입력할 수 있다. */
+  function renderItemOptions() {
+    var dl = $('ccpItemOptions');
+    if (!dl) return;
+    var opts = ITEM_TIMEPOINTS.concat(PRODUCT_OPTIONS);
+    dl.innerHTML = opts.map(function (name) { return '<option value="' + esc(name) + '"></option>'; }).join('');
   }
 
   /* 작업일자 → LOT 자동생성: "2026-09-11" → "20260911-1" (하이픈 제거 + "-1" 접미) */
@@ -108,10 +135,10 @@
     body.innerHTML = state.packagings.map(function (row, i) {
       return '<tr data-p="' + i + '">' +
         '<td>' + (i + 1) + '</td>' +
-        '<td><input type="text" class="mon-in pack-in" data-pf="lot" value="' +
-        esc(row.lot) + '" placeholder="포장재 입고 LOT"></td>' +
-        '<td><input type="text" class="mon-in pack-in" data-pf="usage" value="' +
-        esc(row.usage) + '" placeholder="예: 200 EA / 5 kg"></td>' +
+        '<td><input type="date" class="mon-in pack-in" data-pf="lot" value="' +
+        esc(row.lot) + '"></td>' +
+        '<td><div class="mon-unit-wrap"><input type="number" class="mon-in pack-in" data-pf="usage" min="0" step="1" value="' +
+        esc(row.usage) + '" placeholder="예: 200"><span class="mon-unit">EA</span></div></td>' +
         '<td><input type="number" class="mon-in pack-in" data-pf="defect" min="0" step="1" value="' +
         esc(row.defect) + '" placeholder="0"></td>' +
         '</tr>';
@@ -297,6 +324,7 @@
     body.innerHTML = state.rows.map(function (row, i) {
       evaluateRow(row);
       return '<tr data-i="' + i + '">' +
+        '<td><input type="text" class="mon-in" data-f="item" list="ccpItemOptions" value="' + esc(row.item || '') + '" placeholder="작업시작전 / 제품명 / 작업종료시"></td>' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
         '<td>' + oxSelect(row.fe, 'fe') + '</td>' +
         '<td>' + oxSelect(row.sus, 'sus') + '</td>' +
@@ -331,6 +359,15 @@
     var i = Number(tr.getAttribute('data-i'));
     var f = e.target.getAttribute('data-f');
     state.rows[i][f] = e.target.value;
+    // 품목은 자유 입력 칸이라, 글자 하나 칠 때마다(input) 표 전체를 다시 그리면
+    // 포커스가 끊겨 타이핑이 안 된다. 입력 중엔 저장만 해 두고, 선택을 확정한
+    // 순간(change: blur 또는 datalist 항목 클릭)에만 검출확인 기본값을 채우고
+    // 다시 그린다.
+    if (f === 'item' && e.type === 'input') {
+      scheduleDraft();
+      return;
+    }
+    if (f === 'item') applyItemDefaults(state.rows[i]);
     renderRows();
     scheduleDraft();
   }
@@ -376,6 +413,7 @@
     $('workDate').value = state.workDate || today();
     $('equipment').value = state.equipment || 'MD-01';
     syncProductUi();
+    renderItemOptions();
     $('lot').value = state.lot || dateToLot(state.workDate || today());
     $('feSize').value = state.feSize || '2.0';
     $('susSize').value = state.susSize || '3.0';

@@ -70,13 +70,19 @@
       });
     }
 
+    var TIMEPOINT_LABELS = ['작업시작전', '작업전', '작업종료시'];
     var monBody = rows.map(function (r, i) {
-      var label = '';
-      if (i === 0) label = '작업시작 전';
-      else if (i === rows.length - 1) label = '작업종료 시';
-      var nameCell = label
-        ? '<td class="c strong">' + label + '</td>'
-        : '<td class="l">' + esc(i === 1 ? prod : (r.productName || '')) + '</td>';
+      // 품목 칸(2026-09-18 추가) — 화면에서 고른 값을 그대로 쓴다. 그 필드가 없는
+      // 옛 기록은 자리(맨 앞=시작 전, 맨 뒤=종료 시)로 대체 표시한다.
+      var item = (r.item || '').trim();
+      if (!item) {
+        if (i === 0) item = '작업시작전';
+        else if (i === rows.length - 1) item = '작업종료시';
+        else item = i === 1 ? prod : (r.productName || '');
+      }
+      var nameCell = TIMEPOINT_LABELS.indexOf(item) !== -1
+        ? '<td class="c strong">' + esc(item) + '</td>'
+        : '<td class="l">' + esc(item) + '</td>';
       return (
         '<tr>' + nameCell +
         '<td class="c">' + esc(r.time || '') + '</td>' +
@@ -150,7 +156,7 @@
       var pr = packRows[pi] || {};
       packagingTable += '<tr><td class="c">' + (pi + 1) + '</td>' +
         '<td class="l">' + esc(pr.lot || '') + '</td>' +
-        '<td class="c">' + esc(pr.usage || '') + '</td>' +
+        '<td class="c">' + esc(pr.usage ? (pr.usage + ' EA') : '') + '</td>' +
         '<td class="c">' + esc(pr.defect || '') + '</td></tr>';
     }
     packagingTable += '</table>';
