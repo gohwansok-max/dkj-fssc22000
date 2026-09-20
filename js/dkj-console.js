@@ -182,6 +182,19 @@
     x.setHours(0, 0, 0, 0);
     return x;
   }
+  /** 해당 날짜가 속한 "주"의 시작일 — js/dkj-matrix-form.js 의 weekStartOf()와 동일한
+   *  계산이다. startDow(0=일~6=토, 기본 월요일)가 다른 서식(예: 매주 금요일 점검인
+   *  저수조관리 DKJ-S-02-13)의 주차 컬럼을 오늘 날짜로 찾아내는 데 쓴다. */
+  function weekStartOfDow(d, startDow) {
+    var sdw = (typeof startDow === 'number' && startDow >= 0 && startDow <= 6) ? startDow : 1;
+    var x = new Date(d.getTime());
+    var dow = x.getDay();
+    var diff = dow - sdw;
+    if (diff < 0) diff += 7;
+    x.setDate(x.getDate() - diff);
+    x.setHours(0, 0, 0, 0);
+    return x;
+  }
   function hasDate(list, value) { return (list || []).indexOf(value) !== -1; }
   /** '2026-08' 뿐 아니라 '2026 . 08' 처럼 손으로 적힌 옛 형식도 읽는다(js/dkj-ledger-form.js
    *  의 applyAutoWeekday()와 같은 패턴). 못 읽으면 null — 그 레코드는 어느 달인지 몰라
@@ -239,12 +252,22 @@
       return exists ? { state: 'done', note: unit + ' 작성 완료' } : { state: 'todo', note: unit + ' 미작성' };
     }
     if (mode === 'dayColumn') {
+      // dayMode:'week' — 시트는 월 단위지만 컬럼이 요일(오늘)이 아니라 주차다(예:
+      // 저수조관리 DKJ-S-02-13, 매주 금요일 점검). 컬럼 날짜가 "오늘"과 정확히
+      // 같아야만 찾는 기존 방식으로는, 점검 요일이 아닌 날에는 이번 주에 이미
+      // 점검을 마쳤어도 컬럼을 못 찾아 매일 '미작성'으로 잘못 뜬다(2026-09-18
+      // 현장 문의로 발견). 이번 주가 속한 "주 시작일" 컬럼을 찾도록 바꾼다.
+      var weekMode = form.check.dayMode === 'week';
+      target = weekMode ? iso(weekStartOfDow(date, form.check.weekStartDay)) : target;
+      var unitLabel = weekMode ? '이번 주' : '오늘';
       var bestState = null;
+      var matchedRec = null;
       for (var i = 0; i < recs.length; i++) {
         var colRecord = recs[i];
         if (!colRecord || !colRecord.days || !colRecord.checks) continue;
         var idx = colRecord.days.indexOf(target);
         if (idx < 0) continue;
+        matchedRec = colRecord;
         var keys = Object.keys(colRecord.checks);
         if (!keys.length) continue;
         var filled = 0;
@@ -254,9 +277,9 @@
           if (value) filled++;
           if (value === 'X') ng = true;
         });
-        var current = !filled ? { state: 'todo', note: '오늘 열 미입력' } :
-          filled < keys.length ? { state: 'part', note: '오늘 ' + filled + '/' + keys.length + ' 입력' } :
-          ng ? { state: 'ng', note: '기준 이탈 있음' } : { state: 'done', note: '오늘 열 완료' };
+        var current = !filled ? { state: 'todo', note: unitLabel + ' 열 미입력' } :
+          filled < keys.length ? { state: 'part', note: unitLabel + ' ' + filled + '/' + keys.length + ' 입력' } :
+          ng ? { state: 'ng', note: '기준 이탈 있음' } : { state: 'done', note: unitLabel + ' 열 완료' };
         bestState = best(bestState, current);
       }
       // 임시본은 보관함에 아직 없는 기록이므로 완료로 집계하지 않는다.
@@ -271,7 +294,26 @@
           if (draftFilled) return { state: 'part', note: '작성 중' };
         }
       }
-      return bestState || { state: 'todo', note: '이번 시트 없음' };
+      if (!bestState) return { state: 'todo', note: '이번 시트 없음' };
+      // weekMode — 주 1회 점검이지만 결재는 그 달 시트 전체(모든 주)가 끝나야
+      // 한 번에 난다. 이번 주 칸만 채워졌다고 바로 '완료'로 숨기면, 아직 결재
+      // 전인데도 목록에서 사라져 다음 주까지 못 챙기게 된다. 이번 달 나머지
+      // 주차가 다 채워지기 전까지는 '작성 중'으로 남긴다(js/dkj-console.js의
+      // monthRows 와 같은 패턴).
+      if (weekMode && bestState.state === 'done' && matchedRec) {
+        var totalWeeks = matchedRec.days.length;
+        var weekKeys = Object.keys(matchedRec.checks);
+        var filledWeeks = matchedRec.days.filter(function (_, wi) {
+          return weekKeys.length && weekKeys.every(function (key) {
+            return String((matchedRec.checks[key] || [])[wi] || '').trim();
+          });
+        }).length;
+        if (filledWeeks < totalWeeks) {
+          return { state: 'part', note: '이번 주 완료 · 이번 달 ' + filledWeeks + '/' + totalWeeks + '주 완료' };
+        }
+        return { state: 'done', note: '이번 달 전체(' + totalWeeks + '주) 입력 완료' };
+      }
+      return bestState;
     }
     if (mode === 'dayRow' || mode === 'monthRows') {
       var dayKey = form.check.dayKey || 'day';

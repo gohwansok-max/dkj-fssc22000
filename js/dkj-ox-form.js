@@ -45,6 +45,55 @@
   }
   function saveRegistry(key, list) {
     try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) {}
+    pushRegistryRemote(key, list);
+  }
+
+  /* 레지스트리(차량번호 등)는 dkj-cloud-sync.js 가 감시하는 'dkj:records:*:list:v1'
+   * 패턴이 아니라서 원래 이 기기 localStorage 에만 남았다 — 태블릿에서 등록한
+   * 차량번호가 PC에는 안 보이는 원인이었다(2026-09-18 현장 지적). 운영달력
+   * (js/dkj-console.js 의 remoteCalendarPath/saveCalendarRemote)과 같은 패턴으로,
+   * 이미 인증 없이 열려 있는 records/$key 경로(database.rules.json)에 배열째로
+   * 얹어 둔다 — 규칙 변경이나 재게시가 필요 없다.
+   * 삭제는 "목록 관리"에서 편집한 배열을 그대로 덮어써 반영하지만, 다른 기기가
+   * 아직 그 삭제를 못 받은 채로 자기 로컬 값과 합치면(pullAndMergeRegistries) 지운
+   * 항목이 되살아날 수 있다 — 차량번호가 계속 쌓이는 걸 감수하고 한 번씩 정리하는
+   * 쪽을 택했다(사용자 요청: "목록이 많아지면 정리하면 된다").
+   */
+  function registryCloudPath(key) {
+    var enc = (global.DkjCloudSync && global.DkjCloudSync.nodeKey) ? global.DkjCloudSync.nodeKey(key) : key;
+    return 'records/' + enc;
+  }
+  function pushRegistryRemote(key, list) {
+    var auth = global.DkjAuth;
+    if (!auth || !auth.configured || !auth.configured() || !auth.token || !auth.token() || !auth.request) return;
+    var who = (auth.user && auth.user()) || {};
+    auth.request(registryCloudPath(key), 'PUT', {
+      value: list,
+      updatedAt: Date.now(),
+      updatedBy: String(who.name || who.empId || '')
+    }).catch(function () {});
+  }
+  function pullRegistryRemote(key) {
+    var auth = global.DkjAuth;
+    if (!auth || !auth.configured || !auth.configured() || !auth.token || !auth.token() || !auth.request) return Promise.resolve(null);
+    return auth.request(registryCloudPath(key), 'GET').then(function (raw) {
+      return (raw && Array.isArray(raw.value)) ? raw.value : null;
+    }).catch(function () { return null; });
+  }
+  /** 이 기기 목록과 클라우드 목록을 합쳐(중복 제거·가나다 정렬) 로컬에 저장하고,
+   *  합친 결과가 클라우드와 다르면(이 기기에만 있던 항목이 있으면) 다시 올린다. */
+  function mergeRegistryWithRemote(key) {
+    return pullRegistryRemote(key).then(function (remote) {
+      if (!remote) return null;
+      var local = loadRegistry(key);
+      var merged = local.slice();
+      remote.forEach(function (v) { if (merged.indexOf(v) === -1) merged.push(v); });
+      merged.sort(function (a, b) { return String(a).localeCompare(String(b), 'ko'); });
+      var changedLocally = JSON.stringify(merged) !== JSON.stringify(local);
+      if (changedLocally) { try { localStorage.setItem(key, JSON.stringify(merged)); } catch (e) {} }
+      if (JSON.stringify(merged) !== JSON.stringify(remote)) pushRegistryRemote(key, merged);
+      return changedLocally ? merged : null;
+    });
   }
 
   function emptyState(spec) {
@@ -510,6 +559,26 @@
         });
         if (opened) setStatus('기록 불러옴', true);
       }
+      syncRegistries();
+    }
+
+    /** 차량번호 등 등록형 목록을 다른 기기와 합친다. 로그인이 아직 안 됐으면
+     *  dkj:auth-ready 를 한 번 기다렸다가 다시 시도한다(auth.js 참고). */
+    function syncRegistries() {
+      if (!REGISTRABLE.length) return;
+      var auth = global.DkjAuth;
+      if (!auth || !auth.token || !auth.token()) {
+        document.addEventListener('dkj:auth-ready', function onReady() {
+          document.removeEventListener('dkj:auth-ready', onReady);
+          syncRegistries();
+        });
+        return;
+      }
+      REGISTRABLE.forEach(function (field) {
+        mergeRegistryWithRemote(registryKeyFor(spec, field)).then(function (merged) {
+          if (merged) renderRegistryOptions(field);
+        });
+      });
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

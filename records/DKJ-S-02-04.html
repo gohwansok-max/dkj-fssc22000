@@ -44,7 +44,11 @@
     </section>
     <section class="dkj-panel">
       <h2>② 기록 <span style="font-weight:500;color:#888;font-size:12px;">(건별로 행을 추가하세요)</span></h2>
-      <div class="mxf-toolbar"><div></div>
+      <div class="mxf-toolbar">
+        <div class="mxf-quick" aria-label="점검결과 일괄 입력">
+          <span>점검결과</span>
+          <button type="button" class="pill-btn green" id="btnBulkOk">전체 O</button>
+        </div>
         <div class="mxf-quick"><button type="button" class="pill-btn ghost" id="btnAddRow">　</button></div>
       </div>
       <div class="mxf-scroll" id="ledgerGrid"></div>
