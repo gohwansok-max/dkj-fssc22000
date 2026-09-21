@@ -89,7 +89,12 @@
     {
       "id": "action",
       "label": "조치내용",
-      "placeholder": ""
+      "placeholder": "",
+      "presets": [
+        "관련 절차서 개정",
+        "담당자 교육 실시",
+        "다음 경영검토 시 재검토"
+      ]
     },
     {
       "id": "result",

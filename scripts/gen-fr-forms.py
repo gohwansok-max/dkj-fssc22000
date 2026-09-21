@@ -68,8 +68,10 @@ def f(id_, label, type_="text", **kw):
     return d
 
 
-def sec(id_, label, placeholder=""):
-    return {"id": id_, "label": label, "placeholder": placeholder}
+def sec(id_, label, placeholder="", **kw):
+    d = {"id": id_, "label": label, "placeholder": placeholder}
+    d.update(kw)
+    return d
 
 
 def item(key, label, group="항목", hint=""):
@@ -485,7 +487,10 @@ SPECS: list[dict] = [
             f("dueDate", "기한", "date"),
             f("status", "상태", "select", options=["진행", "완료"], default="진행"),
         ],
-        sections=[sec("action", "조치내용"), sec("result", "완료확인")],
+        sections=[
+            sec("action", "조치내용", presets=["관련 절차서 개정", "담당자 교육 실시", "다음 경영검토 시 재검토"]),
+            sec("result", "완료확인"),
+        ],
         titleKey="subject",
     ),
     # --- 계측 ---
@@ -904,8 +909,18 @@ def render_html(spec: dict) -> str:
     if spec.get("sections"):
         sec_fields = ""
         for s in spec["sections"]:
+            # presets — 자주 쓰는 문구를 버튼으로 눌러 채운다(그 뒤로도 자유롭게 고쳐 쓸 수 있다).
+            presets_html = ""
+            if s.get("presets"):
+                preset_btns = "".join(
+                    f'<button type="button" class="pill-btn ghost sm rpf-preset-btn" '
+                    f'data-preset-for="{s["id"]}" data-preset-text="{esc(p)}">{esc(p)}</button>'
+                    for p in s["presets"]
+                )
+                presets_html = f'<div class="rpf-presets">{preset_btns}</div>'
             sec_fields += (
                 f'<div class="dkj-field full"><label for="{s["id"]}">{esc(s["label"])}</label>'
+                f'{presets_html}'
                 f'<textarea id="{s["id"]}" placeholder="{esc(s.get("placeholder", ""))}"></textarea></div>'
             )
         sections_html += f"""

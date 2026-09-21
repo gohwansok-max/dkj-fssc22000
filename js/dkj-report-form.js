@@ -120,7 +120,14 @@
           }).join('') + '</div></div>';
       }
       if (b.type === 'text') {
-        return '<div class="rpf-block"><h3>' + esc(b.label) + '</h3>' +
+        // presets — 자주 쓰는 문구를 버튼으로 눌러 채운다(자유입력은 그대로 가능).
+        var presetsHtml = (b.presets && b.presets.length)
+          ? '<div class="rpf-presets">' + b.presets.map(function (p) {
+              return '<button type="button" class="pill-btn ghost sm rpf-preset-btn" data-preset-for="' +
+                b.id + '" data-preset-text="' + esc(p) + '">' + esc(p) + '</button>';
+            }).join('') + '</div>'
+          : '';
+        return '<div class="rpf-block"><h3>' + esc(b.label) + '</h3>' + presetsHtml +
           '<textarea data-v="' + b.id + '" rows="' + (b.uiRows || 5) + '" placeholder="' +
           esc(b.placeholder || '') + '">' + esc(state.values[b.id] || '') + '</textarea></div>';
       }
@@ -138,8 +145,16 @@
             '<td class="lgf-act"><button type="button" class="lgf-del" data-trm="' + b.id +
             '" data-ri="' + ri + '">삭제</button></td></tr>';
         }).join('');
+        // quickFill — 표 열 하나를 지정하면, 아직 비어 있는 행만 골라 그 값으로
+        // 채우는 버튼을 헤더에 더한다. 이미 적혀 있는 칸은 건드리지 않는다.
+        var quickFillBtn = b.quickFill
+          ? ' <button type="button" class="pill-btn ghost rpf-quickfill" data-quickfill-table="' + b.id +
+            '" data-quickfill-col="' + esc(b.quickFill.column) + '" data-quickfill-value="' +
+            esc(b.quickFill.value) + '">' + esc(b.quickFill.label || ('빈칸 "' + b.quickFill.value + '" 채우기')) + '</button>'
+          : '';
         return '<div class="rpf-block"><h3>' + esc(b.label || '기록') +
-          ' <button type="button" class="pill-btn ghost rpf-add" data-add="' + b.id + '">+ 행 추가</button></h3>' +
+          ' <button type="button" class="pill-btn ghost rpf-add" data-add="' + b.id + '">+ 행 추가</button>' +
+          quickFillBtn + '</h3>' +
           '<div class="mxf-scroll"><table class="lgf-table"><thead>' + head + '</thead><tbody>' +
           body + '</tbody></table></div></div>';
       }
@@ -172,6 +187,38 @@
           state.tables[el.getAttribute('data-t')][Number(el.getAttribute('data-r'))]
             [el.getAttribute('data-c')] = el.value;
           scheduleDraft();
+        });
+      });
+      host.querySelectorAll('[data-preset-for]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (state.locked) return;
+          var id = b.getAttribute('data-preset-for');
+          state.values[id] = b.getAttribute('data-preset-text');
+          renderBlocks();
+          scheduleDraft();
+        });
+      });
+      host.querySelectorAll('[data-quickfill-table]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (state.locked) return;
+          var id = b.getAttribute('data-quickfill-table');
+          var col = b.getAttribute('data-quickfill-col');
+          var value = b.getAttribute('data-quickfill-value');
+          var rows = state.tables[id] || [];
+          var filled = 0;
+          rows.forEach(function (r) {
+            if (String(r[col] || '').trim()) return;
+            // 다른 칸이 하나도 안 채워진 완전히 빈 행(아직 쓰지 않은 여분 행)까지
+            // 채우면 실제로 안 한 점검·확인을 한 것처럼 기록된다 — 최소 한 칸
+            // 이상 적혀 있는 행에만 적용한다.
+            var hasOther = Object.keys(r).some(function (k) { return k !== col && String(r[k] || '').trim(); });
+            if (!hasOther) return;
+            r[col] = value;
+            filled++;
+          });
+          renderBlocks();
+          scheduleDraft();
+          setStatus((filled ? filled + '행에 "' + value + '" 채움' : '채울 빈 칸 없음'), false);
         });
       });
       host.querySelectorAll('[data-add]').forEach(function (b) {
