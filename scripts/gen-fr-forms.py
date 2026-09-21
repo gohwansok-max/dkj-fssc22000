@@ -38,6 +38,13 @@ CATALOG = ROOT / "data" / "record-catalog.json"
 
 SKIP = {"FR-014", "FR-015"}
 
+# 등록 협력업체 목록 — DKJ-S-02-16(협력업체 점검 계획서)의 실제 등록 업체 7곳과 같다.
+# 목록에 없는 신규 거래처도 직접 입력할 수 있게 <input list=…>(datalist)로 붙인다 —
+# 강제 선택(select)이 아니다.
+VENDOR_CHOICES = [
+    "운봉", "의령농가", "프레쉬엣지", "㈜팜덕", "태원식품산업주식회사", "㈜다님길", "영광산업",
+]
+
 # 캐시버전(?v=NN) — 배포본에서 실제로 쓰이는 값을 읽는다. 여기 숫자를 박아 두면
 # 전체 버전을 올릴 때마다 이 파일만 뒤처져서, 나중에 재생성했을 때 옛 버전 태그가
 # 되살아난다(2026-08 에 scripts/inject-*.py 가 실제로 그렇게 v=38 에 멈춰 있었다).
@@ -275,7 +282,7 @@ SPECS: list[dict] = [
     base(
         "FR-011", "공급업체 승인평가표", "이슈", ["DKJ-P-04"], "supplier",
         extra_fields=[
-            f("subject", "업체명 *", required=True),
+            f("subject", "업체명 *", required=True, choices=VENDOR_CHOICES),
             f("item", "공급품목"),
             f("evalType", "평가구분", "select", options=["신규", "정기", "특별"], default="신규"),
             f("result", "승인결과", "select", options=["승인", "조건부승인", "반려"], default="승인"),
@@ -294,7 +301,7 @@ SPECS: list[dict] = [
     base(
         "FR-012", "승인공급업체 목록", "월간", ["DKJ-P-04"], "supplier",
         extra_fields=[
-            f("subject", "업체명 *", required=True),
+            f("subject", "업체명 *", required=True, choices=VENDOR_CHOICES),
             f("item", "공급품목 *", required=True),
             f("contact", "담당자/연락처"),
             f("approvedDate", "승인일", "date"),
@@ -308,7 +315,7 @@ SPECS: list[dict] = [
         "FR-013", "구매 발주 및 검토 기록", "이슈", ["DKJ-P-04"], "supplier",
         extra_fields=[
             f("subject", "품명 *", required=True),
-            f("supplier", "공급업체"),
+            f("supplier", "공급업체", choices=VENDOR_CHOICES),
             f("qty", "발주수량"),
             f("unit", "단위", "select", options=["kg", "박스", "EA"], default="kg"),
             f("needDate", "납기요청일", "date"),
@@ -681,7 +688,9 @@ SPECS: list[dict] = [
             f("subject", "품명 *", required=True),
             f("lot", "LOT"),
             f("qty", "수량"),
-            f("ncType", "부적합유형"),
+            # 처음부터 특정 유형이 미리 골라져 있으면 확인 없이 그대로 저장될 위험이
+            # 있어(추적성 붕괴와 같은 이유), 맨 앞에 빈 옵션을 둬 강제로 선택하게 한다.
+            f("ncType", "부적합유형", "select", options=["", "이물혼입", "표시오류", "규격미달", "포장불량", "기타"]),
             f("disposition", "처리", "select", options=["격리", "재작업", "용도변경", "폐기", "반품"], default="격리"),
         ],
         sections=[sec("detail", "발생내용"), sec("dispose", "처리결과·확인")],
@@ -837,6 +846,14 @@ def render_field(fld: dict) -> str:
     # 그 칸을 직원 이름 <select> 로 바꿔 버린다. 사람이 아닌 칸(예: '검토연도/회차')은
     # staff=False 로 표시해 두면 그 치환에서 빠진다(선택자가 :not([data-dkj-staff-picker])).
     skip = ' data-dkj-staff-picker="skip"' if fld.get("staff") is False else ""
+    # choices 가 있으면 select 처럼 강제하지 않고 datalist 로 자주 쓰는 값을 제안한다 —
+    # 목록에 없는 값(신규 거래처 등)도 그대로 직접 입력할 수 있다.
+    choices = fld.get("choices")
+    if choices:
+        opts = "".join(f'<option value="{esc(o)}">' for o in choices)
+        return (f'<div class="dkj-field"><label for="{fid}">{label}</label>'
+                f'<input type="{typ}" id="{fid}"{skip} list="{fid}List" placeholder="{ph}">'
+                f'<datalist id="{fid}List">{opts}</datalist></div>')
     return f'<div class="dkj-field"><label for="{fid}">{label}</label><input type="{typ}" id="{fid}"{skip} placeholder="{ph}"></div>'
 
 

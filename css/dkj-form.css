@@ -181,6 +181,16 @@
   color: var(--ink-3);
 }
 
+/* 숫자 입력칸에 min/max 로 관리기준을 지정하면(예: 잔류염소 0.2mg/L 이상) 브라우저가
+   자동으로 :out-of-range 를 붙인다 — 값을 적는 즉시 이탈을 눈으로 알 수 있다.
+   min/max 를 안 준 칸은 이 규칙이 걸리지 않는다. */
+input[type="number"]:out-of-range {
+  border-color: var(--st-ng);
+  background: var(--st-ng-bg);
+  color: var(--st-ng);
+  font-weight: 700;
+}
+
 .dkj-fixed-value {
   padding: 11px 14px;
   border: 1px solid var(--line);

@@ -81,7 +81,7 @@
     {
       "id": "storeTemp",
       "label": "보관온도(℃)",
-      "type": "text"
+      "type": "number"
     },
     {
       "id": "expiry",
