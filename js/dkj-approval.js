@@ -515,13 +515,20 @@
             ? { name: u.name, empId: u.empId, source: 'login' }
             : { name: claimed, empId: '', source: 'form' };
 
-          var msg = signer.name + ' 님으로 ' + stageOf(key).label +
-                    ' 결재를 확정합니다.\n확정 후에는 취소할 수 없습니다.';
-          if (u && claimed && claimed !== u.name) {
-            msg = '결재란에 적힌 이름은 「' + claimed + '」 이지만, 지금 로그인한 사람은 「' +
-                  u.name + '」 입니다.\n\n서명은 로그인한 ' + u.name + ' 님으로 남습니다.\n' + msg;
+          // 작성 단계는 위험도가 가장 낮고(자기가 쓴 내용을 자기가 확정), 로그인한
+          // 사람과 결재란에 적힌 이름이 이미 일치하면 다시 물어볼 게 없다 — 이때만
+          // confirm() 을 생략해 클릭 한 번을 줄인다. 이름이 다르거나 미로그인 상태,
+          // 검토·승인 단계는 잘못 확정하면 되돌릴 수 없어 그대로 확인을 거친다.
+          var skipConfirm = key === 'writer' && u && claimed && claimed === u.name;
+          if (!skipConfirm) {
+            var msg = signer.name + ' 님으로 ' + stageOf(key).label +
+                      ' 결재를 확정합니다.\n확정 후에는 취소할 수 없습니다.';
+            if (u && claimed && claimed !== u.name) {
+              msg = '결재란에 적힌 이름은 「' + claimed + '」 이지만, 지금 로그인한 사람은 「' +
+                    u.name + '」 입니다.\n\n서명은 로그인한 ' + u.name + ' 님으로 남습니다.\n' + msg;
+            }
+            if (!confirm(msg)) return;
           }
-          if (!confirm(msg)) return;
 
           if (!st.signoff) st.signoff = {};
           st.signoff[key] = {
@@ -535,6 +542,11 @@
           append(st, 'SIGN', u ? whoLabel(u) : signer.name, stageOf(key).label + ' 결재');
           onChange(st);
           render();
+          // confirm() 을 생략한 경우는 확정됐다는 사실 자체를 알리는 화면 반응이
+          // 없으면 눌렀는지 안 눌렀는지 헷갈린다 — 짧게 토스트로 알린다.
+          if (skipConfirm && global.DkjUtil && global.DkjUtil.toast) {
+            global.DkjUtil.toast('✓ ' + signer.name + ' 님으로 ' + stageOf(key).label + ' 결재가 확정됐습니다.');
+          }
         });
       });
     }
