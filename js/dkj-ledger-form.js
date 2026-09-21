@@ -385,8 +385,13 @@
           '" value="' + esc(v) + '" placeholder="' + esc(c.placeholder || '선택/입력') + '">';
       }
       var t = c.type === 'num' ? 'number' : (c.type === 'date' ? 'date' : 'text');
+      // min/max 를 주면 브라우저가 :out-of-range 로 자동 강조한다(css/dkj-form.css) —
+      // 관리기준이 확인된 숫자 칸에만 준다, 없는 칸은 그대로 자유 범위다.
+      var range = (c.type === 'num' && (c.min != null || c.max != null))
+        ? (c.min != null ? ' min="' + esc(c.min) + '"' : '') + (c.max != null ? ' max="' + esc(c.max) + '"' : '')
+        : '';
       return '<input type="' + t + '" data-r="' + ri + '" data-c="' + c.key + '" value="' +
-        esc(v) + '" placeholder="' + esc(c.unit || '') + '">';
+        esc(v) + '"' + range + ' placeholder="' + esc(c.unit || '') + '">';
     }
 
     /** 휴무일 행 — 잠기는 기재란은 하나로 합쳐 '휴무'만 표시한다. 칸마다 '휴무'를

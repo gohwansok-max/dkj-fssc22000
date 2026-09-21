@@ -88,6 +88,8 @@
       "label": "차량 온도",
       "width": "5%",
       "type": "num",
+      "min": 0,
+      "max": 5,
       "unit": "℃",
       "group": "냉장"
     },
