@@ -273,12 +273,16 @@
 
     if (label) {
       var text = (label.textContent || '').replace(/\*/g, '').trim();
+      // "작 성 자" 처럼 글자 사이에 공백을 넣는 서식 라벨(인쇄용 관행)이 있다 —
+      // report 엔진은 input 에 id 를 안 붙여 이 라벨 매칭이 인원 판별의 유일한
+      // 경로인데, 공백이 있으면 아래 substring 매칭이 전부 빗나간다.
+      var normText = text.replace(/\s+/g, '');
       var excludeWords = ['일자', '시간', '장소', '상자', '하자', '자재', '자원', '의자', '상태', '결과', '내용', '내역', '사유', '기준', '장비', '단위', '수량', '위치', '방법', '주기', '품목', '공정', '번호', '기간', '서식', '사진', '파일', 'lot', '코드', '온도', '습도', '압력', '규격', '목표', '경로'];
-      if (excludeWords.some(function(w) { return text.toLowerCase().indexOf(w) !== -1; })) {
+      if (excludeWords.some(function(w) { return normText.toLowerCase().indexOf(w) !== -1; })) {
         return false;
       }
       var personWords = ['작성자', '검토자', '승인자', '확인자', '점검자', '검사자', '담당자', '책임자', '작업자', '교육자', '평가자', '주재자', '조치자', '입고자', '출고자', '기록자', '실시자', '조사자', '입력자', '보고자', '총괄', '책임', '작성', '검토', '승인', '확인', '점검'];
-      if (personWords.some(function(w) { return text.indexOf(w) !== -1; })) {
+      if (personWords.some(function(w) { return normText.indexOf(w) !== -1; })) {
         return true;
       }
     }
