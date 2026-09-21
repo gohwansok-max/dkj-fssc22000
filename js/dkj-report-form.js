@@ -91,6 +91,13 @@
     function fieldInput(f) {
       var v = state.values[f.id] || '';
       var t = f.type === 'date' ? 'date' : 'text';
+      // choices 가 있으면 select 처럼 강제하지 않고 datalist 로 자주 쓰는 값을 제안한다 —
+      // 목록에 없는 값(신규 거래처 등)도 그대로 직접 입력할 수 있다.
+      if (f.choices && f.choices.length) {
+        var opts = f.choices.map(function (o) { return '<option value="' + esc(o) + '">'; }).join('');
+        return '<input type="' + t + '" data-v="' + f.id + '" list="' + f.id + 'List" value="' + esc(v) +
+          '" placeholder="' + esc(f.placeholder || '') + '"><datalist id="' + f.id + 'List">' + opts + '</datalist>';
+      }
       return '<input type="' + t + '" data-v="' + f.id + '" value="' + esc(v) +
         '" placeholder="' + esc(f.placeholder || '') + '">';
     }

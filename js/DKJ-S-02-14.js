@@ -48,7 +48,18 @@
       "label": "업체명",
       "width": "8%",
       "align": "left",
-      "required": true
+      "required": true,
+      "type": "combo",
+      "choices": [
+        "운봉",
+        "의령농가",
+        "프레쉬엣지",
+        "㈜팜덕",
+        "태원식품산업주식회사",
+        "㈜다님길",
+        "영광산업"
+      ],
+      "placeholder": "선택/입력"
     },
     {
       "key": "item",
@@ -84,8 +95,9 @@
       "key": "carTemp",
       "label": "차량 온도",
       "width": "5%",
-      "type": "text",
-      "default": "-",
+      "type": "num",
+      "min": 0,
+      "max": 5,
       "unit": "℃",
       "group": "냉장"
     },
