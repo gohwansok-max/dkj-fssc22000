@@ -98,17 +98,28 @@ def render_html(code: str, spec: dict, v: str) -> str:
     # 버튼 자체를 지우면 툴바 높이가 달라져 표가 흔들려서, 자리만 비워 둔다.
     add_label = "　" if spec.get("defaultRows") else "+ 행 추가"
 
+    # bulkChoice — 값 하나만 일괄 입력하는 서식(예: DKJ-S-02-04 "전체 O")은 ngText 를
+    # 생략한다. 그러면 두 번째 버튼도, 온도일보 전용 폭 클래스(temperature-bulk-actions)도
+    # 붙지 않는다 — 그 클래스는 .temperature-log-page 안에서만 의미가 있다.
     bulk = spec.get("bulkChoice")
     bulk_html = ""
     if bulk:
+        wrapper_class = "mxf-quick" + (
+            " temperature-bulk-actions" if bulk.get("ngText") else ""
+        )
+        ng_button = (
+            f'\n          <button type="button" class="pill-btn ghost" id="btnBulkNg">'
+            f'{esc(bulk["ngText"])}</button>'
+            if bulk.get("ngText")
+            else ""
+        )
         bulk_html = (
-            f'\n        <div class="mxf-quick temperature-bulk-actions" '
+            f'\n        <div class="{wrapper_class}" '
             f'aria-label="{esc(bulk["aria"])}">'
             f'\n          <span>{esc(bulk["label"])}</span>'
             f'\n          <button type="button" class="pill-btn green" id="btnBulkOk">'
             f'{esc(bulk["okText"])}</button>'
-            f'\n          <button type="button" class="pill-btn ghost" id="btnBulkNg">'
-            f'{esc(bulk["ngText"])}</button>'
+            f'{ng_button}'
             f"\n        </div>"
         )
     toolbar = (
