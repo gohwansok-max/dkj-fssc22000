@@ -13,9 +13,18 @@
   "title": "이물관리 점검일지",
   "subtitle": "선행요건 · 매일 · 구역별 이물 관리 점검",
   "docNo": "DKJ-S-02-04",
-  "bulkChoiceKeys": ["result"],
-  "bulkChoiceValues": ["O"],
+  "bulkChoiceKeys": [
+    "result"
+  ],
+  "bulkChoiceValues": [
+    "O"
+  ],
   "bulkChoiceLabel": "점검결과 전체",
+  "bulkChoice": {
+    "label": "점검결과",
+    "aria": "점검결과 일괄 입력",
+    "okText": "전체 O"
+  },
   "infoFields": [
     {
       "id": "checkDate",
