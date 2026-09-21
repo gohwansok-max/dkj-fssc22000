@@ -98,7 +98,22 @@
         // 이름을 입력한 직후(임시저장 디바운스 400ms 전) 확정을 눌러도
         // 빈 이름으로 반려되지 않도록 화면 값을 먼저 읽는다
         getState: function () { readForm(); return state; },
-        onChange: function () { scheduleDraft(); }
+        // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
+        // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
+        // 아직 한 번도 저장 안 한 기록(editingId 없음)에는 서명할 대상이 없으므로
+        // 그때만 예전처럼 임시저장으로 남긴다.
+        onChange: function () {
+          if (editingId) {
+            // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
+            // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
+            var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
+            DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId }));
+            setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
+            renderHistory();
+          } else {
+            scheduleDraft();
+          }
+        }
       });
     }
 

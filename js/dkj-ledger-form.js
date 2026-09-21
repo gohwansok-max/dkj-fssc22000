@@ -75,7 +75,20 @@
       if (!global.DkjApproval || apvUi) return;
       apvUi = global.DkjApproval.mount({
         getState: function () { return state; },
-        onChange: function () { scheduleDraft(); }
+        // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
+        // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
+        onChange: function () {
+          if (editingId) {
+            // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
+            // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
+            var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
+            DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId }));
+            setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
+            renderHistory();
+          } else {
+            scheduleDraft();
+          }
+        }
       });
     }
 
@@ -228,11 +241,37 @@
       }
     }
 
-    /** 휴무일처럼 아예 기재하지 않는 행인지 — spec.disableRowIf 로 지정한다 */
+    /** disableRowIf.key(대개 dow) 로 계산한 행의 실제 날짜 — applyAutoWeekday() 와
+     *  같은 방식으로 spec.autoWeekday 의 월 필드·일자 열에서 되짚어 구한다. */
+    function rowDate(row) {
+      var cfg = spec.autoWeekday;
+      if (!cfg || !row) return null;
+      var raw = String(state.info[cfg.monthField] || '');
+      var m = raw.match(/(\d{4})\D+(\d{1,2})/);
+      if (!m) return null;
+      var y = Number(m[1]), mo = Number(m[2]);
+      var dnum = Number(String(row[cfg.dayKey] || '').replace(/\D/g, ''));
+      if (!dnum) return null;
+      return new Date(y, mo - 1, dnum);
+    }
+
+    /** 휴무일처럼 아예 기재하지 않는 행인지 — spec.disableRowIf 로 지정한다.
+     *  서식에 인쇄된 요일 규칙(예: 토요일)은 그대로 두고, 여기에 더해 달력에서
+     *  비생산일로 지정한 날짜(예: 추석 연휴)도 같이 휴무로 잡는다 — 달력 예외가
+     *  요일 규칙에 없는 평일에 걸려도 이 행이 잠기도록 하기 위함이다. */
     function isRowDisabled(row) {
       var cfg = spec.disableRowIf;
       if (!cfg || !row) return false;
-      return (cfg.values || []).indexOf(String(row[cfg.key] || '').trim()) !== -1;
+      if ((cfg.values || []).indexOf(String(row[cfg.key] || '').trim()) !== -1) return true;
+      // 업무 콘솔(dkj-console.js)이 이 페이지에 없으면 js/dkj-operation-calendar.js 가
+      // 같은 캘린더를 읽어 대신 판정한다 — 둘 다 없으면 요일 규칙만 적용된다.
+      var checkDay = (global.DkjConsole && global.DkjConsole.isProductionDay) ||
+        (global.DkjOperationCalendar && global.DkjOperationCalendar.isProductionDay);
+      if (checkDay) {
+        var d = rowDate(row);
+        if (d && !checkDay(d)) return true;
+      }
+      return false;
     }
 
     /** 휴무행에서도 계속 기재하는 열인가 — disableRowIf.keepGroups / keepColumns.
@@ -785,6 +824,12 @@
         });
         if (opened) setStatus('기록 불러옴', true);
       }
+      // 달력에서 생산일·비생산일을 지정/변경하면(예: 추석 연휴 등록) 이미 열려 있는
+      // 대장의 휴무행 판정도 새로고침 없이 바로 갱신한다.
+      global.addEventListener('dkj:operation-calendar-changed', function () {
+        applyAutoWeekday();
+        renderGrid();
+      });
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

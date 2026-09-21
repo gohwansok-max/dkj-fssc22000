@@ -64,7 +64,23 @@
       stages: ['writer', 'approver'],
       labels: { writer: '검사', approver: '확인' },
       getState: function () { syncApprovals(); return state; },
-      onChange: function () { scheduleDraft(); }
+      // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
+      // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
+      // 이 서식은 state.locked 를 실시간으로 유지하지 않으므로(잠금은 collect() 결과에만
+      // 적용) 저장돼 있던 기록의 실제 잠금 여부를 다시 물어 덮어쓰지 않게 한다.
+      onChange: function () {
+        if (editingId) {
+          var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
+          // title·locked 는 saveRecord() 안에서만 계산되고 state 에는 남지 않으므로,
+          // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목·잠금이 사라지지 않는다.
+          var data = Object.assign({}, prev, collect(), { id: editingId, locked: !!prev.locked });
+          DkjRecordStore.save(FORM_ID, data);
+          setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
+          renderHistory();
+        } else {
+          scheduleDraft();
+        }
+      }
     });
   }
 
