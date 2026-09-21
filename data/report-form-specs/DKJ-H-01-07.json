@@ -55,6 +55,11 @@
       "id": "findings",
       "label": "검증 확인내용 및 결과",
       "rows": 14,
+      "quickFill": {
+        "column": "remark",
+        "value": "이상없음",
+        "label": "빈 비고 \"이상없음\" 채우기"
+      },
       "columns": [
         {
           "key": "target",

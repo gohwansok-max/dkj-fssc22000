@@ -449,6 +449,13 @@
       }
     ]
   },
+  "quickFillColumns": [
+    {
+      "key": "remark",
+      "value": "이상없음",
+      "label": "비고 \"이상없음\" 일괄채움"
+    }
+  ],
   "legend": "※ 평가 - 양호 : O, 부적합 : X, 해당없음 : -.  X 판정 시 이상 발생 내역에 조치 결과를 기록한다.",
   "printDensity": {
     "rowHeight": "10pt",

@@ -589,6 +589,27 @@
       setStatus((spec.bulkChoiceLabel || '전체') + ' ' + value + ' 입력됨', false);
     }
 
+    /** quickFillColumns — 비고처럼 자유 서술칸을 "이상없음" 등으로 한 번에 채운다.
+     *  applyBulkChoice 와 달리 이미 값이 있는 칸은 건드리지 않고(사람이 적은 개별
+     *  메모를 지우면 안 된다), 다른 칸도 전부 빈 완전 공백 행(아직 쓰지 않은 여분
+     *  행)도 건너뛴다 — 실제로 점검하지 않은 날짜까지 "이상없음"으로 채우면 기록
+     *  조작이 된다. */
+    function applyQuickFillColumn(key, value) {
+      if (state.locked) return;
+      var filled = 0;
+      state.rows.forEach(function (row) {
+        if (isRowDisabled(row)) return;
+        if (String(row[key] || '').trim()) return;
+        var hasOther = Object.keys(row).some(function (k) { return k !== key && String(row[k] || '').trim(); });
+        if (!hasOther) return;
+        row[key] = value;
+        filled++;
+      });
+      renderGrid();
+      scheduleDraft();
+      setStatus((filled ? filled + '행에 "' + value + '" 채움' : '채울 빈 칸 없음'), false);
+    }
+
     function validate() {
       if (!state.approvals.writer) return '작성자를 입력하세요.';
       var req = (spec.infoFields || []).filter(function (f) { return f.required; });
@@ -715,6 +736,11 @@
       var bulkValues = spec.bulkChoiceValues || ['적', '부'];
       if ($('btnBulkOk')) $('btnBulkOk').addEventListener('click', function () { applyBulkChoice(bulkValues[0]); });
       if ($('btnBulkNg') && bulkValues[1]) $('btnBulkNg').addEventListener('click', function () { applyBulkChoice(bulkValues[1]); });
+      document.querySelectorAll('[data-quickfill]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          applyQuickFillColumn(btn.getAttribute('data-quickfill'), btn.getAttribute('data-quickfill-value'));
+        });
+      });
       if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
       if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
       if ($('btnNew')) $('btnNew').addEventListener('click', function () {

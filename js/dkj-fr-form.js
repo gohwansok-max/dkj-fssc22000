@@ -279,6 +279,16 @@
       };
       document.addEventListener('input', onFieldInput);
       document.addEventListener('change', onFieldInput);
+      // 상세내용(sections) 의 "자주 쓰는 문구" 버튼 — textarea 를 그 문구로 채우고
+      // 위 onFieldInput 과 같은 경로(readForm→scheduleDraft)를 그대로 태운다.
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('[data-preset-for]');
+        if (!btn || state.locked) return;
+        var el = $(btn.getAttribute('data-preset-for'));
+        if (!el) return;
+        el.value = btn.getAttribute('data-preset-text');
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      });
       if ($('judgeOk')) {
         $('judgeOk').addEventListener('click', function () {
           if (state.locked) return;

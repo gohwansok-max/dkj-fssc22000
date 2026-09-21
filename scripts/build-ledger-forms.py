@@ -122,9 +122,23 @@ def render_html(code: str, spec: dict, v: str) -> str:
             f'{ng_button}'
             f"\n        </div>"
         )
+    # quickFillColumns — 비고처럼 자유 서술칸을 "이상없음" 등으로 한 번에 채우는
+    # 버튼. bulkChoice(적/부 같은 선택지 전체 덮어쓰기)와 달리 JS 쪽에서 이미 값이
+    # 있는 칸은 건드리지 않는다(dkj-ledger-form.js 의 applyQuickFillColumn 참고).
+    quick_fill = spec.get("quickFillColumns") or []
+    quick_fill_html = ""
+    if quick_fill:
+        btns = "".join(
+            f'\n          <button type="button" class="pill-btn ghost" '
+            f'data-quickfill="{esc(qf["key"])}" data-quickfill-value="{esc(qf["value"])}">'
+            f'{esc(qf.get("label") or (qf["value"] + " 일괄채움"))}</button>'
+            for qf in quick_fill
+        )
+        quick_fill_html = f'\n        <div class="mxf-quick">{btns}\n        </div>'
+
     toolbar = (
-        f'      <div class="mxf-toolbar">{bulk_html}\n'
-        if bulk
+        f'      <div class="mxf-toolbar">{bulk_html}{quick_fill_html}\n'
+        if (bulk or quick_fill)
         else '      <div class="mxf-toolbar"><div></div>\n'
     )
 
