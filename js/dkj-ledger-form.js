@@ -111,6 +111,26 @@
       }, 400);
     }
 
+    /** 월 단위로 여러 날에 걸쳐 누적 입력하는 서식(autoWeekday 보유)에서, 지금 화면의
+     *  점검 월과 같은 달의 기존 기록을 찾는다. 없으면 null.
+     *  같은 달 기록이 이미 여러 건(과거 중복 저장 버그)이면 가장 최근 것을 고른다. */
+    function findCurrentPeriodRecord() {
+      var cfg = spec.autoWeekday;
+      if (!cfg) return null;
+      var raw = String((state.info && state.info[cfg.monthField]) || '');
+      var m = raw.match(/(\d{4})\D+(\d{1,2})/);
+      if (!m) return null;
+      var targetYm = Number(m[1]) * 100 + Number(m[2]);
+      var best = null;
+      DkjRecordStore.list(FORM_ID).forEach(function (r) {
+        var rRaw = String((r.info && r.info[cfg.monthField]) || '');
+        var rm = rRaw.match(/(\d{4})\D+(\d{1,2})/);
+        if (!rm || (Number(rm[1]) * 100 + Number(rm[2])) !== targetYm) return;
+        if (!best || (Date.parse(r.updatedAt || 0) || 0) > (Date.parse(best.updatedAt || 0) || 0)) best = r;
+      });
+      return best;
+    }
+
     /** 점검 월(YYYY-MM 또는 '2026 . 08')이 바뀌면 요일 열을 다시 계산한다.
      *  monthChanged=true 는 사용자가 점검 월을 직접 바꾼 경우다 — 그때만 휴무행을 비운다. */
     function applyAutoWeekday(monthChanged) {
@@ -816,13 +836,29 @@
       }
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
+      var opened = null;
       if (global.DkjDeepLink) {
-        var opened = DkjDeepLink.apply(FORM_ID, function (rec) {
+        opened = DkjDeepLink.apply(FORM_ID, function (rec) {
           editingId = rec.id;
           state = Object.assign(emptyState(spec), rec);
           writeForm();
         });
         if (opened) setStatus('기록 불러옴', true);
+      }
+      // 월 단위로 여러 날에 걸쳐 누적 입력하는 서식은, 임시저장(draft)·딥링크가 없으면
+      // 저장할 때마다 draft 가 지워지는 탓에(DkjRecordStore.save) 다시 열 때마다 빈 시트로
+      // 시작했다 — 기기를 바꿔 열거나 하루 지나 이어 쓰려면 매번 '불러오기'를 직접 눌러야
+      // 했고, 안 누르고 그냥 입력·저장하면 같은 달 기록이 여러 건으로 쪼개져 다른 기기·
+      // 다른 날 입력한 내용이 안 보이는 것처럼 보였다(2026-09-22). 이번 달 진행 중인
+      // 기록이 있으면 자동으로 이어서 연다.
+      if (!draft && !opened) {
+        var current = findCurrentPeriodRecord();
+        if (current) {
+          editingId = current.id;
+          state = Object.assign(emptyState(spec), current);
+          writeForm();
+          setStatus('이번 달 기존 시트를 이어서 엽니다', true);
+        }
       }
       // 달력에서 생산일·비생산일을 지정/변경하면(예: 추석 연휴 등록) 이미 열려 있는
       // 대장의 휴무행 판정도 새로고침 없이 바로 갱신한다.
