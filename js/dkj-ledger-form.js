@@ -123,12 +123,35 @@
       var targetYm = Number(m[1]) * 100 + Number(m[2]);
       var best = null;
       DkjRecordStore.list(FORM_ID).forEach(function (r) {
+        // 잠긴 기록은 건너뛴다 — 잠긴 기록을 이어서 열면 셀에 이전 값은 보이지만
+        // applyLock()이 입력칸을 전부 disabled 로 막아 아무것도 쓸 수 없다. 이번 달
+        // 기록이 도중에 잠겼다면(예: '작성완료'를 실수로 눌러 월 시트 전체가 잠김)
+        // 이어서 열 대상이 없는 것으로 보고 새 시트로 시작해야 오늘 것을 쓸 수 있다.
+        if (r.locked) return;
         var rRaw = String((r.info && r.info[cfg.monthField]) || '');
         var rm = rRaw.match(/(\d{4})\D+(\d{1,2})/);
         if (!rm || (Number(rm[1]) * 100 + Number(rm[2])) !== targetYm) return;
         if (!best || (Date.parse(r.updatedAt || 0) || 0) > (Date.parse(best.updatedAt || 0) || 0)) best = r;
       });
       return best;
+    }
+
+    /** findCurrentPeriodRecord() 가 null 을 돌려줬을 때, 그게 '이번 달 기록이 아예 없어서'인지
+     *  '있긴 한데 잠겨서 건너뛴 것'인지 구분한다. 후자면 새 시트로 시작하되 그 사실을
+     *  화면에 알려야, 이전에 적은 값이 사라진 게 아니라 잠긴 기록으로 남아 있다는 걸 안다. */
+    function hasLockedRecordForMonth() {
+      var cfg = spec.autoWeekday;
+      if (!cfg) return false;
+      var raw = String((state.info && state.info[cfg.monthField]) || '');
+      var m = raw.match(/(\d{4})\D+(\d{1,2})/);
+      if (!m) return false;
+      var targetYm = Number(m[1]) * 100 + Number(m[2]);
+      return DkjRecordStore.list(FORM_ID).some(function (r) {
+        if (!r.locked) return false;
+        var rRaw = String((r.info && r.info[cfg.monthField]) || '');
+        var rm = rRaw.match(/(\d{4})\D+(\d{1,2})/);
+        return rm && (Number(rm[1]) * 100 + Number(rm[2])) === targetYm;
+      });
     }
 
     /** 점검 월(YYYY-MM 또는 '2026 . 08')이 바뀌면 요일 열을 다시 계산한다.
@@ -858,6 +881,10 @@
           state = Object.assign(emptyState(spec), current);
           writeForm();
           setStatus('이번 달 기존 시트를 이어서 엽니다', true);
+        } else if (hasLockedRecordForMonth()) {
+          // 이번 달 기록이 이미 잠겨 있어 이어서 열 수 없다 — 새 시트로 시작한다.
+          // 잠긴 기록의 내용은 기록보관함/'저장 기록' 목록에서 그대로 조회할 수 있다.
+          setStatus('이번 달 잠긴 기록이 있어 새 시트로 시작합니다', false);
         }
       }
       // 달력에서 생산일·비생산일을 지정/변경하면(예: 추석 연휴 등록) 이미 열려 있는
