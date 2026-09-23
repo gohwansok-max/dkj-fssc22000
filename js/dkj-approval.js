@@ -14,6 +14,26 @@
 (function (global) {
   'use strict';
 
+  // document.currentScript는 이 스크립트가 동기 실행되는 지금 이 순간에만 유효하다 —
+  // 나중에(콜백 안에서) 읽으면 이미 다른 스크립트로 바뀌어 있으므로 로드 시점에 미리 잡아둔다.
+  var SELF_SRC = document.currentScript && document.currentScript.src;
+
+  /** 결재 단계 완료를 텔레그램으로 알리기 위해 dkj-telegram-config.js를 그때그때 불러온다.
+   *  records/*.html 대부분이 이 스크립트를 아예 안 싣고 있어서(불편접수 챗봇 전용으로만
+   *  쓰였다), 매 서식 HTML에 태그를 추가하는 대신 필요한 순간에 동적으로 붙인다 —
+   *  dkj-approval.js 옆에 있는 파일이므로 자기 자신의 src에서 경로만 바꿔 쓴다. */
+  function ensureTelegram(cb) {
+    if (global.DkjTelegram) { cb(); return; }
+    if (!SELF_SRC) return;
+    var url = SELF_SRC.replace(/dkj-approval\.js(\?.*)?$/, 'dkj-telegram-config.js$1');
+    if (url === SELF_SRC) return;
+    var s = document.createElement('script');
+    s.src = url;
+    s.onload = cb;
+    s.onerror = function () { /* 알림 실패가 결재 저장을 막으면 안 된다 — 조용히 무시 */ };
+    document.head.appendChild(s);
+  }
+
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -424,7 +444,31 @@
       return stages.filter(function (x) { return x.key === key; })[0] || { label: key, role: key };
     }
 
-    function stageHtml(st, s) {
+    /** 한 단계가 확정되면 다음 단계 담당자가 바로 알 수 있게 텔레그램으로 알린다.
+     *  받는 사람을 특정하지 않고(이 앱에 직원별 텔레그램 연결이 없다) 관리자 채팅방
+     *  하나로 보낸다 — 시스템 설정에 텔레그램이 설정 안 돼 있으면 DkjTelegram.sendMessage()
+     *  가 조용히 실패만 하고 결재 저장 자체는 막지 않는다(2026-09-23 현장 요청). */
+    function notifyStageProgress(stageIdx, signerName) {
+      try {
+        var st = stages[stageIdx];
+        if (!st) return;
+        var next = stages[stageIdx + 1];
+        var docTitle = (document.title || '').replace(/\s*\|\s*[^|]*$/, '').trim() || document.title;
+        var msg = docTitle + '\n' + st.label + ' 결재 확정 (' + signerName + ')\n' +
+          (next ? '다음 단계: ' + next.label + '(' + next.role + ') 확인 필요' : '전 단계 결재 완료');
+        ensureTelegram(function () {
+          if (!global.DkjTelegram || !global.DkjTelegram.sendMessage) return;
+          global.DkjTelegram.sendMessage({
+            category: '전자결재 진행 알림',
+            message: msg,
+            pageTitle: document.title,
+            pageUrl: location.href
+          });
+        });
+      } catch (e) { /* 알림 실패가 결재 저장을 막으면 안 된다 */ }
+    }
+
+    function stageHtml(st, s, i) {
       var sign = (s && s.signoff && s.signoff[st.key]) || null;
       var el = document.getElementById(st.key) || document.querySelector('[name="' + st.key + '"]');
       // 아직 아무도 안 골랐으면 특정 이름을 미리 보여주지 않는다(예전엔 여기도
@@ -436,9 +480,17 @@
       var shown = done ? (sign.empId ? sign.name + ' (' + sign.empId + ')' : sign.name) : (name || '—');
       var mismatch = done && sign.claimed
         ? '<div class="apv-claimed">기재명 ' + esc(sign.claimed) + '</div>' : '';
-      // 권한표에 걸리면 버튼을 눌러도 되지 않으니 아예 잠그고 이유를 적는다
-      var allowed = !global.DkjAuth || !global.DkjAuth.can || global.DkjAuth.can(st.key);
-      var why = allowed || !global.DkjAuth.denyReason ? '' : global.DkjAuth.denyReason(st.key);
+      // 이전 단계가 안 끝났으면 이 단계는 역할이 있어도 아직 못 누른다 — 작성이 끝나야
+      // 검토로, 검토가 끝나야 승인으로 순서대로 넘어간다(2026-09-23 현장 요청).
+      // 이 검사는 역할(can) 검사보다 먼저 해서, 책임자·시스템관리자처럼 모든 단계 권한이
+      // 있는 사람도 순서를 건너뛰지 못하게 한다.
+      var prevStage = i > 0 ? stages[i - 1] : null;
+      var prevDone = !prevStage || !!(s && s.signoff && s.signoff[prevStage.key] && s.signoff[prevStage.key].at);
+      // 권한표에 걸리거나 순서가 안 됐으면 버튼을 눌러도 되지 않으니 아예 잠그고 이유를 적는다
+      var allowed = prevDone && (!global.DkjAuth || !global.DkjAuth.can || global.DkjAuth.can(st.key));
+      var why = !prevDone
+        ? (prevStage.label + ' 확정 후에 진행할 수 있습니다.')
+        : (allowed || !global.DkjAuth.denyReason ? '' : global.DkjAuth.denyReason(st.key));
 
       return '<div class="apv-stage' + (done ? ' done' : '') + '">' +
         '<div class="apv-lab">' + esc(st.label) + '</div>' +
@@ -449,8 +501,8 @@
           : allowed
             ? '<button type="button" class="pill-btn ghost apv-btn" data-stage="' +
               st.key + '">' + esc(st.label) + ' 확정</button>'
-            : '<button type="button" class="pill-btn ghost apv-btn" disabled ' +
-              'title="' + esc(why) + '">' + esc(st.label) + ' 확정</button>' +
+            : '<button type="button" class="pill-btn ghost apv-btn" data-stage="' + st.key +
+              '" disabled title="' + esc(why) + '">' + esc(st.label) + ' 확정</button>' +
               '<div class="apv-deny">' + esc(why) + '</div>') +
         '</div>';
     }
@@ -472,7 +524,7 @@
 
       host.innerHTML =
         '<div class="apv-stages">' +
-        stages.map(function (st) { return stageHtml(st, s); }).join('') +
+        stages.map(function (st, i) { return stageHtml(st, s, i); }).join('') +
         '</div>' +
         '<div class="apv-verify ' + (v.ok ? 'ok' : 'ng') + '">' +
         (v.ok
@@ -496,12 +548,20 @@
       host.querySelectorAll('.apv-btn').forEach(function (b) {
         b.addEventListener('click', function () {
           var key = b.getAttribute('data-stage');
-          // 버튼은 잠가 뒀지만 화면을 만져 되살릴 수 있으니 누를 때 한 번 더 본다
+          var st = getState();
+          // 버튼은 잠가 뒀지만 화면을 만져 되살릴 수 있으니 누를 때 한 번 더 본다 —
+          // 역할 권한뿐 아니라 이전 단계가 끝났는지도 다시 확인한다.
+          var stageIdx = stages.findIndex(function (x) { return x.key === key; });
+          var prevSt = stageIdx > 0 ? stages[stageIdx - 1] : null;
+          var prevOk = !prevSt || !!(st && st.signoff && st.signoff[prevSt.key] && st.signoff[prevSt.key].at);
+          if (!prevOk) {
+            alert(prevSt.label + ' 확정 후에 진행할 수 있습니다.');
+            return;
+          }
           if (global.DkjAuth && global.DkjAuth.can && !global.DkjAuth.can(key)) {
             alert(global.DkjAuth.denyReason(key));
             return;
           }
-          var st = getState();
           var claimed = (st.approvals && st.approvals[key]) || '';
           var u = me();
 
@@ -547,6 +607,7 @@
           if (skipConfirm && global.DkjUtil && global.DkjUtil.toast) {
             global.DkjUtil.toast('✓ ' + signer.name + ' 님으로 ' + stageOf(key).label + ' 결재가 확정됐습니다.');
           }
+          notifyStageProgress(stageIdx, signer.name);
         });
       });
     }
