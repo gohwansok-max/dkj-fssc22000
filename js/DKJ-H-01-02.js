@@ -50,11 +50,32 @@
   /* 물성보정/안정도 — 인쇄물 한계기준표의 중량구간별 고정값(임시 운영값, 확정 전).
      매 행마다 같은 값이라 행 데이터로 안 두고 중량구간 선택 하나로 도출한다. */
   var WEIGHT_CLASS = {
-    fresh500: { label: '신선편의식품 500g 이하', adjust: '70', stable: '450' },
-    fresh1kg: { label: '신선편의식품 500g~1kg', adjust: '70', stable: '954' },
-    freshOver1kg: { label: '신선편의식품 1kg 이상', adjust: '70', stable: '252' },
-    material: { label: '부재료(기타가공품)', adjust: '70', stable: '70' }
+    fresh500: { label: '신선편의식품 500g 이하', adjust: '70', stable: '450', fe: '2.0', sus: '3.0' },
+    fresh1kg: { label: '신선편의식품 500g~1kg', adjust: '70', stable: '954', fe: '2.5', sus: '3.5' },
+    freshOver1kg: { label: '신선편의식품 1kg 이상', adjust: '70', stable: '252', fe: '3.0', sus: '3.5' },
+    material: { label: '부재료(기타가공품)', adjust: '70', stable: '70', fe: '1.5', sus: '2.5' }
   };
+
+  /* 품목 → 중량구간 매핑(한계기준표 기준, 2026-09-18 사용자 확정) — 품목을 드롭다운에서
+     고르면 Fe/SUS 시편 규격·중량구간(→물성보정·안정도)이 여기 따라 자동으로 채워진다.
+     목록에 없는 품목(직접 입력)은 매핑이 없으니 사람이 그대로 손으로 고른다. */
+  var PRODUCT_WEIGHT_CLASS = {
+    '양상추샐러드': 'freshOver1kg',
+    '농협 채소믹스': 'fresh1kg',
+    '샐러디아 채소믹스': 'fresh1kg',
+    '급식)바로먹는 유러피언 샐러드 채소믹스': 'fresh1kg',
+    '슬로우캘리샐러드믹스': 'fresh500'
+  };
+
+  function applyProductWeightClass(name) {
+    var wcKey = PRODUCT_WEIGHT_CLASS[name];
+    var wc = WEIGHT_CLASS[wcKey];
+    if (!wc) return;
+    $('weightClass').value = wcKey;
+    $('feSize').value = wc.fe;
+    $('susSize').value = wc.sus;
+    renderWeightHint();
+  }
 
   var PRODUCT_OPTIONS = [];
   /* 이 서식(CCP-2P 금속검출)에서만 제외/추가할 품목 — 생산일지(DKJ-F-053)의
@@ -570,6 +591,7 @@
         } else {
           if (pInp) { pInp.style.display = 'none'; pInp.value = pSel.value; }
           state.productName = pSel.value;
+          applyProductWeightClass(pSel.value);
         }
         readForm();
         refreshApproval();
