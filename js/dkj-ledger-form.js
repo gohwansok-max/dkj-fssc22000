@@ -911,6 +911,25 @@
         applyAutoWeekday();
         renderGrid();
       });
+      // 결재자가 작성자와 다른 기기로 들어오면, 이 기기의 로컬 저장소에 그 기록이
+      // 아직 없어 findCurrentPeriodRecord() 가 위에서 아무것도 못 찾고 빈 새 시트로
+      // 열릴 수 있다 — 클라우드 동기화(dkj-cloud-sync.js)는 페이지가 뜬 뒤 비동기로
+      // 도착하기 때문이다. 그 상태를 "일지를 아직 안 썼다"로 오해해 결재를 못 하는
+      // 문의가 있었다(2026-09-23, 팀장 계정이 서식으로 직접 진입한 경우). 동기화가
+      // 뒤늦게 도착하면(dkj:records-changed) — 아직 아무 기록도 못 찾았고(editingId
+      // 없음) 사용자가 뭔가 입력해 초안이 생기지도 않은 경우에 한해 — 한 번 더
+      // 이어쓰기를 시도한다. 이미 뭔가 열려 있으면(작성 중이든 결재 중이든) 절대
+      // 덮어쓰지 않는다.
+      global.addEventListener('dkj:records-changed', function () {
+        if (editingId || DkjRecordStore.loadDraft(FORM_ID)) return;
+        var current = findCurrentPeriodRecord();
+        if (!current) return;
+        editingId = current.id;
+        state = Object.assign(emptyState(spec), current);
+        writeForm();
+        renderHistory();
+        setStatus('동기화된 이번 달 시트를 불러왔습니다', true);
+      });
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
