@@ -20,6 +20,12 @@
 패널, 딥링크, PWA, 다국어, 접근성 스크립트, 캐시버전 `?v=NN`. 2026-09-08 에 대장
 서식 10종이 HTML·부트 JS 모두 바이트 단위로 같게 재생성되는 것을 확인했다.
 **템플릿을 고쳤으면 `--check` 로 기존 파일과 같은지 먼저 확인하고 커밋할 것.**
+
+2026-09-22 에 달력 비생산일 연동(358d8c2)이 이 스크립트를 거치지 않고 손으로
+`dkj-operation-calendar.js` 스크립트 태그만 두 파일(DKJ-S-02-05/09)에 추가돼,
+그 뒤로 이 스크립트를 돌리면 그 태그가 조용히 사라지는 상태였다(2026-09-23
+발견·수정 — autoWeekday 서식에서만 그 태그를 넣도록 반영). 손으로 껍데기를
+고친 뒤에는 반드시 이 스크립트에도 반영하고 `--check` 로 확인할 것.
 (fr 엔진의 같은 역할은 scripts/gen-fr-forms.py 다. 다만 그쪽은 사양이 파이썬 파일
 안의 SPECS 에 있고, 대장은 JSON 이 정본이라는 점이 다르다.)
 
@@ -148,6 +154,17 @@ def render_html(code: str, spec: dict, v: str) -> str:
         else ""
     )
 
+    # 달력에서 지정한 비생산일을 대장 휴무행에 연동하는 기능(autoWeekday 서식 전용,
+    # 2026-09-22 358d8c2)은 이 스크립트가 아니라 손으로 두 파일에만 넣었다 — 이후
+    # --check 없이 재생성하면 이 스크립트 태그가 조용히 빠진다. autoWeekday가 있는
+    # 서식에서만 필요하므로(요일·휴무 판정 자체가 그 서식에만 있다) 여기서 조건부로
+    # 넣어 재생성해도 사라지지 않게 한다.
+    calendar_script = (
+        f'\n  <script src="../js/dkj-operation-calendar.js?v={v}"></script>'
+        if spec.get("autoWeekday")
+        else ""
+    )
+
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -214,7 +231,7 @@ def render_html(code: str, spec: dict, v: str) -> str:
   <script src="../js/dkj-nav-bar.js?v={v}"></script>
   <script src="../js/dkj-record-store.js?v={v}"></script>
   <script src="../js/dkj-deeplink.js?v={v}"></script>
-  <script src="../js/dkj-approval.js?v={v}"></script>
+  <script src="../js/dkj-approval.js?v={v}"></script>{calendar_script}
   <script src="../js/dkj-ledger-print.js?v={v}"></script>
   <script src="../js/dkj-ledger-form.js?v={v}"></script>
   <script src="../js/{esc(code)}.js?v={v}"></script>
