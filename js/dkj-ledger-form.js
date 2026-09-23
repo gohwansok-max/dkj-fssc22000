@@ -783,6 +783,23 @@
       setTimeout(function () { window.print(); }, 120);
     }
 
+    /** autoWeekday 서식(월 단위로 누적 입력하는 대장)에서만 보이는 경고 —
+     *  "작성완료"가 오늘 하루가 아니라 그 달 시트 전체를 잠근다는 걸 모르고 매일
+     *  누르다가 다음 날 입력이 막히는 문의가 반복됐다(2026-09-23). js/dkj-util.js
+     *  의 explainSaveButtons()가 모든 서식에 붙이는 일반 안내(저장/작성완료 차이)
+     *  만으로는 "월 전체가 잠긴다"는 이 서식 특유의 위험이 전달되지 않아 별도로
+     *  둔다. 태블릿은 hover가 없어 title 툴팁 대신 항상 보이는 문구로 붙인다. */
+    function renderMonthlyLockWarning() {
+      if (!spec.autoWeekday) return;
+      var toolbar = document.querySelector('.dkj-form-toolbar');
+      if (!toolbar || toolbar.querySelector('.dkj-lock-warn')) return;
+      var el = document.createElement('div');
+      el.className = 'dkj-lock-warn';
+      el.textContent = '⚠ 작성완료는 오늘 하루가 아니라 이번 달 시트 전체를 잠급니다 — ' +
+        '월말 마지막 입력을 마친 뒤에만 눌러주세요. 매일 입력 후에는 "저장"만 누르면 됩니다.';
+      toolbar.appendChild(el);
+    }
+
     function bind() {
       // writer/reviewer/approver 도 dkj-approval.js 의 직원 자동선택이 <select>로
       // 바꿔치기한다 — renderInfo() 와 같은 이유로 개별 요소 리스너 대신 document 위임
@@ -851,6 +868,7 @@
       writeForm();
       mountApproval();
       bind();
+      renderMonthlyLockWarning();
       renderHistory();
       if (global.DkjUtil) {
         global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
