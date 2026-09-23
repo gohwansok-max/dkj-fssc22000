@@ -921,14 +921,34 @@
       // 이어쓰기를 시도한다. 이미 뭔가 열려 있으면(작성 중이든 결재 중이든) 절대
       // 덮어쓰지 않는다.
       global.addEventListener('dkj:records-changed', function () {
-        if (editingId || DkjRecordStore.loadDraft(FORM_ID)) return;
-        var current = findCurrentPeriodRecord();
-        if (!current) return;
-        editingId = current.id;
-        state = Object.assign(emptyState(spec), current);
-        writeForm();
-        renderHistory();
-        setStatus('동기화된 이번 달 시트를 불러왔습니다', true);
+        // 이 기기에서 뭔가 손댔으면(초안 존재) 절대 덮어쓰지 않는다 — 아래 두 갈래 공통.
+        if (DkjRecordStore.loadDraft(FORM_ID)) return;
+        if (!editingId) {
+          var current = findCurrentPeriodRecord();
+          if (!current) return;
+          editingId = current.id;
+          state = Object.assign(emptyState(spec), current);
+          writeForm();
+          renderHistory();
+          setStatus('동기화된 이번 달 시트를 불러왔습니다', true);
+          return;
+        }
+        // 이미 어떤 기록이 열려 있어도, 그게 이 기기에 동기화되기 전(=오래된 사본)
+        // 이었을 수 있다 — 예: 작업자가 태블릿에서 방금 "작성완료"(잠금)를 눌렀는데,
+        // 결재자 PC 는 아직 그 전 버전(미잠금)을 들고 있어 화면이 "미완료"로 보인다
+        // (2026-09-23 현장 보고 — 팀장 계정). 지금 막 동기화된 최신 값이 이 기록의
+        // 잠금 상태를 앞서 있으면(=우리가 모르던 잠금) 그 값으로 다시 맞춘다.
+        // 반대 방향(잠긴 걸 풀린 것으로 되돌림)은 절대 하지 않는다 — 이 기기에서
+        // 방금 잠갔는데 동기화 지연으로 오히려 되돌아가면 그게 더 위험하다.
+        if (!state.locked) {
+          var fresh = DkjRecordStore.get(FORM_ID, editingId);
+          if (fresh && fresh.locked) {
+            state = Object.assign(emptyState(spec), fresh);
+            writeForm();
+            renderHistory();
+            setStatus('다른 기기에서 작성완료(잠금) 처리된 최신 상태로 갱신했습니다', true);
+          }
+        }
       });
     }
 
