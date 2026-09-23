@@ -81,7 +81,7 @@
     {
       "id": "storeTemp",
       "label": "보관온도(℃)",
-      "type": "text"
+      "type": "number"
     },
     {
       "id": "expiry",
@@ -241,8 +241,37 @@
     var b = document.getElementById('from014Banner');
     if (b) b.hidden = true;
   };
+  // 보관온도 관리기준(0~5℃)은 '원료냉장'일 때만 적용한다 — 원료실온·부자재창고까지
+  // 같은 기준을 걸면 정상 상온 보관 기록이 전부 이탈로 강조돼 진짜 이탈을 놓치게 된다
+  // (2026-09-22 현장 확인). location 이 바뀔 때마다 min/max 를 다시 맞춘다 — 있으면
+  // css/dkj-form.css 의 input[type=number]:out-of-range 가 자동으로 빨갛게 강조한다.
+  function syncStoreTempRange() {
+    var loc = document.getElementById('location');
+    var temp = document.getElementById('storeTemp');
+    if (!loc || !temp) return;
+    if (loc.value === '원료냉장') {
+      temp.min = '0';
+      temp.max = '5';
+    } else {
+      temp.removeAttribute('min');
+      temp.removeAttribute('max');
+    }
+  }
   SPEC.afterInit = function (api) {
     if (window.DkjMaster) DkjMaster.renderProcessBar('processBar', 'store1');
+    syncStoreTempRange();
+    var locEl = document.getElementById('location');
+    if (locEl) locEl.addEventListener('change', syncStoreTempRange);
+    // "불러오기"/"최근기록 복사"로 다른 저장 기록을 열면 writeForm() 이
+    // location.value 를 change 이벤트 없이 직접 바꾼다 — 그 클릭(버블링으로
+    // document 까지 올라옴) 뒤에도 다시 맞춘다. 버튼 자신의 클릭 리스너
+    // (writeForm 호출)가 먼저 실행되고 나서 이 위임 리스너가 실행되므로
+    // setTimeout 없이도 순서가 보장된다.
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('[data-load], #btnClonePrev')) {
+        syncStoreTempRange();
+      }
+    });
     var params = new URLSearchParams(location.search);
     var from014 = params.get('from014');
     if (from014) {

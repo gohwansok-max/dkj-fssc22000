@@ -16,6 +16,7 @@
     "z7_pmj",
     "z7_3j"
   ],
+  "bulkChoiceLabel": "냉장창고 적/부 전체",
   "infoFields": [
     {
       "id": "month",
@@ -530,6 +531,9 @@
     "dayKey": "day",
     "weekdayKey": "dow"
   },
+  "quickFillColumns": [
+    { "key": "remark", "value": "이상없음", "label": "비고 \"이상없음\" 일괄채움" }
+  ],
   "legend": "※ 관리기준 이탈 시 즉시 조치하고 비고란에 기록한다.  적합 : 적 / 부적합 : 부  ※ 토요일은 휴무일로 점검 대상이 아니다.",
   "disableRowIf": {
     "key": "dow",

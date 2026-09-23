@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   var FORM_ID = 'CAPA-MANAGEMENT';
-  var SOURCES = ['FR-015', 'FR-016', 'FR-039', 'FR-042', 'DKJ-S-02-19'];
+  var SOURCES = ['FR-015', 'FR-016', 'FR-039', 'FR-042', 'DKJ-S-02-19', 'DKJ-H-01-01', 'DKJ-H-01-02', 'DKJ-QC-001'];
   var current = null;
   var approvalUi = null;
 
@@ -123,9 +123,9 @@
     var options = sourceRecords(selectedForm);
     var prior = $('sourceRecord').value;
     $('sourceRecord').innerHTML = '<option value="">직접 입력</option>' + options.map(function (r) {
-      var item = toText(pick(r, ['itemName','품명','관련제품','원·부자재명','제품명','info.itemName'])) || '품목 미입력';
+      var item = toText(pick(r, ['itemName','품명','관련제품','원·부자재명','제품명','info.itemName','productName'])) || '품목 미입력';
       var lot = toText(pick(r, ['lot','LOT','로트번호','info.lot'])) || 'LOT 미입력';
-      var date = formatDate(pick(r, ['processDate','작성일자','접수일','개시일','docDate','createdAt']));
+      var date = formatDate(pick(r, ['processDate','작성일자','접수일','개시일','docDate','createdAt','workDate']));
       return '<option value="' + esc(r.__sourceForm + '|' + r.id) + '">' + esc(r.__sourceForm + ' · ' + date + ' · ' + item + ' · ' + lot) + '</option>';
     }).join('');
     if (prior) $('sourceRecord').value = prior;
@@ -141,18 +141,18 @@
   function sourceToCapa(r) {
     if (!r) return;
     var form = r.__sourceForm;
-    var item = toText(pick(r, ['itemName','품명','관련제품','원·부자재명','제품명','info.itemName']));
+    var item = toText(pick(r, ['itemName','품명','관련제품','원·부자재명','제품명','info.itemName','productName']));
     var lot = toText(pick(r, ['lot','LOT','로트번호','info.lot']));
     var qty = pick(r, ['qty','수량','회수대상량','info.qty']);
     var unit = toText(pick(r, ['unit','단위','info.unit'])) || 'kg';
-    var description = toText(pick(r, ['reasonText','reasons','부적합유형','발생내용','불만내용','불만요지','회수사유','부적합 발생내용','info.description']));
-    var immediate = toText(pick(r, ['disposition','처리','처리결과','회신·보상·시정','대책실시','조치사항','조치','info.action']));
+    var description = toText(pick(r, ['reasonText','reasons','부적합유형','발생내용','불만내용','불만요지','회수사유','부적합 발생내용','info.description','deviation','deviationNotes']));
+    var immediate = toText(pick(r, ['disposition','처리','처리결과','회신·보상·시정','대책실시','조치사항','조치','info.action','corrective','deviationNotes']));
     var root = toText(pick(r, ['조사결과','원인분석 및 대책 수립','rootCause']));
-    var date = pick(r, ['processDate','작성일자','접수일','개시일','docDate','createdAt']);
+    var date = pick(r, ['processDate','작성일자','접수일','개시일','docDate','createdAt','workDate']);
     setValue('foundDate', formatDate(date) === '-' ? today() : formatDate(date));
     setValue('item', item); setValue('lot', lot); setValue('qty', qty); setValue('unit', unit);
     setValue('description', description); setValue('containment', immediate); setValue('rootCause', root);
-    var discoveryMap = { 'FR-015': '입고검사', 'FR-016': '제품회수·모의회수', 'FR-039': '제품검사', 'FR-042': '고객불만', 'DKJ-S-02-19': '공정·CCP 모니터링' };
+    var discoveryMap = { 'FR-015': '입고검사', 'FR-016': '제품회수·모의회수', 'FR-039': '제품검사', 'FR-042': '고객불만', 'DKJ-S-02-19': '공정·CCP 모니터링', 'DKJ-H-01-01': '공정·CCP 모니터링', 'DKJ-H-01-02': '공정·CCP 모니터링', 'DKJ-QC-001': '공정·CCP 모니터링' };
     setValue('discovery', discoveryMap[form] || '기타');
     setValue('sourceInfo', '');
     $('sourceInfo').className = 'source-info';

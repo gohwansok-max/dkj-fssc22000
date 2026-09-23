@@ -181,6 +181,21 @@
   color: var(--ink-3);
 }
 
+/* 텍스트 블록 위 "자주 쓰는 문구" 버튼(FR·report 엔진 공용) — 누르면 textarea 를
+   그 문구로 채운다(그 뒤로도 자유롭게 고쳐 쓸 수 있다). */
+.rpf-presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+.rpf-preset-btn { font-size: 12.5px; padding: 5px 11px; }
+
+/* 숫자 입력칸에 min/max 로 관리기준을 지정하면(예: 잔류염소 0.2mg/L 이상) 브라우저가
+   자동으로 :out-of-range 를 붙인다 — 값을 적는 즉시 이탈을 눈으로 알 수 있다.
+   min/max 를 안 준 칸은 이 규칙이 걸리지 않는다. */
+input[type="number"]:out-of-range {
+  border-color: var(--st-ng);
+  background: var(--st-ng-bg);
+  color: var(--st-ng);
+  font-weight: 700;
+}
+
 .dkj-fixed-value {
   padding: 11px 14px;
   border: 1px solid var(--line);

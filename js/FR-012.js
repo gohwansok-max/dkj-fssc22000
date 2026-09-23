@@ -24,7 +24,16 @@
       "id": "subject",
       "label": "업체명 *",
       "type": "text",
-      "required": true
+      "required": true,
+      "choices": [
+        "운봉",
+        "의령농가",
+        "프레쉬엣지",
+        "㈜팜덕",
+        "태원식품산업주식회사",
+        "㈜다님길",
+        "영광산업"
+      ]
     },
     {
       "id": "item",

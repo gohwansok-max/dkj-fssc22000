@@ -40,6 +40,47 @@ input#checkPerson, input#workPerson, input#author {
   padding: 0 2px;
 }
 
+/* "최근기록 복사" 1회 안내 — js/dkj-util.js 의 attachQuickToolbar() 가 붙인다. */
+.dkj-quick-hint {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: var(--nh-green-50, #eaf6ee);
+  border: 1px solid var(--nh-green, #009a44);
+  color: var(--nh-green-ink, #05431F);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.dkj-quick-hint-close {
+  margin-left: auto;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  color: inherit;
+  opacity: .7;
+  padding: 2px 4px;
+}
+
+/* 월 단위 대장(autoWeekday) 전용 — "작성완료"가 그 달 시트 전체를 잠근다는 경고.
+   js/dkj-ledger-form.js 의 renderMonthlyLockWarning() 가 붙인다. */
+.dkj-lock-warn {
+  flex-basis: 100%;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: #fff6e5;
+  border: 1px solid #f0a93a;
+  color: #7a4a00;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
 :root {
   /* 농협 브랜드 — 심볼 노랑 + 워드마크 녹색 */
   --nh-green: #009a44;

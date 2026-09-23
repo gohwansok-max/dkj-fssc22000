@@ -20,6 +20,12 @@
 패널, 딥링크, PWA, 다국어, 접근성 스크립트, 캐시버전 `?v=NN`. 2026-09-08 에 대장
 서식 10종이 HTML·부트 JS 모두 바이트 단위로 같게 재생성되는 것을 확인했다.
 **템플릿을 고쳤으면 `--check` 로 기존 파일과 같은지 먼저 확인하고 커밋할 것.**
+
+2026-09-22 에 달력 비생산일 연동(358d8c2)이 이 스크립트를 거치지 않고 손으로
+`dkj-operation-calendar.js` 스크립트 태그만 두 파일(DKJ-S-02-05/09)에 추가돼,
+그 뒤로 이 스크립트를 돌리면 그 태그가 조용히 사라지는 상태였다(2026-09-23
+발견·수정 — autoWeekday 서식에서만 그 태그를 넣도록 반영). 손으로 껍데기를
+고친 뒤에는 반드시 이 스크립트에도 반영하고 `--check` 로 확인할 것.
 (fr 엔진의 같은 역할은 scripts/gen-fr-forms.py 다. 다만 그쪽은 사양이 파이썬 파일
 안의 SPECS 에 있고, 대장은 JSON 이 정본이라는 점이 다르다.)
 
@@ -98,28 +104,64 @@ def render_html(code: str, spec: dict, v: str) -> str:
     # 버튼 자체를 지우면 툴바 높이가 달라져 표가 흔들려서, 자리만 비워 둔다.
     add_label = "　" if spec.get("defaultRows") else "+ 행 추가"
 
+    # bulkChoice — 값 하나만 일괄 입력하는 서식(예: DKJ-S-02-04 "전체 O")은 ngText 를
+    # 생략한다. 그러면 두 번째 버튼도, 온도일보 전용 폭 클래스(temperature-bulk-actions)도
+    # 붙지 않는다 — 그 클래스는 .temperature-log-page 안에서만 의미가 있다.
     bulk = spec.get("bulkChoice")
     bulk_html = ""
     if bulk:
+        wrapper_class = "mxf-quick" + (
+            " temperature-bulk-actions" if bulk.get("ngText") else ""
+        )
+        ng_button = (
+            f'\n          <button type="button" class="pill-btn ghost" id="btnBulkNg">'
+            f'{esc(bulk["ngText"])}</button>'
+            if bulk.get("ngText")
+            else ""
+        )
         bulk_html = (
-            f'\n        <div class="mxf-quick temperature-bulk-actions" '
+            f'\n        <div class="{wrapper_class}" '
             f'aria-label="{esc(bulk["aria"])}">'
             f'\n          <span>{esc(bulk["label"])}</span>'
             f'\n          <button type="button" class="pill-btn green" id="btnBulkOk">'
             f'{esc(bulk["okText"])}</button>'
-            f'\n          <button type="button" class="pill-btn ghost" id="btnBulkNg">'
-            f'{esc(bulk["ngText"])}</button>'
+            f'{ng_button}'
             f"\n        </div>"
         )
+    # quickFillColumns — 비고처럼 자유 서술칸을 "이상없음" 등으로 한 번에 채우는
+    # 버튼. bulkChoice(적/부 같은 선택지 전체 덮어쓰기)와 달리 JS 쪽에서 이미 값이
+    # 있는 칸은 건드리지 않는다(dkj-ledger-form.js 의 applyQuickFillColumn 참고).
+    quick_fill = spec.get("quickFillColumns") or []
+    quick_fill_html = ""
+    if quick_fill:
+        btns = "".join(
+            f'\n          <button type="button" class="pill-btn ghost" '
+            f'data-quickfill="{esc(qf["key"])}" data-quickfill-value="{esc(qf["value"])}">'
+            f'{esc(qf.get("label") or (qf["value"] + " 일괄채움"))}</button>'
+            for qf in quick_fill
+        )
+        quick_fill_html = f'\n        <div class="mxf-quick">{btns}\n        </div>'
+
     toolbar = (
-        f'      <div class="mxf-toolbar">{bulk_html}\n'
-        if bulk
+        f'      <div class="mxf-toolbar">{bulk_html}{quick_fill_html}\n'
+        if (bulk or quick_fill)
         else '      <div class="mxf-toolbar"><div></div>\n'
     )
 
     incident_html = (
         '\n      <div class="mxf-scroll" id="incidentGrid" style="margin-top:14px;"></div>'
         if spec.get("incident")
+        else ""
+    )
+
+    # 달력에서 지정한 비생산일을 대장 휴무행에 연동하는 기능(autoWeekday 서식 전용,
+    # 2026-09-22 358d8c2)은 이 스크립트가 아니라 손으로 두 파일에만 넣었다 — 이후
+    # --check 없이 재생성하면 이 스크립트 태그가 조용히 빠진다. autoWeekday가 있는
+    # 서식에서만 필요하므로(요일·휴무 판정 자체가 그 서식에만 있다) 여기서 조건부로
+    # 넣어 재생성해도 사라지지 않게 한다.
+    calendar_script = (
+        f'\n  <script src="../js/dkj-operation-calendar.js?v={v}"></script>'
+        if spec.get("autoWeekday")
         else ""
     )
 
@@ -189,7 +231,7 @@ def render_html(code: str, spec: dict, v: str) -> str:
   <script src="../js/dkj-nav-bar.js?v={v}"></script>
   <script src="../js/dkj-record-store.js?v={v}"></script>
   <script src="../js/dkj-deeplink.js?v={v}"></script>
-  <script src="../js/dkj-approval.js?v={v}"></script>
+  <script src="../js/dkj-approval.js?v={v}"></script>{calendar_script}
   <script src="../js/dkj-ledger-print.js?v={v}"></script>
   <script src="../js/dkj-ledger-form.js?v={v}"></script>
   <script src="../js/{esc(code)}.js?v={v}"></script>

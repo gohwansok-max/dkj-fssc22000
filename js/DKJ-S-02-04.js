@@ -13,9 +13,18 @@
   "title": "이물관리 점검일지",
   "subtitle": "선행요건 · 매일 · 구역별 이물 관리 점검",
   "docNo": "DKJ-S-02-04",
-  "bulkChoiceKeys": ["result"],
-  "bulkChoiceValues": ["O"],
+  "bulkChoiceKeys": [
+    "result"
+  ],
+  "bulkChoiceValues": [
+    "O"
+  ],
   "bulkChoiceLabel": "점검결과 전체",
+  "bulkChoice": {
+    "label": "점검결과",
+    "aria": "점검결과 일괄 입력",
+    "okText": "전체 O"
+  },
   "infoFields": [
     {
       "id": "checkDate",
@@ -440,6 +449,13 @@
       }
     ]
   },
+  "quickFillColumns": [
+    {
+      "key": "remark",
+      "value": "이상없음",
+      "label": "비고 \"이상없음\" 일괄채움"
+    }
+  ],
   "legend": "※ 평가 - 양호 : O, 부적합 : X, 해당없음 : -.  X 판정 시 이상 발생 내역에 조치 결과를 기록한다.",
   "printDensity": {
     "rowHeight": "10pt",

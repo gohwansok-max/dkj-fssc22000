@@ -75,7 +75,20 @@
       if (!global.DkjApproval || apvUi) return;
       apvUi = global.DkjApproval.mount({
         getState: function () { return state; },
-        onChange: function () { scheduleDraft(); }
+        // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
+        // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
+        onChange: function () {
+          if (editingId) {
+            // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
+            // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
+            var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
+            DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId }));
+            setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
+            renderHistory();
+          } else {
+            scheduleDraft();
+          }
+        }
       });
     }
 
@@ -96,6 +109,49 @@
         DkjRecordStore.saveDraft(FORM_ID, state);
         setStatus('임시저장 ' + new Date().toLocaleTimeString(), false);
       }, 400);
+    }
+
+    /** 월 단위로 여러 날에 걸쳐 누적 입력하는 서식(autoWeekday 보유)에서, 지금 화면의
+     *  점검 월과 같은 달의 기존 기록을 찾는다. 없으면 null.
+     *  같은 달 기록이 이미 여러 건(과거 중복 저장 버그)이면 가장 최근 것을 고른다. */
+    function findCurrentPeriodRecord() {
+      var cfg = spec.autoWeekday;
+      if (!cfg) return null;
+      var raw = String((state.info && state.info[cfg.monthField]) || '');
+      var m = raw.match(/(\d{4})\D+(\d{1,2})/);
+      if (!m) return null;
+      var targetYm = Number(m[1]) * 100 + Number(m[2]);
+      var best = null;
+      DkjRecordStore.list(FORM_ID).forEach(function (r) {
+        // 잠긴 기록은 건너뛴다 — 잠긴 기록을 이어서 열면 셀에 이전 값은 보이지만
+        // applyLock()이 입력칸을 전부 disabled 로 막아 아무것도 쓸 수 없다. 이번 달
+        // 기록이 도중에 잠겼다면(예: '작성완료'를 실수로 눌러 월 시트 전체가 잠김)
+        // 이어서 열 대상이 없는 것으로 보고 새 시트로 시작해야 오늘 것을 쓸 수 있다.
+        if (r.locked) return;
+        var rRaw = String((r.info && r.info[cfg.monthField]) || '');
+        var rm = rRaw.match(/(\d{4})\D+(\d{1,2})/);
+        if (!rm || (Number(rm[1]) * 100 + Number(rm[2])) !== targetYm) return;
+        if (!best || (Date.parse(r.updatedAt || 0) || 0) > (Date.parse(best.updatedAt || 0) || 0)) best = r;
+      });
+      return best;
+    }
+
+    /** findCurrentPeriodRecord() 가 null 을 돌려줬을 때, 그게 '이번 달 기록이 아예 없어서'인지
+     *  '있긴 한데 잠겨서 건너뛴 것'인지 구분한다. 후자면 새 시트로 시작하되 그 사실을
+     *  화면에 알려야, 이전에 적은 값이 사라진 게 아니라 잠긴 기록으로 남아 있다는 걸 안다. */
+    function hasLockedRecordForMonth() {
+      var cfg = spec.autoWeekday;
+      if (!cfg) return false;
+      var raw = String((state.info && state.info[cfg.monthField]) || '');
+      var m = raw.match(/(\d{4})\D+(\d{1,2})/);
+      if (!m) return false;
+      var targetYm = Number(m[1]) * 100 + Number(m[2]);
+      return DkjRecordStore.list(FORM_ID).some(function (r) {
+        if (!r.locked) return false;
+        var rRaw = String((r.info && r.info[cfg.monthField]) || '');
+        var rm = rRaw.match(/(\d{4})\D+(\d{1,2})/);
+        return rm && (Number(rm[1]) * 100 + Number(rm[2])) === targetYm;
+      });
     }
 
     /** 점검 월(YYYY-MM 또는 '2026 . 08')이 바뀌면 요일 열을 다시 계산한다.
@@ -228,11 +284,37 @@
       }
     }
 
-    /** 휴무일처럼 아예 기재하지 않는 행인지 — spec.disableRowIf 로 지정한다 */
+    /** disableRowIf.key(대개 dow) 로 계산한 행의 실제 날짜 — applyAutoWeekday() 와
+     *  같은 방식으로 spec.autoWeekday 의 월 필드·일자 열에서 되짚어 구한다. */
+    function rowDate(row) {
+      var cfg = spec.autoWeekday;
+      if (!cfg || !row) return null;
+      var raw = String(state.info[cfg.monthField] || '');
+      var m = raw.match(/(\d{4})\D+(\d{1,2})/);
+      if (!m) return null;
+      var y = Number(m[1]), mo = Number(m[2]);
+      var dnum = Number(String(row[cfg.dayKey] || '').replace(/\D/g, ''));
+      if (!dnum) return null;
+      return new Date(y, mo - 1, dnum);
+    }
+
+    /** 휴무일처럼 아예 기재하지 않는 행인지 — spec.disableRowIf 로 지정한다.
+     *  서식에 인쇄된 요일 규칙(예: 토요일)은 그대로 두고, 여기에 더해 달력에서
+     *  비생산일로 지정한 날짜(예: 추석 연휴)도 같이 휴무로 잡는다 — 달력 예외가
+     *  요일 규칙에 없는 평일에 걸려도 이 행이 잠기도록 하기 위함이다. */
     function isRowDisabled(row) {
       var cfg = spec.disableRowIf;
       if (!cfg || !row) return false;
-      return (cfg.values || []).indexOf(String(row[cfg.key] || '').trim()) !== -1;
+      if ((cfg.values || []).indexOf(String(row[cfg.key] || '').trim()) !== -1) return true;
+      // 업무 콘솔(dkj-console.js)이 이 페이지에 없으면 js/dkj-operation-calendar.js 가
+      // 같은 캘린더를 읽어 대신 판정한다 — 둘 다 없으면 요일 규칙만 적용된다.
+      var checkDay = (global.DkjConsole && global.DkjConsole.isProductionDay) ||
+        (global.DkjOperationCalendar && global.DkjOperationCalendar.isProductionDay);
+      if (checkDay) {
+        var d = rowDate(row);
+        if (d && !checkDay(d)) return true;
+      }
+      return false;
     }
 
     /** 휴무행에서도 계속 기재하는 열인가 — disableRowIf.keepGroups / keepColumns.
@@ -385,8 +467,13 @@
           '" value="' + esc(v) + '" placeholder="' + esc(c.placeholder || '선택/입력') + '">';
       }
       var t = c.type === 'num' ? 'number' : (c.type === 'date' ? 'date' : 'text');
+      // min/max 를 주면 브라우저가 :out-of-range 로 자동 강조한다(css/dkj-form.css) —
+      // 관리기준이 확인된 숫자 칸에만 준다, 없는 칸은 그대로 자유 범위다.
+      var range = (c.type === 'num' && (c.min != null || c.max != null))
+        ? (c.min != null ? ' min="' + esc(c.min) + '"' : '') + (c.max != null ? ' max="' + esc(c.max) + '"' : '')
+        : '';
       return '<input type="' + t + '" data-r="' + ri + '" data-c="' + c.key + '" value="' +
-        esc(v) + '" placeholder="' + esc(c.unit || '') + '">';
+        esc(v) + '"' + range + ' placeholder="' + esc(c.unit || '') + '">';
     }
 
     /** 휴무일 행 — 잠기는 기재란은 하나로 합쳐 '휴무'만 표시한다. 칸마다 '휴무'를
@@ -584,6 +671,27 @@
       setStatus((spec.bulkChoiceLabel || '전체') + ' ' + value + ' 입력됨', false);
     }
 
+    /** quickFillColumns — 비고처럼 자유 서술칸을 "이상없음" 등으로 한 번에 채운다.
+     *  applyBulkChoice 와 달리 이미 값이 있는 칸은 건드리지 않고(사람이 적은 개별
+     *  메모를 지우면 안 된다), 다른 칸도 전부 빈 완전 공백 행(아직 쓰지 않은 여분
+     *  행)도 건너뛴다 — 실제로 점검하지 않은 날짜까지 "이상없음"으로 채우면 기록
+     *  조작이 된다. */
+    function applyQuickFillColumn(key, value) {
+      if (state.locked) return;
+      var filled = 0;
+      state.rows.forEach(function (row) {
+        if (isRowDisabled(row)) return;
+        if (String(row[key] || '').trim()) return;
+        var hasOther = Object.keys(row).some(function (k) { return k !== key && String(row[k] || '').trim(); });
+        if (!hasOther) return;
+        row[key] = value;
+        filled++;
+      });
+      renderGrid();
+      scheduleDraft();
+      setStatus((filled ? filled + '행에 "' + value + '" 채움' : '채울 빈 칸 없음'), false);
+    }
+
     function validate() {
       if (!state.approvals.writer) return '작성자를 입력하세요.';
       var req = (spec.infoFields || []).filter(function (f) { return f.required; });
@@ -675,6 +783,23 @@
       setTimeout(function () { window.print(); }, 120);
     }
 
+    /** autoWeekday 서식(월 단위로 누적 입력하는 대장)에서만 보이는 경고 —
+     *  "작성완료"가 오늘 하루가 아니라 그 달 시트 전체를 잠근다는 걸 모르고 매일
+     *  누르다가 다음 날 입력이 막히는 문의가 반복됐다(2026-09-23). js/dkj-util.js
+     *  의 explainSaveButtons()가 모든 서식에 붙이는 일반 안내(저장/작성완료 차이)
+     *  만으로는 "월 전체가 잠긴다"는 이 서식 특유의 위험이 전달되지 않아 별도로
+     *  둔다. 태블릿은 hover가 없어 title 툴팁 대신 항상 보이는 문구로 붙인다. */
+    function renderMonthlyLockWarning() {
+      if (!spec.autoWeekday) return;
+      var toolbar = document.querySelector('.dkj-form-toolbar');
+      if (!toolbar || toolbar.querySelector('.dkj-lock-warn')) return;
+      var el = document.createElement('div');
+      el.className = 'dkj-lock-warn';
+      el.textContent = '⚠ 작성완료는 오늘 하루가 아니라 이번 달 시트 전체를 잠급니다 — ' +
+        '월말 마지막 입력을 마친 뒤에만 눌러주세요. 매일 입력 후에는 "저장"만 누르면 됩니다.';
+      toolbar.appendChild(el);
+    }
+
     function bind() {
       // writer/reviewer/approver 도 dkj-approval.js 의 직원 자동선택이 <select>로
       // 바꿔치기한다 — renderInfo() 와 같은 이유로 개별 요소 리스너 대신 document 위임
@@ -710,6 +835,11 @@
       var bulkValues = spec.bulkChoiceValues || ['적', '부'];
       if ($('btnBulkOk')) $('btnBulkOk').addEventListener('click', function () { applyBulkChoice(bulkValues[0]); });
       if ($('btnBulkNg') && bulkValues[1]) $('btnBulkNg').addEventListener('click', function () { applyBulkChoice(bulkValues[1]); });
+      document.querySelectorAll('[data-quickfill]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          applyQuickFillColumn(btn.getAttribute('data-quickfill'), btn.getAttribute('data-quickfill-value'));
+        });
+      });
       if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
       if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
       if ($('btnNew')) $('btnNew').addEventListener('click', function () {
@@ -738,6 +868,7 @@
       writeForm();
       mountApproval();
       bind();
+      renderMonthlyLockWarning();
       renderHistory();
       if (global.DkjUtil) {
         global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
@@ -746,14 +877,79 @@
       }
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
+      var opened = null;
       if (global.DkjDeepLink) {
-        var opened = DkjDeepLink.apply(FORM_ID, function (rec) {
+        opened = DkjDeepLink.apply(FORM_ID, function (rec) {
           editingId = rec.id;
           state = Object.assign(emptyState(spec), rec);
           writeForm();
         });
         if (opened) setStatus('기록 불러옴', true);
       }
+      // 월 단위로 여러 날에 걸쳐 누적 입력하는 서식은, 임시저장(draft)·딥링크가 없으면
+      // 저장할 때마다 draft 가 지워지는 탓에(DkjRecordStore.save) 다시 열 때마다 빈 시트로
+      // 시작했다 — 기기를 바꿔 열거나 하루 지나 이어 쓰려면 매번 '불러오기'를 직접 눌러야
+      // 했고, 안 누르고 그냥 입력·저장하면 같은 달 기록이 여러 건으로 쪼개져 다른 기기·
+      // 다른 날 입력한 내용이 안 보이는 것처럼 보였다(2026-09-22). 이번 달 진행 중인
+      // 기록이 있으면 자동으로 이어서 연다.
+      if (!draft && !opened) {
+        var current = findCurrentPeriodRecord();
+        if (current) {
+          editingId = current.id;
+          state = Object.assign(emptyState(spec), current);
+          writeForm();
+          setStatus('이번 달 기존 시트를 이어서 엽니다', true);
+        } else if (hasLockedRecordForMonth()) {
+          // 이번 달 기록이 이미 잠겨 있어 이어서 열 수 없다 — 새 시트로 시작한다.
+          // 잠긴 기록의 내용은 기록보관함/'저장 기록' 목록에서 그대로 조회할 수 있다.
+          setStatus('이번 달 잠긴 기록이 있어 새 시트로 시작합니다', false);
+        }
+      }
+      // 달력에서 생산일·비생산일을 지정/변경하면(예: 추석 연휴 등록) 이미 열려 있는
+      // 대장의 휴무행 판정도 새로고침 없이 바로 갱신한다.
+      global.addEventListener('dkj:operation-calendar-changed', function () {
+        applyAutoWeekday();
+        renderGrid();
+      });
+      // 결재자가 작성자와 다른 기기로 들어오면, 이 기기의 로컬 저장소에 그 기록이
+      // 아직 없어 findCurrentPeriodRecord() 가 위에서 아무것도 못 찾고 빈 새 시트로
+      // 열릴 수 있다 — 클라우드 동기화(dkj-cloud-sync.js)는 페이지가 뜬 뒤 비동기로
+      // 도착하기 때문이다. 그 상태를 "일지를 아직 안 썼다"로 오해해 결재를 못 하는
+      // 문의가 있었다(2026-09-23, 팀장 계정이 서식으로 직접 진입한 경우). 동기화가
+      // 뒤늦게 도착하면(dkj:records-changed) — 아직 아무 기록도 못 찾았고(editingId
+      // 없음) 사용자가 뭔가 입력해 초안이 생기지도 않은 경우에 한해 — 한 번 더
+      // 이어쓰기를 시도한다. 이미 뭔가 열려 있으면(작성 중이든 결재 중이든) 절대
+      // 덮어쓰지 않는다.
+      global.addEventListener('dkj:records-changed', function () {
+        // 이 기기에서 뭔가 손댔으면(초안 존재) 절대 덮어쓰지 않는다 — 아래 두 갈래 공통.
+        if (DkjRecordStore.loadDraft(FORM_ID)) return;
+        if (!editingId) {
+          var current = findCurrentPeriodRecord();
+          if (!current) return;
+          editingId = current.id;
+          state = Object.assign(emptyState(spec), current);
+          writeForm();
+          renderHistory();
+          setStatus('동기화된 이번 달 시트를 불러왔습니다', true);
+          return;
+        }
+        // 이미 어떤 기록이 열려 있어도, 그게 이 기기에 동기화되기 전(=오래된 사본)
+        // 이었을 수 있다 — 예: 작업자가 태블릿에서 방금 "작성완료"(잠금)를 눌렀는데,
+        // 결재자 PC 는 아직 그 전 버전(미잠금)을 들고 있어 화면이 "미완료"로 보인다
+        // (2026-09-23 현장 보고 — 팀장 계정). 지금 막 동기화된 최신 값이 이 기록의
+        // 잠금 상태를 앞서 있으면(=우리가 모르던 잠금) 그 값으로 다시 맞춘다.
+        // 반대 방향(잠긴 걸 풀린 것으로 되돌림)은 절대 하지 않는다 — 이 기기에서
+        // 방금 잠갔는데 동기화 지연으로 오히려 되돌아가면 그게 더 위험하다.
+        if (!state.locked) {
+          var fresh = DkjRecordStore.get(FORM_ID, editingId);
+          if (fresh && fresh.locked) {
+            state = Object.assign(emptyState(spec), fresh);
+            writeForm();
+            renderHistory();
+            setStatus('다른 기기에서 작성완료(잠금) 처리된 최신 상태로 갱신했습니다', true);
+          }
+        }
+      });
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

@@ -49,6 +49,7 @@
       "id": "chlorineValue",
       "label": "잔류염소농도(mg/L) *",
       "type": "number",
+      "min": 0.2,
       "required": true
     },
     {

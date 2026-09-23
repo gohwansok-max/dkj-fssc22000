@@ -102,6 +102,9 @@
       "align": "left"
     }
   ],
+  "quickFillColumns": [
+    { "key": "remark", "value": "이상없음", "label": "비고 \"이상없음\" 일괄채움" }
+  ],
   "legend": "※ 평가 - 양호 : O, 불량 : X    ※ 이물 유발 가능 물품은 작업실별로 수량을 파악해 관리한다.",
   "printDensity": {
     "rowHeight": "20pt",

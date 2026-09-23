@@ -222,6 +222,28 @@
       var newBtn = toolbarEl.querySelector('#btnNew');
       if (newBtn && newBtn.nextSibling) toolbarEl.insertBefore(btnClone, newBtn.nextSibling);
       else toolbarEl.appendChild(btnClone);
+
+      // 이 버튼이 있는지 모르는 신규 사용자가 매번 처음부터 다시 입력하지 않도록,
+      // 불러올 이전 기록이 있을 때 기기당 한 번만 살짝 안내한다. 서식마다 다시
+      // 뜨면 오히려 성가시므로 플래그는 서식 구분 없이 전역 하나만 쓴다.
+      try {
+        var seenKey = 'dkj:hint:clonePrev:v1';
+        var hasPrev = global.DkjRecordStore && global.DkjRecordStore.list(formId).length > 0;
+        if (hasPrev && !localStorage.getItem(seenKey)) {
+          var hint = document.createElement('div');
+          hint.className = 'dkj-quick-hint';
+          hint.innerHTML = '<span>📋 이전에 쓴 기록을 그대로 불러오려면 왼쪽 버튼을 눌러보세요.</span>' +
+            '<button type="button" class="dkj-quick-hint-close" aria-label="안내 닫기">✕</button>';
+          toolbarEl.appendChild(hint);
+          var dismissHint = function () {
+            try { localStorage.setItem(seenKey, '1'); } catch (e) {}
+            if (hint.parentNode) hint.parentNode.removeChild(hint);
+          };
+          hint.querySelector('.dkj-quick-hint-close').addEventListener('click', dismissHint);
+          btnClone.addEventListener('click', dismissHint, { once: true });
+          setTimeout(dismissHint, 9000);
+        }
+      } catch (e) {}
     }
   }
 

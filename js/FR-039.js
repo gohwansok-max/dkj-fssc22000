@@ -39,7 +39,15 @@
     {
       "id": "ncType",
       "label": "부적합유형",
-      "type": "text"
+      "type": "select",
+      "options": [
+        "",
+        "이물혼입",
+        "표시오류",
+        "규격미달",
+        "포장불량",
+        "기타"
+      ]
     },
     {
       "id": "disposition",

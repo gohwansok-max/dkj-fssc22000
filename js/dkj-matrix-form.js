@@ -154,7 +154,20 @@
       if (!global.DkjApproval || apvUi) return;
       apvUi = global.DkjApproval.mount({
         getState: function () { return state; },
-        onChange: function () { scheduleDraft(); }
+        // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
+        // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
+        onChange: function () {
+          if (editingId) {
+            // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
+            // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
+            var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
+            DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId }));
+            setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
+            renderHistory();
+          } else {
+            scheduleDraft();
+          }
+        }
       });
     }
 
@@ -486,6 +499,50 @@
       return state.weekStart + ' 주 (' + state.days[0] + '~' + state.days[state.days.length - 1] + ')';
     }
 
+    /** week·month 주기 서식(spec.period)에서, 지금 화면의 주기와 같은 기존 기록을
+     *  찾는다. 없으면 null. js/dkj-ledger-form.js 의 findCurrentPeriodRecord() 와
+     *  같은 이유(2026-09-23 — DKJ-S-02-03 이 같은 주에 여러 건으로 쪼개진 것을
+     *  발견)로 추가한다: 이 엔진은 draft·딥링크가 없으면 항상 빈 새 시트로
+     *  시작했고, 저장하면 매번 새 레코드가 생겼다. 잠긴 기록은 이어서 열어도
+     *  applyLock() 이 입력을 막아 쓸모가 없으므로 제외한다.
+     *  week 는 weekStart 정확히 일치, month 는 같은 연-월(YYYY-MM)로 비교한다. */
+    function periodKeyOf(ws) {
+      return spec.period === 'month' ? String(ws || '').slice(0, 7) : ws;
+    }
+    function findCurrentPeriodRecord() {
+      if (spec.period !== 'week' && spec.period !== 'month') return null;
+      var key = periodKeyOf(state.weekStart);
+      if (!key) return null;
+      var best = null;
+      DkjRecordStore.list(FORM_ID).forEach(function (r) {
+        if (r.locked || !r.weekStart) return;
+        if (periodKeyOf(r.weekStart) !== key) return;
+        if (!best || (Date.parse(r.updatedAt || 0) || 0) > (Date.parse(best.updatedAt || 0) || 0)) best = r;
+      });
+      return best;
+    }
+    function hasLockedRecordForPeriod() {
+      if (spec.period !== 'week' && spec.period !== 'month') return false;
+      var key = periodKeyOf(state.weekStart);
+      if (!key) return false;
+      return DkjRecordStore.list(FORM_ID).some(function (r) {
+        return r.locked && r.weekStart && periodKeyOf(r.weekStart) === key;
+      });
+    }
+    /** week·month 주기 서식 전용 경고 — js/dkj-ledger-form.js 의
+     *  renderMonthlyLockWarning() 과 같은 CSS 클래스를 재사용한다. */
+    function renderPeriodLockWarning() {
+      if (spec.period !== 'week' && spec.period !== 'month') return;
+      var toolbar = document.querySelector('.dkj-form-toolbar');
+      if (!toolbar || toolbar.querySelector('.dkj-lock-warn')) return;
+      var unit = spec.period === 'month' ? '이번 달' : '이번 주';
+      var el = document.createElement('div');
+      el.className = 'dkj-lock-warn';
+      el.textContent = '⚠ 작성완료는 오늘 하루가 아니라 ' + unit + ' 시트 전체를 잠급니다 — ' +
+        unit + ' 마지막 입력을 마친 뒤에만 눌러주세요. 매일 입력 후에는 "저장"만 누르면 됩니다.';
+      toolbar.appendChild(el);
+    }
+
     function save(lock) {
       var err = validate();
       if (err) { alert(err); return; }
@@ -704,6 +761,7 @@
       bind();
       renderHistory();
       mountApproval();
+      renderPeriodLockWarning();
       if (global.DkjUtil) {
         global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
           writeForm();
@@ -719,6 +777,44 @@
         });
         if (opened) setStatus('기록 불러옴', true);
       }
+      // week·month 주기 서식은 draft·딥링크가 없으면 이번 주기 기존(미잠금) 기록을
+      // 자동으로 이어서 연다 — js/dkj-ledger-form.js 의 같은 로직과 동일한 이유
+      // (2026-09-23, DKJ-S-02-03 중복 발견으로 추가).
+      if (!draft && !opened) {
+        var current = findCurrentPeriodRecord();
+        if (current) {
+          editingId = current.id;
+          state = Object.assign(emptyState(spec), current);
+          writeForm();
+          setStatus('이번 주기 기존 시트를 이어서 엽니다', true);
+        } else if (hasLockedRecordForPeriod()) {
+          setStatus('이번 주기 잠긴 기록이 있어 새 시트로 시작합니다', false);
+        }
+      }
+      // 클라우드 동기화가 페이지 로드 뒤 뒤늦게 도착하는 경우의 두 갈래 —
+      // js/dkj-ledger-form.js 의 dkj:records-changed 리스너와 동일한 패턴.
+      global.addEventListener('dkj:records-changed', function () {
+        if (DkjRecordStore.loadDraft(FORM_ID)) return;
+        if (!editingId) {
+          var found = findCurrentPeriodRecord();
+          if (!found) return;
+          editingId = found.id;
+          state = Object.assign(emptyState(spec), found);
+          writeForm();
+          renderHistory();
+          setStatus('동기화된 이번 주기 시트를 불러왔습니다', true);
+          return;
+        }
+        if (!state.locked) {
+          var fresh = DkjRecordStore.get(FORM_ID, editingId);
+          if (fresh && fresh.locked) {
+            state = Object.assign(emptyState(spec), fresh);
+            writeForm();
+            renderHistory();
+            setStatus('다른 기기에서 작성완료(잠금) 처리된 최신 상태로 갱신했습니다', true);
+          }
+        }
+      });
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
