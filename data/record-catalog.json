@@ -255,7 +255,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-01.html",
-      "mdrCode": "DKJ-H-01-01"
+      "mdrCode": "DKJ-H-01-01",
+      "file": "records/DKJ-H-01-01.html",
+      "period": "매일"
     },
     {
       "id": "DKJ-H-01-02",
@@ -269,7 +271,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-02.html",
-      "mdrCode": "DKJ-H-01-02"
+      "mdrCode": "DKJ-H-01-02",
+      "file": "records/DKJ-H-01-02.html",
+      "period": "매일"
     },
     {
       "id": "DKJ-H-01-06",
@@ -281,7 +285,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-06.html",
-      "mdrCode": "DKJ-H-01-06"
+      "mdrCode": "DKJ-H-01-06",
+      "file": "records/DKJ-H-01-06.html",
+      "period": "연간"
     },
     {
       "id": "DKJ-H-01-07",
@@ -293,7 +299,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-07.html",
-      "mdrCode": "DKJ-H-01-07"
+      "mdrCode": "DKJ-H-01-07",
+      "file": "records/DKJ-H-01-07.html",
+      "period": "이슈"
     },
     {
       "id": "DKJ-H-01-08",
@@ -305,7 +313,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-08.html",
-      "mdrCode": "DKJ-H-01-08"
+      "mdrCode": "DKJ-H-01-08",
+      "file": "records/DKJ-H-01-08.html",
+      "period": "이슈"
     },
     {
       "id": "DKJ-H-01-10",
@@ -317,7 +327,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-10.html",
-      "mdrCode": "DKJ-H-01-10"
+      "mdrCode": "DKJ-H-01-10",
+      "file": "records/DKJ-H-01-10.html",
+      "period": "연간"
     },
     {
       "id": "DKJ-H-01-11",
@@ -329,7 +341,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-H-01-11.html",
-      "mdrCode": "DKJ-H-01-11"
+      "mdrCode": "DKJ-H-01-11",
+      "file": "records/DKJ-H-01-11.html",
+      "period": "이슈"
     },
     {
       "id": "DKJ-S-02-01",
@@ -345,7 +359,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-01.html",
-      "mdrCode": "DKJ-S-02-01"
+      "mdrCode": "DKJ-S-02-01",
+      "file": "records/DKJ-S-02-01.html",
+      "period": "매일"
     },
     {
       "id": "DKJ-S-02-02",
@@ -359,7 +375,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-02.html",
-      "mdrCode": "DKJ-S-02-02"
+      "mdrCode": "DKJ-S-02-02",
+      "file": "records/DKJ-S-02-02.html",
+      "period": "월간"
     },
     {
       "id": "DKJ-S-02-03",
@@ -373,7 +391,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-03.html",
-      "mdrCode": "DKJ-S-02-03"
+      "mdrCode": "DKJ-S-02-03",
+      "file": "records/DKJ-S-02-03.html",
+      "period": "매일"
     },
     {
       "id": "DKJ-S-02-04",
@@ -388,7 +408,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-04.html",
-      "mdrCode": "DKJ-S-02-04"
+      "mdrCode": "DKJ-S-02-04",
+      "file": "records/DKJ-S-02-04.html",
+      "period": "매일"
     },
     {
       "id": "DKJ-S-02-05",
@@ -403,7 +425,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-05.html",
-      "mdrCode": "DKJ-S-02-05"
+      "mdrCode": "DKJ-S-02-05",
+      "file": "records/DKJ-S-02-05.html",
+      "period": "매일"
     },
     {
       "id": "DKJ-S-02-06",
@@ -417,7 +441,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-06.html",
-      "mdrCode": "DKJ-S-02-06"
+      "mdrCode": "DKJ-S-02-06",
+      "file": "records/DKJ-S-02-06.html",
+      "period": "매일"
     },
     {
       "id": "DKJ-S-02-07",
@@ -431,7 +457,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-07.html",
-      "mdrCode": "DKJ-S-02-07"
+      "mdrCode": "DKJ-S-02-07",
+      "file": "records/DKJ-S-02-07.html",
+      "period": "월간"
     },
     {
       "id": "DKJ-S-02-08",
@@ -443,7 +471,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-08.html",
-      "mdrCode": "DKJ-S-02-08"
+      "mdrCode": "DKJ-S-02-08",
+      "file": "records/DKJ-S-02-08.html",
+      "period": "이슈"
     },
     {
       "id": "DKJ-S-02-09",
@@ -455,7 +485,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-09.html",
-      "mdrCode": "DKJ-S-02-09"
+      "mdrCode": "DKJ-S-02-09",
+      "file": "records/DKJ-S-02-09.html",
+      "period": "월간"
     },
     {
       "id": "DKJ-S-02-12",
@@ -470,7 +502,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-12.html",
-      "mdrCode": "DKJ-S-02-12"
+      "mdrCode": "DKJ-S-02-12",
+      "file": "records/DKJ-S-02-12.html",
+      "period": "월간"
     },
     {
       "id": "DKJ-S-02-13",
@@ -484,7 +518,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-13.html",
-      "mdrCode": "DKJ-S-02-13"
+      "mdrCode": "DKJ-S-02-13",
+      "file": "records/DKJ-S-02-13.html",
+      "period": "월간"
     },
     {
       "id": "DKJ-S-02-14",
@@ -496,7 +532,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-14.html",
-      "mdrCode": "DKJ-S-02-14"
+      "mdrCode": "DKJ-S-02-14",
+      "file": "records/DKJ-S-02-14.html",
+      "period": "이슈"
     },
     {
       "id": "DKJ-S-02-15",
@@ -508,7 +546,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-15.html",
-      "mdrCode": "DKJ-S-02-15"
+      "mdrCode": "DKJ-S-02-15",
+      "file": "records/DKJ-S-02-15.html",
+      "period": "이슈"
     },
     {
       "id": "DKJ-S-02-16",
@@ -520,7 +560,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-16.html",
-      "mdrCode": "DKJ-S-02-16"
+      "mdrCode": "DKJ-S-02-16",
+      "file": "records/DKJ-S-02-16.html",
+      "period": "연간"
     },
     {
       "id": "DKJ-S-02-18",
@@ -534,7 +576,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-18.html",
-      "mdrCode": "DKJ-S-02-18"
+      "mdrCode": "DKJ-S-02-18",
+      "file": "records/DKJ-S-02-18.html",
+      "period": "발생시"
     },
     {
       "id": "DKJ-S-02-19",
@@ -546,7 +590,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-19.html",
-      "mdrCode": "DKJ-S-02-19"
+      "mdrCode": "DKJ-S-02-19",
+      "file": "records/DKJ-S-02-19.html",
+      "period": "이슈"
     },
     {
       "id": "DKJ-S-02-20",
@@ -558,7 +604,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-20.html",
-      "mdrCode": "DKJ-S-02-20"
+      "mdrCode": "DKJ-S-02-20",
+      "file": "records/DKJ-S-02-20.html",
+      "period": "이슈"
     },
     {
       "id": "DKJ-S-02-29",
@@ -572,7 +620,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-29.html",
-      "mdrCode": "DKJ-S-02-29"
+      "mdrCode": "DKJ-S-02-29",
+      "file": "records/DKJ-S-02-29.html",
+      "period": "매일"
     },
     {
       "id": "DKJ-S-02-31",
@@ -584,7 +634,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-31.html",
-      "mdrCode": "DKJ-S-02-31"
+      "mdrCode": "DKJ-S-02-31",
+      "file": "records/DKJ-S-02-31.html",
+      "period": "이슈"
     },
     {
       "id": "DKJ-STORE-01",
@@ -599,7 +651,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/DKJ-STORE-01.html",
-      "mdrCode": "DKJ-STORE-01"
+      "mdrCode": "DKJ-STORE-01",
+      "file": "records/DKJ-STORE-01.html",
+      "period": "매일"
     },
     {
       "id": "FR-001",
@@ -613,7 +667,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-001",
-      "htmlPath": "records/FR-001.html"
+      "htmlPath": "records/FR-001.html",
+      "file": "records/FR-001.html",
+      "period": "이슈"
     },
     {
       "id": "FR-002",
@@ -627,7 +683,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-002",
-      "htmlPath": "records/FR-002.html"
+      "htmlPath": "records/FR-002.html",
+      "file": "records/FR-002.html",
+      "period": "이슈"
     },
     {
       "id": "FR-003",
@@ -641,7 +699,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-003",
-      "htmlPath": "records/FR-003.html"
+      "htmlPath": "records/FR-003.html",
+      "file": "records/FR-003.html",
+      "period": "이슈"
     },
     {
       "id": "FR-004",
@@ -655,7 +715,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-004",
-      "htmlPath": "records/FR-004.html"
+      "htmlPath": "records/FR-004.html",
+      "file": "records/FR-004.html",
+      "period": "월간"
     },
     {
       "id": "FR-005",
@@ -669,7 +731,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-005",
-      "htmlPath": "records/FR-005.html"
+      "htmlPath": "records/FR-005.html",
+      "file": "records/FR-005.html",
+      "period": "이슈"
     },
     {
       "id": "FR-006",
@@ -684,7 +748,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-006",
-      "htmlPath": "records/FR-006.html"
+      "htmlPath": "records/FR-006.html",
+      "file": "records/FR-006.html",
+      "period": "월간"
     },
     {
       "id": "FR-007",
@@ -698,7 +764,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-007",
-      "htmlPath": "records/FR-007.html"
+      "htmlPath": "records/FR-007.html",
+      "file": "records/FR-007.html",
+      "period": "이슈"
     },
     {
       "id": "FR-008",
@@ -712,7 +780,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-008",
-      "htmlPath": "records/FR-008.html"
+      "htmlPath": "records/FR-008.html",
+      "file": "records/FR-008.html",
+      "period": "연간"
     },
     {
       "id": "FR-009",
@@ -726,7 +796,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-009",
-      "htmlPath": "records/FR-009.html"
+      "htmlPath": "records/FR-009.html",
+      "file": "records/FR-009.html",
+      "period": "이슈"
     },
     {
       "id": "FR-010",
@@ -740,7 +812,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-010",
-      "htmlPath": "records/FR-010.html"
+      "htmlPath": "records/FR-010.html",
+      "file": "records/FR-010.html",
+      "period": "연간"
     },
     {
       "id": "FR-011",
@@ -754,7 +828,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-011",
-      "htmlPath": "records/FR-011.html"
+      "htmlPath": "records/FR-011.html",
+      "file": "records/FR-011.html",
+      "period": "이슈"
     },
     {
       "id": "FR-012",
@@ -768,7 +844,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-012",
-      "htmlPath": "records/FR-012.html"
+      "htmlPath": "records/FR-012.html",
+      "file": "records/FR-012.html",
+      "period": "월간"
     },
     {
       "id": "FR-013",
@@ -782,7 +860,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-013",
-      "htmlPath": "records/FR-013.html"
+      "htmlPath": "records/FR-013.html",
+      "file": "records/FR-013.html",
+      "period": "이슈"
     },
     {
       "id": "FR-014",
@@ -799,7 +879,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/FR-014.html",
-      "mdrCode": "DKJ-F-014"
+      "mdrCode": "DKJ-F-014",
+      "file": "records/FR-014.html",
+      "period": "매일"
     },
     {
       "id": "FR-015",
@@ -814,7 +896,9 @@
       ],
       "htmlReady": true,
       "htmlPath": "records/FR-015.html",
-      "mdrCode": "DKJ-F-015"
+      "mdrCode": "DKJ-F-015",
+      "file": "records/FR-015.html",
+      "period": "이슈"
     },
     {
       "id": "FR-016",
@@ -828,7 +912,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-016",
-      "htmlPath": "records/FR-016.html"
+      "htmlPath": "records/FR-016.html",
+      "file": "records/FR-016.html",
+      "period": "이슈"
     },
     {
       "id": "FR-017",
@@ -842,7 +928,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-017",
-      "htmlPath": "records/FR-017.html"
+      "htmlPath": "records/FR-017.html",
+      "file": "records/FR-017.html",
+      "period": "연간"
     },
     {
       "id": "FR-018",
@@ -856,7 +944,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-018",
-      "htmlPath": "records/FR-018.html"
+      "htmlPath": "records/FR-018.html",
+      "file": "records/FR-018.html",
+      "period": "연간"
     },
     {
       "id": "FR-019",
@@ -870,7 +960,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-019",
-      "htmlPath": "records/FR-019.html"
+      "htmlPath": "records/FR-019.html",
+      "file": "records/FR-019.html",
+      "period": "이슈"
     },
     {
       "id": "FR-020",
@@ -884,7 +976,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-020",
-      "htmlPath": "records/FR-020.html"
+      "htmlPath": "records/FR-020.html",
+      "file": "records/FR-020.html",
+      "period": "이슈"
     },
     {
       "id": "FR-021",
@@ -898,7 +992,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-021",
-      "htmlPath": "records/FR-021.html"
+      "htmlPath": "records/FR-021.html",
+      "file": "records/FR-021.html",
+      "period": "이슈"
     },
     {
       "id": "FR-022",
@@ -912,7 +1008,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-022",
-      "htmlPath": "records/FR-022.html"
+      "htmlPath": "records/FR-022.html",
+      "file": "records/FR-022.html",
+      "period": "월간"
     },
     {
       "id": "FR-023",
@@ -926,7 +1024,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-023",
-      "htmlPath": "records/FR-023.html"
+      "htmlPath": "records/FR-023.html",
+      "file": "records/FR-023.html",
+      "period": "연간"
     },
     {
       "id": "FR-024",
@@ -940,7 +1040,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-024",
-      "htmlPath": "records/FR-024.html"
+      "htmlPath": "records/FR-024.html",
+      "file": "records/FR-024.html",
+      "period": "연간"
     },
     {
       "id": "FR-025",
@@ -954,7 +1056,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-025",
-      "htmlPath": "records/FR-025.html"
+      "htmlPath": "records/FR-025.html",
+      "file": "records/FR-025.html",
+      "period": "이슈"
     },
     {
       "id": "FR-026",
@@ -968,7 +1072,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-026",
-      "htmlPath": "records/FR-026.html"
+      "htmlPath": "records/FR-026.html",
+      "file": "records/FR-026.html",
+      "period": "월간"
     },
     {
       "id": "FR-027",
@@ -982,7 +1088,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-027",
-      "htmlPath": "records/FR-027.html"
+      "htmlPath": "records/FR-027.html",
+      "file": "records/FR-027.html",
+      "period": "이슈"
     },
     {
       "id": "FR-028",
@@ -996,7 +1104,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-028",
-      "htmlPath": "records/FR-028.html"
+      "htmlPath": "records/FR-028.html",
+      "file": "records/FR-028.html",
+      "period": "이슈"
     },
     {
       "id": "FR-029",
@@ -1010,7 +1120,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-029",
-      "htmlPath": "records/FR-029.html"
+      "htmlPath": "records/FR-029.html",
+      "file": "records/FR-029.html",
+      "period": "이슈"
     },
     {
       "id": "FR-030",
@@ -1024,7 +1136,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-030",
-      "htmlPath": "records/FR-030.html"
+      "htmlPath": "records/FR-030.html",
+      "file": "records/FR-030.html",
+      "period": "이슈"
     },
     {
       "id": "FR-031",
@@ -1036,7 +1150,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-031",
-      "htmlPath": "records/FR-031.html"
+      "htmlPath": "records/FR-031.html",
+      "file": "records/FR-031.html",
+      "period": "연간"
     },
     {
       "id": "FR-032",
@@ -1048,7 +1164,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-032",
-      "htmlPath": "records/FR-032.html"
+      "htmlPath": "records/FR-032.html",
+      "file": "records/FR-032.html",
+      "period": "연간"
     },
     {
       "id": "FR-033",
@@ -1060,7 +1178,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-033",
-      "htmlPath": "records/FR-033.html"
+      "htmlPath": "records/FR-033.html",
+      "file": "records/FR-033.html",
+      "period": "연간"
     },
     {
       "id": "FR-034",
@@ -1072,7 +1192,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-034",
-      "htmlPath": "records/FR-034.html"
+      "htmlPath": "records/FR-034.html",
+      "file": "records/FR-034.html",
+      "period": "연간"
     },
     {
       "id": "FR-035",
@@ -1084,7 +1206,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-035",
-      "htmlPath": "records/FR-035.html"
+      "htmlPath": "records/FR-035.html",
+      "file": "records/FR-035.html",
+      "period": "이슈"
     },
     {
       "id": "FR-036",
@@ -1099,7 +1223,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-036",
-      "htmlPath": "records/FR-036.html"
+      "htmlPath": "records/FR-036.html",
+      "file": "records/FR-036.html",
+      "period": "이슈"
     },
     {
       "id": "FR-037",
@@ -1113,7 +1239,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-037",
-      "htmlPath": "records/FR-037.html"
+      "htmlPath": "records/FR-037.html",
+      "file": "records/FR-037.html",
+      "period": "연간"
     },
     {
       "id": "FR-038",
@@ -1127,7 +1255,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-038",
-      "htmlPath": "records/FR-038.html"
+      "htmlPath": "records/FR-038.html",
+      "file": "records/FR-038.html",
+      "period": "주간"
     },
     {
       "id": "FR-039",
@@ -1144,7 +1274,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-039",
-      "htmlPath": "records/FR-039.html"
+      "htmlPath": "records/FR-039.html",
+      "file": "records/FR-039.html",
+      "period": "이슈"
     },
     {
       "id": "FR-040",
@@ -1161,7 +1293,9 @@
       ],
       "htmlReady": true,
       "mdrCode": "DKJ-F-040",
-      "htmlPath": "records/FR-040.html"
+      "htmlPath": "records/FR-040.html",
+      "file": "records/FR-040.html",
+      "period": "연간"
     },
     {
       "id": "FR-041",
@@ -1173,7 +1307,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-041",
-      "htmlPath": "records/FR-041.html"
+      "htmlPath": "records/FR-041.html",
+      "file": "records/FR-041.html",
+      "period": "이슈"
     },
     {
       "id": "FR-042",
@@ -1185,7 +1321,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-042",
-      "htmlPath": "records/FR-042.html"
+      "htmlPath": "records/FR-042.html",
+      "file": "records/FR-042.html",
+      "period": "이슈"
     },
     {
       "id": "FR-043",
@@ -1197,7 +1335,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-043",
-      "htmlPath": "records/FR-043.html"
+      "htmlPath": "records/FR-043.html",
+      "file": "records/FR-043.html",
+      "period": "이슈"
     },
     {
       "id": "FR-044",
@@ -1209,7 +1349,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-044",
-      "htmlPath": "records/FR-044.html"
+      "htmlPath": "records/FR-044.html",
+      "file": "records/FR-044.html",
+      "period": "주간"
     },
     {
       "id": "FR-045",
@@ -1221,7 +1363,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-045",
-      "htmlPath": "records/FR-045.html"
+      "htmlPath": "records/FR-045.html",
+      "file": "records/FR-045.html",
+      "period": "월간"
     },
     {
       "id": "FR-046",
@@ -1233,7 +1377,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-046",
-      "htmlPath": "records/FR-046.html"
+      "htmlPath": "records/FR-046.html",
+      "file": "records/FR-046.html",
+      "period": "월간"
     },
     {
       "id": "FR-047",
@@ -1245,7 +1391,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "mdrCode": "DKJ-F-047",
-      "htmlPath": "records/FR-047.html"
+      "htmlPath": "records/FR-047.html",
+      "file": "records/FR-047.html",
+      "period": "연간"
     },
     {
       "id": "DKJ-F-053",
@@ -1257,7 +1405,9 @@
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-F-053.html",
-      "mdrCode": "DKJ-F-053"
+      "mdrCode": "DKJ-F-053",
+      "file": "records/DKJ-F-053.html",
+      "period": "매일"
     },
     {
       "code": "DKJ-S-02-32",
