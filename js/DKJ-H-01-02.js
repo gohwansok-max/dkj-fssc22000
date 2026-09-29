@@ -15,7 +15,11 @@
   }
 
   /* 품목 칸의 특수값 3종 — 실제 제품이 아니라 '점검 시점'을 나타낸다(인쇄물 참고).
-     이 값이거나 그 외(실제 제품명)인지로 검출확인 범례 기본값을 다르게 채운다. */
+     이 값이거나 그 외(실제 제품명)인지로 검출확인 범례 기본값을 다르게 채운다.
+     저장 데이터는 이 값이든 제품명이든 그대로 row.item 하나에 담는다 — 화면에서만
+     "구분"(시점 드롭다운)과 "제품명"(자동완성 입력칸) 두 칸으로 나눠 보여준다.
+     한 칸에 시점·제품명이 같이 자동완성 목록으로 섞여 나와 현장에서 헷갈린다는
+     피드백(2026-09-29, 이다은님)으로 나눴다. */
   var ITEM_TIMEPOINTS = ['작업시작전', '작업전', '작업종료시'];
 
   /* 품목 선택에 따라 검출확인 O/X 기본값을 채운다 — 표준시편(Fe/SUS)은 항상 검출(O)
@@ -32,13 +36,12 @@
     }
   }
 
-  /* 품목 칸의 자동완성 목록 — 작업시작전/작업전/작업종료시 + 품목 마스터. datalist라
-     드롭다운처럼 고르거나 목록에 없는 이름도 그대로 입력할 수 있다. */
+  /* "제품명" 칸의 자동완성 목록 — 품목 마스터만 담는다("구분" 칸은 별도 드롭다운이라
+     여기 안 섞는다). datalist라 목록에서 고르거나 목록에 없는 이름도 그대로 입력할 수 있다. */
   function renderItemOptions() {
     var dl = $('ccpItemOptions');
     if (!dl) return;
-    var opts = ITEM_TIMEPOINTS.concat(PRODUCT_OPTIONS);
-    dl.innerHTML = opts.map(function (name) { return '<option value="' + esc(name) + '"></option>'; }).join('');
+    dl.innerHTML = PRODUCT_OPTIONS.map(function (name) { return '<option value="' + esc(name) + '"></option>'; }).join('');
   }
 
   /* 작업일자 → LOT 자동생성: "2026-09-11" → "20260911-1" (하이픈 제거 + "-1" 접미) */
@@ -357,8 +360,14 @@
     var body = $('monBody');
     body.innerHTML = state.rows.map(function (row, i) {
       evaluateRow(row);
+      var isTimepoint = ITEM_TIMEPOINTS.indexOf(row.item) !== -1;
+      var timepointOpts = '<option value=""' + (isTimepoint ? '' : ' selected') + '>-</option>' +
+        ITEM_TIMEPOINTS.map(function (tp) {
+          return '<option value="' + esc(tp) + '"' + (row.item === tp ? ' selected' : '') + '>' + esc(tp) + '</option>';
+        }).join('');
       return '<tr data-i="' + i + '">' +
-        '<td><input type="text" class="mon-in" data-f="item" list="ccpItemOptions" value="' + esc(row.item || '') + '" placeholder="작업시작전 / 제품명 / 작업종료시"></td>' +
+        '<td><select class="mon-in" data-f="timepoint">' + timepointOpts + '</select></td>' +
+        '<td><input type="text" class="mon-in" data-f="product" list="ccpItemOptions" value="' + esc(isTimepoint ? '' : (row.item || '')) + '" placeholder="제품명"></td>' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
         '<td>' + oxSelect(row.fe, 'fe') + '</td>' +
         '<td>' + oxSelect(row.sus, 'sus') + '</td>' +
@@ -392,16 +401,24 @@
     var tr = e.target.closest('tr');
     var i = Number(tr.getAttribute('data-i'));
     var f = e.target.getAttribute('data-f');
-    state.rows[i][f] = e.target.value;
-    // 품목은 자유 입력 칸이라, 글자 하나 칠 때마다(input) 표 전체를 다시 그리면
-    // 포커스가 끊겨 타이핑이 안 된다. 입력 중엔 저장만 해 두고, 선택을 확정한
-    // 순간(change: blur 또는 datalist 항목 클릭)에만 검출확인 기본값을 채우고
-    // 다시 그린다.
-    if (f === 'item' && e.type === 'input') {
+    // "구분"(시점 드롭다운)과 "제품명"(자동완성 입력칸)은 화면에서만 나뉜 두 칸이고,
+    // 실제로는 같은 row.item 하나를 쓴다 — 어느 칸을 마지막으로 고쳤는지가 곧 값이 된다.
+    if (f === 'timepoint' || f === 'product') {
+      state.rows[i].item = e.target.value;
+      // 제품명은 자유 입력 칸이라, 글자 하나 칠 때마다(input) 표 전체를 다시 그리면
+      // 포커스가 끊겨 타이핑이 안 된다. 입력 중엔 저장만 해 두고, 선택을 확정한
+      // 순간(change: blur 또는 datalist 항목 클릭)에만 검출확인 기본값을 채우고
+      // 다시 그린다.
+      if (f === 'product' && e.type === 'input') {
+        scheduleDraft();
+        return;
+      }
+      applyItemDefaults(state.rows[i]);
+      renderRows();
       scheduleDraft();
       return;
     }
-    if (f === 'item') applyItemDefaults(state.rows[i]);
+    state.rows[i][f] = e.target.value;
     renderRows();
     scheduleDraft();
   }
