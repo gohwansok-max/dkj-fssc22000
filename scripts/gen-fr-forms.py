@@ -1056,9 +1056,11 @@ def upsert_catalog(spec: dict) -> None:
         if rec.get("code") == code:
             rec["htmlReady"] = True
             rec["htmlPath"] = f"records/{code}.html"
+            rec["file"] = f"records/{code}.html"
             rec["fileType"] = "html"
             rec["title"] = spec["title"]
             rec["frequency"] = spec.get("frequency", rec.get("frequency"))
+            rec["period"] = spec.get("frequency", rec.get("period"))
             rec["relatedProcedures"] = spec.get("relatedProcedures", [])
             rec["mdrCode"] = spec.get("mdrCode", rec.get("mdrCode"))
             rec["rev"] = "Rev0"
@@ -1073,9 +1075,11 @@ def upsert_catalog(spec: dict) -> None:
                 "rev": "Rev0",
                 "fileType": "html",
                 "frequency": spec.get("frequency", "이슈"),
+                "period": spec.get("frequency", "이슈"),
                 "relatedProcedures": spec.get("relatedProcedures", []),
                 "htmlReady": True,
                 "htmlPath": f"records/{code}.html",
+                "file": f"records/{code}.html",
                 "mdrCode": spec.get("mdrCode", code),
             }
         )
