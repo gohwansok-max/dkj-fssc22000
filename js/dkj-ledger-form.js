@@ -692,7 +692,22 @@
       setStatus((filled ? filled + '행에 "' + value + '" 채움' : '채울 빈 칸 없음'), false);
     }
 
+    /** 화면의 기본정보 칸 값을 state.info 로 되가져온다.
+     *  dkj-approval.js 의 attachStaffPickers() 는 '점검자' 칸을 직원 <select> 로 바꾸면서
+     *  로그인한 사람을 select.value 로 미리 선택하는데, 프로그램이 값을 넣은 것이라
+     *  change 이벤트가 뜨지 않아 위임 리스너가 state.info 를 갱신하지 못한다. 그러면 화면에는
+     *  이름이 보이는데 검증은 '점검자을(를) 입력하세요'로 막힌다(2026-10-01 현장 제보).
+     *  비어 있지 않은 칸만 덮는다 — 화면이 아직 안 그려진 상태에서 state 를 지우면 안 된다. */
+    function syncInfoFromDom() {
+      var host = $('infoFields') || document;
+      Array.prototype.forEach.call(host.querySelectorAll('[data-info]'), function (el) {
+        var id = el.getAttribute('data-info');
+        if (el.value && el.value !== '__custom__' && state.info[id] !== el.value) state.info[id] = el.value;
+      });
+    }
+
     function validate() {
+      syncInfoFromDom();
       if (!state.approvals.writer) return '작성자를 입력하세요.';
       var req = (spec.infoFields || []).filter(function (f) { return f.required; });
       for (var i = 0; i < req.length; i++) {
