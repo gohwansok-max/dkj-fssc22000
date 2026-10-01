@@ -178,6 +178,18 @@
       var host = $('reportBlocks');
       if (!host) return;
       host.innerHTML = (spec.blocks || []).map(blockHtml).join('');
+      // 인원 칸이 <select> 로 바뀌어도 값이 잡히도록 host 에 위임 리스너를 한 번만 건다
+      if (!host._dkjValDelegated) {
+        host._dkjValDelegated = true;
+        ['input', 'change'].forEach(function (evt) {
+          host.addEventListener(evt, function (e) {
+            var el = e.target && e.target.closest ? e.target.closest('[data-v]') : null;
+            if (!el || el.value === '__custom__') return;
+            state.values[el.getAttribute('data-v')] = el.value;
+            scheduleDraft();
+          });
+        });
+      }
 
       host.querySelectorAll('[data-v]').forEach(function (el) {
         el.addEventListener('input', function () {
@@ -282,7 +294,22 @@
       return out;
     }
 
+    /** 화면 입력칸(data-v) 값을 state.values 로 되가져온다.
+     *  dkj-approval.js 의 attachStaffPickers() 가 '작 성 자'·'검 증 원'·'교육담당자' 같은 인원 칸을
+     *  직원 <select> 로 바꾸면 renderBlocks() 가 요소별로 걸어 둔 input 리스너가 원래 요소와 함께
+     *  사라진다. 그러면 이름을 골라도 state.values 는 비어 있어 '입력하세요' 로 막힌다.
+     *  비어 있지 않은 칸만 덮는다 — 화면이 안 그려진 상태에서 state 를 지우면 안 된다. */
+    function syncValuesFromDom() {
+      var host = $('reportBlocks');
+      if (!host) return;
+      Array.prototype.forEach.call(host.querySelectorAll('[data-v]'), function (el) {
+        var id = el.getAttribute('data-v');
+        if (el.value && el.value !== '__custom__' && state.values[id] !== el.value) state.values[id] = el.value;
+      });
+    }
+
     function validate() {
+      syncValuesFromDom();
       if (!state.approvals.writer) return '작성자를 입력하세요.';
       var req = requiredFields();
       for (var i = 0; i < req.length; i++) {
