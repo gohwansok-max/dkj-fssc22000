@@ -19,6 +19,20 @@
   var POLL_MS = 30000;
   var schemaMode = null; // 'legacy' | 'v2'
   var writingLocal = false, timers = {}, poller = null, started = false;
+  // Cache only this page's verified revision + exact local snapshot. Never trust a
+  // persisted revision after reload or after local records have disappeared/changed.
+  var legacyCache = Object.create(null), localVersions = Object.create(null);
+  var syncFlight = null, operationTail = Promise.resolve();
+  function visible() { return typeof document === 'undefined' || document.visibilityState !== 'hidden'; }
+  function exclusive(work) {
+    var result = operationTail.then(work, work);
+    operationTail = result.catch(function () {});
+    return result;
+  }
+  function localChanged(key) {
+    localVersions[key] = (localVersions[key] || 0) + 1;
+    delete legacyCache[key];
+  }
 
   function auth() { return global.DkjAuth; }
   /* 로그인은 시스템 설정에서 등록한 로컬 계정으로 하고(Firebase Authentication 안 씀),
@@ -79,7 +93,7 @@
    * 규칙이 열려 있어도 401 로 거부된다. 로컬 로그인이면 auth= 자체를 빼고 익명으로 보낸다. */
   function isRealToken(t) { return !!t && String(t).indexOf('local-token-') !== 0; }
 
-  async function request(path, method, data, retried) {
+  async function request(path, method, data, retried, shallow) {
     var root = String(CFG.databaseURL || '').replace(/\/$/, '') + '/' + (CFG.root || 'dkj-fssc22000');
     var token = auth().token();
     var authParam = isRealToken(token) ? ('?auth=' + encodeURIComponent(token)) : '';
@@ -87,23 +101,44 @@
     // "동기화 성공"인데 실제로는 옛 응답을 그대로 다시 보여주는 상황을 막는다 —
     // cache:'no-store'만으로는 프록시 캐시까지 못 뚫는 경우가 있어 타임스탬프도 같이 붙인다.
     var bust = (authParam ? '&' : '?') + '_=' + Date.now();
-    var url = root + (path ? '/' + path : '') + '.json' + authParam + bust;
-    var r = await fetch(url, {
-      method: method || 'GET',
-      cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' },
-      body: data === undefined ? undefined : JSON.stringify(data)
+    var url = root + (path ? '/' + path : '') + '.json' + authParam + bust + (shallow ? '&shallow=true' : '');
+    // Bound both response headers and JSON body parsing so one hung request
+    // cannot hold the serialized save queue forever. Race also covers browsers
+    // without AbortController (or transports that ignore its signal).
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    // Without cancellation, a timed-out PUT could finish after a newer save.
+    // Fail closed for writes on such old browsers; local records stay intact.
+    if (!controller && method && method !== 'GET') throw new Error('AbortController required for safe cloud writes');
+    var timeoutId, r;
+    var transport = (async function () {
+      var response = await fetch(url, {
+        method: method || 'GET',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: data === undefined ? undefined : JSON.stringify(data),
+        signal: controller ? controller.signal : undefined
+      });
+      return { status: response.status, ok: response.ok,
+        payload: response.ok ? await response.json() : null };
+    })();
+    var timeout = new Promise(function (resolve, reject) {
+      timeoutId = setTimeout(function () {
+        reject(new Error('Cloud request timed out after 15000ms'));
+        if (controller) controller.abort();
+      }, 15000);
     });
+    try { r = await Promise.race([transport, timeout]); }
+    finally { clearTimeout(timeoutId); }
     if (r.status === 401) {
       /* 로컬 계정 세션(가짜 토큰)이면 재인증할 진짜 Firebase 자격이 애초에 없으므로 재시도해도
        * 똑같이 401이 난다 — 무한 재시도 루프를 막기 위해 한 번만 시도하고, 진짜 토큰이었을 때만
        * 재인증을 건다. */
       if (retried || !isRealToken(token)) throw new Error('HTTP 401');
       await auth().reauth();
-      return request(path, method, data, true);
+      return request(path, method, data, true, shallow);
     }
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
+    return r.payload;
   }
 
   async function readSchemaMode() {
@@ -145,6 +180,7 @@
     if (!isSyncKey(key)) return;
     var value = parse(localStorage.getItem(key));
     if (!Array.isArray(value)) return;
+    delete legacyCache[key];
     await request('records/' + nodeKey(key), 'PUT', {
       value: value,
       updatedAt: Date.now(),
@@ -164,8 +200,21 @@
     return keys;
   }
 
+  function localSnapshot() {
+    var out = Object.create(null);
+    storageKeys().forEach(function (key) {
+      if (isSyncKey(key)) out[key] = { raw: localStorage.getItem(key), version: localVersions[key] || 0 };
+    });
+    return out;
+  }
+  function unchangedSince(snapshot, key) {
+    var initial = snapshot[key] || { raw: null, version: 0 };
+    return localStorage.getItem(key) === initial.raw && (localVersions[key] || 0) === initial.version;
+  }
+
   async function legacySyncAll(silent) {
-    var cloud = (await request('records', 'GET')) || {};
+    var initialLocal = localSnapshot();
+    var cloud = (await request('records', 'GET', undefined, false, true)) || {};
     var touched = 0, pushedNew = 0, pushedUpdated = 0;
     var keys = Object.keys(cloud);
     var cloudKeyCount = 0;
@@ -174,8 +223,20 @@
       var key = readNodeKey(encodedKey);
       if (!isSyncKey(key)) continue;
       cloudKeyCount++;
-      var row = cloud[encodedKey];
-      var localVal = parse(localStorage.getItem(key)) || [];
+      var revision = await request('records/' + encodedKey + '/updatedAt', 'GET');
+      if (!unchangedSince(initialLocal, key)) continue;
+      var before = localStorage.getItem(key);
+      var localVal = parse(before);
+      var cached = legacyCache[key];
+      var hasRevision = (typeof revision === 'number' && isFinite(revision)) ||
+        (typeof revision === 'string' && revision.length > 0);
+      if (hasRevision && cached && cached.revision === revision &&
+          Array.isArray(localVal) && before === cached.localRaw) continue;
+      var version = localVersions[key] || 0;
+      var row = await request('records/' + encodedKey, 'GET');
+      // A save/removal during the network read must not be replaced by a stale merge.
+      if ((localVersions[key] || 0) !== version || localStorage.getItem(key) !== before) continue;
+      localVal = Array.isArray(localVal) ? localVal : [];
       if (!row || !Array.isArray(row.value)) {
         // 클라우드 쪽 value 가 배열이 아니다 — 예전 버그로 빈 배열([])이 올라갔다가
         // RTDB 가 빈 배열 속성 자체를 지워버린 경우가 여기 걸린다. 이 상태로 두면
@@ -186,7 +247,12 @@
       }
       var merged = mergeRecords(localVal, row.value);
       if (!same(merged, localVal)) { writeLocal(key, merged); touched++; }
+      var mergedRaw = localStorage.getItem(key);
       if (!same(merged, row.value)) { await legacyPushKey(key); pushedUpdated++; }
+      else if (hasRevision && row.updatedAt === revision &&
+          (localVersions[key] || 0) === version && localStorage.getItem(key) === mergedRaw) {
+        legacyCache[key] = { revision: revision, localRaw: mergedRaw };
+      }
     }
     var localKeys = storageKeys();
     for (var i = 0; i < localKeys.length; i++) {
@@ -351,8 +417,12 @@
 
   async function v2SyncForm(formId, remoteForm) {
     var key = listKey(formId);
-    var local = parse(localStorage.getItem(key)) || [];
+    var before = localStorage.getItem(key), version = localVersions[key] || 0;
+    // V2 approvals/audit can change without workflow/data timestamps changing.
+    // Keep full reads until all writers provide a reliable aggregate revision.
     var remoteRaw = remoteForm || (await request('records_v2/' + nodeKey(formId), 'GET')) || {};
+    if ((localVersions[key] || 0) !== version || localStorage.getItem(key) !== before) return false;
+    var local = parse(localStorage.getItem(key)) || [];
     var remote = [];
     Object.keys(remoteRaw || {}).forEach(function (encodedId) {
       var rec = decodeRecord(formId, readNodeKey(encodedId), remoteRaw[encodedId]);
@@ -368,6 +438,7 @@
   }
 
   async function v2SyncAll(silent) {
+    var initialLocal = localSnapshot();
     var cloud = (await request('records_v2', 'GET')) || {};
     var forms = {}, touched = false;
     Object.keys(cloud).forEach(function (encodedForm) { forms[readNodeKey(encodedForm)] = cloud[encodedForm]; });
@@ -378,6 +449,7 @@
     }
     var ids = Object.keys(forms);
     for (var j = 0; j < ids.length; j++) {
+      if (!unchangedSince(initialLocal, listKey(ids[j]))) continue;
       if (await v2SyncForm(ids[j], forms[ids[j]])) touched = true;
     }
     markSynced();
@@ -391,17 +463,27 @@
     }
   }
 
-  async function syncAll(silent) {
-    if (!ready()) return;
-    var mode = await readSchemaMode();
-    return mode === 'v2' ? v2SyncAll(silent) : legacySyncAll(silent);
+  function syncAll(silent) {
+    if (!ready() || (silent && !visible())) return Promise.resolve();
+    if (syncFlight) return syncFlight;
+    syncFlight = exclusive(async function () {
+      if (!ready() || (silent && !visible())) return;
+      var mode = await readSchemaMode();
+      return mode === 'v2' ? v2SyncAll(silent) : legacySyncAll(silent);
+    });
+    var flight = syncFlight;
+    flight.then(function () { if (syncFlight === flight) syncFlight = null; },
+      function () { if (syncFlight === flight) syncFlight = null; });
+    return flight;
   }
 
-  async function syncKey(key) {
-    if (!ready() || !isSyncKey(key)) return;
-    var mode = await readSchemaMode();
-    if (mode === 'legacy') return legacyPushKey(key);
-    return v2SyncForm(formIdOf(key));
+  function syncKey(key) {
+    return exclusive(async function () {
+      if (!ready() || !isSyncKey(key)) return;
+      var mode = await readSchemaMode();
+      if (mode === 'legacy') return legacyPushKey(key);
+      return v2SyncForm(formIdOf(key));
+    });
   }
 
   function queue(key) {
@@ -415,7 +497,7 @@
     }, 600);
   }
 
-  async function removeRecord(formId, record) {
+  async function removeRecordNow(formId, record) {
     if (!ready() || !record || !record.id) return;
     var mode = await readSchemaMode();
     if (mode === 'legacy') {
@@ -426,27 +508,32 @@
     await request('records_v2/' + nodeKey(formId) + '/' + nodeKey(record.id), 'DELETE');
   }
 
+  function removeRecord(formId, record) {
+    return exclusive(function () { return removeRecordNow(formId, record); });
+  }
+
   function startPoll() {
     clearInterval(poller);
-    poller = setInterval(function () { if (ready()) syncAll(true).catch(function () {}); }, POLL_MS);
+    poller = setInterval(function () { if (ready() && visible()) syncAll(true).catch(function () {}); }, POLL_MS);
   }
   function start() {
     if (started || !ready()) return;
     started = true;
-    syncAll(false).catch(function (err) {
+    syncAll(true).catch(function (err) {
       /* 오프라인-퍼스트: 연결 실패 시 붉은 경고창 대신 콘솔에만 기록하고 로컬 모드로 조용히 유지 */
       console.info('[DkjCloudSync] 오프라인 또는 로컬 모드로 동작 중입니다.', err && err.message);
     });
     startPoll();
-    global.addEventListener('online', function () { syncAll(true).catch(function () {}); });
+
 
     /* 태블릿·스마트폰은 화면이 꺼지거나 다른 앱으로 전환되면 브라우저가 배터리
        절약을 위해 setInterval 타이머를 그대로 멈춰 버린다. 화면을 다시 켜거나
        탭으로 돌아왔을 때 즉시 한 번 동기화하지 않으면, 그 사이 다른 기기가 올린
        변경사항(새 기록·삭제 모두)을 다음 타이머 재개까지 무기한 놓치게 된다 —
        "PC에서 저장했는데 스마트폰엔 안 뜬다"의 흔한 원인 중 하나. */
-    var lastResumeSync = 0;
+    var lastResumeSync = Date.now();
     function resumeSync() {
+      if (!ready() || !visible()) return;
       var now = Date.now();
       if (now - lastResumeSync < 3000) return; // 짧은 간격으로 여러 번 겹쳐 뜨는 것 방지
       lastResumeSync = now;
@@ -457,6 +544,7 @@
         if (document.visibilityState === 'visible') resumeSync();
       });
     }
+    global.addEventListener('online', resumeSync);
     global.addEventListener('pageshow', resumeSync);
     global.addEventListener('focus', resumeSync);
   }
@@ -466,11 +554,17 @@
   var nativeRemove = Storage.prototype.removeItem;
   Storage.prototype.setItem = function (key, value) {
     nativeSet.call(this, key, value);
-    if (this === localStorage && !writingLocal && isSyncKey(key) && ready()) queue(key);
+    if (this === localStorage && !writingLocal && isSyncKey(key)) {
+      localChanged(key);
+      if (ready()) queue(key);
+    }
   };
   Storage.prototype.removeItem = function (key) {
     nativeRemove.call(this, key);
-    if (this === localStorage && !writingLocal && isSyncKey(key) && ready()) queue(key);
+    if (this === localStorage && !writingLocal && isSyncKey(key)) {
+      localChanged(key);
+      if (ready()) queue(key);
+    }
   };
 
   global.DkjCloudSync = {
