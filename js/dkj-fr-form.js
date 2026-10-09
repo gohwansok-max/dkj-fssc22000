@@ -57,6 +57,19 @@
     return st;
   }
 
+  // 옛 FR-023의 심사 의견은 audit 문자열에 저장됐다. 원본 저장 레코드는 건드리지
+  // 않고 화면 상태에서만 새 필드로 읽는다. 이미 정상 배열인 감사이력은 그대로 보존한다.
+  function restoreState(spec, saved) {
+    var state = Object.assign(emptyState(spec), saved);
+    (spec.sections || []).forEach(function (section) {
+      var legacy = section.legacyId;
+      if (!legacy || !saved || typeof saved[legacy] !== 'string') return;
+      if (saved[section.id] === undefined) state[section.id] = saved[legacy];
+      if (legacy === 'audit') state.audit = [];
+    });
+    return state;
+  }
+
   function mount(spec) {
     if (!spec || !spec.code) throw new Error('DkjFrForm: spec.code required');
     var FORM_ID = spec.code;
@@ -262,7 +275,7 @@
           var r = DkjRecordStore.get(FORM_ID, b.getAttribute('data-load'));
           if (!r) return;
           editingId = r.id;
-          state = Object.assign(emptyState(spec), r);
+          state = restoreState(spec, r);
           writeForm();
           setStatus('기록 불러옴', true);
         });
@@ -355,7 +368,7 @@
           },
           onClonePrev: function (cloned) {
             if (state.locked) return;
-            state = Object.assign(emptyState(spec), cloned);
+            state = restoreState(spec, cloned);
             editingId = null;
             writeForm();
             scheduleDraft();
@@ -367,7 +380,7 @@
 
     function init() {
       var draft = DkjRecordStore.loadDraft(FORM_ID);
-      if (draft) state = Object.assign(emptyState(spec), draft);
+      if (draft) state = restoreState(spec, draft);
       writeForm();
       bind();
       renderHistory();
@@ -383,7 +396,7 @@
       if (global.DkjDeepLink) {
         var opened = DkjDeepLink.apply(FORM_ID, function (rec) {
           editingId = rec.id;
-          state = Object.assign(emptyState(spec), rec);
+          state = restoreState(spec, rec);
           writeForm();
         });
         if (opened) setStatus('기록 불러옴', true);
@@ -394,5 +407,5 @@
     else init();
   }
 
-  global.DkjFrForm = { mount: mount, today: today, emptyState: emptyState };
+  global.DkjFrForm = { mount: mount, today: today, emptyState: emptyState, restoreState: restoreState };
 })(window);

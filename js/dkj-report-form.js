@@ -179,12 +179,6 @@
       if (!host) return;
       host.innerHTML = (spec.blocks || []).map(blockHtml).join('');
 
-      host.querySelectorAll('[data-v]').forEach(function (el) {
-        el.addEventListener('input', function () {
-          state.values[el.getAttribute('data-v')] = el.value;
-          scheduleDraft();
-        });
-      });
       host.querySelectorAll('[data-chk]').forEach(function (b) {
         b.addEventListener('click', function () {
           if (state.locked) return;
@@ -192,13 +186,6 @@
           var o = b.getAttribute('data-o');
           state.values[id] = state.values[id] === o ? '' : o;
           renderBlocks();
-          scheduleDraft();
-        });
-      });
-      host.querySelectorAll('[data-t]').forEach(function (el) {
-        el.addEventListener('input', function () {
-          state.tables[el.getAttribute('data-t')][Number(el.getAttribute('data-r'))]
-            [el.getAttribute('data-c')] = el.value;
           scheduleDraft();
         });
       });
@@ -368,6 +355,22 @@
     }
 
     function bind() {
+      // 본문 인원 입력도 직원 선택기로 교체된다. 부모에 위임해 교체된 select와
+      // 보고서 블록을 다시 그린 뒤의 입력 모두 같은 저장 경로를 사용한다.
+      var blocks = $('reportBlocks');
+      if (blocks) ['input', 'change'].forEach(function (eventName) {
+        blocks.addEventListener(eventName, function (event) {
+          var el = event.target;
+          if (!el || state.locked) return;
+          if (el.hasAttribute('data-v')) {
+            state.values[el.getAttribute('data-v')] = el.value;
+          } else if (el.hasAttribute('data-t')) {
+            state.tables[el.getAttribute('data-t')][Number(el.getAttribute('data-r'))]
+              [el.getAttribute('data-c')] = el.value;
+          } else return;
+          scheduleDraft();
+        });
+      });
       // dkj-approval.js 의 직원 자동선택이 writer/reviewer/approver 칸을 <select>로
       // 통째로 바꿔치기한다 — 개별 요소 리스너 대신 document 위임 리스너를 써야
       // 그 뒤로도 계속 값이 잡힌다.

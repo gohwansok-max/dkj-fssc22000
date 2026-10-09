@@ -8,7 +8,7 @@
 
 | 구분 | 내용 |
 |---|---|
-| 기록양식 | 74종의 현장 기록 작성, 저장, 전자결재 및 정본 인쇄 |
+| 기록양식 | 77종의 현장 기록 작성, 저장, 전자결재 및 정본 인쇄 |
 | 기록보관함 | 통합 조회, 엑셀·CSV·PDF 내보내기, JSON 백업·복원 |
 | 문서센터 | 매뉴얼·절차서 등 143종 문서 열람 |
 | MDR | 문서 제목·개정번호의 정본 관리 |
@@ -36,9 +36,19 @@ python3 scripts/build-catalog-bundles.py
 
 # 정적 자원을 수정한 경우
 python3 scripts/build-sw-precache.py
+
+# 회귀검증 (Node.js 20 이상, 별도 패키지 설치 불필요)
+node --test tests/*.test.js
+python3 scripts/smoke-check.py
+python3 scripts/build-ledger-forms.py --check
+python3 scripts/build-form-shells.py --check
 ```
 
 `main` 브랜치에 병합·push하면 GitHub Actions가 GitHub Pages에 배포합니다. 작업은 새 브랜치에서 하고, 완료 후에는 `main` 대상 draft PR로 검토를 요청합니다.
+
+업무 콘솔의 기록 상태 판정은 `js/dkj-record-evaluator.js`가 담당합니다. 기록 배열·임시본·생산일 판정 함수를 받아 결과를 반환하며, DOM·저장소·인증에 접근하지 않습니다. 기존 `DkjConsole.evaluate(form, date)`는 저장된 데이터를 읽어 이 모듈에 전달하므로 월 캘린더의 호출 방식도 유지됩니다.
+
+생산일 정규화와 날짜 예외 우선순위는 `js/dkj-operation-calendar-model.js`에서 공유합니다. 콘솔과 기록양식의 읽기 전용 캘린더 모두 이 규칙을 사용합니다. 스크립트 순서는 공통 모델 → 기록 판정기 → 콘솔이며, 휴무행을 사용하는 대장에서는 공통 모델 → 읽기 전용 캘린더 순서입니다. 대장 생성기도 이 순서를 유지합니다.
 
 ## 운영 점검
 
