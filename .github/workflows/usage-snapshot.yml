@@ -1,0 +1,37 @@
+name: 사용현황 일일 스냅샷
+
+# RTDB는 "지금 값"만 들고 있어서 추이를 보려면 매일 그 시점 값을 떠서 쌓아둬야
+# 한다. 이 워크플로가 하루 영업 마감(16:00 KST) 뒤 scripts/snapshot_usage.py 를
+# 돌려 로그인·기록작성 활동을 집계하고 records/<날짜별 키>에 저장한다.
+# 자세한 설계는 docs/USAGE_MONITORING.md 참고. RTDB 규칙 변경은 필요 없다
+# (missing-record-alert와 같은 "records/$recordKey는 이미 쓰기가 열려 있다" 패턴).
+
+on:
+  schedule:
+    # 14:50 UTC = 23:50 KST, 매일 1회
+    - cron: '50 14 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '실제로 RTDB에 쓰지 않고 콘솔에만 집계 결과 출력'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 사용현황 집계 및 저장
+        env:
+          # 스케줄 실행은 항상 실제 저장. 수동 실행(workflow_dispatch)은 기본 dry-run.
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        run: python3 scripts/snapshot_usage.py
