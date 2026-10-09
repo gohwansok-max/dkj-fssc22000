@@ -160,6 +160,7 @@ def render_html(code: str, spec: dict, v: str) -> str:
     # 서식에서만 필요하므로(요일·휴무 판정 자체가 그 서식에만 있다) 여기서 조건부로
     # 넣어 재생성해도 사라지지 않게 한다.
     calendar_script = (
+        f'\n  <script src="../js/dkj-operation-calendar-model.js?v={v}"></script>'
         f'\n  <script src="../js/dkj-operation-calendar.js?v={v}"></script>'
         if spec.get("autoWeekday")
         else ""
