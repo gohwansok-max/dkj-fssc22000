@@ -942,8 +942,10 @@
     var secHtml = '';
     if (sections.length) {
       secHtml = sections.map(function (s) {
+        var value = state[s.id];
+        if (value === undefined && s.legacyId && typeof state[s.legacyId] === 'string') value = state[s.legacyId];
         return '<div class="off-sec">' + esc(s.label) + '</div>' +
-          '<div class="off-box tiny">' + esc(state[s.id] || '') + '</div>';
+          '<div class="off-box tiny">' + esc(value || '') + '</div>';
       }).join('');
     }
 
