@@ -57,6 +57,13 @@
           changed = true;
         }
       });
+      // 점검자 칸이 있는 일보(O/X·모니터링·FR 등)는 작성자와 같은 사람으로 맞춘다.
+      // 작성자가 이미 있으면 그 이름을, 없으면 로그인한 사람 이름을 넣는다. 이미 값이 있으면 건드리지 않는다.
+      if (state && Object.prototype.hasOwnProperty.call(state, 'inspector') && (state.inspector === '' || state.inspector == null) &&
+          u && (u.name || u.empId)) {
+        state.inspector = state.writer || (u.name || ('사번 ' + u.empId));
+        changed = true;
+      }
       if (state && state.approvals) {
         if (!state.approvals.writer && (state.writer || state.inspector || state.monitorName || state.handler)) {
           state.approvals.writer = state.writer || state.inspector || state.monitorName || state.handler;
