@@ -76,6 +76,15 @@ window.DKJ_CONSOLE_FORMS={
           }
         },
         {
+          "code": "DKJ-S-02-12",
+          "title": "제조시설·설비점검표",
+          "priority": "high",
+          "href": "records/DKJ-S-02-12.html",
+          "check": {
+            "mode": "dayColumn"
+          }
+        },
+        {
           "code": "DKJ-S-02-09",
           "title": "세척소독제 관리",
           "priority": "normal",
