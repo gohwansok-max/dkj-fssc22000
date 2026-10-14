@@ -99,18 +99,33 @@
     }).join('');
 
     var packagings = Array.isArray(state.packagings) ? state.packagings : [];
-    var fallbackPass = {
-      productName: prod,
-      start: (state.rows && state.rows[0] && state.rows[0].time) || '',
-      end: (state.rows && state.rows[state.rows.length - 1] && state.rows[state.rows.length - 1].time) || '',
-      ok: state.hasDeviation ? '×' : '',
-      qty: state.passQty || '',
-      note: state.remark || ''
+    // 모니터링 행에 실제로 찍힌 제품명(시점 값 제외)을 등장 순서대로 중복 없이 뽑는다.
+    // 예전엔 이 표가 헤더의 state.productName(화면에 마지막으로 찍힌 값 하나) 로만
+    // 채워져서, 측정행마다 다른 제품을 적어도 정본엔 제품명이 하나만(또는 전부 같은
+    // 값으로) 떴다(2026-10-14 현장 피드백) — 이제 행마다 실제로 고른 제품별로 한
+    // 줄씩 낸다.
+    var productsUsed = [];
+    (state.rows || []).forEach(function (r) {
+      var name = (r.item || '').trim();
+      if (!name || TIMEPOINT_LABELS.indexOf(name) !== -1) return;
+      if (productsUsed.indexOf(name) === -1) productsUsed.push(name);
+    });
+    if (!productsUsed.length && prod) productsUsed.push(prod);
+    var fallbackPassFor = function (name) {
+      var rowsForProduct = (state.rows || []).filter(function (r) { return (r.item || '').trim() === name; });
+      var times = rowsForProduct.map(function (r) { return r.time; }).filter(Boolean).sort();
+      return {
+        productName: name,
+        start: times[0] || '',
+        end: times[times.length - 1] || '',
+        ok: rowsForProduct.some(function (r) { return r.judge === 'X'; }) ? '×' : '○',
+        qty: state.passQty || '',
+        note: state.remark || ''
+      };
     };
-    var hasPackaging = packagings.some(function (p) { return p && (p.lot || p.defect || p.usage); });
     var passList = Array.isArray(state.passLog) && state.passLog.length
       ? state.passLog
-      : hasPackaging ? packagings.map(function () { return fallbackPass; }) : [fallbackPass];
+      : productsUsed.map(fallbackPassFor);
     var passRows = passList.map(function (p, i) {
       var pack = packagings[i] || {};
       return '<tr>' +
@@ -152,23 +167,6 @@
       '<td class="c">1.5mm이상 불검출</td><td class="c">2.5mm이상 불검출</td><td class="c">70</td><td class="c">70</td></tr>' +
       '</table>';
 
-    /* 포장재 정보 — 화면과 같은 5행 고정 표. 예전 기록(낱개 필드 1건)도 그대로 인쇄된다. */
-    var packRows = Array.isArray(state.packagings) && state.packagings.length
-      ? state.packagings
-      : [{ lot: state.packagingLot || '', usage: state.packagingUsage || '',
-           defect: state.packagingDefectCount || '' }];
-    var packagingTable = '<table class="off-nest">' +
-      '<tr class="off-nest-hd"><th style="width:10%">순번</th><th>포장재 LOT</th>' +
-      '<th style="width:24%">사용량</th><th style="width:18%">부적합 개수</th></tr>';
-    for (var pi = 0; pi < 5; pi++) {
-      var pr = packRows[pi] || {};
-      packagingTable += '<tr><td class="c">' + (pi + 1) + '</td>' +
-        '<td class="l">' + esc(pr.lot || '') + '</td>' +
-        '<td class="c">' + esc(pr.usage ? (pr.usage + ' EA') : '') + '</td>' +
-        '<td class="c">' + esc(pr.defect || '') + '</td></tr>';
-    }
-    packagingTable += '</table>';
-
     var methodHtml =
       '*작업시작 전에 금속검출기 감도 및 정상 작동여부 확인 ※ 반드시 표준시편(Fe, Sus) 알코올 소독 후 실시<br>' +
       '*표준시편(Fe 1.5/2.0/2.5/3.0mm, Sus 2.5/3.0/3.5mm) 만 통과시켜 검출 여부 확인, 기록<br>' +
@@ -191,7 +189,7 @@
       '생산팀장의 검토 후 HACCP팀장의 승인을 얻은 후 기록 관리한다.';
 
     return (
-      '<div class="ps-page off-ccp">' +
+      '<div class="ps-page off-ccp off-ccp2p">' +
       officialHeader({
         docNo: 'DKJ-H-01-02',
         enactDate: '2024. 02. 13',
@@ -213,10 +211,6 @@
       '</td>' +
       '<th class="lab" style="width:12%">작 성 자</th>' +
       '<td class="c" style="width:21%">' + esc(writer) + '</td>' +
-      '</tr>' +
-      '<tr>' +
-      '<th class="lab">포장재<br>정보</th>' +
-      '<td class="pad0" colspan="3">' + packagingTable + '</td>' +
       '</tr>' +
       '<tr>' +
       '<th class="lab">위해요소</th>' +
