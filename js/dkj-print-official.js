@@ -176,7 +176,7 @@
       '<table class="off-nest">' +
       '<tr class="off-nest-hd">' +
       '<th colspan="2">구분</th><th>Fe (철)</th><th>SUS (비철)</th><th>물성보정</th><th>안정도</th></tr>' +
-      '<tr><td class="c" rowspan="3">신선편의식품</td><td class="l">중량 500g 이하</td>' +
+      '<tr><td class="c" rowspan="3">신선편의식품</td><td class="l">중량 500g 미만</td>' +
       '<td class="c">2.0mm이상 불검출</td><td class="c">3.0mm이상 불검출</td><td class="c">70</td><td class="c">450</td></tr>' +
       '<tr><td class="l">중량 500g 이상</td>' +
       '<td class="c">2.5mm이상 불검출</td><td class="c">3.5mm이상 불검출</td><td class="c">70</td><td class="c">954</td></tr>' +

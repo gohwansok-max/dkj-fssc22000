@@ -53,8 +53,8 @@
   /* 물성보정/안정도 — 인쇄물 한계기준표의 중량구간별 고정값(임시 운영값, 확정 전).
      매 행마다 같은 값이라 행 데이터로 안 두고 중량구간 선택 하나로 도출한다. */
   var WEIGHT_CLASS = {
-    fresh500: { label: '신선편의식품 500g 이하', adjust: '70', stable: '450', fe: '2.0', sus: '3.0' },
-    fresh1kg: { label: '신선편의식품 500g~1kg', adjust: '70', stable: '954', fe: '2.5', sus: '3.5' },
+    fresh500: { label: '신선편의식품 500g 미만', adjust: '70', stable: '450', fe: '2.0', sus: '3.0' },
+    fresh1kg: { label: '신선편의식품 500g 이상', adjust: '70', stable: '954', fe: '2.5', sus: '3.5' },
     freshOver1kg: { label: '신선편의식품 1kg 이상', adjust: '70', stable: '252', fe: '3.0', sus: '3.5' },
     material: { label: '부재료(기타가공품)', adjust: '70', stable: '70', fe: '1.5', sus: '2.5' }
   };
@@ -393,9 +393,9 @@
         '<td><button type="button" class="mon-in mon-picker-btn" data-pick-timepoint="' + i + '">' +
         (row.item ? esc(row.item) : '<span class="ph">구분 선택</span>') + '</button></td>' +
         '<td><button type="button" class="mon-in mon-picker-btn" data-pick-product="' + i + '"' + (isWorking ? '' : ' disabled') + '>' +
-        (productValue ? esc(productValue) : '<span class="ph">' + (isWorking ? '품목 선택' : '작업중만 선택') + '</span>') + '</button>' +
+        (productValue ? esc(productValue) : '<span class="ph">' + (isWorking ? '품목 선택' : '작업중만 선택') + '</span>') + '</button></td>' +
+        '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '">' +
         '<button type="button" class="mon-now-row-btn" data-now-row="' + i + '">⏱ 지금시각</button></td>' +
-        '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
         '<td class="criteria-cell">' + esc(criteriaForProduct(productValue)) + '</td>' +
         '<td>' + oxSelect(row.fe, 'fe') + '</td>' +
         '<td>' + oxSelect(row.sus, 'sus') + '</td>' +
