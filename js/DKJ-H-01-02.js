@@ -332,11 +332,14 @@
   }
 
   function oxSelect(val, field) {
-    return '<select class="mon-in" data-f="' + field + '">' +
-      '<option value=""' + (!val ? ' selected' : '') + '>-</option>' +
-      '<option value="O"' + (val === 'O' ? ' selected' : '') + '>O</option>' +
-      '<option value="X"' + (val === 'X' ? ' selected' : '') + '>X</option>' +
-      '</select>';
+    var next = val === 'O' ? 'X' : val === 'X' ? '' : 'O';
+    return '<button type="button" class="mon-in ox-cycle" style="min-width:42px;min-height:40px;font-weight:700" data-cycle="' + field + '" data-next="' + next + '" aria-label="' + field + ' ' + (val || '-') + '">' + (val || '-') + '</button>';
+  }
+
+  function criteriaForProduct(name) {
+    var key = PRODUCT_WEIGHT_CLASS[(name || '').trim()];
+    var wc = WEIGHT_CLASS[key] || WEIGHT_CLASS[$('weightClass').value] || WEIGHT_CLASS.fresh500;
+    return 'Fe Ø' + wc.fe + '㎜ · SUS Ø' + wc.sus + '㎜';
   }
 
   function evaluateRow(row) {
@@ -362,13 +365,13 @@
       evaluateRow(row);
       var isTimepoint = ITEM_TIMEPOINTS.indexOf(row.item) !== -1;
       var timepointOpts = '<option value=""' + (isTimepoint ? '' : ' selected') + '>-</option>' +
-        ITEM_TIMEPOINTS.map(function (tp) {
-          return '<option value="' + esc(tp) + '"' + (row.item === tp ? ' selected' : '') + '>' + esc(tp) + '</option>';
-        }).join('');
+        ITEM_TIMEPOINTS.map(function (tp) { return '<option value="' + esc(tp) + '"' + (row.item === tp ? ' selected' : '') + '>' + esc(tp) + '</option>'; }).join('');
+      var productValue = isTimepoint ? '' : (row.item || '');
       return '<tr data-i="' + i + '">' +
         '<td><select class="mon-in" data-f="timepoint">' + timepointOpts + '</select></td>' +
-        '<td><input type="text" class="mon-in" data-f="product" list="ccpItemOptions" value="' + esc(isTimepoint ? '' : (row.item || '')) + '" placeholder="제품명"></td>' +
+        '<td><input type="text" class="mon-in" data-f="product" list="ccpItemOptions" value="' + esc(productValue) + '" placeholder="품목 선택"></td>' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
+        '<td class="criteria-cell">' + esc(criteriaForProduct(productValue)) + '</td>' +
         '<td>' + oxSelect(row.fe, 'fe') + '</td>' +
         '<td>' + oxSelect(row.sus, 'sus') + '</td>' +
         '<td>' + oxSelect(row.prodOnly, 'prodOnly') + '</td>' +
@@ -382,6 +385,14 @@
     body.querySelectorAll('.mon-in').forEach(function (inp) {
       inp.addEventListener('change', onRowInput);
       inp.addEventListener('input', onRowInput);
+    });
+    body.querySelectorAll('[data-cycle]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (state.locked) return;
+        var tr = btn.closest('tr'), i = Number(tr.getAttribute('data-i'));
+        state.rows[i][btn.getAttribute('data-cycle')] = btn.getAttribute('data-next');
+        renderRows(); scheduleDraft();
+      });
     });
     body.querySelectorAll('[data-del]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -414,6 +425,10 @@
         return;
       }
       applyItemDefaults(state.rows[i]);
+      if (f === 'product' && state.rows[i].item) {
+        state.productName = state.rows[i].item;
+        applyProductWeightClass(state.rows[i].item);
+      }
       renderRows();
       scheduleDraft();
       return;
@@ -435,13 +450,11 @@
     state.equipment = $('equipment').value;
     var pSel = $('productSelect');
     var pInp = $('productName');
-    if (pSel && pSel.value === '__custom__') {
-      state.productName = pInp ? pInp.value.trim() : '';
-    } else if (pSel && pSel.value) {
-      state.productName = pSel.value;
-    } else {
-      state.productName = pInp ? pInp.value.trim() : '';
-    }
+    var rowProduct = state.rows && state.rows.find(function (r) { return r.item && ITEM_TIMEPOINTS.indexOf(r.item) === -1; });
+    if (rowProduct) state.productName = rowProduct.item;
+    else if (pSel && pSel.value === '__custom__') state.productName = pInp ? pInp.value.trim() : '';
+    else if (pSel && pSel.value) state.productName = pSel.value;
+    else state.productName = pInp ? pInp.value.trim() : '';
     state.lot = $('lot').value;
     state.feSize = $('feSize').value;
     state.susSize = $('susSize').value;

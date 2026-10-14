@@ -56,7 +56,7 @@
           <label for="equipment">금속검출기</label>
           <input type="text" id="equipment" placeholder="호기·관리번호" value="MD-01">
         </div>
-        <div class="dkj-field">
+        <div class="dkj-field" style="display:none" aria-hidden="true">
           <label for="productSelect">품목 *</label>
           <select id="productSelect">
             <option value="">-- 품목 선택 --</option>
@@ -71,7 +71,7 @@
             <button type="button" class="pill-btn ghost" id="btnSyncLot" title="작업일자 기준으로 LOT 생성" style="white-space:nowrap;padding:0 10px;min-height:44px;font-size:12px;">일자LOT</button>
           </div>
         </div>
-        <div class="dkj-field">
+        <div class="dkj-field" style="display:none" aria-hidden="true">
           <label for="feSize">Fe 시편 (㎜)</label>
           <select id="feSize">
             <option value="2.0">2.0</option>
@@ -79,7 +79,7 @@
             <option value="3.0">3.0</option>
           </select>
         </div>
-        <div class="dkj-field">
+        <div class="dkj-field" style="display:none" aria-hidden="true">
           <label for="susSize">SUS 시편 (㎜)</label>
           <select id="susSize">
             <option value="3.0">3.0</option>
@@ -100,7 +100,7 @@
           <label for="monitorName">모니터링 담당 *</label>
           <input type="text" id="monitorName" placeholder="성명">
         </div>
-        <div class="dkj-field">
+        <div class="dkj-field" style="display:none" aria-hidden="true">
           <label for="timing">점검 구분</label>
           <select id="timing">
             <option value="시작전">작업시작 전</option>
@@ -140,6 +140,7 @@
             <tr>
               <th colspan="2" style="width:20%">품목</th>
               <th rowspan="2">시각</th>
+              <th rowspan="2">시편 기준</th>
               <th colspan="2">시편만</th>
               <th rowspan="2">제품만</th>
               <th colspan="2">제품+시편</th>
