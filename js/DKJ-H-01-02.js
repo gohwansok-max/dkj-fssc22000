@@ -64,20 +64,39 @@
      목록에 없는 품목(직접 입력)은 매핑이 없으니 사람이 그대로 손으로 고른다. */
   var PRODUCT_WEIGHT_CLASS = {
     '양상추샐러드': 'freshOver1kg',
+    '양상추 샐러드': 'freshOver1kg',
     '농협 채소믹스': 'fresh1kg',
     '샐러디아 채소믹스': 'fresh1kg',
     '급식)바로먹는 유러피언 샐러드 채소믹스': 'fresh1kg',
     '슬로우캘리샐러드믹스': 'fresh500'
   };
 
+  function productWeightClassKey(name) {
+    var product = (name || '').trim();
+    return PRODUCT_WEIGHT_CLASS[product] || PRODUCT_WEIGHT_CLASS[product.replace(/\s/g, '')] || '';
+  }
+
+  function applyRowStandards() {
+    (state.rows || []).forEach(function (row) {
+      var product = row.item && ITEM_TIMEPOINTS.indexOf(row.item) === -1 ? row.item : state.productName;
+      var wc = WEIGHT_CLASS[productWeightClassKey(product)];
+      if (!wc) return;
+      row.adjust = wc.adjust;
+      row.stable = wc.stable;
+      row.feSize = wc.fe;
+      row.susSize = wc.sus;
+    });
+  }
+
   function applyProductWeightClass(name) {
-    var wcKey = PRODUCT_WEIGHT_CLASS[name];
+    var wcKey = productWeightClassKey(name);
     var wc = WEIGHT_CLASS[wcKey];
     if (!wc) return;
     $('weightClass').value = wcKey;
     $('feSize').value = wc.fe;
     $('susSize').value = wc.sus;
     renderWeightHint();
+    applyRowStandards();
   }
 
   var PRODUCT_OPTIONS = [];
@@ -337,7 +356,7 @@
   }
 
   function criteriaForProduct(name) {
-    var key = PRODUCT_WEIGHT_CLASS[(name || '').trim()];
+    var key = productWeightClassKey(name);
     var wc = WEIGHT_CLASS[key] || WEIGHT_CLASS[$('weightClass').value] || WEIGHT_CLASS.fresh500;
     return 'Fe Ø' + wc.fe + '㎜ · SUS Ø' + wc.sus + '㎜';
   }
@@ -455,6 +474,7 @@
     else if (pSel && pSel.value === '__custom__') state.productName = pInp ? pInp.value.trim() : '';
     else if (pSel && pSel.value) state.productName = pSel.value;
     else state.productName = pInp ? pInp.value.trim() : '';
+    applyRowStandards();
     state.lot = $('lot').value;
     state.feSize = $('feSize').value;
     state.susSize = $('susSize').value;
