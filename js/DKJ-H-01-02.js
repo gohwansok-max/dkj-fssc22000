@@ -36,13 +36,10 @@
     }
   }
 
-  /* "제품명" 칸의 자동완성 목록 — 품목 마스터만 담는다("구분" 칸은 별도 드롭다운이라
-     여기 안 섞는다). datalist라 목록에서 고르거나 목록에 없는 이름도 그대로 입력할 수 있다. */
-  function renderItemOptions() {
-    var dl = $('ccpItemOptions');
-    if (!dl) return;
-    dl.innerHTML = PRODUCT_OPTIONS.map(function (name) { return '<option value="' + esc(name) + '"></option>'; }).join('');
-  }
+  /* "제품명" 칸 — 예전엔 datalist 자동완성 입력칸이었는데, mon-table 이 overflow-x
+     로 가로 스크롤되는 좁은 표 안이라 태블릿에서 입력칸도 좁고 자동완성 목록도
+     잘리거나 너무 작아 탭이 안 된다는 현장 피드백(2026-10-14)을 받아 전체화면 팝업
+     선택창으로 바꿨다. 아래 ensureProductPicker()~chooseProduct() 참고. */
 
   /* 작업일자 → LOT 자동생성: "2026-09-11" → "20260911-1" (하이픈 제거 + "-1" 접미) */
   function dateToLot(d) {
@@ -388,7 +385,8 @@
       var productValue = isTimepoint ? '' : (row.item || '');
       return '<tr data-i="' + i + '">' +
         '<td><select class="mon-in" data-f="timepoint">' + timepointOpts + '</select></td>' +
-        '<td><input type="text" class="mon-in" data-f="product" list="ccpItemOptions" value="' + esc(productValue) + '" placeholder="품목 선택"></td>' +
+        '<td><button type="button" class="mon-in mon-picker-btn" data-pick-product="' + i + '">' +
+        (productValue ? esc(productValue) : '<span class="ph">품목 선택</span>') + '</button></td>' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
         '<td class="criteria-cell">' + esc(criteriaForProduct(productValue)) + '</td>' +
         '<td>' + oxSelect(row.fe, 'fe') + '</td>' +
@@ -404,6 +402,9 @@
     body.querySelectorAll('.mon-in').forEach(function (inp) {
       inp.addEventListener('change', onRowInput);
       inp.addEventListener('input', onRowInput);
+    });
+    body.querySelectorAll('[data-pick-product]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openProductPicker(Number(btn.getAttribute('data-pick-product'))); });
     });
     body.querySelectorAll('[data-cycle]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -431,28 +432,104 @@
     var tr = e.target.closest('tr');
     var i = Number(tr.getAttribute('data-i'));
     var f = e.target.getAttribute('data-f');
-    // "구분"(시점 드롭다운)과 "제품명"(자동완성 입력칸)은 화면에서만 나뉜 두 칸이고,
-    // 실제로는 같은 row.item 하나를 쓴다 — 어느 칸을 마지막으로 고쳤는지가 곧 값이 된다.
-    if (f === 'timepoint' || f === 'product') {
+    // "구분"(시점 드롭다운)과 "제품명"(팝업 선택 버튼, chooseProduct() 참고)은
+    // 화면에서만 나뉜 두 칸이고, 실제로는 같은 row.item 하나를 쓴다.
+    if (f === 'timepoint') {
       state.rows[i].item = e.target.value;
-      // 제품명은 자유 입력 칸이라, 글자 하나 칠 때마다(input) 표 전체를 다시 그리면
-      // 포커스가 끊겨 타이핑이 안 된다. 입력 중엔 저장만 해 두고, 선택을 확정한
-      // 순간(change: blur 또는 datalist 항목 클릭)에만 검출확인 기본값을 채우고
-      // 다시 그린다.
-      if (f === 'product' && e.type === 'input') {
-        scheduleDraft();
-        return;
-      }
       applyItemDefaults(state.rows[i]);
-      if (f === 'product' && state.rows[i].item) {
-        state.productName = state.rows[i].item;
-        applyProductWeightClass(state.rows[i].item);
-      }
       renderRows();
       scheduleDraft();
       return;
     }
     state.rows[i][f] = e.target.value;
+    renderRows();
+    scheduleDraft();
+  }
+
+  /* 제품명 선택 팝업 — mon-table 칸 안이 아니라 document.body 에 바로 붙는
+     전체화면 오버레이라 표의 overflow-x(가로 스크롤)에 안 잘린다. 검색어를 치면
+     PRODUCT_OPTIONS 를 그 자리에서 거르고, 목록에 없는 이름도 Enter 또는
+     "직접 입력으로 사용" 버튼으로 그대로 쓸 수 있다(예전 datalist와 동일하게
+     자유 입력을 막지 않는다). */
+  var productPickerRowIndex = null;
+
+  function ensureProductPicker() {
+    if ($('productPickerOverlay')) return;
+    var ov = document.createElement('div');
+    ov.id = 'productPickerOverlay';
+    ov.className = 'dkj-picker-overlay';
+    ov.hidden = true;
+    ov.innerHTML =
+      '<div class="dkj-picker-sheet" role="dialog" aria-modal="true" aria-label="제품명 선택">' +
+      '<div class="dkj-picker-head"><h3>제품명 선택</h3><button type="button" class="dkj-picker-close" aria-label="닫기">✕</button></div>' +
+      '<input type="text" class="dkj-picker-search" id="productPickerSearch" placeholder="제품명 검색 또는 직접 입력" autocomplete="off" inputmode="search">' +
+      '<div class="dkj-picker-list" id="productPickerList"></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+
+    ov.addEventListener('click', function (e) { if (e.target === ov) closeProductPicker(); });
+    ov.querySelector('.dkj-picker-close').addEventListener('click', closeProductPicker);
+    var search = $('productPickerSearch');
+    search.addEventListener('input', function () { renderProductPickerList(search.value); });
+    search.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      var v = search.value.trim();
+      if (v) chooseProduct(v);
+    });
+  }
+
+  function renderProductPickerList(query) {
+    var list = $('productPickerList');
+    var q = (query || '').trim();
+    var ql = q.toLowerCase();
+    var items = PRODUCT_OPTIONS.filter(function (name) {
+      return !ql || name.toLowerCase().indexOf(ql) !== -1;
+    });
+    var html = '<button type="button" class="dkj-picker-item" data-pick="">✕ 선택 안 함(비우기)</button>' +
+      items.map(function (name) {
+        return '<button type="button" class="dkj-picker-item" data-pick="' + esc(name) + '">' + esc(name) + '</button>';
+      }).join('');
+    if (q && PRODUCT_OPTIONS.indexOf(q) === -1) {
+      html += '<button type="button" class="dkj-picker-item dkj-picker-item-custom" data-pick="' + esc(q) + '">✏️ "' + esc(q) + '" 직접 입력으로 사용</button>';
+    }
+    list.innerHTML = html;
+    list.querySelectorAll('[data-pick]').forEach(function (btn) {
+      btn.addEventListener('click', function () { chooseProduct(btn.getAttribute('data-pick')); });
+    });
+  }
+
+  function openProductPicker(i) {
+    if (state.locked) return;
+    ensureProductPicker();
+    productPickerRowIndex = i;
+    var ov = $('productPickerOverlay');
+    ov.hidden = false;
+    var search = $('productPickerSearch');
+    search.value = '';
+    renderProductPickerList('');
+    setTimeout(function () { search.focus(); }, 50);
+  }
+
+  function closeProductPicker() {
+    var ov = $('productPickerOverlay');
+    if (ov) ov.hidden = true;
+    productPickerRowIndex = null;
+  }
+
+  function chooseProduct(name) {
+    if (productPickerRowIndex == null) return;
+    var row = state.rows[productPickerRowIndex];
+    if (!row) { closeProductPicker(); return; }
+    row.item = name;
+    applyItemDefaults(row);
+    // 품목 마스터에 있는 이름을 고르면(=중량구간 매핑이 있으면) 헤더의 한계기준값도
+    // 같이 맞춘다 — 2026-10-14 현장 개선(온라인 중량구간 자동화)과 같은 동작이다.
+    if (row.item) {
+      state.productName = row.item;
+      applyProductWeightClass(row.item);
+    }
+    closeProductPicker();
     renderRows();
     scheduleDraft();
   }
@@ -497,7 +574,6 @@
     $('workDate').value = state.workDate || today();
     $('equipment').value = state.equipment || 'MD-01';
     syncProductUi();
-    renderItemOptions();
     $('lot').value = state.lot || dateToLot(state.workDate || today());
     $('feSize').value = state.feSize || '2.0';
     $('susSize').value = state.susSize || '3.0';

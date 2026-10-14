@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-bbdf54ba49fb';
+self.DKJ_SW_VERSION = 'v1-4172551572f3';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -319,6 +319,7 @@ self.DKJ_PRECACHE = [
   './js/records-center.js',
   './js/system-settings.js',
   './js/traceability-hub.js',
+  './js/usage-dashboard.js',
   './js/vendor/exceljs.bare.min.js',
   './management-culture.html',
   './manifest.json',
@@ -410,4 +411,5 @@ self.DKJ_PRECACHE = [
   './records/FR-047.html',
   './system-settings.html',
   './traceability.html',
+  './usage-dashboard.html',
 ];

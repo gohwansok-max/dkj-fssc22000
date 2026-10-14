@@ -107,6 +107,7 @@ matrix·ledger 엔진으로 이관돼, 실행하면 현장 서식을 옛 O/X 버
 | 문서관리대장 | `mdr-register.html` | MDR-001 등록대장 |
 | 정본 문서 열람실 | `official-documents.html` | Google Drive 원본·PDF 259건 검색·열람·인쇄 (문서센터와 별개 경로) |
 | 시스템 설정 | `system-settings.html` | 시스템 관리자(사번 4343) 전용 — 로그인한 사용자 역할 배정 |
+| 사용현황 모니터링 | `usage-dashboard.html` | 시스템 관리자(사번 4343) 전용 — 로그인·기록작성 일일 스냅샷 추이(`docs/USAGE_MONITORING.md`) |
 | 종합 품질 대시보드 | `quality-dashboard.html` | CAPA 기한초과·모의회수 목표미달·추적성 후속확인 실시간 경보 |
 | 이탈·시정조치(CAPA) 관리 | `capa-management.html` | CCP 이탈·부적합의 CAPA 등록·진행·종결 |
 | 추적성 검증·모의회수 | `traceability.html` | 모의회수 훈련 기록, 2시간 목표·수량대조 |
@@ -120,7 +121,9 @@ matrix·ledger 엔진으로 이관돼, 실행하면 현장 서식을 옛 O/X 버
 `QUALITY_ALERT_AUTOMATION.md`, `GOOGLE_DRIVE_DOCUMENT_LIBRARY.md`, `NEXT_STEPS_AFTER_V2.md`,
 `NEW_TENANT_HARNESS.md` — 다른 농협 사업장을 새로 찍어낼 때 필요한 체크리스트,
 `MISSING_RECORD_ALERT.md` — 일지 미작성 시 텔레그램으로 알리는 GitHub Actions
-스케줄 워크플로)에 더 자세히 있습니다. `docs/`는 배포 제외 대상이라 소스에만 있습니다.
+스케줄 워크플로, `USAGE_MONITORING.md` — 로그인·기록작성 활동을 매일 스냅샷으로
+쌓아 운영자가 추이를 보는 사용현황 모니터링)에 더 자세히 있습니다. `docs/`는
+배포 제외 대상이라 소스에만 있습니다.
 
 ## AI 도우미 · 불편접수
 

@@ -493,6 +493,11 @@
       persist(activeId, localUser.name || activeId, 'local-token-' + activeId, null, 'uid-' + activeId,
         localUser.role, isWeakPassword(raw, id, password));
       if (global.DkjCloudSync) global.DkjCloudSync.start();
+      /* lastLoginAt 은 이 기기 로컬에만 남고 클라우드에는 안 올라가던 값이라,
+       * 다른 기기(관리자 화면·사용현황 집계)에서는 "누가 언제 마지막으로 로그인했는지"를
+       * 전혀 볼 수 없었다. 로그인 자체를 막으면 안 되므로 결과를 기다리지 않고
+       * 실패해도 조용히 흘려보낸다(오프라인 로그인은 정상 동작). */
+      pushUserToCloud(localUser)['catch'](function () {});
       return user();
     }
 
