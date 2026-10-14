@@ -1406,6 +1406,12 @@ input[type="number"]:out-of-range {
   white-space: nowrap;
 }
 .mon-table .mon-picker-btn .ph { color: #9aa6ab; font-weight: 500; }
+.mon-table .mon-picker-btn:disabled {
+  background: #f2f3f3;
+  color: #b9c0c3;
+  cursor: not-allowed;
+}
+.mon-table .mon-picker-btn:disabled .ph { color: #b9c0c3; }
 
 /* 행마다 "지금시각" 채우기 — 품목 선택 버튼 바로 아래, 그 행의 시각 칸만 채운다
    (전체 측정행을 훑어 첫 빈칸을 채우는 상단 툴바의 "지금시각 채우기"와는 별개). */

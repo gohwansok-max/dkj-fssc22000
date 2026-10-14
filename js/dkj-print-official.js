@@ -70,19 +70,37 @@
       });
     }
 
-    var TIMEPOINT_LABELS = ['작업시작전', '작업전', '작업종료시'];
-    var monBody = rows.map(function (r, i) {
-      // 품목 칸(2026-09-18 추가) — 화면에서 고른 값을 그대로 쓴다. 그 필드가 없는
-      // 옛 기록은 자리(맨 앞=시작 전, 맨 뒤=종료 시)로 대체 표시한다.
+    // "구분"(점검 시점) 3종. "작업전"은 2026-10-15에 "작업중"으로 바꾸고, 제품명은
+    // row.item(구분)과 분리된 row.product 칸으로 뺐다("작업중"일 때만 고를 수 있다
+    // — js/DKJ-H-01-02.js 참고). 이전 기록은 두 세대가 섞여 있을 수 있어 둘 다 읽는다.
+    var TIMEPOINT_LABELS = ['작업시작전', '작업중', '작업종료시'];
+    var LEGACY_TIMEPOINT_LABELS = ['작업시작전', '작업전', '작업종료시'];
+    function rowTimepointLabel(r, i) {
       var item = (r.item || '').trim();
       if (!item) {
         if (i === 0) item = '작업시작전';
         else if (i === rows.length - 1) item = '작업종료시';
-        else item = i === 1 ? prod : (r.productName || '');
+        else item = '작업중';
       }
-      var nameCell = TIMEPOINT_LABELS.indexOf(item) !== -1
-        ? '<td class="c strong">' + esc(item) + '</td>'
-        : '<td class="l">' + esc(item) + '</td>';
+      return item === '작업전' ? '작업중' : item;
+    }
+    function rowProductName(r, i) {
+      var item = (r.item || '').trim();
+      var isTimepoint = !item || TIMEPOINT_LABELS.indexOf(item) !== -1 || LEGACY_TIMEPOINT_LABELS.indexOf(item) !== -1;
+      // isTimepoint가 아니면 2026-10-15 이전 기록(품목 칸이 따로 없어 item 자체가
+      // 제품명이었다) — 그 값을 그대로 제품명으로 쓴다. "작업중"/"작업전"이면 분리된
+      // row.product 를, 없으면(2026-09-18~10-14 사이 기록) 자리 추정값을 쓴다.
+      if (!isTimepoint) return item;
+      if (item === '작업중' || item === '작업전') {
+        return (r.product || '').trim() || (i === 1 ? prod : (r.productName || ''));
+      }
+      return '';
+    }
+    var monBody = rows.map(function (r, i) {
+      var product = rowProductName(r, i);
+      var nameCell = product
+        ? '<td class="l">' + esc(product) + '</td>'
+        : '<td class="c strong">' + esc(rowTimepointLabel(r, i)) + '</td>';
       return (
         '<tr>' + nameCell +
         '<td class="c">' + esc(r.time || '') + '</td>' +
@@ -99,20 +117,21 @@
     }).join('');
 
     var packagings = Array.isArray(state.packagings) ? state.packagings : [];
-    // 모니터링 행에 실제로 찍힌 제품명(시점 값 제외)을 등장 순서대로 중복 없이 뽑는다.
-    // 예전엔 이 표가 헤더의 state.productName(화면에 마지막으로 찍힌 값 하나) 로만
-    // 채워져서, 측정행마다 다른 제품을 적어도 정본엔 제품명이 하나만(또는 전부 같은
-    // 값으로) 떴다(2026-10-14 현장 피드백) — 이제 행마다 실제로 고른 제품별로 한
-    // 줄씩 낸다.
+    // 모니터링 행에 실제로 찍힌 제품명을 등장 순서대로 중복 없이 뽑는다. 예전엔 이
+    // 표가 헤더의 state.productName(화면에 마지막으로 찍힌 값 하나) 로만 채워져서,
+    // 측정행마다 다른 제품을 적어도 정본엔 제품명이 하나만(또는 전부 같은 값으로)
+    // 떴다(2026-10-14 현장 피드백) — 이제 행마다 실제로 고른 제품별로 한 줄씩 낸다.
+    // rowProductName() 은 신규(row.item==='작업중'&& row.product)·구(품목 칸이 없어
+    // row.item 자체가 제품명이던 2026-10-15 이전) 기록을 둘 다 읽는다.
     var productsUsed = [];
-    (state.rows || []).forEach(function (r) {
-      var name = (r.item || '').trim();
-      if (!name || TIMEPOINT_LABELS.indexOf(name) !== -1) return;
+    (state.rows || []).forEach(function (r, i) {
+      var name = rowProductName(r, i);
+      if (!name) return;
       if (productsUsed.indexOf(name) === -1) productsUsed.push(name);
     });
     if (!productsUsed.length && prod) productsUsed.push(prod);
     var fallbackPassFor = function (name) {
-      var rowsForProduct = (state.rows || []).filter(function (r) { return (r.item || '').trim() === name; });
+      var rowsForProduct = (state.rows || []).filter(function (r, i) { return rowProductName(r, i) === name; });
       var times = rowsForProduct.map(function (r) { return r.time; }).filter(Boolean).sort();
       return {
         productName: name,
