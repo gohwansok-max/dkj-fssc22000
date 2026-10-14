@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-VER = '?v=124'
+VER = '?v=125'
 HEAD_ANCHOR = re.compile(r'^([ \t]*)</head>', re.M)
 BODY_ANCHOR = re.compile(r'^([ \t]*)</body>', re.M)
 
