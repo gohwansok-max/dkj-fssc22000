@@ -1407,3 +1407,25 @@ input[type="number"]:out-of-range {
 }
 .mon-table .mon-picker-btn .ph { color: #9aa6ab; font-weight: 500; }
 
+/* 행마다 "지금시각" 채우기 — 품목 선택 버튼 바로 아래, 그 행의 시각 칸만 채운다
+   (전체 측정행을 훑어 첫 빈칸을 채우는 상단 툴바의 "지금시각 채우기"와는 별개). */
+.mon-table .mon-now-row-btn {
+  display: block;
+  width: 100%;
+  min-height: 30px;
+  margin-top: 4px;
+  padding: 3px 6px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-s);
+  background: #f8faf9;
+  color: var(--ink-2);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mon-table .mon-now-row-btn:hover {
+  background: var(--nh-green-50);
+  border-color: var(--nh-green);
+  color: var(--nh-green-ink);
+}
+

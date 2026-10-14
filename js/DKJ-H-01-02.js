@@ -23,13 +23,16 @@
   var ITEM_TIMEPOINTS = ['작업시작전', '작업전', '작업종료시'];
 
   /* 품목 선택에 따라 검출확인 O/X 기본값을 채운다 — 표준시편(Fe/SUS)은 항상 검출(O)
-     이어야 하고, 실제 제품이 지나갈 때만 제품만/제품+시편 칸이 의미가 있다(2026-09-18
-     현장 요청). 이미 값이 있어도 품목을 바꾸면 그 품목의 기본값으로 다시 맞춘다 —
-     필요하면 그 다음에 사용자가 직접 O/X 셀렉트로 고칠 수 있다. */
+     이어야 한다. "작업시작전"은 제품이 아직 지나가기 전이라 제품만/제품+시편 칸이
+     해당 없음(공란 "-")이지만, "작업전"·"작업종료시"는 실제 제품명을 적는 경우와
+     마찬가지로 이미 제품이 지나가는 시점이라 제품만 X(불검출)·제품+시편 O/O 를
+     기본값으로 채운다(2026-10-15 현장 요청). 이미 값이 있어도 품목(구분)을 바꾸면
+     그 기본값으로 다시 맞춘다 — 필요하면 그 다음에 사용자가 직접 O/X 셀렉트로 고칠
+     수 있다. */
   function applyItemDefaults(row) {
     var v = (row.item || '').trim();
     if (!v) return;
-    if (ITEM_TIMEPOINTS.indexOf(v) !== -1) {
+    if (v === '작업시작전') {
       row.fe = 'O'; row.sus = 'O'; row.prodOnly = ''; row.prodFe = ''; row.prodSus = '';
     } else {
       row.fe = 'O'; row.sus = 'O'; row.prodOnly = 'X'; row.prodFe = 'O'; row.prodSus = 'O';
@@ -220,9 +223,9 @@
     var host = $('stampPhotos');
     if (!host) return;
     if (!Array.isArray(state.stampPhotos)) state.stampPhotos = [];
-    while (state.stampPhotos.length < 3) state.stampPhotos.push(null);
+    while (state.stampPhotos.length < 6) state.stampPhotos.push(null);
 
-    host.innerHTML = [0, 1, 2].map(buildStampSlot).join('');
+    host.innerHTML = [0, 1, 2, 3, 4, 5].map(buildStampSlot).join('');
 
     host.querySelectorAll('[data-stamp-inp]').forEach(function (inp) {
       inp.addEventListener('change', function () {
@@ -275,9 +278,12 @@
       monitorName: '',
       timing: '시작전',
       packagings: emptyPackagings(),
-      rows: [emptyRow(), emptyRow(), emptyRow()],
-      // 제품 날인(일부인) 촬영본 — 1일 3회(1차/2차/3차). 인쇄 시 맨 뒤에 별첨으로 붙는다.
-      stampPhotos: [null, null, null],
+      // 작업 중 모니터링 회차가 보통 3회보다 많다는 현장 요청(2026-10-14)으로
+      // 기본 측정행을 7개로 늘렸다 — 필요 없으면 "삭제"로 줄이면 된다.
+      rows: [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()],
+      // 제품 날인(일부인) 촬영본 — 1일 6회(1~6차, 2026-10-15 현장 요청으로 3회→6회).
+      // 인쇄 시 맨 뒤에 별첨으로 붙는다.
+      stampPhotos: [null, null, null, null, null, null],
       deviation: '',
       corrective: '',
       confirmer: '',
@@ -380,13 +386,13 @@
     body.innerHTML = state.rows.map(function (row, i) {
       evaluateRow(row);
       var isTimepoint = ITEM_TIMEPOINTS.indexOf(row.item) !== -1;
-      var timepointOpts = '<option value=""' + (isTimepoint ? '' : ' selected') + '>-</option>' +
-        ITEM_TIMEPOINTS.map(function (tp) { return '<option value="' + esc(tp) + '"' + (row.item === tp ? ' selected' : '') + '>' + esc(tp) + '</option>'; }).join('');
       var productValue = isTimepoint ? '' : (row.item || '');
       return '<tr data-i="' + i + '">' +
-        '<td><select class="mon-in" data-f="timepoint">' + timepointOpts + '</select></td>' +
+        '<td><button type="button" class="mon-in mon-picker-btn" data-pick-timepoint="' + i + '">' +
+        (isTimepoint ? esc(row.item) : '<span class="ph">구분 선택</span>') + '</button></td>' +
         '<td><button type="button" class="mon-in mon-picker-btn" data-pick-product="' + i + '">' +
-        (productValue ? esc(productValue) : '<span class="ph">품목 선택</span>') + '</button></td>' +
+        (productValue ? esc(productValue) : '<span class="ph">품목 선택</span>') + '</button>' +
+        '<button type="button" class="mon-now-row-btn" data-now-row="' + i + '">⏱ 지금시각</button></td>' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
         '<td class="criteria-cell">' + esc(criteriaForProduct(productValue)) + '</td>' +
         '<td>' + oxSelect(row.fe, 'fe') + '</td>' +
@@ -403,8 +409,20 @@
       inp.addEventListener('change', onRowInput);
       inp.addEventListener('input', onRowInput);
     });
+    body.querySelectorAll('[data-pick-timepoint]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openTimepointPicker(Number(btn.getAttribute('data-pick-timepoint'))); });
+    });
     body.querySelectorAll('[data-pick-product]').forEach(function (btn) {
       btn.addEventListener('click', function () { openProductPicker(Number(btn.getAttribute('data-pick-product'))); });
+    });
+    body.querySelectorAll('[data-now-row]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (state.locked) return;
+        var i = Number(btn.getAttribute('data-now-row'));
+        state.rows[i].time = nowTime();
+        renderRows();
+        scheduleDraft();
+      });
     });
     body.querySelectorAll('[data-cycle]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -432,25 +450,74 @@
     var tr = e.target.closest('tr');
     var i = Number(tr.getAttribute('data-i'));
     var f = e.target.getAttribute('data-f');
-    // "구분"(시점 드롭다운)과 "제품명"(팝업 선택 버튼, chooseProduct() 참고)은
-    // 화면에서만 나뉜 두 칸이고, 실제로는 같은 row.item 하나를 쓴다.
-    if (f === 'timepoint') {
-      state.rows[i].item = e.target.value;
-      applyItemDefaults(state.rows[i]);
-      renderRows();
-      scheduleDraft();
-      return;
-    }
     state.rows[i][f] = e.target.value;
     renderRows();
     scheduleDraft();
   }
 
+  /* "구분"(점검 시점) 선택 팝업 — 원래 <select> 였는데, 제품명과 같은 이유(mon-table
+     이 가로 스크롤되는 좁은 표라 태블릿에서 옵션이 안 보이거나 탭이 안 됨, 현장
+     피드백 2026-10-14)로 같은 .dkj-picker-* 팝업을 재사용한다. 옵션이 3개뿐이라
+     검색칸 없이 목록만 보여준다. */
+  var timepointPickerRowIndex = null;
+
+  function ensureTimepointPicker() {
+    if ($('timepointPickerOverlay')) return;
+    var ov = document.createElement('div');
+    ov.id = 'timepointPickerOverlay';
+    ov.className = 'dkj-picker-overlay';
+    ov.hidden = true;
+    ov.innerHTML =
+      '<div class="dkj-picker-sheet" role="dialog" aria-modal="true" aria-label="구분 선택">' +
+      '<div class="dkj-picker-head"><h3>구분(점검 시점) 선택</h3><button type="button" class="dkj-picker-close" aria-label="닫기">✕</button></div>' +
+      '<div class="dkj-picker-list" id="timepointPickerList"></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function (e) { if (e.target === ov) closeTimepointPicker(); });
+    ov.querySelector('.dkj-picker-close').addEventListener('click', closeTimepointPicker);
+
+    var list = $('timepointPickerList');
+    var html = '<button type="button" class="dkj-picker-item" data-pick-tp="">✕ 선택 안 함(비우기)</button>' +
+      ITEM_TIMEPOINTS.map(function (tp) {
+        return '<button type="button" class="dkj-picker-item" data-pick-tp="' + esc(tp) + '">' + esc(tp) + '</button>';
+      }).join('');
+    list.innerHTML = html;
+    list.querySelectorAll('[data-pick-tp]').forEach(function (btn) {
+      btn.addEventListener('click', function () { chooseTimepoint(btn.getAttribute('data-pick-tp')); });
+    });
+  }
+
+  function openTimepointPicker(i) {
+    if (state.locked) return;
+    ensureTimepointPicker();
+    timepointPickerRowIndex = i;
+    $('timepointPickerOverlay').hidden = false;
+  }
+
+  function closeTimepointPicker() {
+    var ov = $('timepointPickerOverlay');
+    if (ov) ov.hidden = true;
+    timepointPickerRowIndex = null;
+  }
+
+  function chooseTimepoint(tp) {
+    if (timepointPickerRowIndex == null) return;
+    var row = state.rows[timepointPickerRowIndex];
+    if (!row) { closeTimepointPicker(); return; }
+    row.item = tp;
+    applyItemDefaults(row);
+    closeTimepointPicker();
+    renderRows();
+    scheduleDraft();
+  }
+
   /* 제품명 선택 팝업 — mon-table 칸 안이 아니라 document.body 에 바로 붙는
-     전체화면 오버레이라 표의 overflow-x(가로 스크롤)에 안 잘린다. 검색어를 치면
-     PRODUCT_OPTIONS 를 그 자리에서 거르고, 목록에 없는 이름도 Enter 또는
-     "직접 입력으로 사용" 버튼으로 그대로 쓸 수 있다(예전 datalist와 동일하게
-     자유 입력을 막지 않는다). */
+     전체화면 오버레이라 표의 overflow-x(가로 스크롤)에 안 잘린다. 목록 탭으로만
+     고른다 — 처음엔 검색칸(직접 입력 겸용)이 있었는데, 그 칸에 포커스가 가면서
+     태블릿 키보드가 떴다 내려갔다 하는 게 거슬린다는 현장 피드백(2026-10-14)으로
+     "구분" 팝업과 같은 목록 전용 방식으로 바꿨다 — 품목 마스터에 없는 이름은 더
+     이상 이 화면에서 직접 입력할 수 없다(필요해지면 시스템 설정의 품목 마스터에
+     등록해서 목록에 넣는 쪽으로 간다). */
   var productPickerRowIndex = null;
 
   function ensureProductPicker() {
@@ -462,37 +529,17 @@
     ov.innerHTML =
       '<div class="dkj-picker-sheet" role="dialog" aria-modal="true" aria-label="제품명 선택">' +
       '<div class="dkj-picker-head"><h3>제품명 선택</h3><button type="button" class="dkj-picker-close" aria-label="닫기">✕</button></div>' +
-      '<input type="text" class="dkj-picker-search" id="productPickerSearch" placeholder="제품명 검색 또는 직접 입력" autocomplete="off" inputmode="search">' +
       '<div class="dkj-picker-list" id="productPickerList"></div>' +
       '</div>';
     document.body.appendChild(ov);
-
     ov.addEventListener('click', function (e) { if (e.target === ov) closeProductPicker(); });
     ov.querySelector('.dkj-picker-close').addEventListener('click', closeProductPicker);
-    var search = $('productPickerSearch');
-    search.addEventListener('input', function () { renderProductPickerList(search.value); });
-    search.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-      var v = search.value.trim();
-      if (v) chooseProduct(v);
-    });
-  }
 
-  function renderProductPickerList(query) {
     var list = $('productPickerList');
-    var q = (query || '').trim();
-    var ql = q.toLowerCase();
-    var items = PRODUCT_OPTIONS.filter(function (name) {
-      return !ql || name.toLowerCase().indexOf(ql) !== -1;
-    });
     var html = '<button type="button" class="dkj-picker-item" data-pick="">✕ 선택 안 함(비우기)</button>' +
-      items.map(function (name) {
+      PRODUCT_OPTIONS.map(function (name) {
         return '<button type="button" class="dkj-picker-item" data-pick="' + esc(name) + '">' + esc(name) + '</button>';
       }).join('');
-    if (q && PRODUCT_OPTIONS.indexOf(q) === -1) {
-      html += '<button type="button" class="dkj-picker-item dkj-picker-item-custom" data-pick="' + esc(q) + '">✏️ "' + esc(q) + '" 직접 입력으로 사용</button>';
-    }
     list.innerHTML = html;
     list.querySelectorAll('[data-pick]').forEach(function (btn) {
       btn.addEventListener('click', function () { chooseProduct(btn.getAttribute('data-pick')); });
@@ -503,12 +550,7 @@
     if (state.locked) return;
     ensureProductPicker();
     productPickerRowIndex = i;
-    var ov = $('productPickerOverlay');
-    ov.hidden = false;
-    var search = $('productPickerSearch');
-    search.value = '';
-    renderProductPickerList('');
-    setTimeout(function () { search.focus(); }, 50);
+    $('productPickerOverlay').hidden = false;
   }
 
   function closeProductPicker() {

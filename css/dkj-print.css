@@ -174,6 +174,50 @@
     vertical-align: middle;
   }
 
+  /* ===== CCP-2P(DKJ-H-01-02) 전용 조밀화 — .off-ccp 는 다른 CCP·FR 서식과 공유라
+     여기서 직접 줄이면 그 서식들 정본 밀도까지 같이 바뀐다. 이 서식만 측정행 기본
+     7개 + 제품별 통과현황 행이 늘어 2쪽으로 넘어간다는 현장 피드백(2026-10-15)으로
+     .off-ccp2p 로 범위를 좁혀 더 줄인다 — 다른 서식은 그대로다. */
+  .off-ccp2p {
+    font-size: 7pt;
+    line-height: 1.15;
+  }
+  .off-ccp2p th,
+  .off-ccp2p td {
+    padding: 1pt 1.5pt;
+  }
+  .off-ccp2p .off-mon td {
+    height: 10pt;
+    font-size: 6.5pt;
+  }
+  .off-ccp2p .off-grid thead th,
+  .off-ccp2p .off-mon thead th {
+    font-size: 6.3pt;
+    line-height: 1.1;
+  }
+  .off-ccp2p .off-nest th,
+  .off-ccp2p .off-nest td {
+    padding: 0.5pt 1.5pt;
+    font-size: 6pt;
+  }
+  .off-ccp2p .off-grid .tiny,
+  .off-ccp2p td.tiny {
+    font-size: 5.8pt !important;
+    line-height: 1.2;
+  }
+  .off-ccp2p .off-sec {
+    font-size: 7.5pt;
+    margin: 2pt 0 1pt;
+  }
+  .off-ccp2p .off-correct th.vert {
+    font-size: 6.5pt;
+    padding: 2pt 1.5pt !important;
+  }
+  .off-ccp2p .off-grid th.lab,
+  .off-ccp2p .off-grid .lab {
+    font-size: 6.8pt;
+  }
+
   /* ===== 별첨 사진 페이지 — 시험지·날인 등 paper 실측 결과 촬영본 ===== */
   .off-photo-appendix {
     page-break-before: always;
