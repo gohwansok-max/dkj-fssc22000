@@ -62,9 +62,10 @@
       "placeholder": ""
     },
     {
-      "id": "audit",
+      "id": "auditInput",
       "label": "내·외부심사·고객피드백",
-      "placeholder": ""
+      "placeholder": "",
+      "legacyId": "audit"
     },
     {
       "id": "resource",
@@ -102,8 +103,9 @@
         "label": "목표·KPI·부적합 현황"
       },
       {
-        "id": "audit",
-        "label": "내·외부심사·고객피드백"
+        "id": "auditInput",
+        "label": "내·외부심사·고객피드백",
+        "legacyId": "audit"
       },
       {
         "id": "resource",

@@ -98,21 +98,29 @@
       );
     }).join('');
 
-    var passRows = (state.passLog || [
-      {
-        productName: prod,
-        start: (state.rows && state.rows[0] && state.rows[0].time) || '',
-        end: (state.rows && state.rows[state.rows.length - 1] && state.rows[state.rows.length - 1].time) || '',
-        ok: state.hasDeviation ? '×' : '',
-        qty: state.passQty || '',
-        note: state.remark || ''
-      }
-    ]).map(function (p) {
+    var packagings = Array.isArray(state.packagings) ? state.packagings : [];
+    var fallbackPass = {
+      productName: prod,
+      start: (state.rows && state.rows[0] && state.rows[0].time) || '',
+      end: (state.rows && state.rows[state.rows.length - 1] && state.rows[state.rows.length - 1].time) || '',
+      ok: state.hasDeviation ? '×' : '',
+      qty: state.passQty || '',
+      note: state.remark || ''
+    };
+    var hasPackaging = packagings.some(function (p) { return p && (p.lot || p.defect || p.usage); });
+    var passList = Array.isArray(state.passLog) && state.passLog.length
+      ? state.passLog
+      : hasPackaging ? packagings.map(function () { return fallbackPass; }) : [fallbackPass];
+    var passRows = passList.map(function (p, i) {
+      var pack = packagings[i] || {};
       return '<tr>' +
-        '<td class="l">' + esc(p.productName) + '</td>' +
+        '<td class="l">' + esc(p.productName || prod) + '</td>' +
+        '<td class="c">' + esc(pack.lot || '') + '</td>' +
+        '<td class="c">' + esc(pack.defect || '') + '</td>' +
+        '<td class="c">' + esc(pack.usage ? (pack.usage + ' EA') : '') + '</td>' +
         '<td class="c">' + esc(p.start) + '</td>' +
         '<td class="c">' + esc(p.end) + '</td>' +
-        '<td class="c">' + ox(p.ok) + '</td>' +
+        '<td class="c">' + ox(p.ok || (state.hasDeviation ? '×' : '○')) + '</td>' +
         '<td class="c">' + esc(p.qty) + '</td>' +
         '<td class="l">' + esc(p.note) + '</td></tr>';
     }).join('');
@@ -255,7 +263,7 @@
       '<div class="off-sec">금속검출기 제품 통과 시 이탈 여부</div>' +
       '<table class="off-grid">' +
       '<thead><tr>' +
-      '<th>제품명</th><th>최초 통과시간</th><th>통과 종료시간</th><th>이탈여부(○/×)</th><th>통과량</th><th>특이사항</th>' +
+      '<th>제품명</th><th>포장지 LOT</th><th>부적합</th><th>사용량</th><th>최초 통과시간</th><th>통과 종료시간</th><th>이탈여부(○/×)</th><th>통과량</th><th>특이사항</th>' +
       '</tr></thead><tbody>' + passRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +
@@ -288,9 +296,10 @@
       var label = '';
       if (i === 0) label = '작업시작 전';
       else if (i === rows.length - 1) label = '작업종료 시';
-      var nameCell = label
-        ? '<td class="c strong">' + label + '</td>'
-        : '<td class="l">' + esc(i === 1 ? prod : (r.productName || '')) + '</td>';
+      var rowProduct = r.productName || (i === 1 ? prod : '');
+      var nameCell = rowProduct
+        ? '<td class="l">' + esc(rowProduct) + '</td>'
+        : '<td class="c strong">' + label + '</td>';
       return (
         '<tr>' + nameCell +
         '<td class="c">' + esc(r.time || '') + '</td>' +
@@ -942,8 +951,10 @@
     var secHtml = '';
     if (sections.length) {
       secHtml = sections.map(function (s) {
+        var value = state[s.id];
+        if (value === undefined && s.legacyId && typeof state[s.legacyId] === 'string') value = state[s.legacyId];
         return '<div class="off-sec">' + esc(s.label) + '</div>' +
-          '<div class="off-box tiny">' + esc(state[s.id] || '') + '</div>';
+          '<div class="off-box tiny">' + esc(value || '') + '</div>';
       }).join('');
     }
 

@@ -1,211 +1,141 @@
 /**
- * DKJ-S-02-12 - ox boot (SSOT: data/ox-form-specs/DKJ-S-02-12.json)
+ * DKJ-S-02-12 - matrix boot (SSOT: data/matrix-form-specs/DKJ-S-02-12.json)
  */
 (function () {
   'use strict';
-  DkjOxForm.mount({
+  DkjMatrixForm.mount({
   "code": "DKJ-S-02-12",
   "title": "제조시설·설비점검표",
-  "pattern": "ox",
-  "minChecks": 5,
-  "titleKey": "area",
-  "historyKeys": [
-    "checkDate",
-    "area"
-  ],
-  "fields": [
-    {
-      "id": "checkDate",
-      "label": "점검일자 *",
-      "type": "date",
-      "required": true
-    },
-    {
-      "id": "shift",
-      "label": "근무조",
-      "type": "select",
-      "options": [
-        "주간",
-        "야간",
-        "기타"
-      ],
-      "default": "주간"
-    },
-    {
-      "id": "area",
-      "label": "점검구역",
-      "type": "select",
-      "options": [
-        {
-          "value": "전처리",
-          "label": "전처리실"
-        },
-        {
-          "value": "소독헹굼",
-          "label": "소독·헹굼실"
-        },
-        {
-          "value": "포장",
-          "label": "포장실"
-        },
-        {
-          "value": "냉장",
-          "label": "냉장창고"
-        },
-        {
-          "value": "전체",
-          "label": "작업장 전체"
-        }
-      ],
-      "optionLabels": {
-        "전처리": "전처리실",
-        "소독헹굼": "소독·헹굼실",
-        "포장": "포장실",
-        "냉장": "냉장창고",
-        "전체": "작업장 전체"
-      },
-      "default": "전체"
-    }
-  ],
-  "items": [
-    {
-      "key": "e01",
-      "group": "절단",
-      "label": "절단·슬라이서 청결",
-      "hint": "가동 전"
-    },
-    {
-      "key": "e02",
-      "group": "세척",
-      "label": "세척기·펌프·호스 누수·오염 없음",
-      "hint": "연결부"
-    },
-    {
-      "key": "e03",
-      "group": "소독",
-      "label": "소독조·희석설비 정상",
-      "hint": "농도계 연계"
-    },
-    {
-      "key": "e04",
-      "group": "컨베이어",
-      "label": "벨트·롤러·가드 정상",
-      "hint": "이물·마모"
-    },
-    {
-      "key": "e05",
-      "group": "포장",
-      "label": "포장기·실러 이상 없음",
-      "hint": "실링·이물"
-    },
-    {
-      "key": "e06",
-      "group": "금속",
-      "label": "금속검출기 외관·전원 정상",
-      "hint": "CCP-2P 연계"
-    },
-    {
-      "key": "e07",
-      "group": "냉장",
-      "label": "냉장고·냉동기 운전·결빙 이상 없음",
-      "hint": "온도기록"
-    },
-    {
-      "key": "e08",
-      "group": "계측",
-      "label": "온도계·저울 파손·교정 유효",
-      "hint": "검교정 연계"
-    }
-  ],
-  "print": {
-    "layout": "official-prp-ox",
-    "columnMode": "result",
-    "orgName": "동김제농협 산지유통센터",
-    "docNo": "DKJ-S-02-12",
-    "title": "제조시설·설비점검표",
-    "rev": "0",
-    "enactDate": "2024. 02. 13",
-    "reviseDate": "-",
-    "rows": [
+  "subtitle": "선행요건 · 월 1장 · 설비 상태 매일 O/X",
+  "pattern": "matrix",
+  "period": "month",
+  "dayMode": "day",
+  "days": 31,
+  "divLevels": 2,
+  "showFreq": false,
+  "showNote": false,
+  "itemHeader": "점검사항",
+  "dayHeader": "점검일자 및 결과",
+  "docNo": "DKJ-S-02-12",
+  "rev": "0",
+  "enactDate": "2024. 02. 13",
+  "reviseDate": "-",
+  "orgName": "동김제농협 산지유통센터",
+  "pageBreakAfter": [],
+  "legend": "양호 : ○, 부적합(시정조치 필요) : ×, 해당없음 : —    /    점검주기 : 매일",
+  "signRowLabel": "점검자 (서명)",
+  "incident": {
+    "label": "이상발생 내역",
+    "rows": 3,
+    "columns": [
       {
-        "key": "e01",
-        "group": "절단",
-        "label": "절단·슬라이서 청결",
-        "hint": "가동 전",
-        "freq": "M",
-        "ampm": false
+        "key": "detail",
+        "label": "발생장소 및 이상 발생내역",
+        "width": "36%"
       },
       {
-        "key": "e02",
-        "group": "세척",
-        "label": "세척기·펌프·호스 누수·오염 없음",
-        "hint": "연결부",
-        "freq": "M",
-        "ampm": false
+        "key": "action",
+        "label": "개선조치 내역 및 결과",
+        "width": "36%"
       },
       {
-        "key": "e03",
-        "group": "소독",
-        "label": "소독조·희석설비 정상",
-        "hint": "농도계 연계",
-        "freq": "M",
-        "ampm": false
+        "key": "actor",
+        "label": "조치",
+        "width": "14%"
       },
       {
-        "key": "e04",
-        "group": "컨베이어",
-        "label": "벨트·롤러·가드 정상",
-        "hint": "이물·마모",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "e05",
-        "group": "포장",
-        "label": "포장기·실러 이상 없음",
-        "hint": "실링·이물",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "e06",
-        "group": "금속",
-        "label": "금속검출기 외관·전원 정상",
-        "hint": "CCP-2P 연계",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "e07",
-        "group": "냉장",
-        "label": "냉장고·냉동기 운전·결빙 이상 없음",
-        "hint": "온도기록",
-        "freq": "M",
-        "ampm": false
-      },
-      {
-        "key": "e08",
-        "group": "계측",
-        "label": "온도계·저울 파손·교정 유효",
-        "hint": "검교정 연계",
-        "freq": "M",
-        "ampm": false
+        "key": "confirmer",
+        "label": "확인",
+        "width": "14%"
       }
-    ],
-    "note": "※ 평가 — 양호: ○ , 부적합(시정조치 필요): × , 해당없음: —    ※ 주기 — D:매일 W:주간 M:월간",
-    "subtitle": "선행요건 · 매일",
-    "sectionTitle": "● 제조시설·설비 점검 결과 ●",
-    "showMeta": [
-      "shift",
-      "area"
-    ],
-    "areaLabels": {
-      "전처리": "전처리실",
-      "소독헹굼": "소독·헹굼실",
-      "포장": "포장실",
-      "냉장": "냉장창고",
-      "전체": "작업장 전체"
+    ]
+  },
+  "groups": [
+    {
+      "major": "제조시설·설비",
+      "minors": [
+        {
+          "name": "절단",
+          "items": [
+            {
+              "key": "e01",
+              "label": "절단·슬라이서 청결·보호덮개 (가동 전)",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "세척",
+          "items": [
+            {
+              "key": "e02",
+              "label": "세척기·펌프·호스 누수·오염 없음 (연결부)",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "소독",
+          "items": [
+            {
+              "key": "e03",
+              "label": "소독조·희석설비 정상 (농도계 연계)",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "컨베이어",
+          "items": [
+            {
+              "key": "e04",
+              "label": "벨트·롤러·가드 정상 (이물·마모)",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "포장",
+          "items": [
+            {
+              "key": "e05",
+              "label": "포장기·실러 이상 없음 (실링·이물)",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "금속",
+          "items": [
+            {
+              "key": "e06",
+              "label": "금속검출기 외관·전원 정상 (CCP-2P 연계)",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "냉장",
+          "items": [
+            {
+              "key": "e07",
+              "label": "냉장고·냉동기 운전·결빙 이상 없음 (온도기록)",
+              "freq": "D"
+            }
+          ]
+        },
+        {
+          "name": "계측",
+          "items": [
+            {
+              "key": "e08",
+              "label": "온도계·저울 파손·교정 유효 (검교정 연계)",
+              "freq": "D"
+            }
+          ]
+        }
+      ]
     }
-  }
+  ]
 });
 })();

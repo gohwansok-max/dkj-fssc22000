@@ -15,18 +15,8 @@
   var REMOTE_NODE = 'ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE';
   var DEFAULT_CALENDAR = { workdays: [1, 2, 3, 4, 5], nonProductionDates: [], productionDates: [] };
 
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
-  function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
-  function hasDate(list, value) { return (list || []).indexOf(value) !== -1; }
-
-  function normalizeCalendar(value) {
-    var source = value || {};
-    var workdays = Array.isArray(source.workdays) ? source.workdays.map(Number) : DEFAULT_CALENDAR.workdays.slice();
-    var productionDates = Array.isArray(source.productionDates) ? source.productionDates.slice() : [];
-    var nonProductionDates = (Array.isArray(source.nonProductionDates) ? source.nonProductionDates : [])
-      .filter(function (d) { return productionDates.indexOf(d) === -1; });
-    return { workdays: workdays, productionDates: productionDates, nonProductionDates: nonProductionDates };
-  }
+  var calendarModel = global.DkjOperationCalendarModel;
+  var normalizeCalendar = calendarModel.normalize;
 
   function readCache() {
     try {
@@ -40,10 +30,7 @@
   var calendar = readCache() || DEFAULT_CALENDAR;
 
   function isProductionDay(date) {
-    var day = iso(date);
-    if (hasDate(calendar.productionDates, day)) return true;
-    if (hasDate(calendar.nonProductionDates, day)) return false;
-    return (calendar.workdays || DEFAULT_CALENDAR.workdays).indexOf(date.getDay()) !== -1;
+    return calendarModel.isProductionDay(calendar, date);
   }
 
   /** RTDB 에서 최신 공유 캘린더를 받아와 캐시에 반영한다. 로그인 전이거나 오프라인이면

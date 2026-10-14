@@ -31,7 +31,11 @@ function loadConsole(localStorage) {
     fetch: async () => ({ ok: true, json: async () => ({}) })
   };
   context.window = context;
-  vm.runInContext(consoleSource, vm.createContext(context));
+  vm.createContext(context);
+  ['dkj-operation-calendar-model.js', 'dkj-record-evaluator.js'].forEach((file) => {
+    vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', file), 'utf8'), context);
+  });
+  vm.runInContext(consoleSource, context);
   return context.DkjConsole;
 }
 

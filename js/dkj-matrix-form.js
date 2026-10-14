@@ -91,11 +91,23 @@
     return out.length ? out : [refWs];
   }
 
+  /** period='month' + dayMode='day' 시트: 그 달의 1일~말일을 날짜 열(매일)로 만든다.
+   *  refIso 가 없으면 이번 달. 28~31열 — 달마다 열 수가 달라진다. */
+  function monthDays(refIso) {
+    var d0 = refIso ? new Date(refIso + 'T00:00:00') : new Date();
+    var year = d0.getFullYear(), month = d0.getMonth();
+    var last = new Date(year, month + 1, 0).getDate();
+    var out = [];
+    for (var i = 1; i <= last; i++) out.push(toISO(new Date(year, month, i)));
+    return out;
+  }
+
   function emptyState(spec) {
     var startDow = resolveStartDow(spec);
     var refWs = weekStartOf(null, startDow);
     var isMonth = spec.period === 'month';
-    var days = isMonth ? monthWeekStarts(refWs, startDow) : buildDays(refWs, spec.days || 6, 1);
+    var isDayMonth = isMonth && spec.dayMode === 'day';
+    var days = isDayMonth ? monthDays(null) : isMonth ? monthWeekStarts(refWs, startDow) : buildDays(refWs, spec.days || 6, 1);
     var ws = isMonth ? days[0] : refWs;
     var n = days.length;
     var checks = {};
@@ -219,7 +231,8 @@
         var md = d ? (Number(d.slice(5, 7)) + '/' + Number(d.slice(8, 10))) : '-';
         var lab = (spec.dayLabels && spec.dayLabels[i]) || '';
         var main = LABEL_MODE ? lab : (WEEK_MODE ? (lab || (i + 1) + '주') : md);
-        var sub = LABEL_MODE ? '' : (WEEK_MODE ? md : lab);
+        var wd = (spec.dayMode === 'day' && d) ? '일월화수목금토'.charAt(new Date(d + 'T00:00:00').getDay()) : '';
+        var sub = LABEL_MODE ? '' : (WEEK_MODE ? md : (lab || wd));
         var off = state.offDays && state.offDays[i];
         out += '<th class="mxf-day' + (off ? ' mxf-day-off' : '') + '"><span>' + esc(main) + '</span><small>' + esc(sub) + '</small></th>';
       }
@@ -432,7 +445,7 @@
         '<span class="chip ng">× ' + s.x + '</span>' +
         '<span class="chip na">— ' + s.n + '</span>' +
         '<span class="chip">미입력 ' + s.blank + ' / ' + s.total + '</span>' +
-        '<span class="chip">완료 ' + fd.length + (spec.period === 'month' ? '주' : '일') + '</span>';
+        '<span class="chip">완료 ' + fd.length + (spec.period === 'month' && spec.dayMode !== 'day' ? '주' : '일') + '</span>';
     }
 
     /* ---------- 폼 <-> 상태 ---------- */
@@ -481,9 +494,15 @@
       if (!state.approvals.writer) return '작성자를 입력하세요.';
       var fd = filledDays();
       if (!fd.length) {
-        return spec.period === 'month'
-          ? '최소 1개 주차는 모든 점검항목을 입력해야 합니다.'
-          : '최소 하루치는 모든 점검항목을 입력해야 합니다.';
+        // 매일 점검하는 월간 시트는 하루 중간에도 저장할 수 있어야 한다 — 전 항목 완료는 요구하지 않는다.
+        if (spec.dayMode === 'day') {
+          var anyCell = ROWS.some(function (r) { return (state.checks[r.key] || []).some(Boolean); });
+          if (!anyCell) return '점검 결과(O/X)를 1칸 이상 입력하세요.';
+        } else {
+          return spec.period === 'month'
+            ? '최소 1개 주차는 모든 점검항목을 입력해야 합니다.'
+            : '최소 하루치는 모든 점검항목을 입력해야 합니다.';
+        }
       }
       var hasX = ROWS.some(function (r) {
         return (state.checks[r.key] || []).indexOf('X') !== -1;
@@ -496,6 +515,7 @@
     }
 
     function buildTitle() {
+      if (spec.period === 'month' && spec.dayMode === 'day') return state.weekStart.slice(0, 7) + ' 월간 점검 (' + state.days[0] + '~' + state.days[state.days.length - 1] + ')';
       return state.weekStart + ' 주 (' + state.days[0] + '~' + state.days[state.days.length - 1] + ')';
     }
 
@@ -567,7 +587,8 @@
     function renderHistory() {
       var el = $('historyList');
       if (!el) return;
-      var list = DkjRecordStore.list(FORM_ID).slice(0, 12);
+      // 이전 양식(O/X 1일 1장)으로 저장된 기록은 days 배열이 없어 이 시트로 열 수 없으므로 목록에서 뺀다.
+      var list = DkjRecordStore.list(FORM_ID).filter(function (r) { return Array.isArray(r.days); }).slice(0, 12);
       if (!list.length) {
         el.innerHTML = '<p style="color:#888;font-size:13px;">저장 기록 없음</p>';
         return;
@@ -626,7 +647,7 @@
           var startDow = resolveStartDow(spec);
           var ws = weekStartOf(this.value, startDow);
           if (spec.period === 'month') {
-            state.days = monthWeekStarts(ws, startDow);
+            state.days = spec.dayMode === 'day' ? monthDays(this.value) : monthWeekStarts(ws, startDow);
           } else {
             state.days = buildDays(ws, N, 1);
           }
@@ -730,7 +751,7 @@
             var startDow = resolveStartDow(spec);
             var ws = weekStartOf(null, startDow);
             if (spec.period === 'month') {
-              state.days = monthWeekStarts(ws, startDow);
+              state.days = spec.dayMode === 'day' ? monthDays(null) : monthWeekStarts(ws, startDow);
             } else {
               state.days = buildDays(ws, N, 1);
             }
@@ -749,7 +770,7 @@
       var sel = $('fillDay');
       if (!sel) return;
       sel.innerHTML = state.days.map(function (d, i) {
-        var dow = (spec.dayLabels && spec.dayLabels[i]) || '';
+        var dow = (spec.dayLabels && spec.dayLabels[i]) || (spec.dayMode === 'day' ? '일월화수목금토'.charAt(new Date(d + 'T00:00:00').getDay()) : '');
         return '<option value="' + i + '">' + d.slice(5) + ' (' + dow + ')</option>';
       }).join('');
     }

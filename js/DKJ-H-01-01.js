@@ -37,7 +37,7 @@
 
   function emptyRow() {
     return {
-      time: '', ppm: '', soak: '', rinseSec: '', residualCl: '', judge: '',
+      time: '', productName: '', ppm: '', soak: '', rinseSec: '', residualCl: '', judge: '',
       isCustomPpm: false, isCustomSoak: false, isCustomRinseSec: false, isCustomResidualCl: false,
       // paper(시험지)로 실측한 유효염소·잔류염소 결과를 사진으로 남긴다(측정행당 1장).
       // 인쇄 시 맨 뒤에 별첨으로 붙는다 — ccp1bc() 의 photoAttachmentHtml 참고.
@@ -290,10 +290,14 @@
     var body = $('monBody');
     if (!body) return;
 
+    var productList = $('ccpProductOptions');
+    if (productList) productList.innerHTML = PRODUCT_PRESETS.map(function (name) { return '<option value="' + esc(name) + '"></option>'; }).join('');
+
     body.innerHTML = state.rows.map(function (row, i) {
       evaluateRow(row);
       return '<tr data-i="' + i + '">' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
+        '<td><input type="text" class="mon-in" data-f="productName" list="ccpProductOptions" value="' + esc(row.productName || state.productName || '') + '" placeholder="품목 선택"></td>' +
         '<td>' + buildPpmCell(row, i) + '</td>' +
         '<td>' + buildSoakCell(row, i) + '</td>' +
         '<td>' + buildRinseSecCell(row, i) + '</td>' +

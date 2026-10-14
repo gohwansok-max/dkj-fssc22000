@@ -459,7 +459,7 @@ SPECS: list[dict] = [
         ],
         sections=[
             sec("kpi", "목표·KPI·부적합 현황"),
-            sec("audit", "내·외부심사·고객피드백"),
+            sec("auditInput", "내·외부심사·고객피드백", legacyId="audit"),
             sec("resource", "자원·변경·개선 필요"),
         ],
         titleKey="subject",
@@ -878,7 +878,7 @@ def build_print(spec: dict) -> dict:
         }
         for it in spec.get("items", [])
     ]
-    sections = [{"id": s["id"], "label": s["label"]} for s in spec.get("sections", [])]
+    sections = [{"id": s["id"], "label": s["label"], **({"legacyId": s["legacyId"]} if s.get("legacyId") else {})} for s in spec.get("sections", [])]
     return {
         "layout": "official-fr-generic",
         "orgName": "동김제농협 산지유통센터",

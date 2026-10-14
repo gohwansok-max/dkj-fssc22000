@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-ced6487e2375';
+self.DKJ_SW_VERSION = 'v1-bbdf54ba49fb';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -91,11 +91,11 @@ self.DKJ_PRECACHE = [
   './data/matrix-form-specs/DKJ-S-02-01.json',
   './data/matrix-form-specs/DKJ-S-02-03.json',
   './data/matrix-form-specs/DKJ-S-02-06.json',
+  './data/matrix-form-specs/DKJ-S-02-12.json',
   './data/matrix-form-specs/DKJ-S-02-13.json',
   './data/matrix-form-specs/DKJ-S-02-16.json',
   './data/mdr-catalog.json',
   './data/menu-catalog.json',
-  './data/ox-form-specs/DKJ-S-02-12.json',
   './data/ox-form-specs/DKJ-S-02-18.json',
   './data/ox-form-specs/DKJ-S-02-29.json',
   './data/ox-form-specs/DKJ-STORE-01.json',
@@ -276,6 +276,7 @@ self.DKJ_PRECACHE = [
   './js/dkj-mon-form.js',
   './js/dkj-nav-bar.js',
   './js/dkj-nav.js',
+  './js/dkj-operation-calendar-model.js',
   './js/dkj-operation-calendar.js',
   './js/dkj-ox-form.js',
   './js/dkj-print-form.js',
@@ -284,6 +285,7 @@ self.DKJ_PRECACHE = [
   './js/dkj-production-form.js',
   './js/dkj-pwa.js',
   './js/dkj-quick-nav.js',
+  './js/dkj-record-evaluator.js',
   './js/dkj-record-store.js',
   './js/dkj-report-form.js',
   './js/dkj-report-print.js',
@@ -317,7 +319,6 @@ self.DKJ_PRECACHE = [
   './js/records-center.js',
   './js/system-settings.js',
   './js/traceability-hub.js',
-  './js/usage-dashboard.js',
   './js/vendor/exceljs.bare.min.js',
   './management-culture.html',
   './manifest.json',
@@ -409,5 +410,4 @@ self.DKJ_PRECACHE = [
   './records/FR-047.html',
   './system-settings.html',
   './traceability.html',
-  './usage-dashboard.html',
 ];

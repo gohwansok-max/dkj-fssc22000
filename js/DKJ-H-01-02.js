@@ -61,20 +61,39 @@
      목록에 없는 품목(직접 입력)은 매핑이 없으니 사람이 그대로 손으로 고른다. */
   var PRODUCT_WEIGHT_CLASS = {
     '양상추샐러드': 'freshOver1kg',
+    '양상추 샐러드': 'freshOver1kg',
     '농협 채소믹스': 'fresh1kg',
     '샐러디아 채소믹스': 'fresh1kg',
     '급식)바로먹는 유러피언 샐러드 채소믹스': 'fresh1kg',
     '슬로우캘리샐러드믹스': 'fresh500'
   };
 
+  function productWeightClassKey(name) {
+    var product = (name || '').trim();
+    return PRODUCT_WEIGHT_CLASS[product] || PRODUCT_WEIGHT_CLASS[product.replace(/\s/g, '')] || '';
+  }
+
+  function applyRowStandards() {
+    (state.rows || []).forEach(function (row) {
+      var product = row.item && ITEM_TIMEPOINTS.indexOf(row.item) === -1 ? row.item : state.productName;
+      var wc = WEIGHT_CLASS[productWeightClassKey(product)];
+      if (!wc) return;
+      row.adjust = wc.adjust;
+      row.stable = wc.stable;
+      row.feSize = wc.fe;
+      row.susSize = wc.sus;
+    });
+  }
+
   function applyProductWeightClass(name) {
-    var wcKey = PRODUCT_WEIGHT_CLASS[name];
+    var wcKey = productWeightClassKey(name);
     var wc = WEIGHT_CLASS[wcKey];
     if (!wc) return;
     $('weightClass').value = wcKey;
     $('feSize').value = wc.fe;
     $('susSize').value = wc.sus;
     renderWeightHint();
+    applyRowStandards();
   }
 
   var PRODUCT_OPTIONS = [];
@@ -329,11 +348,14 @@
   }
 
   function oxSelect(val, field) {
-    return '<select class="mon-in" data-f="' + field + '">' +
-      '<option value=""' + (!val ? ' selected' : '') + '>-</option>' +
-      '<option value="O"' + (val === 'O' ? ' selected' : '') + '>O</option>' +
-      '<option value="X"' + (val === 'X' ? ' selected' : '') + '>X</option>' +
-      '</select>';
+    var next = val === 'O' ? 'X' : val === 'X' ? '' : 'O';
+    return '<button type="button" class="mon-in ox-cycle" style="min-width:42px;min-height:40px;font-weight:700" data-cycle="' + field + '" data-next="' + next + '" aria-label="' + field + ' ' + (val || '-') + '">' + (val || '-') + '</button>';
+  }
+
+  function criteriaForProduct(name) {
+    var key = productWeightClassKey(name);
+    var wc = WEIGHT_CLASS[key] || WEIGHT_CLASS[$('weightClass').value] || WEIGHT_CLASS.fresh500;
+    return 'Fe Ø' + wc.fe + '㎜ · SUS Ø' + wc.sus + '㎜';
   }
 
   function evaluateRow(row) {
@@ -359,14 +381,14 @@
       evaluateRow(row);
       var isTimepoint = ITEM_TIMEPOINTS.indexOf(row.item) !== -1;
       var timepointOpts = '<option value=""' + (isTimepoint ? '' : ' selected') + '>-</option>' +
-        ITEM_TIMEPOINTS.map(function (tp) {
-          return '<option value="' + esc(tp) + '"' + (row.item === tp ? ' selected' : '') + '>' + esc(tp) + '</option>';
-        }).join('');
+        ITEM_TIMEPOINTS.map(function (tp) { return '<option value="' + esc(tp) + '"' + (row.item === tp ? ' selected' : '') + '>' + esc(tp) + '</option>'; }).join('');
+      var productValue = isTimepoint ? '' : (row.item || '');
       return '<tr data-i="' + i + '">' +
         '<td><select class="mon-in" data-f="timepoint">' + timepointOpts + '</select></td>' +
         '<td><button type="button" class="mon-in mon-picker-btn" data-pick-product="' + i + '">' +
-        (!isTimepoint && row.item ? esc(row.item) : '<span class="ph">제품명 선택</span>') + '</button></td>' +
+        (productValue ? esc(productValue) : '<span class="ph">품목 선택</span>') + '</button></td>' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
+        '<td class="criteria-cell">' + esc(criteriaForProduct(productValue)) + '</td>' +
         '<td>' + oxSelect(row.fe, 'fe') + '</td>' +
         '<td>' + oxSelect(row.sus, 'sus') + '</td>' +
         '<td>' + oxSelect(row.prodOnly, 'prodOnly') + '</td>' +
@@ -377,12 +399,20 @@
         '</tr>';
     }).join('');
 
-    body.querySelectorAll('.mon-in:not(.mon-picker-btn)').forEach(function (inp) {
+    body.querySelectorAll('.mon-in').forEach(function (inp) {
       inp.addEventListener('change', onRowInput);
       inp.addEventListener('input', onRowInput);
     });
     body.querySelectorAll('[data-pick-product]').forEach(function (btn) {
       btn.addEventListener('click', function () { openProductPicker(Number(btn.getAttribute('data-pick-product'))); });
+    });
+    body.querySelectorAll('[data-cycle]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (state.locked) return;
+        var tr = btn.closest('tr'), i = Number(tr.getAttribute('data-i'));
+        state.rows[i][btn.getAttribute('data-cycle')] = btn.getAttribute('data-next');
+        renderRows(); scheduleDraft();
+      });
     });
     body.querySelectorAll('[data-del]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -402,18 +432,10 @@
     var tr = e.target.closest('tr');
     var i = Number(tr.getAttribute('data-i'));
     var f = e.target.getAttribute('data-f');
-    // "구분"(시점 드롭다운)과 "제품명"(자동완성 입력칸)은 화면에서만 나뉜 두 칸이고,
-    // 실제로는 같은 row.item 하나를 쓴다 — 어느 칸을 마지막으로 고쳤는지가 곧 값이 된다.
-    if (f === 'timepoint' || f === 'product') {
+    // "구분"(시점 드롭다운)과 "제품명"(팝업 선택 버튼, chooseProduct() 참고)은
+    // 화면에서만 나뉜 두 칸이고, 실제로는 같은 row.item 하나를 쓴다.
+    if (f === 'timepoint') {
       state.rows[i].item = e.target.value;
-      // 제품명은 자유 입력 칸이라, 글자 하나 칠 때마다(input) 표 전체를 다시 그리면
-      // 포커스가 끊겨 타이핑이 안 된다. 입력 중엔 저장만 해 두고, 선택을 확정한
-      // 순간(change: blur 또는 datalist 항목 클릭)에만 검출확인 기본값을 채우고
-      // 다시 그린다.
-      if (f === 'product' && e.type === 'input') {
-        scheduleDraft();
-        return;
-      }
       applyItemDefaults(state.rows[i]);
       renderRows();
       scheduleDraft();
@@ -501,6 +523,12 @@
     if (!row) { closeProductPicker(); return; }
     row.item = name;
     applyItemDefaults(row);
+    // 품목 마스터에 있는 이름을 고르면(=중량구간 매핑이 있으면) 헤더의 한계기준값도
+    // 같이 맞춘다 — 2026-10-14 현장 개선(온라인 중량구간 자동화)과 같은 동작이다.
+    if (row.item) {
+      state.productName = row.item;
+      applyProductWeightClass(row.item);
+    }
     closeProductPicker();
     renderRows();
     scheduleDraft();
@@ -518,13 +546,12 @@
     state.equipment = $('equipment').value;
     var pSel = $('productSelect');
     var pInp = $('productName');
-    if (pSel && pSel.value === '__custom__') {
-      state.productName = pInp ? pInp.value.trim() : '';
-    } else if (pSel && pSel.value) {
-      state.productName = pSel.value;
-    } else {
-      state.productName = pInp ? pInp.value.trim() : '';
-    }
+    var rowProduct = state.rows && state.rows.find(function (r) { return r.item && ITEM_TIMEPOINTS.indexOf(r.item) === -1; });
+    if (rowProduct) state.productName = rowProduct.item;
+    else if (pSel && pSel.value === '__custom__') state.productName = pInp ? pInp.value.trim() : '';
+    else if (pSel && pSel.value) state.productName = pSel.value;
+    else state.productName = pInp ? pInp.value.trim() : '';
+    applyRowStandards();
     state.lot = $('lot').value;
     state.feSize = $('feSize').value;
     state.susSize = $('susSize').value;
