@@ -120,7 +120,7 @@
         '<td class="c">' + esc(pack.usage ? (pack.usage + ' EA') : '') + '</td>' +
         '<td class="c">' + esc(p.start) + '</td>' +
         '<td class="c">' + esc(p.end) + '</td>' +
-        '<td class="c">' + ox(p.ok) + '</td>' +
+        '<td class="c">' + ox(p.ok || (state.hasDeviation ? '×' : '○')) + '</td>' +
         '<td class="c">' + esc(p.qty) + '</td>' +
         '<td class="l">' + esc(p.note) + '</td></tr>';
     }).join('');
