@@ -11,24 +11,24 @@
   var draftTimer = null;
 
   function emptyRow() {
-    return { item: '', time: '', fe: '', sus: '', prodOnly: '', prodFe: '', prodSus: '', judge: '' };
+    return { item: '', product: '', time: '', fe: '', sus: '', prodOnly: '', prodFe: '', prodSus: '', judge: '' };
   }
 
-  /* 품목 칸의 특수값 3종 — 실제 제품이 아니라 '점검 시점'을 나타낸다(인쇄물 참고).
-     이 값이거나 그 외(실제 제품명)인지로 검출확인 범례 기본값을 다르게 채운다.
-     저장 데이터는 이 값이든 제품명이든 그대로 row.item 하나에 담는다 — 화면에서만
-     "구분"(시점 드롭다운)과 "제품명"(자동완성 입력칸) 두 칸으로 나눠 보여준다.
-     한 칸에 시점·제품명이 같이 자동완성 목록으로 섞여 나와 현장에서 헷갈린다는
-     피드백(2026-09-29, 이다은님)으로 나눴다. */
-  var ITEM_TIMEPOINTS = ['작업시작전', '작업전', '작업종료시'];
+  /* "구분"(점검 시점) 3종. 예전엔 "작업전"이었는데, 그 시점엔 제품이 지나가는지
+     아닌지가 애매해 현장에서 헷갈린다는 요청(2026-10-15)으로 "작업중"으로 바꿨다 —
+     "작업중"일 때만 실제로 제품이 지나가므로, row.product(품목)도 "작업중"일 때만
+     고를 수 있다("작업시작전"·"작업종료시"는 제품이 지나가기 전/후라 품목 칸 자체가
+     비활성화된다, renderRows() 참고). 구분(row.item)과 품목(row.product)은 이제
+     완전히 분리된 칸이다 — 전엔 한 칸(row.item)을 돌려썼는데, 품목을 고르면 그
+     칸이 더는 "작업중"을 담지 못해 어느 시점 점검인지가 지워지는 문제가 있었다. */
+  var ITEM_TIMEPOINTS = ['작업시작전', '작업중', '작업종료시'];
 
-  /* 품목 선택에 따라 검출확인 O/X 기본값을 채운다 — 표준시편(Fe/SUS)은 항상 검출(O)
+  /* 구분 선택에 따라 검출확인 O/X 기본값을 채운다 — 표준시편(Fe/SUS)은 항상 검출(O)
      이어야 한다. "작업시작전"은 제품이 아직 지나가기 전이라 제품만/제품+시편 칸이
-     해당 없음(공란 "-")이지만, "작업전"·"작업종료시"는 실제 제품명을 적는 경우와
-     마찬가지로 이미 제품이 지나가는 시점이라 제품만 X(불검출)·제품+시편 O/O 를
-     기본값으로 채운다(2026-10-15 현장 요청). 이미 값이 있어도 품목(구분)을 바꾸면
-     그 기본값으로 다시 맞춘다 — 필요하면 그 다음에 사용자가 직접 O/X 셀렉트로 고칠
-     수 있다. */
+     해당 없음(공란 "-")이지만, "작업중"·"작업종료시"는 실제 제품이 지나가는 시점이라
+     제품만 X(불검출)·제품+시편 O/O 를 기본값으로 채운다(2026-10-15 현장 요청). 이미
+     값이 있어도 구분을 바꾸면 그 기본값으로 다시 맞춘다 — 필요하면 그 다음에
+     사용자가 직접 O/X 셀렉트로 고칠 수 있다. */
   function applyItemDefaults(row) {
     var v = (row.item || '').trim();
     if (!v) return;
@@ -78,7 +78,7 @@
 
   function applyRowStandards() {
     (state.rows || []).forEach(function (row) {
-      var product = row.item && ITEM_TIMEPOINTS.indexOf(row.item) === -1 ? row.item : state.productName;
+      var product = (row.item === '작업중' && row.product) ? row.product : state.productName;
       var wc = WEIGHT_CLASS[productWeightClassKey(product)];
       if (!wc) return;
       row.adjust = wc.adjust;
@@ -385,13 +385,15 @@
     var body = $('monBody');
     body.innerHTML = state.rows.map(function (row, i) {
       evaluateRow(row);
-      var isTimepoint = ITEM_TIMEPOINTS.indexOf(row.item) !== -1;
-      var productValue = isTimepoint ? '' : (row.item || '');
+      // "작업중"일 때만 제품이 지나간다 — 품목(제품명) 선택은 그 시점에만 연다.
+      // 작업시작전·작업종료시는 품목 칸 자체를 비활성화한다(2026-10-15 현장 요청).
+      var isWorking = row.item === '작업중';
+      var productValue = isWorking ? (row.product || '') : '';
       return '<tr data-i="' + i + '">' +
         '<td><button type="button" class="mon-in mon-picker-btn" data-pick-timepoint="' + i + '">' +
-        (isTimepoint ? esc(row.item) : '<span class="ph">구분 선택</span>') + '</button></td>' +
-        '<td><button type="button" class="mon-in mon-picker-btn" data-pick-product="' + i + '">' +
-        (productValue ? esc(productValue) : '<span class="ph">품목 선택</span>') + '</button>' +
+        (row.item ? esc(row.item) : '<span class="ph">구분 선택</span>') + '</button></td>' +
+        '<td><button type="button" class="mon-in mon-picker-btn" data-pick-product="' + i + '"' + (isWorking ? '' : ' disabled') + '>' +
+        (productValue ? esc(productValue) : '<span class="ph">' + (isWorking ? '품목 선택' : '작업중만 선택') + '</span>') + '</button>' +
         '<button type="button" class="mon-now-row-btn" data-now-row="' + i + '">⏱ 지금시각</button></td>' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
         '<td class="criteria-cell">' + esc(criteriaForProduct(productValue)) + '</td>' +
@@ -505,6 +507,10 @@
     var row = state.rows[timepointPickerRowIndex];
     if (!row) { closeTimepointPicker(); return; }
     row.item = tp;
+    // "작업중"이 아니면 품목 칸이 비활성화되므로 값도 비운다 — 안 비우면 작업중→
+    // 작업종료시로 바꿨다가 다시 작업중으로 돌아왔을 때나 화면에 안 보이는 옛 값이
+    // 저장 데이터에만 조용히 남는다.
+    if (tp !== '작업중') row.product = '';
     applyItemDefaults(row);
     closeTimepointPicker();
     renderRows();
@@ -548,6 +554,10 @@
 
   function openProductPicker(i) {
     if (state.locked) return;
+    var row = state.rows[i];
+    // "작업중"이 아닌 행은 버튼 자체가 disabled 라 보통 여기까지 안 오지만,
+    // 혹시 모를 직접 호출에 대비해 한 번 더 막는다.
+    if (!row || row.item !== '작업중') return;
     ensureProductPicker();
     productPickerRowIndex = i;
     $('productPickerOverlay').hidden = false;
@@ -563,13 +573,12 @@
     if (productPickerRowIndex == null) return;
     var row = state.rows[productPickerRowIndex];
     if (!row) { closeProductPicker(); return; }
-    row.item = name;
-    applyItemDefaults(row);
+    row.product = name;
     // 품목 마스터에 있는 이름을 고르면(=중량구간 매핑이 있으면) 헤더의 한계기준값도
     // 같이 맞춘다 — 2026-10-14 현장 개선(온라인 중량구간 자동화)과 같은 동작이다.
-    if (row.item) {
-      state.productName = row.item;
-      applyProductWeightClass(row.item);
+    if (name) {
+      state.productName = name;
+      applyProductWeightClass(name);
     }
     closeProductPicker();
     renderRows();
@@ -588,8 +597,8 @@
     state.equipment = $('equipment').value;
     var pSel = $('productSelect');
     var pInp = $('productName');
-    var rowProduct = state.rows && state.rows.find(function (r) { return r.item && ITEM_TIMEPOINTS.indexOf(r.item) === -1; });
-    if (rowProduct) state.productName = rowProduct.item;
+    var rowProduct = state.rows && state.rows.find(function (r) { return r.item === '작업중' && r.product; });
+    if (rowProduct) state.productName = rowProduct.product;
     else if (pSel && pSel.value === '__custom__') state.productName = pInp ? pInp.value.trim() : '';
     else if (pSel && pSel.value) state.productName = pSel.value;
     else state.productName = pInp ? pInp.value.trim() : '';
