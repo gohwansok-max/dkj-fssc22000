@@ -23,7 +23,7 @@ function loadPrinter() {
 }
 
 test('CCP-1BC official printer URL uses the updated cache revision', () => {
-  assert.match(formHtmlSource, /dkj-print-official\.js\?v=130&rev=137/);
+  assert.match(formHtmlSource, /dkj-print-official\.js\?v=130&rev=138/);
 });
 
 test('CCP-1BC form stores raw material input on each monitoring row', () => {
@@ -110,4 +110,15 @@ test('CCP-1BC official header hides all signatory names until final approval is 
   const box = signBox(html);
   for (const name of ['확정 작성자', '확정 검토자', '확정 승인자']) assert.ok(box.includes(name));
   for (const name of ['예정 작성자', '예정 검토자', '예정 승인자']) assert.ok(!box.includes(name));
+});
+
+
+test('CCP-1BC official print omits the per-treated-lot deviation table', () => {
+  const html = loadPrinter().ccp1bc({
+    lotLog: [{ productName: '품목 A', lot: 'LOT-123', start: '09:00', end: '10:00', ok: '×', qty: '2.5', note: '이탈' }],
+    rows: [{ time: '09:00', ppm: '250', judge: 'O' }]
+  });
+  assert.doesNotMatch(html, /소독·헹굼 처리 LOT별 이탈 여부/);
+  assert.doesNotMatch(html, /LOT-123/);
+  assert.match(html, /한계기준 이탈 발생 내역 및 개선 조치 사항/);
 });

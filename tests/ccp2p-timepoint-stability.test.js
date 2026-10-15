@@ -18,6 +18,10 @@ test('CCP-2P print applies the selected product standards and start/end times to
 
   const html = context.DkjPrintOfficial.ccp2p({
     workDate: '2026-10-15', monitorName: '담당자', productName: '제품A', adjust: '70', stable: '450',
+    packagings: [
+      { lot: 'PKG-LOT-123', usage: '200', defect: '1' },
+      { lot: 'PKG-LOT-124', usage: '100', defect: '0' }
+    ],
     rows: [
       { item: '작업시작전', time: '08:00', fe: 'O', sus: 'O', adjust: '70', stable: '450' },
       { item: '작업중', product: '제품A', time: '09:00', fe: 'O', sus: 'O', adjust: '70', stable: '450' },
@@ -39,7 +43,11 @@ test('CCP-2P print applies the selected product standards and start/end times to
   const productCells = productRow[0].match(/<td\b[^>]*>[\s\S]*?<\/td>/g);
   assert.equal(productCells[7], '<td class="c">70</td>');
   assert.equal(productCells[8], '<td class="c">450</td>');
-  assert.ok(html.includes('<tr><td class="l">제품A</td><td class="c">08:00</td><td class="c">17:00</td>'));
+  assert.ok(html.includes('<tr><td class="l">제품A</td><td class="c">PKG-LOT-123</td><td class="c">1</td><td class="c">200 EA</td>'));
+  assert.ok(html.includes('포장재 LOT'));
+  assert.ok(html.includes('PKG-LOT-124'));
+  assert.ok(html.includes('100 EA'));
+  assert.ok(html.includes('<td class="c">08:00</td><td class="c">17:00</td>'));
 });
 
 
@@ -65,10 +73,21 @@ test('CCP-2P start/end rows follow first and last products in a multi-product lo
     ]
   });
 
-  assert.ok(html.includes('<tr><td class="l">제품A</td><td class="c">07:30</td><td class="c">08:00</td>'));
-  assert.ok(html.includes('<tr><td class="l">제품B</td><td class="c">12:00</td><td class="c">19:00</td>'));
+  assert.ok(html.includes('<tr><td class="l">제품A</td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c">07:30</td><td class="c">08:00</td>'));
+  assert.ok(html.includes('<tr><td class="l">제품B</td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c">12:00</td><td class="c">19:00</td>'));
   const end = html.match(/<tr><td class="c strong">작업종료시<br><small>제품B 기준<\/small><\/td>[\s\S]*?<\/tr>/);
   assert.ok(end, 'end-of-work row should show its associated last product');
   const cells = end[0].match(/<td\b[^>]*>[\s\S]*?<\/td>/g);
   assert.equal(cells[8], '<td class="c">954</td>');
+});
+
+
+test('CCP-2P form restores packaging LOT and usage inputs with legacy record migration', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'records', 'DKJ-H-01-02.html'), 'utf8');
+  const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'DKJ-H-01-02.js'), 'utf8');
+  assert.match(html, /id="packTable"/);
+  assert.match(html, /id="packBody"/);
+  assert.match(source, /data-pf="lot"/);
+  assert.match(source, /data-pf="usage"/);
+  assert.match(source, /normalizePackagings\(state\);\s*renderPackagings\(\);/);
 });

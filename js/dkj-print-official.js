@@ -174,14 +174,33 @@
         note: state.remark || ''
       };
     };
-    var passList = productsUsed.map(fallbackPassFor);
-    var passRows = passList.map(function (p) {
-      return '<tr>' +
-        '<td class="l">' + esc(p.productName || prod) + '</td>' +
-        '<td class="c">' + esc(p.start || '') + '</td>' +
-        '<td class="c">' + esc(p.end || '') + '</td>' +
-        '<td class="c">' + (p.ok === '×' ? '부적합' : '적합') + '</td></tr>';
-    }).join('');
+    var packagings = Array.isArray(state.packagings) ? state.packagings : [];
+    var passList = Array.isArray(state.passLog) && state.passLog.length
+      ? state.passLog
+      : productsUsed.map(fallbackPassFor);
+    var passCount = Math.max(passList.length, 1);
+    packagings.forEach(function (pack, index) {
+      if (pack && (pack.lot || pack.usage || pack.defect)) passCount = Math.max(passCount, index + 1);
+    });
+    var passRows = [];
+    for (var passIndex = 0; passIndex < passCount; passIndex++) {
+      var pass = passList[passIndex] || {};
+      var pack = packagings[passIndex] || {};
+      var passStatus = pass.ok
+        ? ((pass.ok === '×' || pass.ok === 'X') ? '부적합' : '적합')
+        : '';
+      passRows.push('<tr>' +
+        '<td class="l">' + esc(pass.productName || (passIndex < passList.length ? prod : '')) + '</td>' +
+        '<td class="c">' + esc(pack.lot || '') + '</td>' +
+        '<td class="c">' + esc(pack.defect || '') + '</td>' +
+        '<td class="c">' + esc(pack.usage ? (pack.usage + ' EA') : '') + '</td>' +
+        '<td class="c">' + esc(pass.start || '') + '</td>' +
+        '<td class="c">' + esc(pass.end || '') + '</td>' +
+        '<td class="c">' + passStatus + '</td>' +
+        '<td class="c">' + esc(pass.qty || '') + '</td>' +
+        '<td class="l">' + esc(pass.note || '') + '</td></tr>');
+    }
+    passRows = passRows.join('');
 
     var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
     var devBody = hasDev
@@ -300,7 +319,8 @@
       '<div class="off-sec">금속검출기 제품 통과 시 이탈 여부</div>' +
       '<table class="off-grid">' +
       '<thead><tr>' +
-      '<th>제품명</th><th>작업시작시간</th><th>작업종료시간</th><th>이탈여부</th>' +
+      '<th>제품명</th><th>포장재 LOT</th><th>부적합 개수</th><th>사용량</th>' +
+      '<th>작업시작시간</th><th>작업종료시간</th><th>이탈여부</th><th>통과량</th><th>특이사항</th>' +
       '</tr></thead><tbody>' + passRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +
@@ -356,15 +376,6 @@
         '<td class="c">' + esc(r.residualCl || '') + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'; }).join('');
-
-    var lotRows = (state.lotLog || [{
-      start: (state.rows && state.rows[0] && state.rows[0].time) || '',
-      end: (state.rows && state.rows[state.rows.length - 1] && state.rows[state.rows.length - 1].time) || '',
-      ok: state.hasDeviation ? '×' : '', qty: state.rawMaterialKg || state.processQty || '', note: state.remark || ''
-    }]).map(function (p) { return '<tr>' +
-      '<td class="c">' + esc(p.start) + '</td><td class="c">' + esc(p.end) + '</td>' +
-      '<td class="c">' + ox(p.ok) + '</td><td class="c">' + esc(p.qty) + '</td>' +
-      '<td class="l">' + esc(p.note) + '</td></tr>'; }).join('');
 
     var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
     var devBody = hasDev
@@ -467,13 +478,6 @@
       '<table class="off-grid off-correct">' +
       '<tr><th class="lab vert">이탈시<br>개선조치<br>방법</th>' +
       '<td class="l tiny">' + correctiveHtml + '</td></tr></table>' +
-
-      '<div class="off-sec">소독·헹굼 처리 LOT별 이탈 여부</div>' +
-      '<table class="off-grid">' +
-      '<thead><tr>' +
-      '<th>최초 처리시간</th><th>종료시간</th>' +
-      '<th>이탈여부(○/×)</th><th>투입량(kg)</th><th>특이사항</th>' +
-      '</tr></thead><tbody>' + lotRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +
       '<table class="off-grid">' +

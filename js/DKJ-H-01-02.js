@@ -213,8 +213,8 @@
     body.innerHTML = state.packagings.map(function (row, i) {
       return '<tr data-p="' + i + '">' +
         '<td>' + (i + 1) + '</td>' +
-        '<td><input type="date" class="mon-in pack-in" data-pf="lot" value="' +
-        esc(row.lot) + '"></td>' +
+        '<td><input type="text" class="mon-in pack-in" data-pf="lot" value="' +
+        esc(row.lot) + '" placeholder="예: 20260911-1"></td>' +
         '<td><div class="mon-unit-wrap"><input type="number" class="mon-in pack-in" data-pf="usage" min="0" step="1" value="' +
         esc(row.usage) + '" placeholder="예: 200"><span class="mon-unit">EA</span></div></td>' +
         '<td><input type="number" class="mon-in pack-in" data-pf="defect" min="0" step="1" value="' +
@@ -671,6 +671,8 @@
     $('approver').value = state.approver || '';
     $('remark').value = state.remark || '';
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
+    normalizePackagings(state);
+    renderPackagings();
     renderRows();
     renderStampPhotos();
     syncApprovals();
