@@ -445,6 +445,9 @@ input[type="number"]:out-of-range {
   font-size: 13.5px;
 }
 
+/* CCP-1BC 행별 품목명·투입량 열을 포함하는 넓은 표 */
+.mon-table.ccp1bc-mon-table { min-width: 980px; }
+
 .mon-table th {
   background: var(--nh-green-50);
   color: var(--nh-green-ink);

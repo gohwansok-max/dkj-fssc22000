@@ -37,7 +37,7 @@
 
   function emptyRow() {
     return {
-      time: '', productName: '', ppm: '', soak: '', rinseSec: '', residualCl: '', judge: '',
+      time: '', productName: '', rawMaterialKg: '', ppm: '', soak: '', rinseSec: '', residualCl: '', judge: '',
       isCustomPpm: false, isCustomSoak: false, isCustomRinseSec: false, isCustomResidualCl: false, isCustomProduct: false,
       // paper(시험지)로 실측한 유효염소·잔류염소 결과를 사진으로 남긴다(측정행당 1장).
       // 인쇄 시 맨 뒤에 별첨으로 붙는다 — ccp1bc() 의 photoAttachmentHtml 참고.
@@ -310,7 +310,7 @@
     if (!body) return;
     var preWorkRow = '<tr class="prework-row" data-i="-1">' +
       '<td><input type="time" class="mon-in" data-f="time" data-prework="1" value="' + esc(state.preWorkTime || '') + '"></td>' +
-      '<td class="c strong">작업 시작 전 확인</td>' +
+      '<td class="c strong">작업 시작 전 확인</td><td class="c">-</td>' +
       '<td>' + buildPreWorkPpmCell() + '</td>' +
       '<td class="c">-</td><td class="c">-</td><td class="c">-</td><td class="c">-</td><td class="c">-</td><td class="c">-</td></tr>';
     body.innerHTML = preWorkRow + state.rows.map(function (row, i) {
@@ -318,6 +318,7 @@
       return '<tr data-i="' + i + '">' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
         '<td>' + buildProductCell(row, i) + '</td>' +
+        '<td><input type="number" class="mon-in" data-f="rawMaterialKg" min="0" max="7.99" step="0.01" inputmode="decimal" aria-label="원물 투입량(kg)" placeholder="kg" value="' + esc(row.rawMaterialKg == null ? '' : row.rawMaterialKg) + '"></td>' +
         '<td>' + buildPpmCell(row, i) + '</td>' +
         '<td>' + buildSoakCell(row, i) + '</td>' +
         '<td>' + buildRinseSecCell(row, i) + '</td>' +
@@ -394,7 +395,7 @@
       if (e.target.value === '__custom__') row.isCustomResidualCl = true;
       else { row.isCustomResidualCl = false; row.residualCl = e.target.value; }
     } else if (f) { row[f] = e.target.value; }
-    if (e.type === 'input' && (f === 'residualCl' || f === 'productName')) {
+    if (e.type === 'input' && (f === 'residualCl' || f === 'productName' || f === 'rawMaterialKg')) {
       evaluateRow(row); refreshDeviation(); scheduleDraft(); return;
     }
     renderRows(); scheduleDraft();
@@ -560,6 +561,11 @@
     if (!state.lot) return 'LOT를 입력하세요.';
     if (state.rawMaterialKg && (!Number.isFinite(Number(state.rawMaterialKg)) || Number(state.rawMaterialKg) < 0 || Number(state.rawMaterialKg) >= 8)) return '원물 투입량은 0 이상 8kg 미만으로 입력하세요.';
     if (!state.monitorName) return '모니터링 담당자를 입력하세요.';
+    var invalidRowQuantity = (state.rows || []).some(function (r) {
+      var value = r.rawMaterialKg;
+      return value !== '' && value != null && (!Number.isFinite(Number(value)) || Number(value) < 0 || Number(value) >= 8);
+    });
+    if (invalidRowQuantity) return '행별 원물 투입량은 0 이상 8kg 미만으로 입력하세요.';
     var filled = state.rows.filter(function (r) { return r.ppm || r.soak || r.rinseSec || r.residualCl; });
     if (!filled.length && !state.preWorkPpm) return '모니터링 측정값을 1건 이상 입력하세요.';
     if (state.hasDeviation) {
