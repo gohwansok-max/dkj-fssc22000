@@ -23,7 +23,7 @@ function loadPrinter() {
 }
 
 test('CCP-1BC official printer URL uses the updated cache revision', () => {
-  assert.match(formHtmlSource, /dkj-print-official\.js\?v=130&rev=136/);
+  assert.match(formHtmlSource, /dkj-print-official\.js\?v=130&rev=137/);
 });
 
 test('CCP-1BC form stores raw material input on each monitoring row', () => {
@@ -85,4 +85,29 @@ test('CCP-1BC print supports legacy replacement-time string and leaves a blank w
   const emptyTable = emptyHtml.match(/<table class="off-grid off-change-times">[\s\S]*?<\/table>/)[0];
   assert.match(emptyTable, /1회/);
   assert.doesNotMatch(emptyTable, /08:30|12:30/);
+});
+
+
+test('CCP-1BC official header hides all signatory names until final approval is confirmed', () => {
+  const state = {
+    monitorName: '예정 작성자',
+    confirmer: '예정 검토자',
+    approver: '예정 승인자',
+    signoff: {
+      writer: { name: '확정 작성자', at: '2026-10-15T01:00:00.000Z' },
+      reviewer: { name: '확정 검토자', at: '2026-10-15T02:00:00.000Z' }
+    }
+  };
+  const signBox = (html) => html.match(/<table class="off-apv">[\s\S]*?<\/table>/)[0];
+
+  let html = loadPrinter().ccp1bc(state);
+  for (const name of ['예정 작성자', '예정 검토자', '예정 승인자', '확정 작성자', '확정 검토자']) {
+    assert.ok(!signBox(html).includes(name));
+  }
+
+  state.signoff.approver = { name: '확정 승인자', at: '2026-10-15T03:00:00.000Z' };
+  html = loadPrinter().ccp1bc(state);
+  const box = signBox(html);
+  for (const name of ['확정 작성자', '확정 검토자', '확정 승인자']) assert.ok(box.includes(name));
+  for (const name of ['예정 작성자', '예정 검토자', '예정 승인자']) assert.ok(!box.includes(name));
 });

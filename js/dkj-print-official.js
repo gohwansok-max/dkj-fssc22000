@@ -38,6 +38,16 @@
   /** 정본 헤더: 양식번호|제정|개정 / 제목 / 결재 */
   function officialHeader(opt) {
     var revDate = opt.reviseDate && opt.reviseDate !== '-' ? opt.reviseDate : '-';
+    var headerWriter = opt.writer || '';
+    var headerReviewer = opt.reviewer || '';
+    var headerApprover = opt.approver || '';
+    if (opt.requireFinalApprovalForNames) {
+      var signoff = opt.signoff || {};
+      var finalApproved = !!(signoff.approver && signoff.approver.at);
+      headerWriter = finalApproved && signoff.writer && signoff.writer.at ? (signoff.writer.name || '') : '';
+      headerReviewer = finalApproved && signoff.reviewer && signoff.reviewer.at ? (signoff.reviewer.name || '') : '';
+      headerApprover = finalApproved && signoff.approver && signoff.approver.at ? (signoff.approver.name || '') : '';
+    }
     return (
       '<table class="off-head">' +
       '<tr>' +
@@ -52,7 +62,7 @@
       '<div class="off-title">' + esc(opt.title) + '</div>' +
       '<div class="off-sub">' + esc(opt.subtitle) + '</div>' +
       '</td>' +
-      '<td class="off-apv-wrap">' + signBox(opt.writer, opt.reviewer, opt.approver) + '</td>' +
+      '<td class="off-apv-wrap">' + signBox(headerWriter, headerReviewer, headerApprover) + '</td>' +
       '</tr></table>'
     );
   }
@@ -389,7 +399,9 @@
         subtitle: '소독·헹굼 공정',
         writer: writer,
         reviewer: state.confirmer || '',
-        approver: state.approver || ''
+        approver: state.approver || '',
+        signoff: state.signoff,
+        requireFinalApprovalForNames: true
       }) +
 
       '<table class="off-grid off-topmeta">' +
