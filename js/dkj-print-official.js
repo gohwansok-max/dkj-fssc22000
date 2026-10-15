@@ -94,23 +94,46 @@
       }
       return item === '작업전' ? '작업중' : item;
     }
-    function rowProductName(r, i) {
+    function workingProductAt(r, i) {
       var item = (r.item || '').trim();
-      var isTimepoint = !item || TIMEPOINT_LABELS.indexOf(item) !== -1 || LEGACY_TIMEPOINT_LABELS.indexOf(item) !== -1;
-      // isTimepoint가 아니면 2026-10-15 이전 기록(품목 칸이 따로 없어 item 자체가
-      // 제품명이었다) — 그 값을 그대로 제품명으로 쓴다. "작업중"/"작업전"이면 분리된
-      // row.product 를, 없으면(2026-09-18~10-14 사이 기록) 자리 추정값을 쓴다.
-      if (!isTimepoint) return item;
       if (item === '작업중' || item === '작업전') {
         return (r.product || '').trim() || (i === 1 ? prod : (r.productName || ''));
       }
+      if (!item && i === 1) return (r.product || '').trim() || prod || (r.productName || '');
+      return '';
+    }
+    function boundaryProduct(index, direction) {
+      var sourceRows = state.rows || [];
+      if (direction > 0) {
+        for (var j = index + 1; j < sourceRows.length; j++) {
+          var nextProduct = workingProductAt(sourceRows[j], j);
+          if (nextProduct) return nextProduct;
+        }
+      } else {
+        for (var k = Math.min(index - 1, sourceRows.length - 1); k >= 0; k--) {
+          var previousProduct = workingProductAt(sourceRows[k], k);
+          if (previousProduct) return previousProduct;
+        }
+      }
+      return prod || '';
+    }
+    function rowProductName(r, i) {
+      var item = (r.item || '').trim();
+      var isTimepoint = !item || TIMEPOINT_LABELS.indexOf(item) !== -1 || LEGACY_TIMEPOINT_LABELS.indexOf(item) !== -1;
+      if (!isTimepoint) return item;
+      var timepoint = rowTimepointLabel(r, i);
+      if (timepoint === '작업중') return workingProductAt(r, i) || (r.product || '').trim() || (r.productName || '');
+      if (timepoint === '작업시작전') return (r.product || '').trim() || boundaryProduct(i, 1);
+      if (timepoint === '작업종료시') return (r.product || '').trim() || boundaryProduct(i, -1);
       return '';
     }
     var monBody = rows.map(function (r, i) {
       var product = rowProductName(r, i);
-      var nameCell = product
-        ? '<td class="l">' + esc(product) + '</td>'
-        : '<td class="c strong">' + esc(rowTimepointLabel(r, i)) + '</td>';
+      var timepoint = rowTimepointLabel(r, i);
+      var isBoundary = timepoint === '작업시작전' || timepoint === '작업종료시';
+      var nameCell = isBoundary
+        ? '<td class="c strong">' + esc(timepoint) + (product ? '<br><small>' + esc(product) + ' 기준</small>' : '') + '</td>'
+        : (product ? '<td class="l">' + esc(product) + '</td>' : '<td class="c strong">' + esc(timepoint) + '</td>');
       return (
         '<tr>' + nameCell +
         '<td class="c">' + esc(r.time || '') + '</td>' +
@@ -119,9 +142,9 @@
         '<td class="c">' + ox(r.prodOnly || '') + '</td>' +
         '<td class="c">' + ox(r.prodFe) + '</td>' +
         '<td class="c">' + ox(r.prodSus) + '</td>' +
-        // 제품이 없는 작업시작전·작업종료시 행에는 마지막 제품의 전역 기준을 상속하지 않는다.
-        '<td class="c">' + esc(product ? (r.adjust || (r.time ? state.adjust : '') || '') : '') + '</td>' +
-        '<td class="c">' + esc(product ? (r.stable || (r.time ? state.stable : '') || '') : '') + '</td>' +
+        // 시작전은 다음 작업 품목, 종료시는 직전 작업 품목의 기준을 표시한다.
+        '<td class="c">' + esc(product ? (r.adjust || state.adjust || '') : '') + '</td>' +
+        '<td class="c">' + esc(product ? (r.stable || state.stable || '') : '') + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'
       );
@@ -151,14 +174,33 @@
         note: state.remark || ''
       };
     };
-    var passList = productsUsed.map(fallbackPassFor);
-    var passRows = passList.map(function (p) {
-      return '<tr>' +
-        '<td class="l">' + esc(p.productName || prod) + '</td>' +
-        '<td class="c">' + esc(p.start || '') + '</td>' +
-        '<td class="c">' + esc(p.end || '') + '</td>' +
-        '<td class="c">' + (p.ok === '×' ? '부적합' : '적합') + '</td></tr>';
-    }).join('');
+    var packagings = Array.isArray(state.packagings) ? state.packagings : [];
+    var passList = Array.isArray(state.passLog) && state.passLog.length
+      ? state.passLog
+      : productsUsed.map(fallbackPassFor);
+    var passCount = Math.max(passList.length, 1);
+    packagings.forEach(function (pack, index) {
+      if (pack && (pack.lot || pack.usage || pack.defect)) passCount = Math.max(passCount, index + 1);
+    });
+    var passRows = [];
+    for (var passIndex = 0; passIndex < passCount; passIndex++) {
+      var pass = passList[passIndex] || {};
+      var pack = packagings[passIndex] || {};
+      var passStatus = pass.ok
+        ? ((pass.ok === '×' || pass.ok === 'X') ? '부적합' : '적합')
+        : '';
+      passRows.push('<tr>' +
+        '<td class="l">' + esc(pass.productName || (passIndex < passList.length ? prod : '')) + '</td>' +
+        '<td class="c">' + esc(pack.lot || '') + '</td>' +
+        '<td class="c">' + esc(pack.defect || '') + '</td>' +
+        '<td class="c">' + esc(pack.usage ? (pack.usage + ' EA') : '') + '</td>' +
+        '<td class="c">' + esc(pass.start || '') + '</td>' +
+        '<td class="c">' + esc(pass.end || '') + '</td>' +
+        '<td class="c">' + passStatus + '</td>' +
+        '<td class="c">' + esc(pass.qty || '') + '</td>' +
+        '<td class="l">' + esc(pass.note || '') + '</td></tr>');
+    }
+    passRows = passRows.join('');
 
     var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
     var devBody = hasDev
@@ -277,7 +319,8 @@
       '<div class="off-sec">금속검출기 제품 통과 시 이탈 여부</div>' +
       '<table class="off-grid">' +
       '<thead><tr>' +
-      '<th>제품명</th><th>작업시작시간</th><th>작업종료시간</th><th>이탈여부</th>' +
+      '<th>제품명</th><th>포장재 LOT</th><th>부적합 개수</th><th>사용량</th>' +
+      '<th>작업시작시간</th><th>작업종료시간</th><th>이탈여부</th><th>통과량</th><th>특이사항</th>' +
       '</tr></thead><tbody>' + passRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +
@@ -333,15 +376,6 @@
         '<td class="c">' + esc(r.residualCl || '') + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'; }).join('');
-
-    var lotRows = (state.lotLog || [{
-      start: (state.rows && state.rows[0] && state.rows[0].time) || '',
-      end: (state.rows && state.rows[state.rows.length - 1] && state.rows[state.rows.length - 1].time) || '',
-      ok: state.hasDeviation ? '×' : '', qty: state.rawMaterialKg || state.processQty || '', note: state.remark || ''
-    }]).map(function (p) { return '<tr>' +
-      '<td class="c">' + esc(p.start) + '</td><td class="c">' + esc(p.end) + '</td>' +
-      '<td class="c">' + ox(p.ok) + '</td><td class="c">' + esc(p.qty) + '</td>' +
-      '<td class="l">' + esc(p.note) + '</td></tr>'; }).join('');
 
     var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
     var devBody = hasDev
@@ -444,13 +478,6 @@
       '<table class="off-grid off-correct">' +
       '<tr><th class="lab vert">이탈시<br>개선조치<br>방법</th>' +
       '<td class="l tiny">' + correctiveHtml + '</td></tr></table>' +
-
-      '<div class="off-sec">소독·헹굼 처리 LOT별 이탈 여부</div>' +
-      '<table class="off-grid">' +
-      '<thead><tr>' +
-      '<th>최초 처리시간</th><th>종료시간</th>' +
-      '<th>이탈여부(○/×)</th><th>투입량(kg)</th><th>특이사항</th>' +
-      '</tr></thead><tbody>' + lotRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +
       '<table class="off-grid">' +
