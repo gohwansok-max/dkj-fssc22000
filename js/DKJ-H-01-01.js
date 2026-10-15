@@ -22,7 +22,7 @@
   var PPM_PRESETS = ['200', '210', '220', '230', '240', '250', '260', '270', '280', '290', '300'];
   var SOAK_PRESETS = ['20', '22', '24', '25', '26', '28', '30'];
   var RINSE_SEC_PRESETS = ['50', '52', '54', '55', '56', '58', '60'];
-  var RESIDUAL_CL_PRESETS = ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5'];
+  var RESIDUAL_CL_PRESETS = ['0', '0.05', '0.1', '0.5', '1', '1.5', '2'];
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -38,7 +38,7 @@
   function emptyRow() {
     return {
       time: '', productName: '', ppm: '', soak: '', rinseSec: '', residualCl: '', judge: '',
-      isCustomPpm: false, isCustomSoak: false, isCustomRinseSec: false, isCustomResidualCl: false,
+      isCustomPpm: false, isCustomSoak: false, isCustomRinseSec: false, isCustomResidualCl: false, isCustomProduct: false,
       // paper(시험지)로 실측한 유효염소·잔류염소 결과를 사진으로 남긴다(측정행당 1장).
       // 인쇄 시 맨 뒤에 별첨으로 붙는다 — ccp1bc() 의 photoAttachmentHtml 참고.
       photo: null
@@ -51,6 +51,8 @@
       workDate: td,
       disinfectant: 'NaOCl',
       productName: '',
+      rawMaterialKg: '',
+      preWorkPpm: '',
       lot: dateToLot(td),
       preWorkTime: '',
       waterChangeTimes: '08:00, 11:00, 14:00',
@@ -165,7 +167,7 @@
   }
 
   function refreshDeviation() {
-    state.hasDeviation = state.rows.some(function (r) { return r.judge === 'X'; });
+    state.hasDeviation = state.rows.some(function (r) { return r.judge === 'X'; }) || withinCl(state.preWorkPpm) === false;
     var ban = $('deviationBanner');
     if (ban) ban.hidden = !state.hasDeviation;
   }
@@ -184,7 +186,7 @@
     var opts = '<option value="">선택</option>';
     PPM_PRESETS.forEach(function (v) {
       var sel = String(row.ppm) === v ? ' selected' : '';
-      var label = v + ' ppm' + (v === '200' ? ' (하한)' : (v === '250' ? ' (표준)' : (v === '300' ? ' (상한)' : '')));
+      var label = v + ' ppm';
       opts += '<option value="' + v + '"' + sel + '>' + label + '</option>';
     });
     opts += '<option value="__custom__">✏️ 직접입력</option>';
@@ -234,7 +236,7 @@
     var opts = '<option value="">선택</option>';
     RINSE_SEC_PRESETS.forEach(function (v) {
       var sel = String(row.rinseSec) === v ? ' selected' : '';
-      var label = v + '초' + (v === '50' ? ' (하한)' : (v === '55' ? ' (표준)' : (v === '60' ? ' (상한)' : '')));
+      var label = v + '초';
       opts += '<option value="' + v + '"' + sel + '>' + label + '</option>';
     });
     opts += '<option value="__custom__">✏️ 직접입력</option>';
@@ -251,7 +253,7 @@
 
     if (isCustom) {
       return '<div class="mon-select-group">' +
-        '<input type="number" class="mon-in' + (rcBad ? ' bad' : '') + '" data-f="residualCl" step="0.1" min="0" value="' + (row.residualCl || '') + '" placeholder="ppm">' +
+        '<input type="text" inputmode="decimal" class="mon-in' + (rcBad ? ' bad' : '') + '" data-f="residualCl" value="' + (row.residualCl || '') + '" placeholder="ppm">' +
         '<button type="button" class="mon-mode-btn" data-toggle-residualCl="' + i + '" title="드롭다운 목록으로 선택">📋</button>' +
         '</div>';
     }
@@ -286,126 +288,60 @@
       '</label>';
   }
 
+  function buildProductCell(row, i) {
+    if (row.productName && PRODUCT_PRESETS.indexOf(row.productName) === -1) row.isCustomProduct = true;
+    if (row.isCustomProduct) {
+      return '<div class="mon-select-group"><input type="text" class="mon-in" data-f="productName" value="' + esc(row.productName || '') + '" placeholder="품목명 입력"><button type="button" class="mon-mode-btn" data-toggle-product="' + i + '" title="목록 선택">📋</button></div>';
+    }
+    var opts = '<option value="">품목 선택</option>';
+    PRODUCT_PRESETS.forEach(function (name) { opts += '<option value="' + esc(name) + '"' + (row.productName === name ? ' selected' : '') + '>' + esc(name) + '</option>'; });
+    opts += '<option value="__custom__">직접 입력</option>';
+    return '<select class="mon-in" data-f="productName-sel">' + opts + '</select>';
+  }
+
+  function buildPreWorkPpmCell() {
+    var opts = '<option value="">선택</option>';
+    PPM_PRESETS.forEach(function (v) { opts += '<option value="' + v + '"' + (String(state.preWorkPpm) === v ? ' selected' : '') + '>' + v + ' ppm</option>'; });
+    return '<select class="mon-in" data-f="preWorkPpm-sel">' + opts + '</select>';
+  }
+
   function renderRows() {
     var body = $('monBody');
     if (!body) return;
-
-    var productList = $('ccpProductOptions');
-    if (productList) productList.innerHTML = PRODUCT_PRESETS.map(function (name) { return '<option value="' + esc(name) + '"></option>'; }).join('');
-
-    body.innerHTML = state.rows.map(function (row, i) {
+    var preWorkRow = '<tr class="prework-row" data-i="-1">' +
+      '<td><input type="time" class="mon-in" data-f="time" data-prework="1" value="' + esc(state.preWorkTime || '') + '"></td>' +
+      '<td class="c strong">작업 시작 전 확인</td>' +
+      '<td>' + buildPreWorkPpmCell() + '</td>' +
+      '<td class="c">-</td><td class="c">-</td><td class="c">-</td><td class="c">-</td><td class="c">-</td><td class="c">-</td></tr>';
+    body.innerHTML = preWorkRow + state.rows.map(function (row, i) {
       evaluateRow(row);
       return '<tr data-i="' + i + '">' +
         '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
-        '<td><input type="text" class="mon-in" data-f="productName" list="ccpProductOptions" value="' + esc(row.productName || state.productName || '') + '" placeholder="품목 선택"></td>' +
+        '<td>' + buildProductCell(row, i) + '</td>' +
         '<td>' + buildPpmCell(row, i) + '</td>' +
         '<td>' + buildSoakCell(row, i) + '</td>' +
         '<td>' + buildRinseSecCell(row, i) + '</td>' +
         '<td>' + buildResidualClCell(row, i) + '</td>' +
         '<td class="mon-judge ' + (row.judge === 'X' ? 'ng' : row.judge === 'O' ? 'ok' : '') + '">' + (row.judge || '·') + '</td>' +
         '<td class="dkj-photo-cell">' + buildPhotoCell(row, i) + '</td>' +
-        '<td><button type="button" class="pill-btn ghost mon-del" data-del="' + i + '">삭제</button></td>' +
-        '</tr>';
+        '<td><button type="button" class="pill-btn ghost mon-del" data-del="' + i + '">삭제</button></td></tr>';
     }).join('');
-
     body.querySelectorAll('.mon-in').forEach(function (inp) {
       inp.addEventListener('change', onRowInput);
       inp.addEventListener('input', onRowInput);
     });
-
-    body.querySelectorAll('[data-toggle-ppm]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (state.locked) return;
-        var i = Number(btn.getAttribute('data-toggle-ppm'));
-        state.rows[i].isCustomPpm = !state.rows[i].isCustomPpm;
-        renderRows();
-        scheduleDraft();
-      });
+    body.querySelectorAll('[data-toggle-product]').forEach(function (btn) {
+      btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-toggle-product')); state.rows[i].isCustomProduct = false; state.rows[i].productName = ''; renderRows(); });
     });
-
-    body.querySelectorAll('[data-toggle-soak]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (state.locked) return;
-        var i = Number(btn.getAttribute('data-toggle-soak'));
-        state.rows[i].isCustomSoak = !state.rows[i].isCustomSoak;
-        renderRows();
-        scheduleDraft();
-      });
-    });
-
-    body.querySelectorAll('[data-toggle-rinseSec]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (state.locked) return;
-        var i = Number(btn.getAttribute('data-toggle-rinseSec'));
-        state.rows[i].isCustomRinseSec = !state.rows[i].isCustomRinseSec;
-        renderRows();
-        scheduleDraft();
-      });
-    });
-
-    body.querySelectorAll('[data-toggle-residualCl]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (state.locked) return;
-        var i = Number(btn.getAttribute('data-toggle-residualCl'));
-        state.rows[i].isCustomResidualCl = !state.rows[i].isCustomResidualCl;
-        renderRows();
-        scheduleDraft();
-      });
-    });
-
-    body.querySelectorAll('[data-del]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (state.locked) return;
-        var i = Number(btn.getAttribute('data-del'));
-        state.rows.splice(i, 1);
-        if (!state.rows.length) state.rows.push(emptyRow());
-        renderRows();
-        scheduleDraft();
-      });
-    });
-
-    body.querySelectorAll('[data-photo-inp]').forEach(function (inp) {
-      inp.addEventListener('change', function () {
-        if (state.locked) return;
-        var i = Number(inp.getAttribute('data-photo-inp'));
-        var file = inp.files && inp.files[0];
-        if (!file) return;
-        var apply = function (dataUrl) {
-          state.rows[i].photo = dataUrl;
-          renderRows();
-          scheduleDraft();
-          if (window.DkjUtil && window.DkjUtil.toast) window.DkjUtil.toast('📷 시험지 사진이 첨부되었습니다.');
-        };
-        if (window.DkjUtil && window.DkjUtil.compressImageToDataUrl) {
-          window.DkjUtil.compressImageToDataUrl(file, apply);
-        } else {
-          var reader = new FileReader();
-          reader.onload = function (e) { apply(e.target.result); };
-          reader.readAsDataURL(file);
-        }
-      });
-    });
-
-    body.querySelectorAll('[data-view-photo]').forEach(function (img) {
-      img.addEventListener('click', function () {
-        var i = Number(img.getAttribute('data-view-photo'));
-        var photo = state.rows[i] && state.rows[i].photo;
-        if (photo) window.open(photo);
-      });
-    });
-
-    body.querySelectorAll('[data-del-photo]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (state.locked) return;
-        var i = Number(btn.getAttribute('data-del-photo'));
-        state.rows[i].photo = null;
-        renderRows();
-        scheduleDraft();
-      });
-    });
-
-    refreshDeviation();
-    renderPhotoAppendix();
+    body.querySelectorAll('[data-toggle-ppm]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-toggle-ppm')); state.rows[i].isCustomPpm = !state.rows[i].isCustomPpm; renderRows(); scheduleDraft(); }); });
+    body.querySelectorAll('[data-toggle-soak]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-toggle-soak')); state.rows[i].isCustomSoak = !state.rows[i].isCustomSoak; renderRows(); scheduleDraft(); }); });
+    body.querySelectorAll('[data-toggle-rinseSec]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-toggle-rinseSec')); state.rows[i].isCustomRinseSec = !state.rows[i].isCustomRinseSec; renderRows(); scheduleDraft(); }); });
+    body.querySelectorAll('[data-toggle-residualCl]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-toggle-residualCl')); state.rows[i].isCustomResidualCl = !state.rows[i].isCustomResidualCl; renderRows(); scheduleDraft(); }); });
+    body.querySelectorAll('[data-del]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; state.rows.splice(Number(btn.getAttribute('data-del')), 1); if (!state.rows.length) state.rows.push(emptyRow()); renderRows(); scheduleDraft(); }); });
+    body.querySelectorAll('[data-photo-inp]').forEach(function (inp) { inp.addEventListener('change', function () { if (state.locked) return; var i = Number(inp.getAttribute('data-photo-inp')); var file = inp.files && inp.files[0]; if (!file) return; var apply = function (dataUrl) { state.rows[i].photo = dataUrl; renderRows(); scheduleDraft(); }; if (window.DkjUtil && window.DkjUtil.compressImageToDataUrl) window.DkjUtil.compressImageToDataUrl(file, apply); else { var reader = new FileReader(); reader.onload = function (e) { apply(e.target.result); }; reader.readAsDataURL(file); } }); });
+    body.querySelectorAll('[data-view-photo]').forEach(function (img) { img.addEventListener('click', function () { var i = Number(img.getAttribute('data-view-photo')); var photo = state.rows[i] && state.rows[i].photo; if (photo) window.open(photo); }); });
+    body.querySelectorAll('[data-del-photo]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-del-photo')); state.rows[i].photo = null; renderRows(); scheduleDraft(); }); });
+    refreshDeviation(); renderPhotoAppendix();
   }
 
   /** 화면 하단 "④ 별첨 — 소독수 시험지 사진" 갤러리. 인쇄본의 별첨 표(ccp1bc())와
@@ -433,41 +369,35 @@
     if (!tr) return;
     var i = Number(tr.getAttribute('data-i'));
     var f = e.target.getAttribute('data-f');
-
-    if (f === 'ppm-sel') {
-      if (e.target.value === '__custom__') {
-        state.rows[i].isCustomPpm = true;
-      } else {
-        state.rows[i].isCustomPpm = false;
-        state.rows[i].ppm = e.target.value;
-      }
-    } else if (f === 'soak-sel') {
-      if (e.target.value === '__custom__') {
-        state.rows[i].isCustomSoak = true;
-      } else {
-        state.rows[i].isCustomSoak = false;
-        state.rows[i].soak = e.target.value;
-      }
-    } else if (f === 'rinseSec-sel') {
-      if (e.target.value === '__custom__') {
-        state.rows[i].isCustomRinseSec = true;
-      } else {
-        state.rows[i].isCustomRinseSec = false;
-        state.rows[i].rinseSec = e.target.value;
-      }
-    } else if (f === 'residualCl-sel') {
-      if (e.target.value === '__custom__') {
-        state.rows[i].isCustomResidualCl = true;
-      } else {
-        state.rows[i].isCustomResidualCl = false;
-        state.rows[i].residualCl = e.target.value;
-      }
-    } else if (f) {
-      state.rows[i][f] = e.target.value;
+    if (i < 0) {
+      if (f === 'time') state.preWorkTime = e.target.value;
+      else if (f === 'preWorkPpm-sel') state.preWorkPpm = e.target.value;
+      refreshDeviation(); scheduleDraft();
+      if (e.type === 'change') renderRows();
+      return;
     }
-
-    renderRows();
-    scheduleDraft();
+    var row = state.rows[i];
+    if (!row) return;
+    if (f === 'productName-sel') {
+      if (e.target.value === '__custom__') { row.isCustomProduct = true; }
+      else { row.isCustomProduct = false; row.productName = e.target.value; }
+    } else if (f === 'ppm-sel') {
+      if (e.target.value === '__custom__') row.isCustomPpm = true;
+      else { row.isCustomPpm = false; row.ppm = e.target.value; }
+    } else if (f === 'soak-sel') {
+      if (e.target.value === '__custom__') row.isCustomSoak = true;
+      else { row.isCustomSoak = false; row.soak = e.target.value; }
+    } else if (f === 'rinseSec-sel') {
+      if (e.target.value === '__custom__') row.isCustomRinseSec = true;
+      else { row.isCustomRinseSec = false; row.rinseSec = e.target.value; }
+    } else if (f === 'residualCl-sel') {
+      if (e.target.value === '__custom__') row.isCustomResidualCl = true;
+      else { row.isCustomResidualCl = false; row.residualCl = e.target.value; }
+    } else if (f) { row[f] = e.target.value; }
+    if (e.type === 'input' && (f === 'residualCl' || f === 'productName')) {
+      evaluateRow(row); refreshDeviation(); scheduleDraft(); return;
+    }
+    renderRows(); scheduleDraft();
   }
 
   function syncProductUi() {
@@ -569,19 +499,9 @@
   function readForm() {
     state.workDate = $('workDate').value;
     state.disinfectant = $('disinfectant').value;
-
-    var pSel = $('productSelect');
-    var pInp = $('productName');
-    if (pSel && pSel.value === '__custom__') {
-      state.productName = pInp ? pInp.value.trim() : '';
-    } else if (pSel && pSel.value) {
-      state.productName = pSel.value;
-    } else {
-      state.productName = pInp ? pInp.value.trim() : '';
-    }
-
+    state.productName = Array.from(new Set((state.rows || []).map(function (r) { return (r.productName || '').trim(); }).filter(Boolean))).join(', ');
+    state.rawMaterialKg = $('rawMaterialKg') ? $('rawMaterialKg').value : (state.rawMaterialKg || '');
     state.lot = $('lot').value.trim();
-    state.preWorkTime = $('preWorkTime').value;
     state.clMin = Number($('clMin').value) || 0;
     state.clMax = Number($('clMax').value) || 0;
     state.timeMin = Number($('timeMin').value) || 0;
@@ -598,7 +518,7 @@
     $('workDate').value = state.workDate || today();
     $('disinfectant').value = state.disinfectant || 'NaOCl';
     $('lot').value = state.lot || dateToLot(state.workDate || today());
-    $('preWorkTime').value = state.preWorkTime || '';
+    if ($('rawMaterialKg')) $('rawMaterialKg').value = state.rawMaterialKg || '';
     $('clMin').value = state.clMin;
     $('clMax').value = state.clMax;
     $('timeMin').value = state.timeMin;
@@ -613,6 +533,10 @@
     renderChangeTimeList();
 
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
+    if (state.productName && !state.rows.some(function (r) { return (r.productName || '').trim(); })) {
+      state.rows[0].productName = state.productName;
+      state.rows[0].isCustomProduct = PRODUCT_PRESETS.indexOf(state.productName) === -1;
+    }
     renderRows();
     syncApprovals();
     refreshApproval();
@@ -632,11 +556,12 @@
     state.rows.forEach(evaluateRow);
     refreshDeviation();
     if (!state.workDate) return '작업일자를 입력하세요.';
-    if (!state.productName) return '품목을 선택하거나 입력하세요.';
+    if (!(state.rows || []).some(function (r) { return (r.productName || '').trim(); })) return '모니터링 행에서 품목을 선택하세요.';
     if (!state.lot) return 'LOT를 입력하세요.';
+    if (state.rawMaterialKg && (!Number.isFinite(Number(state.rawMaterialKg)) || Number(state.rawMaterialKg) < 0 || Number(state.rawMaterialKg) >= 8)) return '원물 투입량은 0 이상 8kg 미만으로 입력하세요.';
     if (!state.monitorName) return '모니터링 담당자를 입력하세요.';
     var filled = state.rows.filter(function (r) { return r.ppm || r.soak || r.rinseSec || r.residualCl; });
-    if (!filled.length) return '모니터링 측정값을 1건 이상 입력하세요.';
+    if (!filled.length && !state.preWorkPpm) return '모니터링 측정값을 1건 이상 입력하세요.';
     if (state.hasDeviation) {
       if (!(state.deviation || '').trim() || state.deviation === '해당없음') {
         return '한계기준 이탈 시 이탈 내용을 기록하세요.';
@@ -709,8 +634,7 @@
 
   function bind() {
     // 기본 필드 이벤트 바인딩
-    ['workDate', 'disinfectant', 'productName', 'lot', 'preWorkTime', 'clMin', 'clMax', 'timeMin',
-      'monitorName', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
+    ['workDate', 'disinfectant', 'lot', 'rawMaterialKg', 'clMin', 'clMax', 'timeMin', 'monitorName', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var el = $(id);
       if (!el) return;
       var onFieldInput = function () {
