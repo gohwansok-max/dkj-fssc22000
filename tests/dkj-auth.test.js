@@ -26,13 +26,15 @@ function memoryStorage(throwOnWrite) {
   };
 }
 
-function loadAuth(fetchImpl, throwOnWrite) {
+function loadAuth(fetchImpl, throwOnWrite, directorySeed) {
   const document = {
     readyState: 'loading',
     addEventListener() {},
     dispatchEvent() {},
     getElementsByTagName() { return []; }
   };
+  const localStorage = memoryStorage(throwOnWrite);
+  if (directorySeed) localStorage.setItem('dkj:auth:directory:v3', JSON.stringify(directorySeed));
   const context = {
     AbortController,
     CustomEvent: function CustomEvent() {},
@@ -46,7 +48,7 @@ function loadAuth(fetchImpl, throwOnWrite) {
     document,
     fetch: fetchImpl,
     location: { pathname: '/index.html' },
-    localStorage: memoryStorage(throwOnWrite),
+    localStorage,
     sessionStorage: memoryStorage(throwOnWrite),
     setTimeout,
     clearTimeout,
@@ -123,4 +125,54 @@ test('retries an unauthorized database request only once', async () => {
     return true;
   });
   assert.equal(protectedRequests, 2);
+});
+
+
+test('managed accounts require the exact directory password and cannot fall back to legacy Firebase auth', async () => {
+  let firebaseAttempts = 0;
+  const auth = loadAuth(async (url) => {
+    if (url.includes('/system/users.json')) return response(200, {});
+    if (url.includes('signInWithPassword')) {
+      firebaseAttempts += 1;
+      return response(200, {
+        displayName: 'Test worker',
+        idToken: 'token-1',
+        refreshToken: 'refresh-1',
+        localId: 'uid-1'
+      });
+    }
+    throw new Error('Unexpected request: ' + url);
+  }, false, {
+    '0001': { uid: 'uid-0001', empId: '0001', name: 'Test worker', role: 'worker', password: 'strict-pass!' }
+  });
+
+  await assert.rejects(auth.login('1', 'strict-pass'), (err) => {
+    assert.equal(err.message, 'INVALID_LOGIN_CREDENTIALS');
+    return true;
+  });
+  assert.equal(firebaseAttempts, 0);
+
+  const user = await auth.login('1', 'strict-pass!');
+  assert.equal(user.empId, '0001');
+  assert.equal(firebaseAttempts, 0);
+});
+
+test('managed accounts without a configured password do not accept arbitrary input', async () => {
+  let firebaseAttempts = 0;
+  const auth = loadAuth(async (url) => {
+    if (url.includes('/system/users.json')) return response(200, {});
+    if (url.includes('signInWithPassword')) {
+      firebaseAttempts += 1;
+      return response(200, { idToken: 'token-1', refreshToken: 'refresh-1', localId: 'uid-1' });
+    }
+    throw new Error('Unexpected request: ' + url);
+  }, false, {
+    '0002': { uid: 'uid-0002', empId: '0002', name: 'No password worker', role: 'worker' }
+  });
+
+  await assert.rejects(auth.login('2', 'any-input'), (err) => {
+    assert.equal(err.message, 'INVALID_LOGIN_CREDENTIALS');
+    return true;
+  });
+  assert.equal(firebaseAttempts, 0);
 });
