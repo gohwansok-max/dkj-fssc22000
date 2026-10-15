@@ -158,7 +158,17 @@
         if (current && current.name) v = current.name;
       }
       state.approvals[stageKey] = v;
-      if (v) names.forEach(function (name) { state[name] = v; });
+      if (v) names.forEach(function (name) {
+        state[name] = v;
+        var field = document.getElementById(name) || document.querySelector('[name="' + name + '"]');
+        if (!field) return;
+        if (field.tagName === 'SELECT') {
+          var option = Array.prototype.find.call(field.options, function (o) {
+            return o.value === v || String(o.textContent || '').trim().split(' (')[0] === v;
+          });
+          if (option) field.value = option.value;
+        } else if ('value' in field) { field.value = v; }
+      });
     });
     return state;
   }

@@ -295,44 +295,30 @@
       rows.push({ time: '', ppm: '', soak: '', rinseSec: '', residualCl: '', judge: '' });
     }
 
-    var monBody = rows.map(function (r, i) {
-      var label = '';
-      if (i === 0) label = '작업시작 전';
-      else if (i === rows.length - 1) label = '작업종료 시';
-      var rowProduct = r.productName || (i === 1 ? prod : '');
-      var nameCell = rowProduct
-        ? '<td class="l">' + esc(rowProduct) + '</td>'
-        : '<td class="c strong">' + label + '</td>';
-      return (
-        '<tr>' + nameCell +
+    var prePpm = parseFloat(state.preWorkPpm);
+    var preJudge = isNaN(prePpm) ? '' : (prePpm >= Number(state.clMin || 200) && prePpm <= Number(state.clMax || 300) ? '○' : '×');
+    var replacementTimes = Array.isArray(state.changeTimes) ? state.changeTimes : (state.waterChangeTimes || '').split(',').map(function (t) { return t.trim(); });
+    var monBody = '<tr><td class="c strong">' + esc(state.preWorkTime || '') + '</td>' +
+      '<td class="c">' + esc(state.preWorkPpm || '') + '</td><td></td><td></td><td></td>' +
+      '<td class="c">' + preJudge + '</td><td class="c">' + esc(state.monitorName || writer) + '</td><td></td></tr>' +
+      rows.map(function (r, i) { return '<tr>' +
         '<td class="c">' + esc(r.time || '') + '</td>' +
         '<td class="c">' + esc(r.ppm || '') + '</td>' +
         '<td class="c">' + esc(r.soak || '') + '</td>' +
         '<td class="c">' + esc(r.rinseSec || '') + '</td>' +
         '<td class="c">' + esc(r.residualCl || '') + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
-        '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'
-      );
-    }).join('');
+        '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td>' +
+        '<td class="c">' + esc(replacementTimes[i] || '') + '</td></tr>'; }).join('');
 
     var lotRows = (state.lotLog || [{
-      productName: prod,
-      lot: state.lot || '',
       start: (state.rows && state.rows[0] && state.rows[0].time) || '',
       end: (state.rows && state.rows[state.rows.length - 1] && state.rows[state.rows.length - 1].time) || '',
-      ok: state.hasDeviation ? '×' : '',
-      qty: state.processQty || '',
-      note: state.remark || ''
-    }]).map(function (p) {
-      return '<tr>' +
-        '<td class="l">' + esc(p.productName) + '</td>' +
-        '<td class="c">' + esc(p.lot) + '</td>' +
-        '<td class="c">' + esc(p.start) + '</td>' +
-        '<td class="c">' + esc(p.end) + '</td>' +
-        '<td class="c">' + ox(p.ok) + '</td>' +
-        '<td class="c">' + esc(p.qty) + '</td>' +
-        '<td class="l">' + esc(p.note) + '</td></tr>';
-    }).join('');
+      ok: state.hasDeviation ? '×' : '', qty: state.rawMaterialKg || state.processQty || '', note: state.remark || ''
+    }]).map(function (p) { return '<tr>' +
+      '<td class="c">' + esc(p.start) + '</td><td class="c">' + esc(p.end) + '</td>' +
+      '<td class="c">' + ox(p.ok) + '</td><td class="c">' + esc(p.qty) + '</td>' +
+      '<td class="l">' + esc(p.note) + '</td></tr>'; }).join('');
 
     var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
     var devBody = hasDev
@@ -411,21 +397,17 @@
       '<td class="l" colspan="3">작업시작 전, 작업 중 LOT별(또는 2시간), 품목 변경시, 작업종료 시, 소독액 교체 시</td></tr>' +
       '<tr><th class="lab">모니터링<br>방법</th>' +
       '<td class="l tiny" colspan="3">' + methodHtml + '</td></tr>' +
-      '<tr><th class="lab">품명/LOT</th>' +
-      '<td class="l">' + esc(prod) + ' / ' + esc(state.lot || '') +
-      ' · 소독제: ' + esc(state.disinfectant || 'NaOCl') + '</td>' +
-      '<th class="lab">교체 시각<br>(3시간마다)</th>' +
-      '<td class="l">' + (state.preWorkTime ? '작업시작 전 확인 ' + esc(state.preWorkTime) + ' · ' : '') +
-      esc(state.waterChangeTimes || '') + '</td></tr>' +
+      '<tr><th class="lab">원물 투입량</th><td class="l">' + esc(state.rawMaterialKg || '') + ' kg</td>' +
+      '<th class="lab">소독제</th><td class="l">' + esc(state.disinfectant || 'NaOCl') + '</td></tr>' +
       '</table>' +
 
       '<div class="off-sec">● 소독·헹굼공정(CCP-1BC) 모니터링 결과 ●</div>' +
       '<table class="off-grid off-mon">' +
       '<thead><tr>' +
-      '<th style="width:13%">품명</th><th style="width:9%">점검시간</th>' +
-      '<th style="width:11%">유효염소<br>(ppm)</th><th style="width:11%">침지시간<br>(초)</th>' +
+      '<th style="width:13%">점검시간</th><th style="width:11%">유효염소<br>(ppm)</th>' +
+      '<th style="width:11%">침지시간<br>(초)</th>' +
       '<th style="width:9%">헹굼시간<br>(초)</th><th style="width:9%">잔류염소<br>(ppm)</th>' +
-      '<th style="width:9%">판정<br>(○/×)</th><th style="width:9%">서명</th>' +
+      '<th style="width:9%">판정<br>(○/×)</th><th style="width:9%">서명</th><th style="width:12%">교체 시각</th>' +
       '</tr></thead><tbody>' + monBody + '</tbody></table>' +
 
       '<table class="off-grid off-correct">' +
@@ -435,8 +417,8 @@
       '<div class="off-sec">소독·헹굼 처리 LOT별 이탈 여부</div>' +
       '<table class="off-grid">' +
       '<thead><tr>' +
-      '<th>품명</th><th>LOT번호</th><th>최초 처리시간</th><th>종료시간</th>' +
-      '<th>이탈여부(○/×)</th><th>처리량</th><th>특이사항</th>' +
+      '<th>최초 처리시간</th><th>종료시간</th>' +
+      '<th>이탈여부(○/×)</th><th>투입량(kg)</th><th>특이사항</th>' +
       '</tr></thead><tbody>' + lotRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +

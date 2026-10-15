@@ -59,30 +59,9 @@
             <option value="기타">기타</option>
           </select>
         </div>
-        <div class="dkj-field full">
-          <label for="productSelect">품목 * (농협+샐러디아 동시체크 및 다중선택 지원)</label>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <select id="productSelect" style="flex:1;min-width:220px;">
-              <option value="">-- 품목 선택 --</option>
-              <option value="농협 샐러드 채소믹스, 샐러디아 샐러드 채소믹스">✨ 농협 샐러드 + 샐러디아 (동시 소독)</option>
-              <option value="농협 샐러드 채소믹스">농협 샐러드 채소믹스</option>
-              <option value="샐러디아 샐러드 채소믹스">샐러디아 샐러드 채소믹스</option>
-              <option value="양상추 샐러드">양상추 샐러드</option>
-              <option value="슬로우캘리 샐러드믹스">슬로우캘리 샐러드믹스</option>
-              <option value="급식(바로먹는 유러피언 샐러드 채소믹스)">급식(바로먹는 유러피언 샐러드 채소믹스)</option>
-              <option value="__custom__">✏️ 직접 입력...</option>
-            </select>
-            <input type="text" id="productName" placeholder="품목명 직접 입력" style="flex:1;min-width:220px;display:none;">
-          </div>
-          <div class="dkj-preset-chips" id="productChips">
-            <span class="dkj-chips-label">빠른선택:</span>
-            <button type="button" class="dkj-chip" data-prod="농협 샐러드 채소믹스, 샐러디아 샐러드 채소믹스" style="font-weight:800;color:#007a34;border-color:#86efac;background:#f0fdf4;">✨ 농협+샐러디아</button>
-            <button type="button" class="dkj-chip" data-prod="농협 샐러드 채소믹스">농협 샐러드</button>
-            <button type="button" class="dkj-chip" data-prod="샐러디아 샐러드 채소믹스">샐러디아</button>
-            <button type="button" class="dkj-chip" data-prod="양상추 샐러드">양상추 샐러드</button>
-            <button type="button" class="dkj-chip" data-prod="슬로우캘리 샐러드믹스">슬로우캘리</button>
-            <button type="button" class="dkj-chip" data-prod="급식(바로먹는 유러피언 샐러드 채소믹스)">급식(유러피언)</button>
-          </div>
+        <div class="dkj-field">
+          <label for="rawMaterialKg">원물 투입량 (kg, 8kg 미만)</label>
+          <input type="number" id="rawMaterialKg" min="0" max="7.99" step="0.01" inputmode="decimal" placeholder="예: 7.5">
         </div>
         <div class="dkj-field">
           <label for="lot">생산 LOT *</label>
@@ -90,10 +69,6 @@
             <input type="text" id="lot" placeholder="예: 20260901" style="flex:1;">
             <button type="button" class="pill-btn ghost" id="btnSyncLot" title="작업일자 기준으로 LOT 생성" style="white-space:nowrap;padding:0 10px;min-height:44px;font-size:12px;">일자LOT</button>
           </div>
-        </div>
-        <div class="dkj-field">
-          <label for="preWorkTime">작업시작 전 확인시각</label>
-          <input type="time" id="preWorkTime">
         </div>
         <div class="dkj-field full">
           <label>소독액·헹굼수 교체 시각 (3시간마다) <span style="font-weight:500;color:#888;font-size:12px;">— 1일 교체 횟수에 맞춰 ＋로 칸을 늘리세요</span></label>
@@ -207,8 +182,8 @@
   <script src="../js/dkj-deeplink.js?v=130"></script>
   <script src="../js/dkj-approval.js?v=130"></script>
   <script src="../js/dkj-print-form.js?v=130"></script>
-  <script src="../js/dkj-print-official.js?v=130&rev=132"></script>
-  <script src="../js/DKJ-H-01-01.js?v=130&rev=127"></script>
+  <script src="../js/dkj-print-official.js?v=130&rev=133"></script>
+  <script src="../js/DKJ-H-01-01.js?v=130&rev=128"></script>
   <script src="../js/dkj-pwa.js?v=130"></script>
   <script src="../js/dkj-quick-nav.js?v=130"></script>
   <script src="../js/dkj-i18n.js?v=130"></script>
