@@ -94,23 +94,46 @@
       }
       return item === '작업전' ? '작업중' : item;
     }
-    function rowProductName(r, i) {
+    function workingProductAt(r, i) {
       var item = (r.item || '').trim();
-      var isTimepoint = !item || TIMEPOINT_LABELS.indexOf(item) !== -1 || LEGACY_TIMEPOINT_LABELS.indexOf(item) !== -1;
-      // isTimepoint가 아니면 2026-10-15 이전 기록(품목 칸이 따로 없어 item 자체가
-      // 제품명이었다) — 그 값을 그대로 제품명으로 쓴다. "작업중"/"작업전"이면 분리된
-      // row.product 를, 없으면(2026-09-18~10-14 사이 기록) 자리 추정값을 쓴다.
-      if (!isTimepoint) return item;
       if (item === '작업중' || item === '작업전') {
         return (r.product || '').trim() || (i === 1 ? prod : (r.productName || ''));
       }
+      if (!item && i === 1) return (r.product || '').trim() || prod || (r.productName || '');
+      return '';
+    }
+    function boundaryProduct(index, direction) {
+      var sourceRows = state.rows || [];
+      if (direction > 0) {
+        for (var j = index + 1; j < sourceRows.length; j++) {
+          var nextProduct = workingProductAt(sourceRows[j], j);
+          if (nextProduct) return nextProduct;
+        }
+      } else {
+        for (var k = Math.min(index - 1, sourceRows.length - 1); k >= 0; k--) {
+          var previousProduct = workingProductAt(sourceRows[k], k);
+          if (previousProduct) return previousProduct;
+        }
+      }
+      return prod || '';
+    }
+    function rowProductName(r, i) {
+      var item = (r.item || '').trim();
+      var isTimepoint = !item || TIMEPOINT_LABELS.indexOf(item) !== -1 || LEGACY_TIMEPOINT_LABELS.indexOf(item) !== -1;
+      if (!isTimepoint) return item;
+      var timepoint = rowTimepointLabel(r, i);
+      if (timepoint === '작업중') return workingProductAt(r, i) || (r.product || '').trim() || (r.productName || '');
+      if (timepoint === '작업시작전') return (r.product || '').trim() || boundaryProduct(i, 1);
+      if (timepoint === '작업종료시') return (r.product || '').trim() || boundaryProduct(i, -1);
       return '';
     }
     var monBody = rows.map(function (r, i) {
       var product = rowProductName(r, i);
-      var nameCell = product
-        ? '<td class="l">' + esc(product) + '</td>'
-        : '<td class="c strong">' + esc(rowTimepointLabel(r, i)) + '</td>';
+      var timepoint = rowTimepointLabel(r, i);
+      var isBoundary = timepoint === '작업시작전' || timepoint === '작업종료시';
+      var nameCell = isBoundary
+        ? '<td class="c strong">' + esc(timepoint) + (product ? '<br><small>' + esc(product) + ' 기준</small>' : '') + '</td>'
+        : (product ? '<td class="l">' + esc(product) + '</td>' : '<td class="c strong">' + esc(timepoint) + '</td>');
       return (
         '<tr>' + nameCell +
         '<td class="c">' + esc(r.time || '') + '</td>' +
@@ -119,9 +142,9 @@
         '<td class="c">' + ox(r.prodOnly || '') + '</td>' +
         '<td class="c">' + ox(r.prodFe) + '</td>' +
         '<td class="c">' + ox(r.prodSus) + '</td>' +
-        // 제품이 없는 작업시작전·작업종료시 행에는 마지막 제품의 전역 기준을 상속하지 않는다.
-        '<td class="c">' + esc(product ? (r.adjust || (r.time ? state.adjust : '') || '') : '') + '</td>' +
-        '<td class="c">' + esc(product ? (r.stable || (r.time ? state.stable : '') || '') : '') + '</td>' +
+        // 시작전은 다음 작업 품목, 종료시는 직전 작업 품목의 기준을 표시한다.
+        '<td class="c">' + esc(product ? (r.adjust || state.adjust || '') : '') + '</td>' +
+        '<td class="c">' + esc(product ? (r.stable || state.stable || '') : '') + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'
       );

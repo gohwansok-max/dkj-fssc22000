@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-test('CCP-2P print does not inherit a selected product stability for start/end rows', () => {
+test('CCP-2P print applies the selected product standards and start/end times to boundary rows', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'dkj-print-official.js'), 'utf8');
   const context = {
     esc(value) {
@@ -25,18 +25,50 @@ test('CCP-2P print does not inherit a selected product stability for start/end r
     ]
   });
   const rowFor = (label) => {
-    const found = html.match(new RegExp('<tr><td class="c strong">' + label + '</td>[\\s\\S]*?</tr>'));
+    const found = html.match(new RegExp('<tr><td class="c strong">' + label + '(?:<br><small>[^<]+</small>)?</td>[\\s\\S]*?</tr>'));
     assert.ok(found, label + ' row should be printed');
     return found[0].match(/<td\b[^>]*>[\s\S]*?<\/td>/g);
   };
   for (const label of ['작업시작전', '작업종료시']) {
     const cells = rowFor(label);
-    assert.equal(cells[7], '<td class="c"></td>');
-    assert.equal(cells[8], '<td class="c"></td>');
+    assert.equal(cells[7], '<td class="c">70</td>');
+    assert.equal(cells[8], '<td class="c">450</td>');
   }
   const productRow = html.match(/<tr><td class="l">제품A<\/td>[\s\S]*?<\/tr>/);
   assert.ok(productRow, 'product row should be printed');
   const productCells = productRow[0].match(/<td\b[^>]*>[\s\S]*?<\/td>/g);
   assert.equal(productCells[7], '<td class="c">70</td>');
   assert.equal(productCells[8], '<td class="c">450</td>');
+  assert.ok(html.includes('<tr><td class="l">제품A</td><td class="c">08:00</td><td class="c">17:00</td>'));
+});
+
+
+test('CCP-2P start/end rows follow first and last products in a multi-product log', () => {
+  const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'dkj-print-official.js'), 'utf8');
+  const context = {
+    esc(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+  };
+  context.window = context;
+  vm.runInNewContext(source, context);
+
+  const html = context.DkjPrintOfficial.ccp2p({
+    productName: '제품A', adjust: '70', stable: '450',
+    rows: [
+      { item: '작업시작전', time: '07:30', adjust: '70', stable: '450' },
+      { item: '작업중', product: '제품A', time: '08:00', adjust: '70', stable: '450' },
+      { item: '작업중', product: '제품B', time: '12:00', adjust: '70', stable: '954' },
+      { item: '작업종료시', time: '19:00', adjust: '70', stable: '954' }
+    ]
+  });
+
+  assert.ok(html.includes('<tr><td class="l">제품A</td><td class="c">07:30</td><td class="c">08:00</td>'));
+  assert.ok(html.includes('<tr><td class="l">제품B</td><td class="c">12:00</td><td class="c">19:00</td>'));
+  const end = html.match(/<tr><td class="c strong">작업종료시<br><small>제품B 기준<\/small><\/td>[\s\S]*?<\/tr>/);
+  assert.ok(end, 'end-of-work row should show its associated last product');
+  const cells = end[0].match(/<td\b[^>]*>[\s\S]*?<\/td>/g);
+  assert.equal(cells[8], '<td class="c">954</td>');
 });
