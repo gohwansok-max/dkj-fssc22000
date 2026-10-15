@@ -128,7 +128,8 @@
     if (localUser.passwordHash) {
       return sha256Hex(password).then(function (hash) { return !!hash && hash === localUser.passwordHash; });
     }
-    return Promise.resolve(true);
+    // 인증 정보가 없는 로컬 계정은 비밀번호 검증을 통과시킬 수 없다.
+    return Promise.resolve(false);
   }
   /** 'local-token-…'는 이 사이트 안에서만 쓰는 표식이지 Firebase 가 아는 진짜 토큰이 아니다.
    * RTDB REST API 는 auth= 파라미터에 뭐가 오든(빈 값이 아닌 한) 유효한 토큰인지부터
@@ -496,7 +497,11 @@
       return user();
     }
 
-    // 2. Firebase 원격 인증 시도 — 과거에 콘솔에서 직접 만든 계정이 남아 있을 때만 쓰인다.
+    // 관리 디렉터리에 등록된 계정은 그 비밀번호가 정본이다. 로컬 검증 실패를
+    // 레거시 Firebase 인증으로 넘기면 예전 비밀번호가 우회 경로로 통과할 수 있다.
+    if (localUser) throw new Error('INVALID_LOGIN_CREDENTIALS');
+
+    // 2. Firebase 원격 인증 시도 — 관리 디렉터리에 없는 과거 콘솔 계정에만 허용한다.
     if (configured()) {
       var d = await signIn(id, password);
       var name = d.displayName || (localUser && localUser.name) || id;
