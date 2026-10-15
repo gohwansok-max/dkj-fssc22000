@@ -109,8 +109,9 @@
         '<td class="c">' + ox(r.prodOnly || '') + '</td>' +
         '<td class="c">' + ox(r.prodFe) + '</td>' +
         '<td class="c">' + ox(r.prodSus) + '</td>' +
-        '<td class="c">' + esc(r.adjust || (r.time ? state.adjust : '') || '') + '</td>' +
-        '<td class="c">' + esc(r.stable || (r.time ? state.stable : '') || '') + '</td>' +
+        // 제품이 없는 작업시작전·작업종료시 행에는 마지막 제품의 전역 기준을 상속하지 않는다.
+        '<td class="c">' + esc(product ? (r.adjust || (r.time ? state.adjust : '') || '') : '') + '</td>' +
+        '<td class="c">' + esc(product ? (r.stable || (r.time ? state.stable : '') || '') : '') + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'
       );
