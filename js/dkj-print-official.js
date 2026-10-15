@@ -299,11 +299,17 @@
 
     var prePpm = parseFloat(state.preWorkPpm);
     var preJudge = isNaN(prePpm) ? '' : (prePpm >= Number(state.clMin || 200) && prePpm <= Number(state.clMax || 300) ? '○' : '×');
-    var replacementTimes = Array.isArray(state.changeTimes) ? state.changeTimes : (state.waterChangeTimes || '').split(',').map(function (t) { return t.trim(); });
+    var replacementTimes = (Array.isArray(state.changeTimes) ? state.changeTimes : (state.waterChangeTimes || '').split(','))
+      .map(function (t) { return String(t || '').trim(); }).filter(Boolean);
+    var replacementBody = replacementTimes.length
+      ? replacementTimes.map(function (time, i) {
+        return '<tr><td class="c">' + (i + 1) + '회</td><td class="c">' + esc(time) + '</td></tr>';
+      }).join('')
+      : '<tr><td class="c">1회</td><td style="height:14pt"></td></tr>';
     var monBody = '<tr><td class="c strong">' + esc(state.preWorkTime || '') + '</td>' +
       '<td class="c strong">작업 시작 전 확인</td><td class="c"></td>' +
       '<td class="c">' + esc(state.preWorkPpm || '') + '</td><td></td><td></td><td></td>' +
-      '<td class="c">' + preJudge + '</td><td class="c">' + esc(state.monitorName || writer) + '</td><td></td></tr>' +
+      '<td class="c">' + preJudge + '</td><td class="c">' + esc(state.monitorName || writer) + '</td></tr>' +
       rows.map(function (r, i) {
         var rowProduct = r.productName || (!hasRowProduct && i === 0 ? prod : '');
         var rowQty = r.rawMaterialKg != null ? r.rawMaterialKg : '';
@@ -316,8 +322,7 @@
         '<td class="c">' + esc(r.rinseSec || '') + '</td>' +
         '<td class="c">' + esc(r.residualCl || '') + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
-        '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td>' +
-        '<td class="c">' + esc(replacementTimes[i] || '') + '</td></tr>'; }).join('');
+        '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'; }).join('');
 
     var lotRows = (state.lotLog || [{
       start: (state.rows && state.rows[0] && state.rows[0].time) || '',
@@ -412,12 +417,17 @@
       '<div class="off-sec">● 소독·헹굼공정(CCP-1BC) 모니터링 결과 ●</div>' +
       '<table class="off-grid off-mon">' +
       '<thead><tr>' +
-      '<th style="width:8%">점검시간</th><th style="width:19%">품목명</th>' +
+      '<th style="width:8%">점검시간</th><th style="width:29%">품목명</th>' +
       '<th style="width:9%">원물 투입량<br>(kg)</th><th style="width:10%">유효염소<br>(ppm)</th>' +
       '<th style="width:9%">침지시간<br>(초)</th><th style="width:9%">헹굼시간<br>(초)</th>' +
       '<th style="width:9%">잔류염소<br>(ppm)</th><th style="width:7%">판정<br>(○/×)</th>' +
-      '<th style="width:8%">서명</th><th style="width:12%">교체 시각</th>' +
+      '<th style="width:10%">서명</th>' +
       '</tr></thead><tbody>' + monBody + '</tbody></table>' +
+
+      '<div class="off-sec">소독액·헹굼수 교체 시각</div>' +
+      '<table class="off-grid off-change-times">' +
+      '<thead><tr><th style="width:28%">교체 회차</th><th style="width:72%">교체 시각</th></tr></thead>' +
+      '<tbody>' + replacementBody + '</tbody></table>' +
 
       '<table class="off-grid off-correct">' +
       '<tr><th class="lab vert">이탈시<br>개선조치<br>방법</th>' +
