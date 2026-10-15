@@ -51,3 +51,33 @@ test('CCP-1BC official print preserves legacy top-level product name', () => {
   });
   assert.match(html, /구형 기록 품목/);
 });
+
+test('CCP-1BC print lists replacement times separately from monitoring rows', () => {
+  const html = loadPrinter().ccp1bc({
+    changeTimes: ['08:15', '12:40'],
+    rows: [
+      { time: '09:00', productName: '품목 A', ppm: '250' },
+      { time: '13:00', productName: '품목 B', ppm: '260' }
+    ]
+  });
+  const monitoringTable = html.match(/<table class="off-grid off-mon">[\s\S]*?<\/table>/)[0];
+  const changeTimesTable = html.match(/<table class="off-grid off-change-times">[\s\S]*?<\/table>/)[0];
+
+  assert.doesNotMatch(monitoringTable, /교체 시각|08:15|12:40/);
+  assert.match(changeTimesTable, /교체 회차/);
+  assert.match(changeTimesTable, /1회[\s\S]*08:15/);
+  assert.match(changeTimesTable, /2회[\s\S]*12:40/);
+  assert.ok(html.indexOf(changeTimesTable) > html.indexOf(monitoringTable));
+});
+
+test('CCP-1BC print supports legacy replacement-time string and leaves a blank write-in row when empty', () => {
+  const legacyHtml = loadPrinter().ccp1bc({ waterChangeTimes: '08:30, 12:30' });
+  const legacyTable = legacyHtml.match(/<table class="off-grid off-change-times">[\s\S]*?<\/table>/)[0];
+  assert.match(legacyTable, /08:30/);
+  assert.match(legacyTable, /12:30/);
+
+  const emptyHtml = loadPrinter().ccp1bc({ changeTimes: ['', ' '] });
+  const emptyTable = emptyHtml.match(/<table class="off-grid off-change-times">[\s\S]*?<\/table>/)[0];
+  assert.match(emptyTable, /1회/);
+  assert.doesNotMatch(emptyTable, /08:30|12:30/);
+});
