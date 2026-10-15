@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const root = path.join(__dirname, '..');
 const printerSource = fs.readFileSync(path.join(root, 'js', 'dkj-print-official.js'), 'utf8');
 const formSource = fs.readFileSync(path.join(root, 'js', 'DKJ-H-01-01.js'), 'utf8');
+const formHtmlSource = fs.readFileSync(path.join(root, 'records', 'DKJ-H-01-01.html'), 'utf8');
 
 function loadPrinter() {
   const context = {
@@ -20,6 +21,10 @@ function loadPrinter() {
   vm.runInNewContext(printerSource, context);
   return context.DkjPrintOfficial;
 }
+
+test('CCP-1BC official printer URL uses the updated cache revision', () => {
+  assert.match(formHtmlSource, /dkj-print-official\.js\?v=130&rev=136/);
+});
 
 test('CCP-1BC form stores raw material input on each monitoring row', () => {
   assert.match(formSource, /time: '', productName: '', rawMaterialKg: ''/);
