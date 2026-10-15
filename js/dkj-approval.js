@@ -134,15 +134,31 @@
        DkjApproval.bindFlat(state, { writer: ['writer', 'inspector'], approver: 'confirmer' })
 
      값은 앞에 적은 필드부터 찾아 처음 채워진 것을 쓴다. */
+  function fixedStaffName(empId) {
+    try {
+      var auth = global.DkjAuth;
+      var dir = auth && auth.getDirectory ? auth.getDirectory() : {};
+      var item = dir[String(empId)] || dir[String(empId).padStart(4, '0')];
+      return item && item.name ? item.name : '';
+    } catch (e) { return ''; }
+  }
+
   function bindFlat(state, map) {
     if (!state) return state;
     if (!state.approvals) state.approvals = {};
+    var isNewRecord = !state.id;
+    var fixed = isNewRecord ? { reviewer: fixedStaffName('0002'), approver: fixedStaffName('0003') } : {};
     Object.keys(map).forEach(function (stageKey) {
       var names = map[stageKey];
       if (!Array.isArray(names)) names = [names];
-      var v = '';
-      for (var i = 0; i < names.length && !v; i++) v = state[names[i]] || '';
+      var v = fixed[stageKey] || '';
+      if (!v) for (var i = 0; i < names.length && !v; i++) v = state[names[i]] || '';
+      if (stageKey === 'writer' && isNewRecord) {
+        var current = me();
+        if (current && current.name) v = current.name;
+      }
       state.approvals[stageKey] = v;
+      if (v) names.forEach(function (name) { state[name] = v; });
     });
     return state;
   }

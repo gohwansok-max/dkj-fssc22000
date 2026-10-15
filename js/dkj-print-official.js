@@ -115,8 +115,6 @@
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'
       );
     }).join('');
-
-    var packagings = Array.isArray(state.packagings) ? state.packagings : [];
     // 모니터링 행에 실제로 찍힌 제품명을 등장 순서대로 중복 없이 뽑는다. 예전엔 이
     // 표가 헤더의 state.productName(화면에 마지막으로 찍힌 값 하나) 로만 채워져서,
     // 측정행마다 다른 제품을 적어도 정본엔 제품명이 하나만(또는 전부 같은 값으로)
@@ -142,21 +140,13 @@
         note: state.remark || ''
       };
     };
-    var passList = Array.isArray(state.passLog) && state.passLog.length
-      ? state.passLog
-      : productsUsed.map(fallbackPassFor);
-    var passRows = passList.map(function (p, i) {
-      var pack = packagings[i] || {};
+    var passList = productsUsed.map(fallbackPassFor);
+    var passRows = passList.map(function (p) {
       return '<tr>' +
         '<td class="l">' + esc(p.productName || prod) + '</td>' +
-        '<td class="c">' + esc(pack.lot || '') + '</td>' +
-        '<td class="c">' + esc(pack.defect || '') + '</td>' +
-        '<td class="c">' + esc(pack.usage ? (pack.usage + ' EA') : '') + '</td>' +
-        '<td class="c">' + esc(p.start) + '</td>' +
-        '<td class="c">' + esc(p.end) + '</td>' +
-        '<td class="c">' + ox(p.ok || (state.hasDeviation ? '×' : '○')) + '</td>' +
-        '<td class="c">' + esc(p.qty) + '</td>' +
-        '<td class="l">' + esc(p.note) + '</td></tr>';
+        '<td class="c">' + esc(p.start || '') + '</td>' +
+        '<td class="c">' + esc(p.end || '') + '</td>' +
+        '<td class="c">' + (p.ok === '×' ? '부적합' : '적합') + '</td></tr>';
     }).join('');
 
     var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
@@ -176,7 +166,7 @@
       '<table class="off-nest">' +
       '<tr class="off-nest-hd">' +
       '<th colspan="2">구분</th><th>Fe (철)</th><th>SUS (비철)</th><th>물성보정</th><th>안정도</th></tr>' +
-      '<tr><td class="c" rowspan="3">신선편의식품</td><td class="l">중량 500g 미만</td>' +
+      '<tr><td class="c" rowspan="3">신선편의식품</td><td class="l">중량 500g 이하</td>' +
       '<td class="c">2.0mm이상 불검출</td><td class="c">3.0mm이상 불검출</td><td class="c">70</td><td class="c">450</td></tr>' +
       '<tr><td class="l">중량 500g 이상</td>' +
       '<td class="c">2.5mm이상 불검출</td><td class="c">3.5mm이상 불검출</td><td class="c">70</td><td class="c">954</td></tr>' +
@@ -276,7 +266,7 @@
       '<div class="off-sec">금속검출기 제품 통과 시 이탈 여부</div>' +
       '<table class="off-grid">' +
       '<thead><tr>' +
-      '<th>제품명</th><th>포장지 LOT</th><th>부적합</th><th>사용량</th><th>최초 통과시간</th><th>통과 종료시간</th><th>이탈여부(○/×)</th><th>통과량</th><th>특이사항</th>' +
+      '<th>제품명</th><th>작업시작시간</th><th>작업종료시간</th><th>이탈여부</th>' +
       '</tr></thead><tbody>' + passRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +

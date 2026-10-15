@@ -53,22 +53,25 @@
   /* 물성보정/안정도 — 인쇄물 한계기준표의 중량구간별 고정값(임시 운영값, 확정 전).
      매 행마다 같은 값이라 행 데이터로 안 두고 중량구간 선택 하나로 도출한다. */
   var WEIGHT_CLASS = {
-    fresh500: { label: '신선편의식품 500g 미만', adjust: '70', stable: '450', fe: '2.0', sus: '3.0' },
+    fresh500: { label: '신선편의식품 500g 이하', adjust: '70', stable: '450', fe: '2.0', sus: '3.0' },
     fresh1kg: { label: '신선편의식품 500g 이상', adjust: '70', stable: '954', fe: '2.5', sus: '3.5' },
     freshOver1kg: { label: '신선편의식품 1kg 이상', adjust: '70', stable: '252', fe: '3.0', sus: '3.5' },
     material: { label: '부재료(기타가공품)', adjust: '70', stable: '70', fe: '1.5', sus: '2.5' }
   };
 
-  /* 품목 → 중량구간 매핑(한계기준표 기준, 2026-09-18 사용자 확정) — 품목을 드롭다운에서
-     고르면 Fe/SUS 시편 규격·중량구간(→물성보정·안정도)이 여기 따라 자동으로 채워진다.
-     목록에 없는 품목(직접 입력)은 매핑이 없으니 사람이 그대로 손으로 고른다. */
+  /* 제품명 선택에 맞는 한계기준·중량구간을 자동 적용한다. */
   var PRODUCT_WEIGHT_CLASS = {
     '양상추샐러드': 'freshOver1kg',
     '양상추 샐러드': 'freshOver1kg',
     '농협 채소믹스': 'fresh1kg',
+    '농협채소믹스': 'fresh1kg',
     '샐러디아 채소믹스': 'fresh1kg',
+    '샐러디아채소믹스': 'fresh1kg',
     '급식)바로먹는 유러피언 샐러드 채소믹스': 'fresh1kg',
-    '슬로우캘리샐러드믹스': 'fresh500'
+    '급식 바로먹는 유러피언 샐러드 채소믹스': 'fresh1kg',
+    '급식바로먹는 유러피언샐러드채소믹스': 'fresh1kg',
+    '슬로우캘리샐러드믹스': 'fresh500',
+    '슬로우캘리 샐러드믹스': 'fresh500'
   };
 
   function productWeightClassKey(name) {
@@ -92,10 +95,9 @@
     var wcKey = productWeightClassKey(name);
     var wc = WEIGHT_CLASS[wcKey];
     if (!wc) return;
-    $('weightClass').value = wcKey;
+    state.weightClass = wcKey;
     $('feSize').value = wc.fe;
     $('susSize').value = wc.sus;
-    renderWeightHint();
     applyRowStandards();
   }
 
@@ -360,8 +362,9 @@
 
   function criteriaForProduct(name) {
     var key = productWeightClassKey(name);
-    var wc = WEIGHT_CLASS[key] || WEIGHT_CLASS[$('weightClass').value] || WEIGHT_CLASS.fresh500;
-    return 'Fe Ø' + wc.fe + '㎜ · SUS Ø' + wc.sus + '㎜';
+    var wc = WEIGHT_CLASS[key] || WEIGHT_CLASS[state.weightClass] || WEIGHT_CLASS.fresh500;
+    var band = wc.label.replace('신선편의식품 ', '');
+    return band + ' · Fe Ø' + wc.fe + '㎜ · SUS Ø' + wc.sus + '㎜';
   }
 
   function evaluateRow(row) {
@@ -402,7 +405,7 @@
         '<td>' + oxSelect(row.prodOnly, 'prodOnly') + '</td>' +
         '<td>' + oxSelect(row.prodFe, 'prodFe') + '</td>' +
         '<td>' + oxSelect(row.prodSus, 'prodSus') + '</td>' +
-        '<td class="mon-judge ' + (row.judge === 'X' ? 'ng' : row.judge === 'O' ? 'ok' : '') + '">' + (row.judge || '·') + '</td>' +
+        '<td class="mon-judge ' + (row.judge === 'X' ? 'ng' : row.judge === 'O' ? 'ok' : '') + '">' + (row.judge === 'X' ? '부적합' : row.judge === 'O' ? '적합' : '·') + '</td>' +
         '<td><button type="button" class="pill-btn ghost mon-del" data-del="' + i + '">삭제</button></td>' +
         '</tr>';
     }).join('');
@@ -585,12 +588,6 @@
     scheduleDraft();
   }
 
-  function renderWeightHint() {
-    var el = $('weightClassHint');
-    if (!el) return;
-    var wc = WEIGHT_CLASS[$('weightClass').value] || WEIGHT_CLASS.fresh500;
-    el.textContent = '물성보정 ' + wc.adjust + ' · 안정도 ' + wc.stable + ' (정본에 자동 반영)';
-  }
 
   function readForm() {
     state.workDate = $('workDate').value;
@@ -606,11 +603,12 @@
     state.lot = $('lot').value;
     state.feSize = $('feSize').value;
     state.susSize = $('susSize').value;
-    state.weightClass = $('weightClass').value;
+    var selectedProduct = (state.rows || []).find(function (r) { return r.item === '작업중' && r.product; });
+    var selectedKey = productWeightClassKey(selectedProduct ? selectedProduct.product : state.productName);
+    if (selectedKey) state.weightClass = selectedKey;
     var wc = WEIGHT_CLASS[state.weightClass] || WEIGHT_CLASS.fresh500;
     state.adjust = wc.adjust;
     state.stable = wc.stable;
-    renderWeightHint();
     state.monitorName = $('monitorName').value;
     state.timing = $('timing').value;
     state.deviation = $('deviation').value;
@@ -628,8 +626,6 @@
     $('lot').value = state.lot || dateToLot(state.workDate || today());
     $('feSize').value = state.feSize || '2.0';
     $('susSize').value = state.susSize || '3.0';
-    $('weightClass').value = state.weightClass || 'fresh500';
-    renderWeightHint();
     $('monitorName').value = state.monitorName || '';
     $('timing').value = state.timing || '시작전';
     $('deviation').value = state.deviation || '';
@@ -638,8 +634,6 @@
     $('approver').value = state.approver || '';
     $('remark').value = state.remark || '';
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
-    normalizePackagings(state);
-    renderPackagings();
     renderRows();
     renderStampPhotos();
     syncApprovals();
@@ -736,7 +730,7 @@
   }
 
   function bind() {
-    ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize', 'weightClass',
+    ['workDate', 'equipment', 'productName', 'lot', 'feSize', 'susSize',
       'monitorName', 'timing', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var el = $(id);
       if (!el) return;
@@ -775,7 +769,6 @@
         scheduleDraft();
       });
     }
-    $('weightClass').addEventListener('change', renderWeightHint);
     var btnSyncLot = $('btnSyncLot');
     if (btnSyncLot) {
       btnSyncLot.addEventListener('click', function () {
