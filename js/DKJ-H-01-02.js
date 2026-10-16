@@ -679,11 +679,23 @@
     // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
     clearTimeout(draftTimer);
     state.locked = !!lock;
-    var rec = DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
-      id: editingId || undefined,
-      title: 'CCP-2P ' + state.productName,
-      judge: state.hasDeviation ? '이탈' : '적합'
-    }));
+    var rec;
+    try {
+      rec = DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
+        id: editingId || undefined,
+        title: 'CCP-2P ' + state.productName,
+        judge: state.hasDeviation ? '이탈' : '적합'
+      }));
+    } catch (e) {
+      // 저장소가 가득 차면 setItem 이 예외를 던진다 — 예전엔 눌러도 반응이 없었다.
+      state.locked = false;
+      var quota = e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014);
+      alert(quota
+        ? '저장 공간이 가득 차서 저장하지 못했습니다.\n기록보관함에서 백업한 뒤 불필요한 기록을 삭제하고 다시 저장하세요.'
+        : '저장에 실패했습니다: ' + (e && e.message || e));
+      setStatus('저장 실패', false);
+      return;
+    }
     editingId = rec.id;
     setStatus(lock ? '작성완료 저장됨' : '저장됨 ' + new Date().toLocaleTimeString(), true);
     refreshApproval();

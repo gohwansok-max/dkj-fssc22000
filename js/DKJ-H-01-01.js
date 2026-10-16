@@ -610,7 +610,7 @@
       state.locked = false;
       var quota = e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014);
       alert(quota
-        ? '저장 공간이 가득 차서 저장하지 못했습니다.\n기록보관함에서 백업한 뒤 오래된 기록이나 사진을 정리하고 다시 저장하세요.'
+        ? '저장 공간이 가득 차서 저장하지 못했습니다.\n기록보관함에서 백업한 뒤 불필요한 기록(삭제하면 용량이 확보됩니다)을 정리하고 다시 저장하세요.'
         : '저장에 실패했습니다: ' + (e && e.message || e));
       setStatus('저장 실패', false);
       return;

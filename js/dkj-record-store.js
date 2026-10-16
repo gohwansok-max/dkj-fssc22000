@@ -100,7 +100,14 @@
       if (idx < 0) return;
       var who = (global.DkjAuth && global.DkjAuth.user()) || null;
       var now = new Date().toISOString();
-      list[idx] = Object.assign({}, list[idx], {
+      // 삭제 표식(tombstone)에는 본문을 남기지 않는다 — 화면·내보내기에 안 보이는 기록이
+      // 사진까지 그대로 localStorage 를 차지해, 지워도 저장 공간이 늘 가득 차 있었다
+      // (2026-10-16: 소독헹굼 일지 시험지 사진). 병합에 필요한 식별·추적 정보만 남긴다.
+      var KEEP = ['id', 'formId', 'title', 'workDate', 'docDate', 'checkDate', 'createdAt', 'createdBy',
+                  'createdByEmpId', 'createdByUid', 'updatedBy', 'updatedByEmpId', 'updatedByUid', 'audit'];
+      var slim = {};
+      KEEP.forEach(function (k) { if (list[idx][k] !== undefined) slim[k] = list[idx][k]; });
+      list[idx] = Object.assign(slim, {
         deleted: true,
         deletedAt: now,
         deletedBy: who ? who.name : '',
