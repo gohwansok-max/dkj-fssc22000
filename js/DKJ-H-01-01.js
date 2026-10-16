@@ -580,7 +580,17 @@
   }
 
   function save(lock) {
-    var err = validate();
+    var err;
+    try {
+      err = validate();
+    } catch (e) {
+      // 검증 단계에서 예외가 나면(옛 임시저장 데이터 형식 등) 예전에는 아무 반응 없이
+      // 임시저장만 되는 것처럼 보였다 — 원인을 화면에 알린다.
+      alert('저장 전 검사 중 오류가 발생했습니다: ' + (e && e.message || e) + '\n화면을 새로고침(Ctrl+Shift+R)한 뒤 다시 시도하세요.');
+      setStatus('저장 실패', false);
+      try { console.error('[DKJ-H-01-01] validate 오류', e); } catch (x) {}
+      return;
+    }
     if (err) { alert(err); return; }
     // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 화면에 "저장됨"이
     // 잠깐 떴다가 곧이어 그 타이머가 뒤늦게 "임시저장"으로 덮어써서, 실제로는
