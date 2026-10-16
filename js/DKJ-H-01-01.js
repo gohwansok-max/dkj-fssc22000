@@ -587,11 +587,24 @@
     // 정상 저장됐는데도 작업자가 "임시저장만 된 건가?" 하고 헷갈리게 된다.
     clearTimeout(draftTimer);
     state.locked = !!lock;
-    var rec = DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
-      id: editingId || undefined,
-      title: 'CCP-1BC ' + state.productName,
-      judge: state.hasDeviation ? '이탈' : '적합'
-    }));
+    var rec;
+    try {
+      rec = DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
+        id: editingId || undefined,
+        title: 'CCP-1BC ' + state.productName,
+        judge: state.hasDeviation ? '이탈' : '적합'
+      }));
+    } catch (e) {
+      // 저장소가 가득 차면(시험지 사진이 쌓인 PC) setItem 이 예외를 던진다. 예전에는
+      // 이게 그대로 삼켜져 '눌러도 아무 반응 없음'으로 보였다.
+      state.locked = false;
+      var quota = e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014);
+      alert(quota
+        ? '저장 공간이 가득 차서 저장하지 못했습니다.\n기록보관함에서 백업한 뒤 오래된 기록이나 사진을 정리하고 다시 저장하세요.'
+        : '저장에 실패했습니다: ' + (e && e.message || e));
+      setStatus('저장 실패', false);
+      return;
+    }
     editingId = rec.id;
     setStatus(lock ? '작성완료 저장됨' : '저장됨 ' + new Date().toLocaleTimeString(), true);
     refreshApproval();
