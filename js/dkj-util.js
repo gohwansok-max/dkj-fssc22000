@@ -223,8 +223,11 @@
         ['docDate', 'checkDate', 'workDate', 'inspectDate', 'date'].forEach(function (dk) {
           if (clone[dk]) clone[dk] = today();
         });
+        // 사진(시험지·날인 등)은 그날의 증거라 복사하지 않는다 — 어제 사진이 오늘 기록에
+        // 남는 것도 문제고, 같은 사진이 기록마다 복제돼 저장 공간을 먹었다.
+        clone = stripPhotos(clone);
         opts.onClonePrev(clone);
-        toast('📋 최근 기록을 불러왔습니다 (일자: 오늘로 자동 설정).');
+        toast('📋 최근 기록을 불러왔습니다 (일자: 오늘로 자동 설정, 사진은 복사되지 않음).');
       });
       var newBtn = toolbarEl.querySelector('#btnNew');
       if (newBtn && newBtn.nextSibling) toolbarEl.insertBefore(btnClone, newBtn.nextSibling);
@@ -327,10 +330,22 @@
    *  localStorage 용량과 정본 인쇄 크기를 감안해 기본 900px·JPEG 80% 로 줄인다
    *  (DKJ-QC-001 의 증빙사진 처리 방식을 그대로 가져옴). 여러 서식(CCP-1BC 시험지
    *  사진, CCP-2P 날인 사진 등)이 같은 로직을 쓰므로 여기 하나로 모은다. */
+  /** data:image 문자열을 깊이 훑어 비운다(배열은 같은 길이 유지 — 슬롯 구조가 깨지지 않게). */
+  function stripPhotos(v) {
+    if (typeof v === 'string') return v.indexOf('data:image/') === 0 ? null : v;
+    if (Array.isArray(v)) return v.map(stripPhotos);
+    if (v && typeof v === 'object') {
+      var out = {};
+      Object.keys(v).forEach(function (k) { out[k] = stripPhotos(v[k]); });
+      return out;
+    }
+    return v;
+  }
+
   function compressImageToDataUrl(file, callback, opts) {
     if (!file || typeof callback !== 'function') return;
-    var maxDim = (opts && opts.maxDim) || 900;
-    var quality = (opts && opts.quality) || 0.8;
+    var maxDim = (opts && opts.maxDim) || 800;
+    var quality = (opts && opts.quality) || 0.65;
 
     function drawAndCallback(img) {
       var canvas = document.createElement('canvas');
