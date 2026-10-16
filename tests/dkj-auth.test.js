@@ -171,8 +171,21 @@ test('managed accounts without a configured password do not accept arbitrary inp
   });
 
   await assert.rejects(auth.login('2', 'any-input'), (err) => {
-    assert.equal(err.message, 'INVALID_LOGIN_CREDENTIALS');
+    assert.equal(err.message, 'PASSWORD_NOT_SET');
     return true;
   });
   assert.equal(firebaseAttempts, 0);
+});
+
+test('accounts without any credential report PASSWORD_NOT_SET', async () => {
+  const auth = loadAuth(async (url) => {
+    if (url.includes('/system/users.json')) return response(200, {});
+    throw new Error('Unexpected request: ' + url);
+  }, false, {
+    '0003': { uid: 'uid-0003', empId: '0003', name: 'No password worker', role: 'worker' }
+  });
+  await assert.rejects(auth.login('3', 'whatever'), (err) => {
+    assert.equal(err.message, 'PASSWORD_NOT_SET');
+    return true;
+  });
 });

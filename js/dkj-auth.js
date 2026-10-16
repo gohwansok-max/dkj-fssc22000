@@ -499,7 +499,12 @@
 
     // 관리 디렉터리에 등록된 계정은 그 비밀번호가 정본이다. 로컬 검증 실패를
     // 레거시 Firebase 인증으로 넘기면 예전 비밀번호가 우회 경로로 통과할 수 있다.
-    if (localUser) throw new Error('INVALID_LOGIN_CREDENTIALS');
+    if (localUser) {
+      // 비밀번호·해시가 아예 없는 계정은 사용자가 뭘 입력해도 통과할 수 없다 —
+      // 틀린 비밀번호와 구분해 관리자 재설정이 필요하다고 알려야 헛수고를 안 한다.
+      if (!localUser.password && !localUser.passwordHash) throw new Error('PASSWORD_NOT_SET');
+      throw new Error('INVALID_LOGIN_CREDENTIALS');
+    }
 
     // 2. Firebase 원격 인증 시도 — 관리 디렉터리에 없는 과거 콘솔 계정에만 허용한다.
     if (configured()) {
@@ -631,7 +636,8 @@
       }).catch(function (ex) {
         btn.disabled = false;
         var code = String((ex && (ex.code || ex.message)) || 'UNKNOWN_ERROR');
-        err.textContent = code === 'NOT_CONFIGURED' ? '클라우드 설정이 아직 완료되지 않았습니다.' :
+        err.textContent = code === 'PASSWORD_NOT_SET' ? '이 계정은 비밀번호가 등록되지 않았습니다. 시스템 관리자에게 비밀번호 재설정을 요청하세요.' :
+          code === 'NOT_CONFIGURED' ? '클라우드 설정이 아직 완료되지 않았습니다.' :
           (code === 'NETWORK_TIMEOUT' || code === 'NETWORK_ERROR') ? '인터넷 연결을 확인한 뒤 다시 시도하세요.' :
           code === 'INVALID_RESPONSE' ? '로그인 서버 응답이 올바르지 않습니다. 다시 시도하세요.' :
           code === 'SESSION_EXPIRED' ? '로그인이 만료되었습니다. 다시 로그인해 주세요.' :

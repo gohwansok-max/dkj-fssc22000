@@ -23,7 +23,7 @@ function loadPrinter() {
 }
 
 test('CCP-1BC official printer URL uses the updated cache revision', () => {
-  assert.match(formHtmlSource, /dkj-print-official\.js\?v=130&rev=137/);
+  assert.match(formHtmlSource, /dkj-print-official\.js\?v=131&rev=137/);
 });
 
 test('CCP-1BC form stores raw material input on each monitoring row', () => {
