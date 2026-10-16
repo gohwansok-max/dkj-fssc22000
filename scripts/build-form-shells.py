@@ -76,9 +76,9 @@ HTML_ONLY_KEYS = {"screen", "headerLinks", "footerLinks"}
 BOOT_TEMPLATE = """/**
  * {code} - {engine} boot (SSOT: data/{spec_dir}/{code}.json)
  */
-(function () {{
+(async function () {{
   'use strict';
-  {mount}.mount({spec});
+  await {mount}.mount({spec});
 }})();
 """
 
@@ -140,7 +140,7 @@ def footer_links(spec: dict) -> str:
 
 
 def scripts(code: str, v: str, engine_js: list[str], extra_js: str = "") -> str:
-    common_head = ["dkj-util.js", "dkj-firebase-config.js", "dkj-auth.js", "dkj-cloud-sync.js",
+    common_head = ["dkj-async.js", "dkj-store.js", "dkj-storage-migration.js", "dkj-storage.js", "dkj-util.js", "dkj-firebase-config.js", "dkj-auth.js", "dkj-cloud-sync.js",
                    "dkj-nav-bar.js", "dkj-record-store.js", "dkj-deeplink.js", "dkj-approval.js"]
     common_tail = ["dkj-pwa.js", "dkj-quick-nav.js", "dkj-i18n.js", "dkj-accessibility.js"]
     out = "".join(f'\n  <script src="../js/{n}?v={v}"></script>' for n in common_head)

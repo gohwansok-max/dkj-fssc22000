@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-12 - matrix boot (SSOT: data/matrix-form-specs/DKJ-S-02-12.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjMatrixForm.mount({
+  await DkjMatrixForm.mount({
   "code": "DKJ-S-02-12",
   "title": "제조시설·설비점검표",
   "subtitle": "선행요건 · 월 1장 · 설비 상태 매일 O/X",

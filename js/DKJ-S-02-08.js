@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-08 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-08.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjLedgerForm.mount({
+  await DkjLedgerForm.mount({
   "code": "DKJ-S-02-08",
   "title": "폐기물 관리대장",
   "subtitle": "선행요건 · 발생 시 · 건별 기록",

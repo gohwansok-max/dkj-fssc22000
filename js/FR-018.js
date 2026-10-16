@@ -1,9 +1,9 @@
 /**
  * FR-018 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-018",
   "title": "내부심사 실시계획서",
   "pattern": "fr",

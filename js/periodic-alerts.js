@@ -1,4 +1,4 @@
-(function () {
+(async function () {
   'use strict';
 
   var FORM_ID = 'PERIODIC-ALERTS';
@@ -59,19 +59,19 @@
     if (sa.order !== sb.order) return sa.order - sb.order;
     return String(a.dueDate || '9999-12-31').localeCompare(String(b.dueDate || '9999-12-31')) || String(a.name || '').localeCompare(String(b.name || ''));
   }
-  function loadItems() {
-    try { return (window.DkjRecordStore && window.DkjRecordStore.list(FORM_ID)) || []; } catch (e) { return []; }
+  async function loadItems() {
+    try { return (window.DkjRecordStore && (await window.DkjRecordStore.list(FORM_ID))) || []; } catch (e) { return []; }
   }
-  function saveItem(item) {
+  async function saveItem(item) {
     if (!window.DkjRecordStore) throw new Error('저장소를 불러오지 못했습니다.');
-    return window.DkjRecordStore.save(FORM_ID, item);
+    return (await window.DkjRecordStore.save(FORM_ID, item));
   }
-  function ensureDefaults() {
-    var existing = loadItems(), ids = {};
+  async function ensureDefaults() {
+    var existing = (await loadItems()), ids = {};
     existing.forEach(function (item) { ids[item.id] = true; });
-    DEFAULT_ITEMS.forEach(function (template) {
-      if (!ids[template.id]) saveItem(Object.assign({}, template));
-    });
+    (await DkjAsync.forEach(DEFAULT_ITEMS, async function (template) {
+      if (!ids[template.id]) (await saveItem(Object.assign({}, template)));
+    }));
   }
   function settings() {
     var saved = readJson(SETTINGS_KEY, {});
@@ -81,18 +81,18 @@
   function defaultEmailSettings() {
     return { id: EMAIL_SETTINGS_ID, kind: 'periodic_email_settings', recipients: [], dispatchTime: '08:30', enabled: true, levels: { overdue: true, today: true, soon: true } };
   }
-  function loadEmailSettings() {
+  async function loadEmailSettings() {
     try {
-      var rows = (window.DkjRecordStore && window.DkjRecordStore.list(EMAIL_SETTINGS_FORM_ID)) || [];
+      var rows = (window.DkjRecordStore && (await window.DkjRecordStore.list(EMAIL_SETTINGS_FORM_ID))) || [];
       var saved = rows.find(function (row) { return row && row.id === EMAIL_SETTINGS_ID; });
       var base = defaultEmailSettings();
       if (!saved) return base;
       return Object.assign(base, saved, { recipients: Array.isArray(saved.recipients) ? saved.recipients : [], levels: Object.assign({}, base.levels, saved.levels || {}) });
     } catch (e) { return defaultEmailSettings(); }
   }
-  function saveEmailSettings(config) {
+  async function saveEmailSettings(config) {
     if (!window.DkjRecordStore) throw new Error('저장소를 불러오지 못했습니다.');
-    return window.DkjRecordStore.save(EMAIL_SETTINGS_FORM_ID, Object.assign({}, state.email || {}, config, { id: EMAIL_SETTINGS_ID, kind: 'periodic_email_settings' }));
+    return (await window.DkjRecordStore.save(EMAIL_SETTINGS_FORM_ID, Object.assign({}, state.email || {}, config, { id: EMAIL_SETTINGS_ID, kind: 'periodic_email_settings' })));
   }
   function browserPermission() { return 'Notification' in window ? Notification.permission : 'unsupported'; }
   function toast(text, bad) {
@@ -152,8 +152,8 @@
         '<td><div class="pa-row-actions">' + (item.active && item.dueDate ? '<button type="button" class="pa-btn outline" data-action="complete" data-id="' + esc(item.id) + '">완료</button>' : '') + '<button type="button" class="pa-btn outline" data-action="edit" data-id="' + esc(item.id) + '">수정</button></div></td></tr>';
     }).join('') : '<tr><td colspan="7"><div class="pa-empty">조건에 맞는 관리 항목이 없습니다.</div></td></tr>';
   }
-  function renderEmailSettings() {
-    state.email = loadEmailSettings();
+  async function renderEmailSettings() {
+    state.email = (await loadEmailSettings());
     if (!state.email.recipients) state.email.recipients = [];
     if (!state.emailDirty) {
       $('paEmailRecipients').value = state.email.recipients.join(', ');
@@ -193,11 +193,11 @@
     else { status.className = 'pa-email-status ok'; status.textContent = recipientCount + '명에게 매일 ' + (state.email.dispatchTime || '08:30') + '에 자동 발송하도록 저장되었습니다. (브라우저를 닫아도 서버에서 자동 발송)'; }
   }
 
-  function addRecipient(emailStr) {
+  async function addRecipient(emailStr) {
     var raw = String(emailStr || '').trim();
     if (!raw) { toast('추가할 이메일 주소를 입력하세요.', true); return; }
     if (!validEmail(raw)) { toast('올바른 이메일 형식이 아닙니다: ' + raw, true); return; }
-    if (!state.email) state.email = loadEmailSettings();
+    if (!state.email) state.email = (await loadEmailSettings());
     if (!state.email.recipients) state.email.recipients = [];
     var lower = raw.toLowerCase();
     if (state.email.recipients.indexOf(lower) !== -1) {
@@ -205,25 +205,25 @@
       return;
     }
     state.email.recipients.push(lower);
-    saveEmailSettings({ recipients: state.email.recipients });
+    (await saveEmailSettings({ recipients: state.email.recipients }));
     state.emailDirty = false;
     if ($('paNewRecipientInput')) $('paNewRecipientInput').value = '';
-    renderEmailSettings();
+    (await renderEmailSettings());
     toast('수신자 추가 완료: ' + lower);
   }
 
-  function removeRecipient(emailStr) {
+  async function removeRecipient(emailStr) {
     var lower = String(emailStr || '').trim().toLowerCase();
     if (!state.email || !state.email.recipients) return;
     state.email.recipients = state.email.recipients.filter(function (e) { return e.toLowerCase() !== lower; });
-    saveEmailSettings({ recipients: state.email.recipients });
+    (await saveEmailSettings({ recipients: state.email.recipients }));
     state.emailDirty = false;
-    renderEmailSettings();
+    (await renderEmailSettings());
     toast('수신자 제거 완료: ' + lower);
   }
 
-  function previewEmailDispatch() {
-    state.email = loadEmailSettings();
+  async function previewEmailDispatch() {
+    state.email = (await loadEmailSettings());
     var recipients = state.email.recipients || [];
     var activeAlerts = state.alerts || [];
     var time = state.email.dispatchTime || '08:30';
@@ -278,13 +278,13 @@
     sessionStorage.setItem('dkj_periodic_alert_opened', '1');
     setTimeout(function () { openDialog('paAlertDialog'); }, 260);
   }
-  function render() {
-    state.items = loadItems();
-    renderSummary(); renderAlerts(); renderTable(); renderEmailSettings(); renderLiveInfo(); notifyNewAlerts(); maybeOpenAlertWindow();
+  async function render() {
+    state.items = (await loadItems());
+    renderSummary(); renderAlerts(); renderTable(); (await renderEmailSettings()); renderLiveInfo(); notifyNewAlerts(); maybeOpenAlertWindow();
     state.initialized = true;
   }
   function validEmail(value) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim()); }
-  function saveEmailFromScreen() {
+  async function saveEmailFromScreen() {
     var raw = $('paEmailRecipients').value || '';
     var recipients = raw.split(/[;,\n]/).map(function (value) { return value.trim(); }).filter(Boolean);
     var invalid = recipients.filter(function (value) { return !validEmail(value); });
@@ -294,8 +294,8 @@
     if (invalid.length) { toast('올바른 이메일 형식이 아닙니다: ' + invalid[0], true); return; }
     var unique = recipients.filter(function (value, index, list) { return list.indexOf(value) === index; });
     try {
-      saveEmailSettings({ recipients: unique, dispatchTime: time, enabled: $('paEmailEnabled').checked, levels: { overdue: $('paEmailOverdue').checked, today: $('paEmailToday').checked, soon: $('paEmailSoon').checked } });
-      state.emailDirty = false; setStatus('이메일 자동 발송 설정을 저장했습니다.'); render();
+      (await saveEmailSettings({ recipients: unique, dispatchTime: time, enabled: $('paEmailEnabled').checked, levels: { overdue: $('paEmailOverdue').checked, today: $('paEmailToday').checked, soon: $('paEmailSoon').checked } }));
+      state.emailDirty = false; setStatus('이메일 자동 발송 설정을 저장했습니다.'); (await render());
     } catch (e) { toast('이메일 설정을 저장하지 못했습니다. 다시 시도해 주세요.', true); }
   }
   function excelStatus(text, level) {
@@ -344,7 +344,7 @@
     if (!file || !window.DkjPeriodicAlertExcel) return;
     clearExcelErrors();
     excelStatus('엑셀 파일을 확인하는 중입니다.');
-    DkjPeriodicAlertExcel.parseFile(file).then(function (result) {
+    DkjPeriodicAlertExcel.parseFile(file).then(async function (result) {
       if (result.errors.length) {
         state.excelResult = result;
         renderExcelErrors(result);
@@ -354,9 +354,9 @@
       }
       if (!result.items.length) { excelStatus('등록하거나 수정할 관리 항목이 없습니다. 빈 행은 자동으로 건너뜁니다.', 'warn'); return; }
       var current = {}; state.items.forEach(function (item) { current[item.id] = item; });
-      result.items.forEach(function (item) { saveItem(Object.assign({}, current[item.id] || {}, item)); });
+      (await DkjAsync.forEach(result.items, async function (item) { (await saveItem(Object.assign({}, current[item.id] || {}, item))); }));
       excelStatus(result.items.length + '개 관리 항목을 검증 후 일괄 반영했습니다.' + (result.skipped ? ' 빈 행 ' + result.skipped + '건은 건너뛰었습니다.' : ''), 'ok');
-      setStatus('엑셀 업로드를 완료했습니다.'); render();
+      setStatus('엑셀 업로드를 완료했습니다.'); (await render());
     }).catch(function (error) {
       var code = error && error.message;
       var message = code === 'XLSX_ONLY' ? 'xlsx 파일만 업로드할 수 있습니다.' : (code === 'FILE_TOO_LARGE' ? '파일 크기는 5MB 이하만 업로드할 수 있습니다.' : '엑셀 파일을 읽지 못했습니다. 제공된 양식을 사용해 주세요.');
@@ -389,7 +389,7 @@
   }
   function itemById(id) { return state.items.find(function (item) { return item.id === id; }) || null; }
   function editItem(id) { var item = itemById(id); if (item) populateEditor(item); }
-  function submitEditor(event) {
+  async function submitEditor(event) {
     event.preventDefault();
     var id = $('paItemId').value, prior = id ? itemById(id) : null;
     var dueDate = $('paItemDueDate').value;
@@ -409,54 +409,54 @@
       active: $('paItemActive').checked
     });
     if (!record.name) { toast('세부 관리 항목을 입력하세요.', true); return; }
-    try { saveItem(record); closeDialog('paEditorDialog'); setStatus('관리 항목을 저장했습니다. 다음 예정일 기준으로 알림을 갱신했습니다.'); render(); } catch (e) { toast('저장하지 못했습니다. 다시 시도해 주세요.', true); }
+    try { (await saveItem(record)); closeDialog('paEditorDialog'); setStatus('관리 항목을 저장했습니다. 다음 예정일 기준으로 알림을 갱신했습니다.'); (await render()); } catch (e) { toast('저장하지 못했습니다. 다시 시도해 주세요.', true); }
   }
-  function completeItem(id) {
+  async function completeItem(id) {
     var item = itemById(id); if (!item) return;
     var cycle = Number(item.cycleDays || 0);
     if (!cycle) { toast('관리 주기를 먼저 등록하세요.', true); return; }
     item.dueDate = dateInputValue(addDays(today(), cycle));
     item.lastCompletedAt = new Date().toISOString();
     item.lastCompletedBy = (window.DkjAuth && DkjAuth.user && DkjAuth.user() && DkjAuth.user().name) || '';
-    try { saveItem(item); setStatus(item.name + ' 완료 처리: 다음 예정일은 ' + item.dueDate + '입니다.'); render(); } catch (e) { toast('완료 처리하지 못했습니다. 다시 시도해 주세요.', true); }
+    try { (await saveItem(item)); setStatus(item.name + ' 완료 처리: 다음 예정일은 ' + item.dueDate + '입니다.'); (await render()); } catch (e) { toast('완료 처리하지 못했습니다. 다시 시도해 주세요.', true); }
   }
-  function deleteCurrent() {
+  async function deleteCurrent() {
     var id = $('paItemId').value; if (!id) return;
     var item = itemById(id); if (!item) return;
     if (!window.confirm('“' + item.name + '” 항목을 삭제하시겠습니까?')) return;
-    try { window.DkjRecordStore.remove(FORM_ID, id); closeDialog('paEditorDialog'); setStatus('관리 항목을 삭제했습니다.'); render(); } catch (e) { toast('삭제하지 못했습니다. 다시 시도해 주세요.', true); }
+    try { (await window.DkjRecordStore.remove(FORM_ID, id)); closeDialog('paEditorDialog'); setStatus('관리 항목을 삭제했습니다.'); (await render()); } catch (e) { toast('삭제하지 못했습니다. 다시 시도해 주세요.', true); }
   }
-  function requestPermission() {
+  async function requestPermission() {
     if (!('Notification' in window)) { toast('이 브라우저는 알림을 지원하지 않습니다.', true); return; }
-    if (Notification.permission === 'denied') { toast('브라우저 설정에서 이 사이트의 알림 차단을 해제해 주세요.', true); render(); return; }
-    Notification.requestPermission().then(function (permission) {
-      toast(permission === 'granted' ? '브라우저 알림이 허용되었습니다.' : '브라우저 알림이 허용되지 않았습니다.', permission !== 'granted'); render();
+    if (Notification.permission === 'denied') { toast('브라우저 설정에서 이 사이트의 알림 차단을 해제해 주세요.', true); (await render()); return; }
+    Notification.requestPermission().then(async function (permission) {
+      toast(permission === 'granted' ? '브라우저 알림이 허용되었습니다.' : '브라우저 알림이 허용되지 않았습니다.', permission !== 'granted'); (await render());
     });
   }
   function bindButtons() {
     $('paAdd').addEventListener('click', function () { populateEditor(); });
-    $('paRefresh').addEventListener('click', function () { render(); toast('정기 관리 예정일을 새로 확인했습니다.'); });
+    $('paRefresh').addEventListener('click', async function () { (await render()); toast('정기 관리 예정일을 새로 확인했습니다.'); });
     $('paOpenModal').addEventListener('click', function () { openDialog('paAlertDialog'); });
     $('paDismissModal').addEventListener('click', function () { closeDialog('paAlertDialog'); });
     $('paCancelEdit').addEventListener('click', function () { closeDialog('paEditorDialog'); });
     $('paDeleteItem').addEventListener('click', deleteCurrent);
     $('paEditorForm').addEventListener('submit', submitEditor);
-    $('paBrowserEnabled').addEventListener('change', function () { var next = settings(); next.browserEnabled = this.checked; saveSettings(next); render(); });
+    $('paBrowserEnabled').addEventListener('change', async function () { var next = settings(); next.browserEnabled = this.checked; saveSettings(next); (await render()); });
     $('paRequestPermission').addEventListener('click', requestPermission);
     $('paSaveEmailSettings').addEventListener('click', saveEmailFromScreen);
     if ($('paTestEmailDispatch')) $('paTestEmailDispatch').addEventListener('click', previewEmailDispatch);
     
     // 수신자 추가 버튼 & 엔터키
     if ($('paAddRecipientBtn')) {
-      $('paAddRecipientBtn').addEventListener('click', function () {
-        addRecipient($('paNewRecipientInput') && $('paNewRecipientInput').value);
+      $('paAddRecipientBtn').addEventListener('click', async function () {
+        (await addRecipient($('paNewRecipientInput') && $('paNewRecipientInput').value));
       });
     }
     if ($('paNewRecipientInput')) {
-      $('paNewRecipientInput').addEventListener('keydown', function (e) {
+      $('paNewRecipientInput').addEventListener('keydown', async function (e) {
         if (e.key === 'Enter') {
           e.preventDefault();
-          addRecipient(this.value);
+          (await addRecipient(this.value));
         }
       });
     }
@@ -477,39 +477,39 @@
     $('paTypeFilter').addEventListener('change', renderTable);
     $('paStateFilter').addEventListener('change', renderTable);
 
-    document.addEventListener('click', function (event) {
+    document.addEventListener('click', async function (event) {
       // 수신자 삭제
       var delBtn = event.target.closest('.pa-tag-del');
       if (delBtn) {
-        removeRecipient(delBtn.getAttribute('data-email'));
+        (await removeRecipient(delBtn.getAttribute('data-email')));
         return;
       }
       // 빠른 추가 버튼
       var addBtn = event.target.closest('[data-add-email]');
       if (addBtn) {
-        addRecipient(addBtn.getAttribute('data-add-email'));
+        (await addRecipient(addBtn.getAttribute('data-add-email')));
         return;
       }
       // 테이블 및 알림창 액션
       var button = event.target.closest('[data-action],[data-alert-action]');
       if (!button) return;
       var id = button.getAttribute('data-id');
-      if (button.getAttribute('data-action') === 'complete') completeItem(id);
+      if (button.getAttribute('data-action') === 'complete') (await completeItem(id));
       if (button.getAttribute('data-action') === 'edit' || button.getAttribute('data-alert-action') === 'edit') editItem(id);
     });
   }
-  function onStorage(event) {
+  async function onStorage(event) {
     var key = String((event && event.key) || '');
-    if (key.indexOf('dkj:records:' + FORM_ID + ':') === 0 || key.indexOf('dkj:records:' + EMAIL_SETTINGS_FORM_ID + ':') === 0 || key === SETTINGS_KEY) render();
+    if (key.indexOf('dkj:records:' + FORM_ID + ':') === 0 || key.indexOf('dkj:records:' + EMAIL_SETTINGS_FORM_ID + ':') === 0 || key === SETTINGS_KEY) (await render());
   }
-  function init() {
-    ensureDefaults();
+  async function init() {
+    (await ensureDefaults());
     bindButtons();
     window.addEventListener('storage', onStorage);
-    window.addEventListener('dkj:records-changed', function () { render(); });
+    window.addEventListener('dkj:records-changed', async function () { (await render()); });
     document.addEventListener('dkj:cloud-ready', render);
     state.timer = setInterval(render, CHECK_MS);
-    render();
+    (await render());
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else (await init());
 })();

@@ -4,6 +4,8 @@
  */
 (function (global) {
   'use strict';
+  function recordStorage() { return window.DkjStorage || window.localStorage; }
+
 
   var DOW = ['일', '월', '화', '수', '목', '금', '토'];
   var _cache = {};
@@ -23,16 +25,16 @@
   function clearCache() { _cache = {}; }
 
   var normalizeCalendar = calendarModel.normalize;
-  function readCalendarCache() {
+  async function readCalendarCache() {
     try {
-      var raw = localStorage.getItem(OPERATION_CALENDAR_KEY);
+      var raw = (await recordStorage().getItem(OPERATION_CALENDAR_KEY));
       if (!raw) return null;
       var parsed = JSON.parse(raw);
       return parsed && parsed.calendar ? { calendar: normalizeCalendar(parsed.calendar), pending: !!parsed.pending } : { calendar: normalizeCalendar(parsed), pending: false };
     } catch (e) { return null; }
   }
-  function writeCalendarCache(value, pending) {
-    try { localStorage.setItem(OPERATION_CALENDAR_KEY, JSON.stringify({ calendar: normalizeCalendar(value), pending: !!pending })); } catch (e) {}
+  async function writeCalendarCache(value, pending) {
+    try { (await recordStorage().setItem(OPERATION_CALENDAR_KEY, JSON.stringify({ calendar: normalizeCalendar(value), pending: !!pending }))); } catch (e) {}
   }
   function calendarOwner() {
     var auth = global.DkjAuth;
@@ -42,17 +44,17 @@
     var auth = global.DkjAuth;
     return !!(auth && auth.isSystemAdmin && auth.isSystemAdmin());
   }
-  function updateCalendarInMemory(value, pending) {
+  async function updateCalendarInMemory(value, pending) {
     operationCalendar = normalizeCalendar(value);
     if (global.DkjConsole && global.DkjConsole.config) global.DkjConsole.config.operationCalendar = operationCalendar;
-    writeCalendarCache(operationCalendar, pending);
+    (await writeCalendarCache(operationCalendar, pending));
     clearCache();
   }
   function emitCalendarChanged() {
     try { global.dispatchEvent(new CustomEvent('dkj:operation-calendar-changed', { detail: operationCalendar })); } catch (e) {}
   }
-  function refreshCalendarViews() {
-    if (global.DkjConsole && global.DkjConsole.config) render(global.DkjConsole.config);
+  async function refreshCalendarViews() {
+    if (global.DkjConsole && global.DkjConsole.config) (await render(global.DkjConsole.config));
     emitCalendarChanged();
   }
   function remoteCalendarPath() {
@@ -75,63 +77,63 @@
       value: { calendar: payload },
       updatedAt: Date.now(),
       updatedBy: payload.updatedBy
-    }).then(function () {
-      updateCalendarInMemory(payload, false);
-      refreshCalendarViews();
+    }).then(async function () {
+      (await updateCalendarInMemory(payload, false));
+      (await refreshCalendarViews());
       return payload;
     });
   }
-  function loadOperationCalendar(cfg) {
+  async function loadOperationCalendar(cfg) {
     var base = normalizeCalendar((cfg && cfg.operationCalendar) || operationCalendar);
-    var cached = readCalendarCache();
+    var cached = (await readCalendarCache());
     if (cached) base = cached.calendar;
-    updateCalendarInMemory(base, !!(cached && cached.pending));
+    (await updateCalendarInMemory(base, !!(cached && cached.pending)));
     if (operationCalendarLoad) return operationCalendarLoad;
     var auth = global.DkjAuth;
     var path = remoteCalendarPath();
     if (!auth || !auth.request || !auth.token || !auth.token() || !path) return Promise.resolve(operationCalendar);
-    operationCalendarLoad = auth.request(path, 'GET').then(function (remote) {
+    operationCalendarLoad = auth.request(path, 'GET').then(async function (remote) {
       if (cached && cached.pending && canEditOperationCalendar()) {
         return saveCalendarRemote(cached.calendar);
       }
       var shared = calendarFromRemote(remote);
-      if (shared) updateCalendarInMemory(shared, false);
-      refreshCalendarViews();
+      if (shared) (await updateCalendarInMemory(shared, false));
+      (await refreshCalendarViews());
       return operationCalendar;
-    }).catch(function () {
+    }).catch(async function () {
       operationCalendarLoad = null;
-      refreshCalendarViews();
+      (await refreshCalendarViews());
       return operationCalendar;
     });
     return operationCalendarLoad;
   }
-  function setOperationCalendar(value) {
+  async function setOperationCalendar(value) {
     var next = normalizeCalendar(value);
     if (!canEditOperationCalendar()) return Promise.reject(new Error('ADMIN_REQUIRED'));
-    updateCalendarInMemory(next, true);
-    refreshCalendarViews();
-    return saveCalendarRemote(next).catch(function (err) {
-      updateCalendarInMemory(next, true);
-      refreshCalendarViews();
+    (await updateCalendarInMemory(next, true));
+    (await refreshCalendarViews());
+    return saveCalendarRemote(next).catch(async function (err) {
+      (await updateCalendarInMemory(next, true));
+      (await refreshCalendarViews());
       throw err;
     });
   }
-  function setOperationDate(date, mode) {
+  async function setOperationDate(date, mode) {
     var day = typeof date === 'string' ? date : iso(date);
     var next = normalizeCalendar(operationCalendar);
     next.productionDates = next.productionDates.filter(function (value) { return value !== day; });
     next.nonProductionDates = next.nonProductionDates.filter(function (value) { return value !== day; });
     if (mode === 'production') next.productionDates.push(day);
     if (mode === 'nonProduction') next.nonProductionDates.push(day);
-    return setOperationCalendar(next);
+    return (await setOperationCalendar(next));
   }
 
-  function readList(code) {
+  async function readList(code) {
     var key = 'L' + code;
     if (key in _cache) return _cache[key];
     var list = [];
     try {
-      var raw = localStorage.getItem('dkj:records:' + code + ':list:v1');
+      var raw = (await recordStorage().getItem('dkj:records:' + code + ':list:v1'));
       list = raw ? JSON.parse(raw) : [];
       // 삭제 표식(js/dkj-record-store.js 참고)이 붙은 기록은 '오늘 작성 완료'로 세면 안 된다.
       list = list.filter(function (r) { return !r || !r.deleted; });
@@ -139,12 +141,12 @@
     _cache[key] = list;
     return list;
   }
-  function readDraft(code) {
+  async function readDraft(code) {
     var key = 'D' + code;
     if (key in _cache) return _cache[key];
     var draft = null;
     try {
-      var raw = localStorage.getItem('dkj:records:' + code + ':draft:v1');
+      var raw = (await recordStorage().getItem('dkj:records:' + code + ':draft:v1'));
       draft = raw ? JSON.parse(raw) : null;
     } catch (e) { draft = null; }
     _cache[key] = draft;
@@ -158,8 +160,8 @@
   }
 
   /* ---------- 상태 판정 ---------- */
-  function evaluate(form, date) {
-    return global.DkjRecordEvaluator.evaluate(form, date, readList(form.code), readDraft(form.code), isProductionDay);
+  async function evaluate(form, date) {
+    return global.DkjRecordEvaluator.evaluate(form, date, (await readList(form.code)), (await readDraft(form.code)), isProductionDay);
   }
 
   var RANK = global.DkjRecordEvaluator.rank;
@@ -203,17 +205,17 @@
   function dayRequirement(dailyForms, date) {
     return isProductionDay(date) ? dailyForms : [];
   }
-  function weekStats(dailyForms, today) {
+  async function weekStats(dailyForms, today) {
     var out = [];
     for (var i = 6; i >= 0; i--) {
       var date = new Date(today.getTime());
       date.setDate(date.getDate() - i);
       var required = dayRequirement(dailyForms, date);
       var done = 0;
-      required.forEach(function (form) {
-        var ev = evaluate(form, date);
+      (await DkjAsync.forEach(required, async function (form) {
+        var ev = (await evaluate(form, date));
         if (ev.state === 'done' || ev.state === 'ng') done++;
-      });
+      }));
       out.push({ date: date, done: done, total: required.length, isToday: iso(date) === iso(today), production: required.length > 0 });
     }
     return out;
@@ -311,7 +313,7 @@
     });
   }
 
-  function render(cfg) {
+  async function render(cfg) {
     clearCache();
     operationCalendar = normalizeCalendar(cfg.operationCalendar || operationCalendar);
     cfg.operationCalendar = operationCalendar;
@@ -320,7 +322,7 @@
     var daily = (groups.find(function (g) { return g.id === 'daily'; }) || {}).forms || [];
     daily.forEach(function (form) { form._dailyDuty = true; });
     var production = isProductionDay(today);
-    var evals = production ? daily.map(function (form) { return { f: form, ev: evaluate(form, today) }; }).sort(stateSort) : [];
+    var evals = production ? (await DkjAsync.map(daily, async function (form) { return { f: form, ev: (await evaluate(form, today)) }; })).sort(stateSort) : [];
     var todoCnt = evals.filter(function (x) { return x.ev.state === 'todo' || x.ev.state === 'part'; }).length;
     var ngCnt = evals.filter(function (x) { return x.ev.state === 'ng'; }).length;
     var doneToday = evals.filter(function (x) { return x.ev.state === 'done' || x.ev.state === 'ng'; }).length;
@@ -351,45 +353,45 @@
 
     var weekly = (groups.find(function (g) { return g.id === 'weekly'; }) || {}).forms || [];
     var weeklyEl = document.getElementById('ckWeekly');
-    if (weeklyEl) weeklyEl.innerHTML = weekly.map(function (form) { return tileHtml(form, evaluate(form, today)); }).join('');
+    if (weeklyEl) weeklyEl.innerHTML = (await DkjAsync.map(weekly, async function (form) { return tileHtml(form, (await evaluate(form, today))); })).join('');
 
     setText('kpiTodo', production ? todoCnt : '—');
     setText('kpiDone', production ? doneToday + ' / ' + daily.length : '—');
     setText('kpiNg', ngCnt);
     renderAlerts(evals, production);
 
-    var stats = weekStats(daily, today);
+    var stats = (await weekStats(daily, today));
     var dots = document.getElementById('ckWeekDots');
     if (dots) dots.innerHTML = stats.map(function (stat) {
       var full = stat.total > 0 && stat.done === stat.total;
       return '<div class="ck-dot' + (full ? ' on' : '') + (!stat.production ? ' off' : '') + (stat.isToday ? ' today' : '') + '"><span>' + DOW[stat.date.getDay()] + '</span><b>' + (stat.production ? stat.done + '/' + stat.total : '휴무') + '</b></div>';
     }).join('');
     var bars = document.getElementById('ckBars');
-    if (bars) bars.innerHTML = daily.map(function (form) {
+    if (bars) bars.innerHTML = (await DkjAsync.map(daily, async function (form) {
       var hit = 0, required = 0;
-      stats.forEach(function (stat) {
+      (await DkjAsync.forEach(stats, async function (stat) {
         if (!stat.production) return;
         required++;
-        var state = evaluate(form, stat.date).state;
+        var state = (await evaluate(form, stat.date)).state;
         if (state === 'done' || state === 'ng') hit++;
-      });
+      }));
       return barRow(form.title, hit, required);
-    }).join('');
+    })).join('');
     var rateRule = document.getElementById('ckRateRule');
     if (rateRule) rateRule.textContent = '최근 7일 중 생산일 ' + stats.filter(function (s) { return s.production; }).length + '일을 분모로 계산합니다';
 
     recentRecords = [];
-    groups.forEach(function (group) {
-      (group.forms || []).forEach(function (form) {
-        readList(form.code).forEach(function (record) {
+    (await DkjAsync.forEach(groups, async function (group) {
+      (await DkjAsync.forEach((group.forms || []), async function (form) {
+        (await readList(form.code)).forEach(function (record) {
           recentRecords.push({
             title: form.title, code: form.code, href: form.href,
             when: record.updatedAt || record.createdAt || '',
             label: record.title || '', judge: record.judge || ''
           });
         });
-      });
-    });
+      }));
+    }));
     recentRecords.sort(function (a, b) { return (b.when || '').localeCompare(a.when || ''); });
     bindRecentTools();
     renderRecentList();
@@ -417,36 +419,36 @@
       });
     });
   }
-  function refreshFromRecordChange() {
+  async function refreshFromRecordChange() {
     if (!global.DkjConsole.config) return;
-    render(global.DkjConsole.config);
-    if (global.DkjCalendar) global.DkjCalendar.mount(global.DkjConsole.config);
+    (await render(global.DkjConsole.config));
+    if (global.DkjCalendar) (await global.DkjCalendar.mount(global.DkjConsole.config));
   }
   function refreshAfterAuth() {
     if (!global.DkjConsole.config) return;
     loadOperationCalendar(global.DkjConsole.config).then(refreshCalendarViews);
   }
   function init() {
-    loadForms().then(function (cfg) {
+    loadForms().then(async function (cfg) {
       global.DkjConsole.config = cfg;
-      refreshFromRecordChange();
+      (await refreshFromRecordChange());
       loadOperationCalendar(cfg).then(refreshCalendarViews);
       global.addEventListener('dkj:records-changed', refreshFromRecordChange);
       global.addEventListener('dkj:auth-ready', refreshAfterAuth);
-      global.addEventListener('online', function () {
-        var cached = readCalendarCache();
+      global.addEventListener('online', async function () {
+        var cached = (await readCalendarCache());
         if (cached && cached.pending && canEditOperationCalendar()) {
           saveCalendarRemote(cached.calendar)['catch'](function () {});
         }
       });
-      global.addEventListener('storage', function (event) {
+      global.addEventListener('storage', async function (event) {
         if (!event || !event.key) return;
-        if (event.key.indexOf('dkj:records:') === 0) refreshFromRecordChange();
+        if (event.key.indexOf('dkj:records:') === 0) (await refreshFromRecordChange());
         if (event.key === OPERATION_CALENDAR_KEY) {
-          var cached = readCalendarCache();
+          var cached = (await readCalendarCache());
           if (cached) {
-            updateCalendarInMemory(cached.calendar, cached.pending);
-            refreshCalendarViews();
+            (await updateCalendarInMemory(cached.calendar, cached.pending));
+            (await refreshCalendarViews());
           }
         }
       });

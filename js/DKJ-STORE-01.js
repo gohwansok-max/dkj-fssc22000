@@ -1,7 +1,7 @@
 /**
  * DKJ-STORE-01 — generated boot (STORE / FR-014 link)
  */
-(function () {
+(async function () {
   'use strict';
   var SPEC = {
   "code": "DKJ-STORE-01",
@@ -257,7 +257,7 @@
       temp.removeAttribute('max');
     }
   }
-  SPEC.afterInit = function (api) {
+  SPEC.afterInit = async function (api) {
     if (window.DkjMaster) DkjMaster.renderProcessBar('processBar', 'store1');
     syncStoreTempRange();
     var locEl = document.getElementById('location');
@@ -275,7 +275,7 @@
     var params = new URLSearchParams(location.search);
     var from014 = params.get('from014');
     if (from014) {
-      var rec = DkjRecordStore.get('FR-014', from014);
+      var rec = (await DkjRecordStore.get('FR-014', from014));
       if (rec) {
         api.setState({
           from014: from014,
@@ -296,5 +296,5 @@
     });
     if (params.get('itemName')) api.writeForm();
   };
-  DkjOxForm.mount(SPEC);
+  (await DkjOxForm.mount(SPEC));
 })();

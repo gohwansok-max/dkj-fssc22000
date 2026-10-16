@@ -2,8 +2,10 @@
  * DKJ-QC-001 — 일일 공정검사일지 (QC 순회)
  * 입출고/폐기량 무제한 자유 입력 · 실시간 포커스 유지 수율 계산 · 다품종 생산 지원
  */
-(function (global) {
+(async function (global) {
   'use strict';
+  function recordStorage() { return window.DkjStorage || window.localStorage; }
+
 
   var FORM_ID = 'DKJ-QC-001';
   var draftTimer = null;
@@ -181,14 +183,14 @@
 
   /** 그 날짜의 온도 일보 행을 찾는다.
    *  같은 달 시트가 여러 건이면 가장 최근에 저장된 것을 쓴다. */
-  function findTempRow(dateStr) {
+  async function findTempRow(dateStr) {
     var d = String(dateStr || '').trim();
     var m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (!m || !global.DkjRecordStore) return null;
     var ym = m[1] + '-' + m[2];
     var day = String(Number(m[3]));
     var list = [];
-    try { list = global.DkjRecordStore.list(TEMP_FORM_ID) || []; } catch (e) { return null; }
+    try { list = (await global.DkjRecordStore.list(TEMP_FORM_ID)) || []; } catch (e) { return null; }
     var hit = list.filter(function (r) {
       var raw = String((r.info && r.info.month) || '').trim();
       // 예전 기록은 '2026 . 08' 처럼 손으로 적힌 값이라 숫자만 뽑아 견준다
@@ -229,9 +231,9 @@
    *    남으면 안 된다. 작성 중이던 임시본을 복원할 때는 false — 그 날짜 기준으로
    *    이미 적어 둔 값을 지우면 안 된다.
    *  @returns {{filled:number, blanked:number, missing:boolean}} */
-  function applyTempLink(clearMissing) {
+  async function applyTempLink(clearMissing) {
     state.tempLink = { source: '', filled: 0, at: '' };
-    var found = findTempRow(state.workDate);
+    var found = (await findTempRow(state.workDate));
     if (!found) {
       return { filled: 0, blanked: clearMissing ? clearLinkedCells() : 0, missing: true };
     }
@@ -290,10 +292,10 @@
 
   /** 그 날짜의 perDay 기록(작업일자 = 오늘)을 찾는다. 같은 날짜로 여러 건
    *  저장돼 있으면(재작성 등) 가장 최근 저장분을 쓴다. */
-  function findDayRecord(formId, dateStr) {
+  async function findDayRecord(formId, dateStr) {
     if (!global.DkjRecordStore || !dateStr) return null;
     var list;
-    try { list = global.DkjRecordStore.list(formId) || []; } catch (e) { return null; }
+    try { list = (await global.DkjRecordStore.list(formId)) || []; } catch (e) { return null; }
     var hits = list.filter(function (r) {
       return (r.workDate || (r.info && r.info.workDate)) === dateStr;
     });
@@ -340,9 +342,9 @@
     state.checks[rk][key] = '';
   }
 
-  function applyCcp1Link(clearMissing) {
+  async function applyCcp1Link(clearMissing) {
     var counts = { filled: 0, blanked: 0 };
-    var rec = findDayRecord(CCP1_FORM_ID, state.workDate);
+    var rec = (await findDayRecord(CCP1_FORM_ID, state.workDate));
     ['r1', 'r2', 'r3'].forEach(function (rk) {
       var target = (state.roundTimes && state.roundTimes[rk]) || '';
       var row = rec ? nearestRowByTime(rec.rows, target) : null;
@@ -354,9 +356,9 @@
       filled: counts.filled, blanked: counts.blanked };
   }
 
-  function applyCcp2Link(clearMissing) {
+  async function applyCcp2Link(clearMissing) {
     var counts = { filled: 0, blanked: 0 };
-    var rec = findDayRecord(CCP2_FORM_ID, state.workDate);
+    var rec = (await findDayRecord(CCP2_FORM_ID, state.workDate));
     ['r1', 'r2', 'r3'].forEach(function (rk) {
       var target = (state.roundTimes && state.roundTimes[rk]) || '';
       var row = rec ? nearestRowByTime(rec.rows, target) : null;
@@ -381,10 +383,10 @@
   /** 온도 일보 + CCP-1BC + CCP-2P 를 한 번에 채운다(또는 비운다). 세 곳 다
    *  같은 원칙 — 저장된 기록을 불러올 때는 절대 안 부르고, 작성 중인 시트에서
    *  날짜를 바꾸거나 '연동 다시 불러오기'를 눌렀을 때만 clearMissing=true 로 부른다. */
-  function applyAllLinks(clearMissing) {
-    var temp = applyTempLink(clearMissing);
-    var ccp1 = applyCcp1Link(clearMissing);
-    var ccp2 = applyCcp2Link(clearMissing);
+  async function applyAllLinks(clearMissing) {
+    var temp = (await applyTempLink(clearMissing));
+    var ccp1 = (await applyCcp1Link(clearMissing));
+    var ccp2 = (await applyCcp2Link(clearMissing));
     state.ccpLink = {
       ccp1: ccp1.filled ? { source: ccp1.source, recordId: ccp1.recordId, filled: ccp1.filled } : null,
       ccp2: ccp2.filled ? { source: ccp2.source, recordId: ccp2.recordId, filled: ccp2.filled } : null
@@ -1188,38 +1190,43 @@
 
   function scheduleDraft() {
     clearTimeout(draftTimer);
-    draftTimer = setTimeout(function () {
+    draftTimer = setTimeout(async function () {
       readForm();
-      DkjRecordStore.saveDraft(FORM_ID, state);
+      (await DkjRecordStore.saveDraft(FORM_ID, state));
       setStatus('임시저장 ' + new Date().toLocaleTimeString(), false);
     }, 400);
   }
 
-  function save(lock) {
-    readForm();
-    if (!state.workDate) { alert('작업일자를 입력하세요.'); return; }
-    if (!state.lot) { alert('생산 LOT를 입력하세요.'); return; }
-    if (!state.inspector) { alert('QC 검사자를 입력하세요.'); return; }
+  var saveInFlight = false;
+  async function save(lock) {
+    if (saveInFlight) return;
+    saveInFlight = true;
+    try {
+      readForm();
+      if (!state.workDate) { alert('작업일자를 입력하세요.'); return; }
+      if (!state.lot) { alert('생산 LOT를 입력하세요.'); return; }
+      if (!state.inspector) { alert('QC 검사자를 입력하세요.'); return; }
 
-    // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
-    // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
-    clearTimeout(draftTimer);
-    state.locked = !!lock;
-    var prodNames = (state.finishedItems || []).map(function (f) { return f.name; }).join(', ');
-    var rec = DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
-      id: editingId || undefined,
-      title: 'QC 순회 ' + prodNames + ' (' + state.lot + ')',
-      judge: state.hasDeviation ? '이탈발생' : '적합',
-      workDate: state.workDate
-    }));
-    editingId = rec.id;
-    setStatus(lock ? '✓ 작성완료 확정됨' : '저장됨 ' + new Date().toLocaleTimeString(), true);
-    if (apvUi) apvUi.render();
-    renderHistory();
+      // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
+      // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
+      clearTimeout(draftTimer);
+      state.locked = !!lock;
+      var prodNames = (state.finishedItems || []).map(function (f) { return f.name; }).join(', ');
+      var rec = (await DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
+        id: editingId || undefined,
+        title: 'QC 순회 ' + prodNames + ' (' + state.lot + ')',
+        judge: state.hasDeviation ? '이탈발생' : '적합',
+        workDate: state.workDate
+      })));
+      editingId = rec.id;
+      setStatus(lock ? '✓ 작성완료 확정됨' : '저장됨 ' + new Date().toLocaleTimeString(), true);
+      if (apvUi) apvUi.render();
+      (await renderHistory());
+    } finally { saveInFlight = false; }
   }
 
-  function renderHistory() {
-    var list = DkjRecordStore.list(FORM_ID).slice(0, 10);
+  async function renderHistory() {
+    var list = (await DkjRecordStore.list(FORM_ID)).slice(0, 10);
     var el = $('historyList');
     if (!el) return;
     if (!list.length) {
@@ -1239,8 +1246,8 @@
     }).join('');
 
     el.querySelectorAll('[data-load]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var r = DkjRecordStore.get(FORM_ID, btn.getAttribute('data-load'));
+      btn.addEventListener('click', async function () {
+        var r = (await DkjRecordStore.get(FORM_ID, btn.getAttribute('data-load')));
         if (!r) return;
         editingId = r.id;
         state = Object.assign(emptyState(), r);
@@ -1253,10 +1260,10 @@
     });
 
     el.querySelectorAll('[data-del]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', async function () {
         if (!confirm('삭제하시겠습니까?')) return;
-        DkjRecordStore.remove(FORM_ID, btn.getAttribute('data-del'));
-        renderHistory();
+        (await DkjRecordStore.remove(FORM_ID, btn.getAttribute('data-del')));
+        (await renderHistory());
       });
     });
   }
@@ -1439,12 +1446,12 @@
 
   function bind() {
     if ($('workDate')) {
-      $('workDate').addEventListener('change', function () {
+      $('workDate').addEventListener('change', async function () {
         var d = $('workDate').value || todayStr();
         if ($('lot')) $('lot').value = makeLot(d);
         state.workDate = d;
         // 날짜가 바뀌면 그 날의 온도 일보를 다시 읽는다
-        renderLinkNotice(applyAllLinks(true));
+        renderLinkNotice((await applyAllLinks(true)));
         renderMainCheckTable();
         checkDeviations();
         scheduleDraft();
@@ -1452,10 +1459,10 @@
     }
 
     if ($('btnTempSync')) {
-      $('btnTempSync').addEventListener('click', function () {
+      $('btnTempSync').addEventListener('click', async function () {
         if (state.locked) { setStatus('작성완료된 기록은 고칠 수 없습니다.', false); return; }
         readForm();
-        var res = applyAllLinks(true);
+        var res = (await applyAllLinks(true));
         renderLinkNotice(res);
         renderMainCheckTable();
         checkDeviations();
@@ -1574,8 +1581,8 @@
       });
     }
 
-    if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
-    if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
+    if ($('btnSave')) $('btnSave').addEventListener('click', async function () { (await save(false)); });
+    if ($('btnLock')) $('btnLock').addEventListener('click', async function () { (await save(true)); });
     if ($('btnNew')) {
       $('btnNew').addEventListener('click', function () {
         editingId = null;
@@ -1606,14 +1613,14 @@
         getState: function () { readForm(); return state; },
         // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
         // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
-        onChange: function () {
+        onChange: async function () {
           if (editingId) {
             // title/judge/workDate 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
             // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
-            var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
-            DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId }));
+            var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
+            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId })));
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
-            renderHistory();
+            (await renderHistory());
           } else {
             scheduleDraft();
           }
@@ -1622,8 +1629,8 @@
     }
   }
 
-  function init() {
-    var draft = DkjRecordStore.loadDraft(FORM_ID);
+  async function init() {
+    var draft = (await DkjRecordStore.loadDraft(FORM_ID));
     if (draft) {
       state = Object.assign(emptyState(), draft);
     } else {
@@ -1647,12 +1654,12 @@
     // 온도 일보이고, 두 서식에 서로 다른 값이 남는 것을 막는 것이 연동의 목적이다.
     // 저장된 기록을 불러올 때는 덮지 않는다(아래 renderHistory 의 불러오기).
     // 임시본을 복원한 경우에는 이미 적어 둔 값을 지우지 않는다(clearMissing=false).
-    var initLink = applyAllLinks(!draft);
+    var initLink = (await applyAllLinks(!draft));
 
     writeForm();
     renderLinkNotice(initLink);
     bind();
-    renderHistory();
+    (await renderHistory());
 
     // staff picker 변환 후에도 DKJ-QC-001 전용 값 강제 동기화
     setTimeout(function () {
@@ -1666,7 +1673,6 @@
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  else (await init());
 
 })(window);
-

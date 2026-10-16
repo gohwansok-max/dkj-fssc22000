@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-03 - matrix boot (SSOT: data/matrix-form-specs/DKJ-S-02-03.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjMatrixForm.mount({
+  await DkjMatrixForm.mount({
   "code": "DKJ-S-02-03",
   "title": "개인위생 점검일지",
   "subtitle": "선행요건 · 매일 점검 · 주 단위 결재 · 31항목 × 7일",

@@ -26,15 +26,15 @@
    * @param {function(object)} onLoad 기록을 폼에 반영하는 콜백
    * @returns {object|null} 불러온 기록
    */
-  function apply(formId, onLoad) {
+  async function apply(formId, onLoad) {
     var want = wanted();
     if (!want || !global.DkjRecordStore) return null;
-    var rec = global.DkjRecordStore.get(formId, want.id);
+    var rec = (await global.DkjRecordStore.get(formId, want.id));
     if (!rec) {
       console.warn('[DkjDeepLink] 기록을 찾지 못했습니다:', formId, want.id);
       return null;
     }
-    try { onLoad(rec); } catch (e) {
+    try { await onLoad(rec); } catch (e) {
       console.warn('[DkjDeepLink] 기록 반영 실패', e);
       return null;
     }

@@ -1,9 +1,9 @@
 /**
  * FR-043 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-043",
   "title": "제품 미생물검사 기록지",
   "pattern": "fr",

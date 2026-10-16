@@ -1,9 +1,9 @@
 /**
  * FR-047 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-047",
   "title": "식품안전문화 평가표",
   "pattern": "fr",

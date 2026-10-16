@@ -1,9 +1,9 @@
 /**
  * FR-042 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-042",
   "title": "고객불만 접수 및 처리기록",
   "pattern": "fr",

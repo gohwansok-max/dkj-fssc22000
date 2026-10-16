@@ -4,7 +4,7 @@
  * 데이터는 DkjExport.collect() 가 localStorage 에서 긁어온다(클라우드가 켜져 있으면
  * dkj-cloud-sync 가 이미 localStorage 를 최신으로 맞춰 둔 상태다).
  */
-(function () {
+(async function () {
   'use strict';
 
   var all = [];
@@ -200,7 +200,7 @@
 
     // 시스템 관리자(4343) 전용 — 버튼 자체는 data-system-admin 으로 화면에서 숨겨지지만,
     // 콘솔 등으로 직접 눌러도 막히도록 여기서도 한 번 더 확인한다.
-    $('arcDelete').addEventListener('click', function () {
+    $('arcDelete').addEventListener('click', async function () {
       if (!(window.DkjAuth && window.DkjAuth.isSystemAdmin && window.DkjAuth.isSystemAdmin())) {
         alert('시스템 관리자만 기록을 삭제할 수 있습니다.');
         return;
@@ -208,13 +208,13 @@
       var picked = view.filter(function (r) { return selected[r.id]; });
       if (!picked.length) { alert('삭제할 기록을 먼저 선택하세요.'); return; }
       if (!confirm(picked.length + '건을 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.\n계속할까요?')) return;
-      picked.forEach(function (r) { window.DkjRecordStore.remove(r.formId, r.id); });
+      (await DkjAsync.forEach(picked, async function (r) { (await window.DkjRecordStore.remove(r.formId, r.id)); }));
       selected = {};
-      load();
+      (await load());
     });
 
-    $('arcBackup').addEventListener('click', function () {
-      var n = window.DkjExport.toJsonBackup();
+    $('arcBackup').addEventListener('click', async function () {
+      var n = (await window.DkjExport.toJsonBackup());
       if (!n) alert('백업할 기록이 없습니다.');
     });
 
@@ -226,11 +226,11 @@
       var file = this.files && this.files[0];
       if (!file) return;
       var reader = new FileReader();
-      reader.onload = function () {
+      reader.onload = async function () {
         try {
-          var added = window.DkjExport.restoreJson(String(reader.result));
+          var added = (await window.DkjExport.restoreJson(String(reader.result)));
           alert('복원 완료 — 새로 추가된 기록 ' + added + '건.\n(같은 기록은 최신본만 남겼습니다.)');
-          load();
+          (await load());
         } catch (e) {
           alert('복원 실패 — 백업 파일이 아니거나 손상됐습니다.');
         }
@@ -256,8 +256,8 @@
     }
   }
 
-  function load() {
-    all = window.DkjExport.collect();
+  async function load() {
+    all = (await window.DkjExport.collect());
     fillFormOptions();
     apply();
     syncPill();
@@ -266,17 +266,17 @@
   // 클라우드에서 다른 기기(태블릿 등)가 저장한 기록이 들어왔을 때 다시 그린다.
   // fillFormOptions()가 <select> 내용을 통째로 새로 그리므로, 사용자가 고른 서식
   // 필터를 그대로 유지해야 화면을 보던 중 필터가 "전체 서식"으로 되돌아가지 않는다.
-  function refreshFromCloud() {
+  async function refreshFromCloud() {
     var formSel = $('arcForm');
     var prevForm = formSel ? formSel.value : '';
-    all = window.DkjExport.collect();
+    all = (await window.DkjExport.collect());
     fillFormOptions();
     if (formSel && prevForm) formSel.value = prevForm;
     apply();
   }
 
   bind();
-  load();
+  (await load());
   // 로그인은 페이지가 로드된 뒤 비동기로 완료된다 — 로그인 직후에도 배지가 갱신되도록 다시 그린다.
   document.addEventListener('dkj:auth-ready', syncPill);
   window.addEventListener('dkj:records-changed', refreshFromCloud);

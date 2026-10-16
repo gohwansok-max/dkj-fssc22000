@@ -171,7 +171,7 @@
   }
 
   /** 서식 툴바에 빠른 작성 도구 (전체 적합 / 최근기록 복사) 자동 주입 */
-  function attachQuickToolbar(toolbarEl, options) {
+  async function attachQuickToolbar(toolbarEl, options) {
     if (!toolbarEl) toolbarEl = document.querySelector('.dkj-form-toolbar');
     if (!toolbarEl || toolbarEl.getAttribute('data-quick-bound') === 'true') return;
     toolbarEl.setAttribute('data-quick-bound', 'true');
@@ -187,8 +187,8 @@
       btnAll.id = 'btnAllPass';
       btnAll.title = '모든 점검 항목을 한 번에 "O"(적합)으로 채웁니다';
       btnAll.innerHTML = '✨ 전체 적합';
-      btnAll.addEventListener('click', function () {
-        opts.onAllPass();
+      btnAll.addEventListener('click', async function () {
+        await opts.onAllPass();
         toast('✨ 모든 항목이 "O"(적합)으로 입력되었습니다.');
       });
       // 저장 버튼 앞에 삽입
@@ -205,9 +205,9 @@
       btnClone.id = 'btnClonePrev';
       btnClone.title = '가장 최근 저장된 기록의 내용(설비/품목/점검값)을 복사하고 일자만 오늘로 설정합니다';
       btnClone.innerHTML = '📋 최근기록 복사';
-      btnClone.addEventListener('click', function () {
+      btnClone.addEventListener('click', async function () {
         if (!global.DkjRecordStore) return;
-        var list = global.DkjRecordStore.list(formId);
+        var list = (await global.DkjRecordStore.list(formId));
         if (!list || !list.length) {
           alert('복사할 이전 저장 기록이 없습니다.');
           return;
@@ -226,7 +226,7 @@
         // 사진(시험지·날인 등)은 그날의 증거라 복사하지 않는다 — 어제 사진이 오늘 기록에
         // 남는 것도 문제고, 같은 사진이 기록마다 복제돼 저장 공간을 먹었다.
         clone = stripPhotos(clone);
-        opts.onClonePrev(clone);
+        await opts.onClonePrev(clone);
         toast('📋 최근 기록을 불러왔습니다 (일자: 오늘로 자동 설정, 사진은 복사되지 않음).');
       });
       var newBtn = toolbarEl.querySelector('#btnNew');
@@ -238,7 +238,7 @@
       // 뜨면 오히려 성가시므로 플래그는 서식 구분 없이 전역 하나만 쓴다.
       try {
         var seenKey = 'dkj:hint:clonePrev:v1';
-        var hasPrev = global.DkjRecordStore && global.DkjRecordStore.list(formId).length > 0;
+        var hasPrev = global.DkjRecordStore && (await global.DkjRecordStore.list(formId)).length > 0;
         if (hasPrev && !localStorage.getItem(seenKey)) {
           var hint = document.createElement('div');
           hint.className = 'dkj-quick-hint';

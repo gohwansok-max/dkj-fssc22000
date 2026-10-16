@@ -11,6 +11,8 @@
  */
 (function (global) {
   'use strict';
+  function recordStorage() { return window.DkjStorage || window.localStorage; }
+
   if (global.DkjCloudSync) return;
 
   var CFG = global.DKJ_FIREBASE || {};
@@ -94,6 +96,7 @@
   function isRealToken(t) { return !!t && String(t).indexOf('local-token-') !== 0; }
 
   async function request(path, method, data, retried, shallow) {
+    if (global.DkjStorage) await global.DkjStorage.ready();
     var root = String(CFG.databaseURL || '').replace(/\/$/, '') + '/' + (CFG.root || 'dkj-fssc22000');
     var token = auth().token();
     var authParam = isRealToken(token) ? ('?auth=' + encodeURIComponent(token)) : '';
@@ -148,13 +151,23 @@
     return schemaMode;
   }
 
-  function writeLocal(key, list) {
+  async function writeLocal(key, list, expected) {
+    if (global.DkjStorage) {
+      return global.DkjStorage.exclusive(async function () {
+        if (await global.DkjStorage.getItem(key) !== expected) return false;
+        writingLocal = true;
+        try { await global.DkjStorage.setItem(key, JSON.stringify(list)); }
+        finally { writingLocal = false; }
+        return true;
+      });
+    }
     writingLocal = true;
     try { localStorage.setItem(key, JSON.stringify(list)); }
     finally { writingLocal = false; }
+    return true;
   }
-  function markSynced() {
-    try { localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString()); } catch (e) {}
+  async function markSynced() {
+    try { (await recordStorage().setItem(LAST_SYNC_KEY, new Date().toISOString())); } catch (e) {}
   }
 
   /* ------------------------------ 기존 배열 스키마 ------------------------------ */
@@ -178,7 +191,7 @@
 
   async function legacyPushKey(key) {
     if (!isSyncKey(key)) return;
-    var value = parse(localStorage.getItem(key));
+    var value = parse((await recordStorage().getItem(key)));
     if (!Array.isArray(value)) return;
     delete legacyCache[key];
     await request('records/' + nodeKey(key), 'PUT', {
@@ -190,6 +203,7 @@
   }
 
   function storageKeys() {
+    if (global.DkjStorage) return global.DkjStorage.keys();
     var keys = [];
     try {
       for (var i = 0; i < localStorage.length; i++) {
@@ -200,20 +214,20 @@
     return keys;
   }
 
-  function localSnapshot() {
+  async function localSnapshot() {
     var out = Object.create(null);
-    storageKeys().forEach(function (key) {
-      if (isSyncKey(key)) out[key] = { raw: localStorage.getItem(key), version: localVersions[key] || 0 };
-    });
+    (await DkjAsync.forEach((await storageKeys()), async function (key) {
+      if (isSyncKey(key)) out[key] = { raw: (await recordStorage().getItem(key)), version: localVersions[key] || 0 };
+    }));
     return out;
   }
-  function unchangedSince(snapshot, key) {
+  async function unchangedSince(snapshot, key) {
     var initial = snapshot[key] || { raw: null, version: 0 };
-    return localStorage.getItem(key) === initial.raw && (localVersions[key] || 0) === initial.version;
+    return (await recordStorage().getItem(key)) === initial.raw && (localVersions[key] || 0) === initial.version;
   }
 
   async function legacySyncAll(silent) {
-    var initialLocal = localSnapshot();
+    var initialLocal = (await localSnapshot());
     var cloud = (await request('records', 'GET', undefined, false, true)) || {};
     var touched = 0, pushedNew = 0, pushedUpdated = 0;
     var keys = Object.keys(cloud);
@@ -224,8 +238,8 @@
       if (!isSyncKey(key)) continue;
       cloudKeyCount++;
       var revision = await request('records/' + encodedKey + '/updatedAt', 'GET');
-      if (!unchangedSince(initialLocal, key)) continue;
-      var before = localStorage.getItem(key);
+      if (!(await unchangedSince(initialLocal, key))) continue;
+      var before = (await recordStorage().getItem(key));
       var localVal = parse(before);
       var cached = legacyCache[key];
       var hasRevision = (typeof revision === 'number' && isFinite(revision)) ||
@@ -235,7 +249,7 @@
       var version = localVersions[key] || 0;
       var row = await request('records/' + encodedKey, 'GET');
       // A save/removal during the network read must not be replaced by a stale merge.
-      if ((localVersions[key] || 0) !== version || localStorage.getItem(key) !== before) continue;
+      if ((localVersions[key] || 0) !== version || (await recordStorage().getItem(key)) !== before) continue;
       localVal = Array.isArray(localVal) ? localVal : [];
       if (!row || !Array.isArray(row.value)) {
         // 클라우드 쪽 value 가 배열이 아니다 — 예전 버그로 빈 배열([])이 올라갔다가
@@ -246,20 +260,20 @@
         continue;
       }
       var merged = mergeRecords(localVal, row.value);
-      if (!same(merged, localVal)) { writeLocal(key, merged); touched++; }
-      var mergedRaw = localStorage.getItem(key);
+      if (!same(merged, localVal)) { if (!await writeLocal(key, merged, before)) continue; touched++; }
+      var mergedRaw = (await recordStorage().getItem(key));
       if (!same(merged, row.value)) { await legacyPushKey(key); pushedUpdated++; }
       else if (hasRevision && row.updatedAt === revision &&
-          (localVersions[key] || 0) === version && localStorage.getItem(key) === mergedRaw) {
+          (localVersions[key] || 0) === version && (await recordStorage().getItem(key)) === mergedRaw) {
         legacyCache[key] = { revision: revision, localRaw: mergedRaw };
       }
     }
-    var localKeys = storageKeys();
+    var localKeys = (await storageKeys());
     for (var i = 0; i < localKeys.length; i++) {
       var k = localKeys[i];
       if (isSyncKey(k) && !cloud[nodeKey(k)]) { await legacyPushKey(k); pushedNew++; }
     }
-    markSynced();
+    (await markSynced());
     if (touched) {
       try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { source: 'cloud', mode: 'legacy' } })); } catch (e) {}
     }
@@ -417,19 +431,19 @@
 
   async function v2SyncForm(formId, remoteForm) {
     var key = listKey(formId);
-    var before = localStorage.getItem(key), version = localVersions[key] || 0;
+    var before = (await recordStorage().getItem(key)), version = localVersions[key] || 0;
     // V2 approvals/audit can change without workflow/data timestamps changing.
     // Keep full reads until all writers provide a reliable aggregate revision.
     var remoteRaw = remoteForm || (await request('records_v2/' + nodeKey(formId), 'GET')) || {};
-    if ((localVersions[key] || 0) !== version || localStorage.getItem(key) !== before) return false;
-    var local = parse(localStorage.getItem(key)) || [];
+    if ((localVersions[key] || 0) !== version || (await recordStorage().getItem(key)) !== before) return false;
+    var local = parse((await recordStorage().getItem(key))) || [];
     var remote = [];
     Object.keys(remoteRaw || {}).forEach(function (encodedId) {
       var rec = decodeRecord(formId, readNodeKey(encodedId), remoteRaw[encodedId]);
       if (rec) remote.push(rec);
     });
     var merged = mergeV2Records(local, remote);
-    if (!same(merged, local)) writeLocal(key, merged);
+    if (!same(merged, local) && !await writeLocal(key, merged, before)) return false;
 
     var byRemoteId = {};
     Object.keys(remoteRaw || {}).forEach(function (encodedId) { byRemoteId[readNodeKey(encodedId)] = remoteRaw[encodedId]; });
@@ -438,21 +452,21 @@
   }
 
   async function v2SyncAll(silent) {
-    var initialLocal = localSnapshot();
+    var initialLocal = (await localSnapshot());
     var cloud = (await request('records_v2', 'GET')) || {};
     var forms = {}, touched = false;
     Object.keys(cloud).forEach(function (encodedForm) { forms[readNodeKey(encodedForm)] = cloud[encodedForm]; });
-    var storageKeyList = storageKeys();
+    var storageKeyList = (await storageKeys());
     for (var i = 0; i < storageKeyList.length; i++) {
       var key = storageKeyList[i], formId = formIdOf(key);
       if (formId) forms[formId] = forms[formId] || null;
     }
     var ids = Object.keys(forms);
     for (var j = 0; j < ids.length; j++) {
-      if (!unchangedSince(initialLocal, listKey(ids[j]))) continue;
+      if (!(await unchangedSince(initialLocal, listKey(ids[j])))) continue;
       if (await v2SyncForm(ids[j], forms[ids[j]])) touched = true;
     }
-    markSynced();
+    (await markSynced());
     if (touched) {
       try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { source: 'cloud', mode: 'v2' } })); } catch (e) {}
     }
@@ -549,6 +563,11 @@
     global.addEventListener('focus', resumeSync);
   }
 
+  global.addEventListener('dkj:storage-changed', function (event) {
+    var key = event.detail && event.detail.key;
+    if (isSyncKey(key) && !writingLocal) { localChanged(key); if (ready()) queue(key); }
+  });
+
   /* 각 서식이 저장소 공용 API를 거치므로, 여기서 한 번만 감시하면 된다. */
   var nativeSet = Storage.prototype.setItem;
   var nativeRemove = Storage.prototype.removeItem;
@@ -571,7 +590,7 @@
     start: start,
     ready: ready,
     sync: function () { return syncAll(false); },
-    lastSync: function () { try { return localStorage.getItem(LAST_SYNC_KEY); } catch (e) { return null; } },
+    lastSync: async function () { try { return (await recordStorage().getItem(LAST_SYNC_KEY)); } catch (e) { return null; } },
     isSyncKey: isSyncKey,
     mergeRecords: mergeRecords,
     schemaMode: function () { return schemaMode; },

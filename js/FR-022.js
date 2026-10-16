@@ -1,9 +1,9 @@
 /**
  * FR-022 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-022",
   "title": "시정조치 관리대장",
   "pattern": "fr",

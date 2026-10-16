@@ -1,9 +1,9 @@
 /**
  * FR-010 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-010",
   "title": "개인별 역량평가표",
   "pattern": "fr",

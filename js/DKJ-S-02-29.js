@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-29 - ox boot (SSOT: data/ox-form-specs/DKJ-S-02-29.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjOxForm.mount({
+  await DkjOxForm.mount({
   "code": "DKJ-S-02-29",
   "title": "종사자건강상태확인",
   "pattern": "ox",

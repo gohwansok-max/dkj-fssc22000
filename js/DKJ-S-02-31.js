@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-31 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-31.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjLedgerForm.mount({
+  await DkjLedgerForm.mount({
   "code": "DKJ-S-02-31",
   "title": "이물 관리 대장",
   "subtitle": "선행요건 · 작업실별 이물 유발 물품 관리 · 건별 기록",

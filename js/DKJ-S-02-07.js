@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-07 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-07.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjLedgerForm.mount({
+  await DkjLedgerForm.mount({
   "rev": "1",
   "enactDate": "2026. 02. 13",
   "reviseDate": "2026. 08. 04",

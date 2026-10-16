@@ -76,6 +76,21 @@
     remove: function (key) {
       return keyed(key, 'readwrite', function (store) { return store.delete(key); }).then(function () {});
     },
+    batch: function (changes) {
+      return Promise.resolve().then(function () {
+        var keys = Object.keys(changes);
+        keys.forEach(function (key) {
+          validKey(key);
+          if (changes[key] !== null && typeof changes[key] !== 'string') throw new TypeError('일괄 저장 값은 문자열 또는 null이어야 합니다.');
+        });
+        if (!keys.length) return;
+        return run('readwrite', function (store) {
+          var last;
+          keys.forEach(function (key) { last = changes[key] === null ? store.delete(key) : store.put(changes[key], key); });
+          return last;
+        });
+      }).then(function () {});
+    },
     keys: function () { return run('readonly', function (store) { return store.getAllKeys(); }); },
     // 브라우저 origin 전체 추정치다. IndexedDB만의 점유량이나 보장 용량이 아니다.
     estimate: function () {

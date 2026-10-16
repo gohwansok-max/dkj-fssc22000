@@ -3,6 +3,14 @@
  */
 (function (global) {
   'use strict';
+  var backend = global.DkjStorage;
+  var staged = null;
+  var localStorage = backend ? {
+    getItem: function (key) { return staged.values[key] === undefined ? null : staged.values[key]; },
+    setItem: function (key, raw) { staged.values[key] = String(raw); staged.writes[key] = String(raw); },
+    removeItem: function (key) { delete staged.values[key]; staged.writes[key] = null; }
+  } : global.localStorage;
+
 
   function listKey(formId) {
     return 'dkj:records:' + formId + ':list:v1';
@@ -25,7 +33,7 @@
   var mirrorTail = Promise.resolve();
   var mirrorError = null;
   function mirror(key, raw) {
-    if (!global.DkjStore) return;
+    if (backend || !global.DkjStore) return;
     mirrorTail = mirrorTail.then(function () {
       return raw === null ? global.DkjStore.remove(key) : global.DkjStore.set(key, raw);
     }).catch(function (error) {
@@ -37,7 +45,7 @@
     var raw = JSON.stringify(value);
     localStorage.setItem(key, raw);
     mirror(key, raw);
-    try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { key: key, value: value } })); } catch (e) {}
+    if (!backend) { try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { key: key, value: value } })); } catch (e) {} }
   }
 
   function uid() {
@@ -151,6 +159,43 @@
     }
   };
 
+  // 저장·감사·잠금 검사를 동일한 최신 스냅샷과 탭 간 잠금 안에서 실행한다.
+  var core = global.DkjRecordStore;
+  if (backend) {
+    var publicStore = {};
+    async function mutate(formId, action) {
+      await backend.ready();
+      return backend.exclusive(async function () {
+        var keys = [listKey(formId), draftKey(formId), 'dkj:migrations:v1'];
+        var values = Object.create(null);
+        for (var key of keys) {
+          var raw = await global.DkjStore.get(key);
+          if (raw !== undefined) values[key] = raw;
+        }
+        staged = {values: values, writes: Object.create(null)};
+        var result, writes;
+        try { result = action(core); writes = staged.writes; }
+        finally { staged = null; }
+        await global.DkjStore.batch(writes);
+        if (Object.keys(writes).length) {
+          Object.keys(writes).forEach(function (key) { backend.notify(key); });
+          global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: {key: listKey(formId)} }));
+        }
+        return result;
+      });
+    }
+    Object.keys(core).forEach(function (name) {
+      var fn = core[name];
+      publicStore[name] = function (formId) {
+        var args = arguments;
+        if (this === core) return fn.apply(core, args);
+        return mutate(formId, function () { return fn.apply(core, args); });
+      };
+    });
+    publicStore.mutate = mutate;
+    global.DkjRecordStore = publicStore;
+  }
+
   /* ---------- 1회성 데이터 정정 ----------
    * 서식을 고쳐도 이미 저장된 기록에는 옛 값이 남는다. 기록은 브라우저 localStorage 가
    * 정본이고 서버가 없어서, 중앙에서 한 번에 고칠 방법이 없다 — 그래서 각 기기가 앱을
@@ -217,7 +262,7 @@
     return fixed;
   }
 
-  function runMigrations() {
+  function runMigrationsCore() {
     var done = appliedIds();
     MIGRATIONS.forEach(function (m) {
       if (done.indexOf(m.id) !== -1) return;
@@ -235,6 +280,13 @@
       } catch (e) {
         // 정정 실패가 앱을 막지 않는다 — 다음 접속 때 다시 시도한다.
       }
+    });
+  }
+
+  function runMigrations() {
+    if (!backend) return runMigrationsCore();
+    return global.DkjRecordStore.mutate('DKJ-S-02-12', runMigrationsCore).catch(function (error) {
+      console.error('[DkjRecordStore] 기존 정정 대기', error);
     });
   }
 

@@ -64,9 +64,9 @@ CACHE_VERSION_FALLBACK = "97"
 BOOT_TEMPLATE = """/**
  * {code} - ledger boot (SSOT: data/ledger-form-specs/{code}.json)
  */
-(function () {{
+(async function () {{
   'use strict';
-  DkjLedgerForm.mount({spec});
+  await DkjLedgerForm.mount({spec});
 }})();
 """
 
@@ -225,6 +225,10 @@ def render_html(code: str, spec: dict, v: str) -> str:
   </main>
   </div>
   <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
+  <script src="../js/dkj-async.js?v={v}"></script>
+  <script src="../js/dkj-store.js?v={v}"></script>
+  <script src="../js/dkj-storage-migration.js?v={v}"></script>
+  <script src="../js/dkj-storage.js?v={v}"></script>
   <script src="../js/dkj-util.js?v={v}"></script>
   <script src="../js/dkj-firebase-config.js?v={v}"></script>
   <script src="../js/dkj-auth.js?v={v}"></script>

@@ -41,8 +41,8 @@
     return v / 100;
   }
 
-  function loadRecords() {
-    allRecords = (window.DkjRecordStore ? DkjRecordStore.list(FORM_ID) : [])
+  async function loadRecords() {
+    allRecords = (window.DkjRecordStore ? (await DkjRecordStore.list(FORM_ID)) : [])
       .filter(function (r) { return r && r.info && r.info.workDate; });
   }
 
@@ -362,13 +362,13 @@
     if (!$('rangeFrom').value) $('rangeFrom').value = daysAgo(30);
     if (!$('rangeTo').value) $('rangeTo').value = new Date().toISOString().slice(0, 10);
 
-    DkjMaster.loadProductionMaster().then(function (m) {
+    DkjMaster.loadProductionMaster().then(async function (m) {
       master = m;
       var savedTarget = null;
       try { savedTarget = localStorage.getItem(TARGET_KEY); } catch (e) {}
       $('yieldTarget').value = savedTarget || Math.round(master.contractYield * 1000) / 10;
 
-      loadRecords();
+      (await loadRecords());
       renderAll();
 
       $('rangeFrom').addEventListener('change', renderAll);
@@ -381,7 +381,7 @@
         itemFilter = $('itemFilter').value;
         renderItemBreakdown();
       });
-      $('btnRefresh').addEventListener('click', function () { loadRecords(); renderAll(); });
+      $('btnRefresh').addEventListener('click', async function () { (await loadRecords()); renderAll(); });
     }).catch(function (err) {
       console.error('[production-dashboard] init failed', err);
       $('dashKpis').innerHTML = '<p style="color:#c62828;">기준 데이터를 불러오지 못했습니다.</p>';

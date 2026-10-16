@@ -1,4 +1,4 @@
-(function () {
+(async function () {
   'use strict';
 
   var FORM_ID = 'HACCP-TEAM-SETTINGS';
@@ -44,8 +44,8 @@
     };
   }
 
-  function allRecords() {
-    return (window.DkjRecordStore ? window.DkjRecordStore.list(FORM_ID) : []).sort(function (a, b) {
+  async function allRecords() {
+    return (window.DkjRecordStore ? (await window.DkjRecordStore.list(FORM_ID)) : []).sort(function (a, b) {
       return String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || ''));
     });
   }
@@ -142,11 +142,11 @@
     return true;
   }
 
-  function save(s, message) {
+  async function save(s, message) {
     current = s;
-    window.DkjRecordStore.save(FORM_ID, current);
-    current = window.DkjRecordStore.get(FORM_ID, current.id) || current;
-    renderHistory();
+    (await window.DkjRecordStore.save(FORM_ID, current));
+    current = (await window.DkjRecordStore.get(FORM_ID, current.id)) || current;
+    (await renderHistory());
     updateUiState();
     syncApprovalPanel();
     if (message) alert(message);
@@ -174,19 +174,19 @@
     $('lockHint').textContent = isLocked ? '승인된 설정은 잠겼습니다. 수정이 필요하면 “새 개정본 만들기”를 사용하세요.' : '초안을 저장한 뒤 작성·검토·승인 결재를 순서대로 확정하세요.';
   }
 
-  function renderHistory() {
-    var list = allRecords();
+  async function renderHistory() {
+    var list = (await allRecords());
     $('settingsHistory').innerHTML = list.length ? list.map(function (r) {
       var label = r.locked ? '<span class="tag">승인·잠금</span>' : '<span class="tag draft">초안</span>';
       return '<div class="history-row"><span>' + esc(r.revision || '개정번호 없음') + '</span><span>' + label + '</span><span><strong>' + esc(r.changeReason || '사유 미입력') + '</strong><br><span class="note">적용일 ' + esc(r.effectiveDate || '-') + ' · 작성 ' + esc(r.writer || '-') + '</span></span><span><button class="btn load-setting" type="button" data-id="' + esc(r.id) + '">열기</button></span></div>';
     }).join('') : '<div class="note">저장된 설정이 없습니다.</div>';
     $('settingsHistory').querySelectorAll('.load-setting').forEach(function (button) {
-      button.addEventListener('click', function () { load(button.getAttribute('data-id')); });
+      button.addEventListener('click', async function () { (await load(button.getAttribute('data-id'))); });
     });
   }
 
-  function load(id) {
-    current = window.DkjRecordStore.get(FORM_ID, id) || blankState();
+  async function load(id) {
+    current = (await window.DkjRecordStore.get(FORM_ID, id)) || blankState();
     renderForm();
     if (approvalUi) approvalUi.render();
   }
@@ -213,9 +213,9 @@
     if (!window.DkjApproval) return;
     approvalUi = window.DkjApproval.mount({
       getState: function () { return current || blankState(); },
-      onChange: function (state) {
+      onChange: async function (state) {
         current = state;
-        save(current, '결재가 저장됐습니다. 다음 결재 단계 또는 작성완료·잠금을 진행하세요.');
+        (await save(current, '결재가 저장됐습니다. 다음 결재 단계 또는 작성완료·잠금을 진행하세요.'));
       }
     });
     syncApprovalPanel();
@@ -223,18 +223,18 @@
 
   function bindEvents() {
     $('addSite').addEventListener('click', function () { addSite(); });
-    $('saveDraft').addEventListener('click', function () {
+    $('saveDraft').addEventListener('click', async function () {
       var s = formState();
       if (!validate(s, false)) return;
       s.status = 'draft';
-      save(s, 'HACCP팀 설정 초안이 저장됐습니다. 검토·승인 결재를 진행하세요.');
+      (await save(s, 'HACCP팀 설정 초안이 저장됐습니다. 검토·승인 결재를 진행하세요.'));
     });
-    $('finalize').addEventListener('click', function () {
+    $('finalize').addEventListener('click', async function () {
       var s = formState();
       if (!validate(s, true)) return;
       if (!confirm('이 설정을 작성완료·잠금 처리합니다. 이후 내용 수정은 새 개정본으로만 가능합니다. 계속하시겠습니까?')) return;
       s.status = 'approved'; s.locked = true;
-      save(s, 'HACCP팀 승인 설정이 작성완료·잠금됐습니다.');
+      (await save(s, 'HACCP팀 승인 설정이 작성완료·잠금됐습니다.'));
     });
     $('newRevision').addEventListener('click', function () {
       if (current && !current.locked && current.id && !confirm('현재 초안은 저장된 상태로 남고 새 개정본을 만듭니다. 계속하시겠습니까?')) return;
@@ -242,17 +242,17 @@
     });
   }
 
-  function init() {
-    current = allRecords()[0] || blankState();
+  async function init() {
+    current = (await allRecords())[0] || blankState();
     // 작성자는 로그인한 사람 이름으로 채운다(추적성) — 빈 칸일 때만.
     if (window.DkjUtil) window.DkjUtil.autoFillUser(current, ['writer']);
     renderForm();
     bindEvents();
     mountApproval();
-    renderHistory();
+    (await renderHistory());
     syncApprovalPanel();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  else (await init());
 })();

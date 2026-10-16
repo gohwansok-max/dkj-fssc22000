@@ -1,9 +1,9 @@
 /**
  * FR-013 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-013",
   "title": "구매 발주 및 검토 기록",
   "pattern": "fr",

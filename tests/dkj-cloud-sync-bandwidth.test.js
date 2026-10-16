@@ -17,7 +17,7 @@ function env(mode=1,useAbort=true){
  const parts=path.split('/');let parent=db;for(const p of parts.slice(0,-1)){if(!parent[p])parent[p]={};parent=parent[p];}const last=parts.at(-1);
  if(opt.method==='PUT')parent[last]=JSON.parse(opt.body);if(opt.method==='DELETE')delete parent[last];let data=parent[last]??null;
  if(call.shallow&&data)data=Object.fromEntries(Object.keys(data).map(k=>[k,true]));return {status:200,ok:true,json:async()=>{if(jsonHook)await jsonHook(call);return copy(data);}};
- }};if(useAbort)ctx.AbortController=AbortController;ctx.window=ctx;vm.createContext(ctx);vm.runInContext(code,ctx);
+ }};if(useAbort)ctx.AbortController=AbortController;ctx.window=ctx;vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/dkj-async.js'),'utf8'),ctx);vm.runInContext(code,ctx);
  return {ctx,db,calls,document,events,docEvents,timeouts,intervals,putLocal:v=>localStorage.map.set(key,JSON.stringify(v)),putRemote:(v,stamp=1)=>db.records[encode(key)]={value:copy(v),updatedAt:stamp},hook:f=>hook=f,jsonHook:f=>jsonHook=f,offline:v=>fail=v,local:()=>JSON.parse(localStorage.getItem(key)),sync:()=>ctx.DkjCloudSync.sync(),flush:async()=>{for(let i=0;i<100;i++)await Promise.resolve();}};
 }
 const tests=[];function test(n,f){tests.push([n,f]);}

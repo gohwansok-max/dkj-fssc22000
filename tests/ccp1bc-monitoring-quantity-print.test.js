@@ -8,6 +8,7 @@ const root = path.join(__dirname, '..');
 const printerSource = fs.readFileSync(path.join(root, 'js', 'dkj-print-official.js'), 'utf8');
 const formSource = fs.readFileSync(path.join(root, 'js', 'DKJ-H-01-01.js'), 'utf8');
 const formHtmlSource = fs.readFileSync(path.join(root, 'records', 'DKJ-H-01-01.html'), 'utf8');
+const currentCacheVersion = fs.readFileSync(path.join(root, 'index.html'), 'utf8').match(/dkj-util\.js\?v=(\d+)/)[1];
 
 function loadPrinter() {
   const context = {
@@ -23,7 +24,8 @@ function loadPrinter() {
 }
 
 test('CCP-1BC official printer URL uses the updated cache revision', () => {
-  assert.match(formHtmlSource, /dkj-print-official\.js\?v=136&rev=137/);
+  // 전역 캐시는 index.html 정본을 따르며 별도 인쇄 리비전 검사는 유지한다.
+  assert.match(formHtmlSource, new RegExp('dkj-print-official\\.js\\?v=' + currentCacheVersion + '&rev=137'));
 });
 
 test('CCP-1BC form stores raw material input on each monitoring row', () => {

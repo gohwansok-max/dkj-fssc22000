@@ -1,9 +1,9 @@
 /**
  * FR-009 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-009",
   "title": "교육훈련 실시 및 평가 기록",
   "pattern": "fr",

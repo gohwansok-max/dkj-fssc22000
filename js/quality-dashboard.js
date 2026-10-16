@@ -1,4 +1,4 @@
-(function () {
+(async function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var forms = { capa: 'CAPA-MANAGEMENT', drill: 'TRACE-DRILL', recall: 'FR-016', mock: 'FR-017', trace: 'FR-040', link: 'TRACE-LINK' };
@@ -8,7 +8,7 @@
   var state = { all: [], filtered: [], alerts: [], initialized: false, alertTimer: null };
 
   function esc(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-  function list(formId) { try { return (window.DkjRecordStore && DkjRecordStore.list(formId)) || []; } catch (e) { return []; } }
+  async function list(formId) { try { return (window.DkjRecordStore && (await DkjRecordStore.list(formId))) || []; } catch (e) { return []; } }
   function n(v) { var x = Number(v); return isFinite(x) ? x : 0; }
   function dateVal(r) {
     var v = r.closureDate || r.finishedAt || r.verifyDate || r.drillDate || r.docDate || r.processDate || r.receiveDate || r.createdAt || '';
@@ -46,13 +46,13 @@
       state.all.push({ type: type, label: label, record: r, done: !!doneFn(r), href: linkFor(urlType || type, r) });
     });
   }
-  function data() {
+  async function data() {
     state.all = [];
-    register('capa', list(forms.capa), function (r) { return !!r.locked; }, 'CAPA', 'capa');
-    register('drill', list(forms.drill), function (r) { return !!r.locked && (r.checks ? Object.keys(r.checks).length >= 8 : true); }, '모의회수', 'drill');
-    register('recall', list(forms.recall), function (r) { return !!r.locked || !!(r.result && r.approver); }, '제품회수', 'recall');
-    register('mock', list(forms.mock), function (r) { return !!r.locked || validChecks(r, ['d01', 'd02', 'd03', 'd04'], 3); }, 'FR-017 모의회수', 'mock');
-    register('trace', list(forms.trace), function (r) { return !!r.locked || validChecks(r, ['t01', 't02', 't03'], 2); }, 'FR-040 추적성 점검', 'trace');
+    register('capa', (await list(forms.capa)), function (r) { return !!r.locked; }, 'CAPA', 'capa');
+    register('drill', (await list(forms.drill)), function (r) { return !!r.locked && (r.checks ? Object.keys(r.checks).length >= 8 : true); }, '모의회수', 'drill');
+    register('recall', (await list(forms.recall)), function (r) { return !!r.locked || !!(r.result && r.approver); }, '제품회수', 'recall');
+    register('mock', (await list(forms.mock)), function (r) { return !!r.locked || validChecks(r, ['d01', 'd02', 'd03', 'd04'], 3); }, 'FR-017 모의회수', 'mock');
+    register('trace', (await list(forms.trace)), function (r) { return !!r.locked || validChecks(r, ['t01', 't02', 't03'], 2); }, 'FR-040 추적성 점검', 'trace');
     state.filtered = state.all.filter(function (x) { return inPeriod(x.record); });
   }
   function metrics() {
@@ -84,9 +84,9 @@
     var recalls = state.filtered.filter(function (x) { return x.type === 'recall'; }), recallDone = recalls.filter(function (x) { return x.done; });
     $('traceBars').innerHTML = bar('모의회수 완료', m.mockDone.length, m.mock.length, 'green') + bar('2시간 목표 충족', m.within.length, m.timed.length, m.timed.length && m.within.length === m.timed.length ? 'green' : 'amber') + bar('추적성 점검 완료', traceDone.length, trace.length, 'green') + bar('제품회수 종결', recallDone.length, recalls.length, 'green');
   }
-  function renderSources() {
+  async function renderSources() {
     var map = [['CAPA', 'capa'], ['모의회수', 'drill'], ['제품회수', 'recall'], ['FR-017 훈련', 'mock'], ['FR-040 추적점검', 'trace'], ['생산·출하 LOT 연결', 'link']];
-    var links = list(forms.link).filter(inPeriod).length;
+    var links = (await list(forms.link)).filter(inPeriod).length;
     $('sourceGrid').innerHTML = map.map(function (x) {
       var c = x[1] === 'link' ? links : state.filtered.filter(function (r) { return r.type === x[1]; }).length;
       return '<div class="source"><b>' + esc(x[0]) + '</b><span>' + c + '건</span><small>' + (c ? '대시보드 집계 반영' : '입력 기록 없음') + '</small></div>';
@@ -192,32 +192,32 @@
     }).join('');
     $('history').querySelectorAll('.open').forEach(function (b) { b.addEventListener('click', function () { window.location.href = b.getAttribute('data-href'); }); });
   }
-  function render() {
-    data(); var m = metrics(); renderBars(m); renderSources(); renderAlerts(m); renderLiveAlerts(m); history();
+  async function render() {
+    (await data()); var m = metrics(); renderBars(m); (await renderSources()); renderAlerts(m); renderLiveAlerts(m); history();
     var total = state.filtered.length, synced = window.DkjCloudSync && DkjCloudSync.enabled && DkjCloudSync.enabled();
     setText('dataInfo', '전자기록 ' + total + '건 집계 · ' + (synced ? '클라우드 동기화 사용' : '현재 기기 저장 기록 기준') + ' · ' + new Date().toLocaleString('ko-KR') + ' 갱신');
     state.initialized = true;
   }
-  function requestPermission() {
+  async function requestPermission() {
     if (!('Notification' in window)) { showToast('이 브라우저는 브라우저 알림을 지원하지 않습니다.', 'warning'); return; }
-    if (Notification.permission === 'denied') { showToast('브라우저 설정에서 이 사이트의 알림 차단을 해제해 주세요.', 'warning'); render(); return; }
-    Notification.requestPermission().then(function (permission) { showToast(permission === 'granted' ? '브라우저 알림이 허용되었습니다.' : '브라우저 알림이 허용되지 않았습니다.', permission === 'granted' ? 'ok' : 'warning'); render(); });
+    if (Notification.permission === 'denied') { showToast('브라우저 설정에서 이 사이트의 알림 차단을 해제해 주세요.', 'warning'); (await render()); return; }
+    Notification.requestPermission().then(async function (permission) { showToast(permission === 'granted' ? '브라우저 알림이 허용되었습니다.' : '브라우저 알림이 허용되지 않았습니다.', permission === 'granted' ? 'ok' : 'warning'); (await render()); });
   }
   function bindLiveSettings() {
-    $('liveAlertEnabled').addEventListener('change', function () { var s = alertSettings(); s.enabled = this.checked; saveAlertSettings(s); render(); });
-    $('alertSeverity').addEventListener('change', function () { var s = alertSettings(); s.severity = this.value; saveAlertSettings(s); render(); });
+    $('liveAlertEnabled').addEventListener('change', async function () { var s = alertSettings(); s.enabled = this.checked; saveAlertSettings(s); (await render()); });
+    $('alertSeverity').addEventListener('change', async function () { var s = alertSettings(); s.severity = this.value; saveAlertSettings(s); (await render()); });
     $('requestAlertPermission').addEventListener('click', requestPermission);
   }
-  function onStorage(event) {
+  async function onStorage(event) {
     var key = String(event && event.key || '');
-    if (key.indexOf('dkj:records:') === 0 || key === ALERT_SETTINGS_KEY) render();
+    if (key.indexOf('dkj:records:') === 0 || key === ALERT_SETTINGS_KEY) (await render());
   }
-  function init() {
-    $('refresh').addEventListener('click', function () { render(); showToast('품질 지표와 경보를 새로 확인했습니다.', 'ok'); });
+  async function init() {
+    $('refresh').addEventListener('click', async function () { (await render()); showToast('품질 지표와 경보를 새로 확인했습니다.', 'ok'); });
     $('period').addEventListener('change', render); $('historyType').addEventListener('change', history); bindLiveSettings();
     document.addEventListener('dkj:cloud-ready', render); document.addEventListener('dkj:records-changed', render);
     window.addEventListener('dkj:records-changed', render); window.addEventListener('storage', onStorage);
-    state.alertTimer = setInterval(render, ALERT_CHECK_MS); render();
+    state.alertTimer = setInterval(render, ALERT_CHECK_MS); (await render());
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else (await init());
 })();

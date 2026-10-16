@@ -1,9 +1,9 @@
 /**
  * FR-033 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-033",
   "title": "식품사기 취약성 평가표",
   "pattern": "fr",

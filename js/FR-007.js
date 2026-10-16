@@ -1,9 +1,9 @@
 /**
  * FR-007 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-007",
   "title": "기록폐기대장",
   "pattern": "fr",

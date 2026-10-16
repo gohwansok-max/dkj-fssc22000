@@ -1,9 +1,9 @@
 /**
  * FR-044 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-044",
   "title": "작업자 위생검사 기록지",
   "pattern": "fr",

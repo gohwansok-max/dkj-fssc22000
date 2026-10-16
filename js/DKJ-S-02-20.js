@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-20 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-20.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjLedgerForm.mount({
+  await DkjLedgerForm.mount({
   "code": "DKJ-S-02-20",
   "title": "고객불만접수 및 처리대장",
   "subtitle": "선행요건 · 접수 시마다 · 건별 기록",

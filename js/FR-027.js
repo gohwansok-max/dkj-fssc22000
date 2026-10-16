@@ -1,9 +1,9 @@
 /**
  * FR-027 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-027",
   "title": "검교정 계획 및 결과표",
   "pattern": "fr",

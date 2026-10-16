@@ -59,7 +59,7 @@
     };
   }
 
-  function mount(spec) {
+  async function mount(spec) {
     if (!spec || !spec.code) throw new Error('DkjLedgerForm: spec.code required');
     var FORM_ID = spec.code;
     var COLS = spec.columns || [];
@@ -77,14 +77,14 @@
         getState: function () { return state; },
         // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
         // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
-        onChange: function () {
+        onChange: async function () {
           if (editingId) {
             // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
             // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
-            var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
-            DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId }));
+            var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
+            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId })));
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
-            renderHistory();
+            (await renderHistory());
           } else {
             scheduleDraft();
           }
@@ -105,8 +105,8 @@
 
     function scheduleDraft() {
       clearTimeout(draftTimer);
-      draftTimer = setTimeout(function () {
-        DkjRecordStore.saveDraft(FORM_ID, state);
+      draftTimer = setTimeout(async function () {
+        (await DkjRecordStore.saveDraft(FORM_ID, state));
         setStatus('임시저장 ' + new Date().toLocaleTimeString(), false);
       }, 400);
     }
@@ -114,7 +114,7 @@
     /** 월 단위로 여러 날에 걸쳐 누적 입력하는 서식(autoWeekday 보유)에서, 지금 화면의
      *  점검 월과 같은 달의 기존 기록을 찾는다. 없으면 null.
      *  같은 달 기록이 이미 여러 건(과거 중복 저장 버그)이면 가장 최근 것을 고른다. */
-    function findCurrentPeriodRecord() {
+    async function findCurrentPeriodRecord() {
       var cfg = spec.autoWeekday;
       if (!cfg) return null;
       var raw = String((state.info && state.info[cfg.monthField]) || '');
@@ -122,7 +122,7 @@
       if (!m) return null;
       var targetYm = Number(m[1]) * 100 + Number(m[2]);
       var best = null;
-      DkjRecordStore.list(FORM_ID).forEach(function (r) {
+      (await DkjRecordStore.list(FORM_ID)).forEach(function (r) {
         // 잠긴 기록은 건너뛴다 — 잠긴 기록을 이어서 열면 셀에 이전 값은 보이지만
         // applyLock()이 입력칸을 전부 disabled 로 막아 아무것도 쓸 수 없다. 이번 달
         // 기록이 도중에 잠겼다면(예: '작성완료'를 실수로 눌러 월 시트 전체가 잠김)
@@ -139,14 +139,14 @@
     /** findCurrentPeriodRecord() 가 null 을 돌려줬을 때, 그게 '이번 달 기록이 아예 없어서'인지
      *  '있긴 한데 잠겨서 건너뛴 것'인지 구분한다. 후자면 새 시트로 시작하되 그 사실을
      *  화면에 알려야, 이전에 적은 값이 사라진 게 아니라 잠긴 기록으로 남아 있다는 걸 안다. */
-    function hasLockedRecordForMonth() {
+    async function hasLockedRecordForMonth() {
       var cfg = spec.autoWeekday;
       if (!cfg) return false;
       var raw = String((state.info && state.info[cfg.monthField]) || '');
       var m = raw.match(/(\d{4})\D+(\d{1,2})/);
       if (!m) return false;
       var targetYm = Number(m[1]) * 100 + Number(m[2]);
-      return DkjRecordStore.list(FORM_ID).some(function (r) {
+      return (await DkjRecordStore.list(FORM_ID)).some(function (r) {
         if (!r.locked) return false;
         var rRaw = String((r.info && r.info[cfg.monthField]) || '');
         var rm = rRaw.match(/(\d{4})\D+(\d{1,2})/);
@@ -725,30 +725,35 @@
       return '';
     }
 
-    function save(lock) {
-      var err = validate();
-      if (err) { alert(err); return; }
-      // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
-      // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
-      clearTimeout(draftTimer);
-      state.locked = !!lock;
-      var first = (spec.infoFields || [])[0];
-      var rec = DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
-        id: editingId || undefined,
-        title: (first ? (state.info[first.id] || '') : '') + ' · ' + filledRows().length + '건',
-        judge: '기록'
-      }));
-      editingId = rec.id;
-      setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
-      applyLock();
-      refreshApproval();
-      renderHistory();
+    var saveInFlight = false;
+    async function save(lock) {
+      if (saveInFlight) return;
+      saveInFlight = true;
+      try {
+        var err = validate();
+        if (err) { alert(err); return; }
+        // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
+        // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
+        clearTimeout(draftTimer);
+        state.locked = !!lock;
+        var first = (spec.infoFields || [])[0];
+        var rec = (await DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
+          id: editingId || undefined,
+          title: (first ? (state.info[first.id] || '') : '') + ' · ' + filledRows().length + '건',
+          judge: '기록'
+        })));
+        editingId = rec.id;
+        setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
+        applyLock();
+        refreshApproval();
+        (await renderHistory());
+      } finally { saveInFlight = false; }
     }
 
-    function renderHistory() {
+    async function renderHistory() {
       var el = $('historyList');
       if (!el) return;
-      var list = DkjRecordStore.list(FORM_ID).slice(0, 12);
+      var list = (await DkjRecordStore.list(FORM_ID)).slice(0, 12);
       if (!list.length) {
         el.innerHTML = '<p style="color:#888;font-size:13px;">저장 기록 없음</p>';
         return;
@@ -761,8 +766,8 @@
           '<button type="button" class="pill-btn ghost" data-del2="' + r.id + '">삭제</button></div></div>';
       }).join('');
       el.querySelectorAll('[data-load]').forEach(function (b) {
-        b.addEventListener('click', function () {
-          var r = DkjRecordStore.get(FORM_ID, b.getAttribute('data-load'));
+        b.addEventListener('click', async function () {
+          var r = (await DkjRecordStore.get(FORM_ID, b.getAttribute('data-load')));
           if (!r) return;
           editingId = r.id;
           state = Object.assign(emptyState(spec), r);
@@ -771,10 +776,10 @@
         });
       });
       el.querySelectorAll('[data-del2]').forEach(function (b) {
-        b.addEventListener('click', function () {
+        b.addEventListener('click', async function () {
           if (!confirm('삭제할까요?')) return;
-          DkjRecordStore.remove(FORM_ID, b.getAttribute('data-del2'));
-          renderHistory();
+          (await DkjRecordStore.remove(FORM_ID, b.getAttribute('data-del2')));
+          (await renderHistory());
         });
       });
     }
@@ -815,7 +820,7 @@
       toolbar.appendChild(el);
     }
 
-    function bind() {
+    async function bind() {
       // writer/reviewer/approver 도 dkj-approval.js 의 직원 자동선택이 <select>로
       // 바꿔치기한다 — renderInfo() 와 같은 이유로 개별 요소 리스너 대신 document 위임
       // 리스너를 쓴다(요소가 나중에 통째로 바뀌어도 계속 잡힌다).
@@ -855,14 +860,14 @@
           applyQuickFillColumn(btn.getAttribute('data-quickfill'), btn.getAttribute('data-quickfill-value'));
         });
       });
-      if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
-      if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
+      if ($('btnSave')) $('btnSave').addEventListener('click', async function () { (await save(false)); });
+      if ($('btnLock')) $('btnLock').addEventListener('click', async function () { (await save(true)); });
       if ($('btnNew')) $('btnNew').addEventListener('click', function () {
         editingId = null; state = emptyState(spec); writeForm(); setStatus('새 시트', false);
       });
       if ($('btnPrint')) $('btnPrint').addEventListener('click', doPrint);
       if (global.DkjUtil) {
-        global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+        (await global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
           formId: FORM_ID,
           hasChecks: false,
           onClonePrev: function (cloned) {
@@ -872,19 +877,19 @@
             writeForm();
             scheduleDraft();
           }
-        });
+        }));
         global.DkjUtil.attachChips(document);
       }
     }
 
-    function init() {
-      var draft = DkjRecordStore.loadDraft(FORM_ID);
+    async function init() {
+      var draft = (await DkjRecordStore.loadDraft(FORM_ID));
       if (draft) state = Object.assign(emptyState(spec), draft);
       writeForm();
       mountApproval();
-      bind();
+      (await bind());
       renderMonthlyLockWarning();
-      renderHistory();
+      (await renderHistory());
       if (global.DkjUtil) {
         global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
           writeForm();
@@ -894,11 +899,11 @@
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       var opened = null;
       if (global.DkjDeepLink) {
-        opened = DkjDeepLink.apply(FORM_ID, function (rec) {
+        opened = (await DkjDeepLink.apply(FORM_ID, function (rec) {
           editingId = rec.id;
           state = Object.assign(emptyState(spec), rec);
           writeForm();
-        });
+        }));
         if (opened) setStatus('기록 불러옴', true);
       }
       // 월 단위로 여러 날에 걸쳐 누적 입력하는 서식은, 임시저장(draft)·딥링크가 없으면
@@ -908,13 +913,13 @@
       // 다른 날 입력한 내용이 안 보이는 것처럼 보였다(2026-09-22). 이번 달 진행 중인
       // 기록이 있으면 자동으로 이어서 연다.
       if (!draft && !opened) {
-        var current = findCurrentPeriodRecord();
+        var current = (await findCurrentPeriodRecord());
         if (current) {
           editingId = current.id;
           state = Object.assign(emptyState(spec), current);
           writeForm();
           setStatus('이번 달 기존 시트를 이어서 엽니다', true);
-        } else if (hasLockedRecordForMonth()) {
+        } else if ((await hasLockedRecordForMonth())) {
           // 이번 달 기록이 이미 잠겨 있어 이어서 열 수 없다 — 새 시트로 시작한다.
           // 잠긴 기록의 내용은 기록보관함/'저장 기록' 목록에서 그대로 조회할 수 있다.
           setStatus('이번 달 잠긴 기록이 있어 새 시트로 시작합니다', false);
@@ -935,16 +940,16 @@
       // 없음) 사용자가 뭔가 입력해 초안이 생기지도 않은 경우에 한해 — 한 번 더
       // 이어쓰기를 시도한다. 이미 뭔가 열려 있으면(작성 중이든 결재 중이든) 절대
       // 덮어쓰지 않는다.
-      global.addEventListener('dkj:records-changed', function () {
+      global.addEventListener('dkj:records-changed', async function () {
         // 이 기기에서 뭔가 손댔으면(초안 존재) 절대 덮어쓰지 않는다 — 아래 두 갈래 공통.
-        if (DkjRecordStore.loadDraft(FORM_ID)) return;
+        if ((await DkjRecordStore.loadDraft(FORM_ID))) return;
         if (!editingId) {
-          var current = findCurrentPeriodRecord();
+          var current = (await findCurrentPeriodRecord());
           if (!current) return;
           editingId = current.id;
           state = Object.assign(emptyState(spec), current);
           writeForm();
-          renderHistory();
+          (await renderHistory());
           setStatus('동기화된 이번 달 시트를 불러왔습니다', true);
           return;
         }
@@ -956,11 +961,11 @@
         // 반대 방향(잠긴 걸 풀린 것으로 되돌림)은 절대 하지 않는다 — 이 기기에서
         // 방금 잠갔는데 동기화 지연으로 오히려 되돌아가면 그게 더 위험하다.
         if (!state.locked) {
-          var fresh = DkjRecordStore.get(FORM_ID, editingId);
+          var fresh = (await DkjRecordStore.get(FORM_ID, editingId));
           if (fresh && fresh.locked) {
             state = Object.assign(emptyState(spec), fresh);
             writeForm();
-            renderHistory();
+            (await renderHistory());
             setStatus('다른 기기에서 작성완료(잠금) 처리된 최신 상태로 갱신했습니다', true);
           }
         }
@@ -968,7 +973,7 @@
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-    else init();
+    else (await init());
 
     return { getState: function () { return state; } };
   }

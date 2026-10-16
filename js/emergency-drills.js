@@ -1,4 +1,4 @@
-(function () {
+(async function () {
   'use strict';
 
   var FORM_ID = 'EMERGENCY-DRILL';
@@ -197,7 +197,7 @@
 
   function mountApproval() {
     if (!window.DkjApproval) return;
-    approvalUi = window.DkjApproval.mount({ getState:function () { return current || { approvals:currentApprovals(), signoff:{}, audit:[] }; }, onChange:function (state) { current = state; current.reportHtml = buildApprovedReport(current); DkjRecordStore.save(FORM_ID, current); $('reportPreview').innerHTML = current.reportHtml; renderHistory(); updateApprovalUi(); setStatus('formStatus', '결재 서명이 저장되었습니다. 다음 결재 단계 또는 최종 잠금을 진행하세요.'); } });
+    approvalUi = window.DkjApproval.mount({ getState:function () { return current || { approvals:currentApprovals(), signoff:{}, audit:[] }; }, onChange:async function (state) { current = state; current.reportHtml = buildApprovedReport(current); (await DkjRecordStore.save(FORM_ID, current)); $('reportPreview').innerHTML = current.reportHtml; (await renderHistory()); updateApprovalUi(); setStatus('formStatus', '결재 서명이 저장되었습니다. 다음 결재 단계 또는 최종 잠금을 진행하세요.'); } });
   }
 
   function generate() {
@@ -229,48 +229,48 @@
     return prior;
   }
 
-  function persist(message) {
+  async function persist(message) {
     if (!window.DkjRecordStore) { setStatus('formStatus', '기록 저장소를 불러오지 못했습니다.', true); return null; }
-    DkjRecordStore.save(FORM_ID, current);
-    current = DkjRecordStore.get(FORM_ID, current.id) || current;
+    (await DkjRecordStore.save(FORM_ID, current));
+    current = (await DkjRecordStore.get(FORM_ID, current.id)) || current;
     reportHtml = current.reportHtml || buildApprovedReport(current); $('reportPreview').innerHTML = reportHtml;
-    renderHistory(); updateApprovalUi(); if (message) setStatus('formStatus', message);
+    (await renderHistory()); updateApprovalUi(); if (message) setStatus('formStatus', message);
     return current;
   }
 
-  function saveDraft() {
+  async function saveDraft() {
     if (current && current.approvalRequested) { setStatus('formStatus', '결재 요청 후에는 본문을 수정할 수 없습니다. 결재를 완료하거나 새 훈련을 시작하세요.', true); return null; }
     var record = formRecord(); if (!record) return null;
-    current = record; return persist('결재 전 결과보고서 초안을 저장했습니다. 결재권자를 확인한 뒤 결재 요청하세요.');
+    current = record; return (await persist('결재 전 결과보고서 초안을 저장했습니다. 결재권자를 확인한 뒤 결재 요청하세요.'));
   }
 
-  function requestApproval() {
-    if (!current) { if (!saveDraft()) return; }
+  async function requestApproval() {
+    if (!current) { if (!(await saveDraft())) return; }
     if (!approvalNamesValid()) { setStatus('formStatus', '작성자·검토자·승인자를 모두 입력하세요.', true); return; }
     current.approvals = currentApprovals(); current.approvalRequested = true; current.updatedAt = new Date().toISOString();
     if (window.DkjApproval && DkjApproval.append) DkjApproval.append(current, 'APPROVAL_REQUEST', current.approvals.writer, '모의훈련 결과보고서 결재 요청');
-    current.reportHtml = buildApprovedReport(current); persist('결재를 요청했습니다. 작성 → 검토 → 승인 순으로 결재를 확정하세요.');
+    current.reportHtml = buildApprovedReport(current); (await persist('결재를 요청했습니다. 작성 → 검토 → 승인 순으로 결재를 확정하세요.'));
   }
 
-  function lockReport() {
+  async function lockReport() {
     if (!current || !current.approvalRequested) { setStatus('formStatus', '먼저 초안을 저장하고 결재를 요청하세요.', true); return; }
     if (!allSigned(current)) { setStatus('formStatus', '작성·검토·승인 결재를 모두 확정한 뒤 최종 잠금할 수 있습니다.', true); return; }
     if (!confirm('승인된 모의훈련 결과보고서를 최종 잠금합니다. 이후 본문 수정과 삭제가 차단됩니다. 계속하시겠습니까?')) return;
     current.locked = true; current.completedAt = new Date().toISOString(); current.updatedAt = current.completedAt; current.reportHtml = buildApprovedReport(current);
-    persist('모의훈련 결과보고서가 최종 승인·잠금됐습니다. PDF 또는 인쇄본을 심사 증빙으로 활용하세요.');
+    (await persist('모의훈련 결과보고서가 최종 승인·잠금됐습니다. PDF 또는 인쇄본을 심사 증빙으로 활용하세요.'));
   }
 
-  function records() { return window.DkjRecordStore ? DkjRecordStore.list(FORM_ID).sort(function(a,b){ return String(b.updatedAt||b.createdAt||'').localeCompare(String(a.updatedAt||a.createdAt||'')); }) : []; }
+  async function records() { return window.DkjRecordStore ? (await DkjRecordStore.list(FORM_ID)).sort(function(a,b){ return String(b.updatedAt||b.createdAt||'').localeCompare(String(a.updatedAt||a.createdAt||'')); }) : []; }
   function formatDate(value) { try { return new Date(value).toLocaleString('ko-KR',{hour12:false}); } catch(e) { return value || '-'; } }
-  function renderHistory() {
-    var list = records().slice(0, 10);
+  async function renderHistory() {
+    var list = (await records()).slice(0, 10);
     $('reportHistory').innerHTML = list.length ? list.map(function (record) { return '<div class="history-row"><div><strong>' + esc(record.title) + '</strong><small>' + esc([record.site, record.leader, record.updatedAt ? formatDate(record.updatedAt) : ''].filter(Boolean).join(' · ')) + '</small></div><span class="badge">' + esc(approvalStatus(record)) + '</span><button class="btn secondary load-report" type="button" data-id="' + esc(record.id) + '">열기</button></div>'; }).join('') : '<div class="report-empty">저장된 모의훈련 결과가 없습니다.</div>';
-    document.querySelectorAll('.load-report').forEach(function (button) { button.addEventListener('click', function () { loadReport(button.getAttribute('data-id')); }); });
+    document.querySelectorAll('.load-report').forEach(function (button) { button.addEventListener('click', async function () { (await loadReport(button.getAttribute('data-id'))); }); });
   }
 
-  function loadReport(id) {
+  async function loadReport(id) {
     if (!window.DkjRecordStore) return;
-    current = DkjRecordStore.get(FORM_ID, id); if (!current) return;
+    current = (await DkjRecordStore.get(FORM_ID, id)); if (!current) return;
     selectedId = current.scenarioId || ''; renderCards();
     ['drillDate','drillTime','site','leader','participants','incidentInput','actualAction','findingInput','evidence'].forEach(function (key) { if ($(key)) $(key).value = current[key === 'incidentInput' ? 'incident' : key === 'actualAction' ? 'action' : key === 'findingInput' ? 'finding' : key] || ''; });
     setApprovals(current.approvals); renderChecks(); (current.checks || []).forEach(function (row, index) { if ($('check_' + index)) $('check_' + index).checked = !!row.checked; });
@@ -305,9 +305,9 @@
     window.html2pdf().set(options).from(source).save().then(function () { setStatus('formStatus', 'A4 PDF 파일을 다운로드했습니다. 파일명: ' + pdfFileName()); }).catch(function () { setStatus('formStatus', 'PDF 생성에 실패했습니다. 인쇄 기능에서 “PDF로 저장”을 사용해 주세요.', true); }).finally(function () { button.disabled = false; button.textContent = 'PDF 다운로드'; });
   }
 
-  function init() {
-    $('drillDate').value = today(); $('drillTime').value = nowTime(); renderCards(); renderChecks(); mountApproval(); renderHistory(); updateApprovalUi();
+  async function init() {
+    $('drillDate').value = today(); $('drillTime').value = nowTime(); renderCards(); renderChecks(); mountApproval(); (await renderHistory()); updateApprovalUi();
     $('generateReport').addEventListener('click', generate); $('saveReport').addEventListener('click', saveDraft); $('requestApproval').addEventListener('click', requestApproval); $('lockReport').addEventListener('click', lockReport); $('downloadPdf').addEventListener('click', downloadPdf); $('newReport').addEventListener('click', reset); $('printReport').addEventListener('click', printReport);
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else (await init());
 })();

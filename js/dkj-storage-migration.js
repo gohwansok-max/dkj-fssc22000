@@ -42,5 +42,5 @@
       entries: report.entries.map(function (entry) { return { key: entry.key, length: entry.sourceLength, hash: entry.sourceHash }; }) }));
     return report;
   }
-  global.DkjStorageMigration = { compare: compare, migrate: migrate, markerKey: MARKER };
+  global.DkjStorageMigration = { compare: compare, migrate: migrate, markerKey: MARKER, hash: hash };
 })(window);

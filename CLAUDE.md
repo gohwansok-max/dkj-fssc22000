@@ -1,5 +1,17 @@
 # CLAUDE.md
 
+## 2026-10-16 IndexedDB 전환 후 우선 지침
+
+- 기록 목록·임시본의 현재 정본은 IndexedDB `dkj-store` / `entries`다. 아래의 localStorage 정본 설명은 전환 전 구조다.
+- `js/dkj-store.js` → `dkj-storage-migration.js` → `dkj-storage.js`를 기록 관련 앱 스크립트보다 먼저 로드한다. `dkj-async.js`는 비동기 순회 도우미다.
+- `DkjRecordStore`의 공개 메서드 호출은 반드시 `await`한다. 저장·결재·잠금·삭제 훅은 동일한 최신 스냅샷과 Web Locks 잠금 안에서 실행한다. 내부 동기 core는 스냅샷 계산에만 사용하며 화면에서 호출하지 않는다.
+- 최초 이전은 localStorage 전체 문자열을 복사하고 키 수·길이·SHA-256 대조 뒤에만 IndexedDB 완료 표식을 기록한다. 완료 전 클라우드 요청은 대기한다. 실패하면 원본을 보존하고 다음 접근에서 재시도한다.
+- 기존 localStorage 기록은 이전 시점 백업으로 남는다. 전환 후 새 기록은 IndexedDB에만 쓴다. 계정·설정·UI 캐시는 기존 동기 작성자와의 호환을 위해 localStorage 경로를 유지한다. 전체 키 이전 사본과 현재 설정 정본을 혼동하지 않는다.
+- 정리는 `DkjStorage.cleanup`에 명시적 플래그와 확인 문자열을 전달해야만 가능하며 자동 호출하지 않는다. 운영 정리는 별도 사람 승인 대상이다.
+- 구버전 탭의 localStorage 기록 변경은 기존 V1 병합 규칙으로 받아들이고 최신 IndexedDB 기록·삭제 표식을 보존한다. 배포 후 열린 탭은 새 버전으로 새로고침하는 것이 원칙이다.
+- 외부 패키지 없이 `node --test`에 tests/*.test.js 파일 목록을 전달한다. 상세 범위·검증·되돌리기 제약은 `docs/INDEXEDDB_STAGE2_6_REPORT.md`를 참고한다.
+
+
 이 파일은 Claude Code(claude.ai/code)가 이 저장소에서 작업할 때 참고하는 안내입니다.
 
 ## 이 저장소가 무엇인가
