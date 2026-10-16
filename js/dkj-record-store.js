@@ -21,8 +21,22 @@
     }
   }
 
+  // 2단계: 기존 동기 API를 유지하며 IndexedDB 쓰기를 순서대로 대기열에 넣는다.
+  var mirrorTail = Promise.resolve();
+  var mirrorError = null;
+  function mirror(key, raw) {
+    if (!global.DkjStore) return;
+    mirrorTail = mirrorTail.then(function () {
+      return raw === null ? global.DkjStore.remove(key) : global.DkjStore.set(key, raw);
+    }).catch(function (error) {
+      mirrorError = error;
+      console.error('[DkjRecordStore] IndexedDB 이중 쓰기 실패', error);
+    });
+  }
   function writeJson(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    var raw = JSON.stringify(value);
+    localStorage.setItem(key, raw);
+    mirror(key, raw);
     try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { key: key, value: value } })); } catch (e) {}
   }
 
@@ -31,6 +45,11 @@
   }
 
   global.DkjRecordStore = {
+    flushMirror: function () {
+      return mirrorTail.then(function () {
+        if (mirrorError) { var error = mirrorError; mirrorError = null; throw error; }
+      });
+    },
     list: function (formId) {
       return readJson(listKey(formId), []).filter(function (r) { return !r || !r.deleted; });
     },
@@ -128,6 +147,7 @@
 
     clearDraft: function (formId) {
       localStorage.removeItem(draftKey(formId));
+      mirror(draftKey(formId), null);
     }
   };
 
