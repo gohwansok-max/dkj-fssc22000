@@ -1,9 +1,9 @@
 /**
  * FR-036 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-036",
   "title": "알레르겐 전환 세척 점검기록",
   "pattern": "fr",

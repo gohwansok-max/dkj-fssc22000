@@ -1,9 +1,9 @@
 /**
  * FR-016 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-016",
   "title": "제품회수 보고서 및 기록",
   "pattern": "fr",

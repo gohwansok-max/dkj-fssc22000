@@ -57,19 +57,19 @@ function temperatureRow(day, value) {
   return { day: String(day), dow: '금', z1_am: value || '' };
 }
 
-test('temperature draft is 작성 중 and is not shown in the archive', () => {
+test('temperature draft is 작성 중 and is not shown in the archive', async () => {
   const key = 'dkj:records:DKJ-S-02-05:draft:v1';
   const localStorage = storage({
     [key]: JSON.stringify({ rows: [temperatureRow(21, '12')], info: { month: '2026년 8월' } })
   });
   const api = loadConsole(localStorage);
   const form = { code: 'DKJ-S-02-05', check: { mode: 'dayRow', dayKey: 'day' } };
-  const result = api.evaluate(form, new Date(2026, 7, 21));
+  const result = await api.evaluate(form, new Date(2026, 7, 21));
   assert.equal(result.state, 'part');
-  assert.equal(loadExport(localStorage).collect().length, 0);
+  assert.equal((await loadExport(localStorage).collect()).length, 0);
 });
 
-test('saved temperature record is completed and appears in the archive', () => {
+test('saved temperature record is completed and appears in the archive', async () => {
   const key = 'dkj:records:DKJ-S-02-05:list:v1';
   const localStorage = storage({
     [key]: JSON.stringify([{
@@ -84,14 +84,14 @@ test('saved temperature record is completed and appears in the archive', () => {
   });
   const api = loadConsole(localStorage);
   const form = { code: 'DKJ-S-02-05', check: { mode: 'dayRow', dayKey: 'day' } };
-  assert.equal(api.evaluate(form, new Date(2026, 7, 21)).state, 'done');
-  const records = loadExport(localStorage).collect();
+  assert.equal((await api.evaluate(form, new Date(2026, 7, 21))).state, 'done');
+  const records = await loadExport(localStorage).collect();
   assert.equal(records.length, 1);
   assert.equal(records[0].formId, 'DKJ-S-02-05');
   assert.equal(records[0].id, 'r-temperature-1');
 });
 
-test('previous-month saved row does not complete the same day in the current month', () => {
+test('previous-month saved row does not complete the same day in the current month', async () => {
   const key = 'dkj:records:DKJ-S-02-05:list:v1';
   const localStorage = storage({
     [key]: JSON.stringify([{
@@ -106,5 +106,5 @@ test('previous-month saved row does not complete the same day in the current mon
   });
   const api = loadConsole(localStorage);
   const form = { code: 'DKJ-S-02-05', check: { mode: 'dayRow', dayKey: 'day' } };
-  assert.equal(api.evaluate(form, new Date(2026, 8, 21)).state, 'todo');
+  assert.equal((await api.evaluate(form, new Date(2026, 8, 21))).state, 'todo');
 });

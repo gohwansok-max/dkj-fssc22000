@@ -1,9 +1,9 @@
 /**
  * FR-030 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-030",
   "title": "의사소통 기록대장",
   "pattern": "fr",

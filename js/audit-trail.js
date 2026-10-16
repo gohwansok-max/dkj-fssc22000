@@ -12,8 +12,8 @@
   function statusTag(r) { var s=stateLabel(r); return '<span class="tag '+(r.locked?'lock':r.signs?'sign':'')+'">'+esc(s)+'</span>'; }
   function integrityTag(r) { var v=integrity(r); return v==='ok'?'<span class="tag ok">정상</span>':v==='ng'?'<span class="tag ng">불일치</span>':'<span class="tag">미적용</span>'; }
 
-  function collect() {
-    var list = window.DkjExport ? DkjExport.collect() : [];
+  async function collect() {
+    var list = window.DkjExport ? (await DkjExport.collect()) : [];
     allRecords = list.map(function (base) {
       var raw = base.raw || {}, audit = Array.isArray(raw.audit) ? raw.audit : [], verify = window.DkjApproval ? DkjApproval.verify(raw) : {ok:true,total:audit.length};
       var row = { formId:base.formId, formTitle:base.formTitle || '', id:base.id || '', title:base.title || '', date:base.date || '', writer:base.writer || base.createdBy || '', raw:raw, audit:audit, auditCount:audit.length, verify:verify, signs:Object.keys(raw.signoff || {}).length, locked:!!raw.locked, updatedAt:base.updatedAt || raw.updatedAt || '', createdAt:base.createdAt || raw.createdAt || '' };
@@ -71,8 +71,8 @@
   }
   function printReport(savePdf) { if(!view.length){alert('출력할 감사 로그가 없습니다.');return;} var report=officialReportHtml(), title=savePdf?'공식 감사 추적 보고서 · PDF로 저장':'공식 감사 추적 보고서', win=window.open('','_blank','width=900,height=900'); if(!win){alert('인쇄 창을 열 수 없습니다. 브라우저 팝업 차단을 해제한 뒤 다시 시도하세요.');return;} win.document.open();win.document.write('<!doctype html><html lang="ko"><head><meta charset="UTF-8"><title>'+title+'</title><style>'+reportCss()+'</style></head><body>'+report+'</body></html>');win.document.close();try{win.opener=null;}catch(e){}setTimeout(function(){win.focus();win.print();},450); }
   function savePdf() { printReport(true); }
-  function access() { var ok=isAdmin(); $('adminApp').classList.toggle('hide',!ok);$('denied').classList.toggle('hide',ok);if(!ok)return;$('accessPill').textContent=(window.DkjAuth&&DkjAuth.user()?'시스템 관리자 · '+DkjAuth.user().name:'로컬 검증 모드');collect();options();apply(); }
-  function bind(){['from','to','form','action','integrity'].forEach(function(id){$(id).addEventListener('change',apply);});$('q').addEventListener('input',apply);$('refresh').addEventListener('click',function(){collect();options();apply();});$('csv').addEventListener('click',csv);$('pdf').addEventListener('click',savePdf);$('print').addEventListener('click',printReport);window.addEventListener('dkj:records-changed',function(){if(isAdmin()){collect();options();apply();}});document.addEventListener('dkj:auth-ready',access);}
+  async function access() { var ok=isAdmin(); $('adminApp').classList.toggle('hide',!ok);$('denied').classList.toggle('hide',ok);if(!ok)return;$('accessPill').textContent=(window.DkjAuth&&DkjAuth.user()?'시스템 관리자 · '+DkjAuth.user().name:'로컬 검증 모드');(await collect());options();apply(); }
+  function bind(){['from','to','form','action','integrity'].forEach(function(id){$(id).addEventListener('change',apply);});$('q').addEventListener('input',apply);$('refresh').addEventListener('click',async function(){(await collect());options();apply();});$('csv').addEventListener('click',csv);$('pdf').addEventListener('click',savePdf);$('print').addEventListener('click',printReport);window.addEventListener('dkj:records-changed',async function(){if(isAdmin()){(await collect());options();apply();}});document.addEventListener('dkj:auth-ready',access);}
   function init(){bind();setTimeout(access,250);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

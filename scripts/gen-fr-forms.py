@@ -1003,6 +1003,10 @@ def render_html(spec: dict) -> str:
   </main>
   </div>
   <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
+  <script src="../js/dkj-async.js?v={v}"></script>
+  <script src="../js/dkj-store.js?v={v}"></script>
+  <script src="../js/dkj-storage-migration.js?v={v}"></script>
+  <script src="../js/dkj-storage.js?v={v}"></script>
   <script src="../js/dkj-util.js?v={v}"></script>
   <script src="../js/dkj-firebase-config.js?v={v}"></script>
   <script src="../js/dkj-auth.js?v={v}"></script>
@@ -1041,9 +1045,9 @@ def render_js(spec: dict) -> str:
     return f"""/**
  * {spec["code"]} — generated FR boot
  */
-(function () {{
+(async function () {{
   'use strict';
-  DkjFrForm.mount({body});
+  await DkjFrForm.mount({body});
 }})();
 """
 

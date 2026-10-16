@@ -1,9 +1,9 @@
 /**
  * FR-028 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-028",
   "title": "변경관리 신청서",
   "pattern": "fr",

@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-18 - ox boot (SSOT: data/ox-form-specs/DKJ-S-02-18.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjOxForm.mount({
+  await DkjOxForm.mount({
   "code": "DKJ-S-02-18",
   "title": "운송차량 위생점검표",
   "pattern": "ox",

@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-19 - report boot (SSOT: data/report-form-specs/DKJ-S-02-19.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjReportForm.mount({
+  await DkjReportForm.mount({
   "code": "DKJ-S-02-19",
   "title": "부적합품 처리 보고서",
   "subtitle": "선행요건 · 부적합 발생 시 · 건별 보고",

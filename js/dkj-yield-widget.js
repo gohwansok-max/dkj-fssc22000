@@ -30,8 +30,8 @@
   }
 
   /** 최근 저장된 생산일지에서 날짜별 수율을 뽑는다. 같은 날짜가 여러 건이면 최신 수정본만 쓴다. */
-  function buildSeries(master, calc) {
-    var records = (window.DkjRecordStore ? DkjRecordStore.list(FORM_ID) : [])
+  async function buildSeries(master, calc) {
+    var records = (window.DkjRecordStore ? (await DkjRecordStore.list(FORM_ID)) : [])
       .filter(function (r) { return r && r.info && r.info.workDate; });
 
     var latestByDate = {};
@@ -145,8 +145,8 @@
     if (deltaEl) deltaEl.textContent = (ok ? '✓ 목표 대비 ' : '! 목표 대비 ') + fmtPctSigned(delta);
   }
 
-  function refresh(master, calc) {
-    var series = buildSeries(master, calc);
+  async function refresh(master, calc) {
+    var series = (await buildSeries(master, calc));
     if (!series.length) {
       renderEmpty('저장된 생산일지가 아직 없습니다. 생산일지(DKJ-F-053)를 작성하면 여기에 수율 추이가 표시됩니다.');
       return;
@@ -164,11 +164,11 @@
       return;
     }
     var calc = window.DkjProductionCalc;
-    DkjMaster.loadProductionMaster().then(function (master) {
-      refresh(master, calc);
-      window.addEventListener('dkj:records-changed', function (e) {
+    DkjMaster.loadProductionMaster().then(async function (master) {
+      (await refresh(master, calc));
+      window.addEventListener('dkj:records-changed', async function (e) {
         var key = e && e.detail && e.detail.key;
-        if (!key || key.indexOf(':' + FORM_ID + ':') !== -1) refresh(master, calc);
+        if (!key || key.indexOf(':' + FORM_ID + ':') !== -1) (await refresh(master, calc));
       });
     }).catch(function (err) {
       console.error('[dkj-yield-widget] init failed', err);

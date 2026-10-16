@@ -132,9 +132,9 @@
     return p ? p.name : '';
   }
 
-  function listFr014ForSelect() {
+  async function listFr014ForSelect() {
     if (!global.DkjRecordStore) return [];
-    return DkjRecordStore.list('FR-014').filter(function (r) {
+    return (await DkjRecordStore.list('FR-014')).filter(function (r) {
       return r.judge === '부적합' || r.action === '격리' || r.action === '반품' || r.action === '폐기';
     });
   }

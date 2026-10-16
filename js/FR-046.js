@@ -1,9 +1,9 @@
 /**
  * FR-046 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-046",
   "title": "설비 예방보전 계획 및 기록",
   "pattern": "fr",

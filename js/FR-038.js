@@ -1,9 +1,9 @@
 /**
  * FR-038 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-038",
   "title": "환경모니터링 결과 및 Trend표",
   "pattern": "fr",

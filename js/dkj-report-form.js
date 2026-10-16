@@ -48,7 +48,7 @@
     };
   }
 
-  function mount(spec) {
+  async function mount(spec) {
     if (!spec || !spec.code) throw new Error('DkjReportForm: spec.code required');
     var FORM_ID = spec.code;
     var state = emptyState(spec);
@@ -65,14 +65,14 @@
         getState: function () { return state; },
         // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
         // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
-        onChange: function () {
+        onChange: async function () {
           if (editingId) {
             // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
             // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
-            var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
-            DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId }));
+            var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
+            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId })));
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
-            renderHistory();
+            (await renderHistory());
           } else {
             scheduleDraft();
           }
@@ -93,8 +93,8 @@
 
     function scheduleDraft() {
       clearTimeout(draftTimer);
-      draftTimer = setTimeout(function () {
-        DkjRecordStore.saveDraft(FORM_ID, state);
+      draftTimer = setTimeout(async function () {
+        (await DkjRecordStore.saveDraft(FORM_ID, state));
         setStatus('임시저장 ' + new Date().toLocaleTimeString(), false);
       }, 400);
     }
@@ -288,29 +288,34 @@
       return first ? String(state.values[first.id] || spec.title) : spec.title;
     }
 
-    function save(lock) {
-      var err = validate();
-      if (err) { alert(err); return; }
-      // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
-      // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
-      clearTimeout(draftTimer);
-      state.locked = !!lock;
-      var rec = DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
-        id: editingId || undefined,
-        title: buildTitle(),
-        judge: '기록'
-      }));
-      editingId = rec.id;
-      setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
-      applyLock();
-      refreshApproval();
-      renderHistory();
+    var saveInFlight = false;
+    async function save(lock) {
+      if (saveInFlight) return;
+      saveInFlight = true;
+      try {
+        var err = validate();
+        if (err) { alert(err); return; }
+        // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
+        // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
+        clearTimeout(draftTimer);
+        state.locked = !!lock;
+        var rec = (await DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
+          id: editingId || undefined,
+          title: buildTitle(),
+          judge: '기록'
+        })));
+        editingId = rec.id;
+        setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
+        applyLock();
+        refreshApproval();
+        (await renderHistory());
+      } finally { saveInFlight = false; }
     }
 
-    function renderHistory() {
+    async function renderHistory() {
       var el = $('historyList');
       if (!el) return;
-      var list = DkjRecordStore.list(FORM_ID).slice(0, 12);
+      var list = (await DkjRecordStore.list(FORM_ID)).slice(0, 12);
       if (!list.length) {
         el.innerHTML = '<p style="color:#888;font-size:13px;">저장 기록 없음</p>';
         return;
@@ -323,8 +328,8 @@
           '<button type="button" class="pill-btn ghost" data-del2="' + r.id + '">삭제</button></div></div>';
       }).join('');
       el.querySelectorAll('[data-load]').forEach(function (b) {
-        b.addEventListener('click', function () {
-          var r = DkjRecordStore.get(FORM_ID, b.getAttribute('data-load'));
+        b.addEventListener('click', async function () {
+          var r = (await DkjRecordStore.get(FORM_ID, b.getAttribute('data-load')));
           if (!r) return;
           editingId = r.id;
           state = Object.assign(emptyState(spec), r);
@@ -333,10 +338,10 @@
         });
       });
       el.querySelectorAll('[data-del2]').forEach(function (b) {
-        b.addEventListener('click', function () {
+        b.addEventListener('click', async function () {
           if (!confirm('삭제할까요?')) return;
-          DkjRecordStore.remove(FORM_ID, b.getAttribute('data-del2'));
-          renderHistory();
+          (await DkjRecordStore.remove(FORM_ID, b.getAttribute('data-del2')));
+          (await renderHistory());
         });
       });
     }
@@ -354,7 +359,7 @@
       setTimeout(function () { window.print(); }, 120);
     }
 
-    function bind() {
+    async function bind() {
       // 본문 인원 입력도 직원 선택기로 교체된다. 부모에 위임해 교체된 select와
       // 보고서 블록을 다시 그린 뒤의 입력 모두 같은 저장 경로를 사용한다.
       var blocks = $('reportBlocks');
@@ -390,14 +395,14 @@
           }
         });
       });
-      if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
-      if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
+      if ($('btnSave')) $('btnSave').addEventListener('click', async function () { (await save(false)); });
+      if ($('btnLock')) $('btnLock').addEventListener('click', async function () { (await save(true)); });
       if ($('btnNew')) $('btnNew').addEventListener('click', function () {
         editingId = null; state = emptyState(spec); writeForm(); setStatus('새 보고서', false);
       });
       if ($('btnPrint')) $('btnPrint').addEventListener('click', doPrint);
       if (global.DkjUtil) {
-        global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+        (await global.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
           formId: FORM_ID,
           hasChecks: false,
           onClonePrev: function (cloned) {
@@ -407,17 +412,17 @@
             writeForm();
             scheduleDraft();
           }
-        });
+        }));
         global.DkjUtil.attachChips(document);
       }
     }
 
-    function init() {
-      var draft = DkjRecordStore.loadDraft(FORM_ID);
+    async function init() {
+      var draft = (await DkjRecordStore.loadDraft(FORM_ID));
       if (draft) state = Object.assign(emptyState(spec), draft);
       writeForm();
-      bind();
-      renderHistory();
+      (await bind());
+      (await renderHistory());
       mountApproval();
       if (global.DkjUtil) {
         global.DkjUtil.autoFillUser(state.approvals, ['writer', 'reviewer', 'approver'], function () {
@@ -427,17 +432,17 @@
       setStatus('준비', false);
       // 기록보관함에서 ?record=<id> 로 들어온 경우 그 기록을 띄운다(임시저장분보다 우선)
       if (global.DkjDeepLink) {
-        var opened = DkjDeepLink.apply(FORM_ID, function (rec) {
+        var opened = (await DkjDeepLink.apply(FORM_ID, function (rec) {
           editingId = rec.id;
           state = Object.assign(emptyState(spec), rec);
           writeForm();
-        });
+        }));
         if (opened) setStatus('기록 불러옴', true);
       }
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-    else init();
+    else (await init());
 
     return { getState: function () { return state; } };
   }

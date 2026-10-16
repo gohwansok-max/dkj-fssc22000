@@ -1,9 +1,9 @@
 /**
  * FR-037 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-037",
   "title": "환경모니터링 계획서",
   "pattern": "fr",

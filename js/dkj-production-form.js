@@ -130,8 +130,8 @@
 
     /* 어제 저장분에서 오늘 값을 이어받는다 — 전일재고·로트·인원수를 매일 다시 치지 않도록.
        "재고"는 정의상 어제의 원물재고량과 같아야 하므로 자동 이월이 더 정확하기도 하다. */
-    function findPrevRecord(beforeDate) {
-      var list = DkjRecordStore.list(FORM_ID);
+    async function findPrevRecord(beforeDate) {
+      var list = (await DkjRecordStore.list(FORM_ID));
       var candidates = list.filter(function (r) {
         return r.info && r.info.workDate && (!beforeDate || r.info.workDate < beforeDate);
       });
@@ -139,9 +139,9 @@
       return candidates[0] || null;
     }
 
-    function buildNextState() {
+    async function buildNextState() {
       var base = emptyState(master, PRODUCTS);
-      var prev = findPrevRecord(base.info.workDate);
+      var prev = (await findPrevRecord(base.info.workDate));
       if (!prev) return base;
 
       base.info.staff = prev.info.staff || '';
@@ -607,8 +607,8 @@
 
     function scheduleDraft() {
       clearTimeout(draftTimer);
-      draftTimer = setTimeout(function () {
-        DkjRecordStore.saveDraft(FORM_ID, state);
+      draftTimer = setTimeout(async function () {
+        (await DkjRecordStore.saveDraft(FORM_ID, state));
         setStatus('임시저장 ' + new Date().toLocaleTimeString(), false);
       }, 400);
     }
@@ -626,29 +626,34 @@
       return '';
     }
 
-    function save(lock) {
-      var err = validate();
-      if (err) { alert(err); return; }
-      // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
-      // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
-      clearTimeout(draftTimer);
-      state.locked = !!lock;
-      var snap = recalcAll();
-      var rec = DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
-        id: editingId || undefined,
-        title: (state.info.workDate || '') + ' · 생산일지 · 투입 ' + fmt1(snap.grand.input) + 'kg',
-        judge: snap.fin.ok ? '정상' : '부적합',
-        summary: {
-          input: snap.grand.input, used: snap.grand.used + snap.grand.carry,
-          yield: snap.grand.yield, defectRate: snap.grand.defectRate, gap: snap.grand.gap,
-          massBalanceOk: snap.fin.ok, totalWaste: snap.cause.totalWaste
-        }
-      }));
-      editingId = rec.id;
-      setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
-      applyLock();
-      refreshApproval();
-      renderHistory();
+    var saveInFlight = false;
+    async function save(lock) {
+      if (saveInFlight) return;
+      saveInFlight = true;
+      try {
+        var err = validate();
+        if (err) { alert(err); return; }
+        // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
+        // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
+        clearTimeout(draftTimer);
+        state.locked = !!lock;
+        var snap = recalcAll();
+        var rec = (await DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
+          id: editingId || undefined,
+          title: (state.info.workDate || '') + ' · 생산일지 · 투입 ' + fmt1(snap.grand.input) + 'kg',
+          judge: snap.fin.ok ? '정상' : '부적합',
+          summary: {
+            input: snap.grand.input, used: snap.grand.used + snap.grand.carry,
+            yield: snap.grand.yield, defectRate: snap.grand.defectRate, gap: snap.grand.gap,
+            massBalanceOk: snap.fin.ok, totalWaste: snap.cause.totalWaste
+          }
+        })));
+        editingId = rec.id;
+        setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
+        applyLock();
+        refreshApproval();
+        (await renderHistory());
+      } finally { saveInFlight = false; }
     }
 
     function applyLock() {
@@ -662,9 +667,9 @@
       ).forEach(function (el) { el.disabled = !!state.locked; });
     }
 
-    function renderHistory() {
+    async function renderHistory() {
       var el = $('historyList'); if (!el) return;
-      var list = DkjRecordStore.list(FORM_ID).slice(0, 14);
+      var list = (await DkjRecordStore.list(FORM_ID)).slice(0, 14);
       if (!list.length) { el.innerHTML = '<p style="color:#888;font-size:13px;">저장 기록 없음</p>'; return; }
       el.innerHTML = list.map(function (r) {
         var s = r.summary || {};
@@ -677,8 +682,8 @@
           '<button type="button" class="pill-btn ghost" data-del2="' + r.id + '">삭제</button></div></div>';
       }).join('');
       el.querySelectorAll('[data-load]').forEach(function (b) {
-        b.addEventListener('click', function () {
-          var r = DkjRecordStore.get(FORM_ID, b.getAttribute('data-load'));
+        b.addEventListener('click', async function () {
+          var r = (await DkjRecordStore.get(FORM_ID, b.getAttribute('data-load')));
           if (!r) return;
           editingId = r.id;
           state = Object.assign(emptyState(master, PRODUCTS), r);
@@ -687,10 +692,10 @@
         });
       });
       el.querySelectorAll('[data-del2]').forEach(function (b) {
-        b.addEventListener('click', function () {
+        b.addEventListener('click', async function () {
           if (!confirm('삭제할까요?')) return;
-          DkjRecordStore.remove(FORM_ID, b.getAttribute('data-del2'));
-          renderHistory();
+          (await DkjRecordStore.remove(FORM_ID, b.getAttribute('data-del2')));
+          (await renderHistory());
         });
       });
     }
@@ -762,14 +767,14 @@
         getState: function () { return state; },
         // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
         // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
-        onChange: function () {
+        onChange: async function () {
           if (editingId) {
             // title/judge/summary 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
             // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
-            var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
-            DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId }));
+            var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
+            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId })));
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
-            renderHistory();
+            (await renderHistory());
           } else {
             scheduleDraft();
           }
@@ -816,32 +821,32 @@
         state.byproductRows.push(emptyByproductRow());
         renderByproductBody(); recalcAll(); scheduleDraft();
       });
-      if ($('btnSave')) $('btnSave').addEventListener('click', function () { save(false); });
-      if ($('btnLock')) $('btnLock').addEventListener('click', function () { save(true); });
-      if ($('btnNew')) $('btnNew').addEventListener('click', function () {
-        editingId = null; state = buildNextState(); writeForm(); setStatus('새 기록 — 어제 기록에서 이어받음', false);
+      if ($('btnSave')) $('btnSave').addEventListener('click', async function () { (await save(false)); });
+      if ($('btnLock')) $('btnLock').addEventListener('click', async function () { (await save(true)); });
+      if ($('btnNew')) $('btnNew').addEventListener('click', async function () {
+        editingId = null; state = (await buildNextState()); writeForm(); setStatus('새 기록 — 어제 기록에서 이어받음', false);
       });
       if ($('btnPrint')) $('btnPrint').addEventListener('click', doPrint);
     }
 
     function init() {
-      Promise.all([DkjMaster.loadProductionMaster(), DkjMaster.loadProducts()]).then(function (results) {
+      Promise.all([DkjMaster.loadProductionMaster(), DkjMaster.loadProducts()]).then(async function (results) {
         master = results[0];
         PRODUCTS = (results[1] && results[1].finishedProducts) || [];
         PRODUCTS_BOM_NOTE = (results[1] && results[1].bomNote) || '';
-        var draft = DkjRecordStore.loadDraft(FORM_ID);
-        state = draft ? Object.assign(emptyState(master, PRODUCTS), draft) : buildNextState();
+        var draft = (await DkjRecordStore.loadDraft(FORM_ID));
+        state = draft ? Object.assign(emptyState(master, PRODUCTS), draft) : (await buildNextState());
         writeForm();
         bind();
-        renderHistory();
+        (await renderHistory());
         mountApproval();
         setStatus('준비', false);
         if (global.DkjDeepLink) {
-          var opened = DkjDeepLink.apply(FORM_ID, function (rec) {
+          var opened = (await DkjDeepLink.apply(FORM_ID, function (rec) {
             editingId = rec.id;
             state = Object.assign(emptyState(master, PRODUCTS), rec);
             writeForm();
-          });
+          }));
           if (opened) setStatus('기록 불러옴', true);
         }
       }).catch(function (err) {

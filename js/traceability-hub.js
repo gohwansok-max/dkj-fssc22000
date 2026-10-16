@@ -1,5 +1,7 @@
-(function () {
+(async function () {
   'use strict';
+  function recordStorage() { return window.DkjStorage || window.localStorage; }
+
 
   var FORM_INCOMING = 'FR-014';
   var FORM_NC_RAW = 'FR-015';
@@ -46,12 +48,13 @@
     el.className = 'tr-status' + (bad ? ' bad' : '');
   }
 
-  function localRecords() {
+  async function localRecords() {
     var out = [];
     var keys = [];
     try {
-      for (var k = 0; k < localStorage.length; k++) {
-        var sk = localStorage.key(k);
+      var storageKeyList = window.DkjStorage ? await window.DkjStorage.keys() : Object.keys(localStorage);
+      for (var k = 0; k < storageKeyList.length; k++) {
+        var sk = storageKeyList[k];
         if (sk != null) keys.push(sk);
       }
     } catch (e) {}
@@ -60,7 +63,7 @@
       var match = key.match(/^dkj:records:([^:]+):list:v1$/);
       if (!match) continue;
       try {
-        var list = JSON.parse(localStorage.getItem(key) || '[]');
+        var list = JSON.parse((await recordStorage().getItem(key)) || '[]');
         (Array.isArray(list) ? list : []).forEach(function (record) {
           if (!record || typeof record !== 'object') return;
           if (record.deleted) return; // 삭제 표식(js/dkj-record-store.js 참고)
@@ -73,66 +76,66 @@
     return out;
   }
 
-  function incomingRecords() {
-    return localRecords().filter(function (record) {
+  async function incomingRecords() {
+    return (await localRecords()).filter(function (record) {
       return record.formId === FORM_INCOMING && record.lot && record.itemName;
     }).sort(function (a, b) {
       return String(b.receiveDate || b.createdAt || '').localeCompare(String(a.receiveDate || a.createdAt || ''));
     });
   }
 
-  function incomingById(id) {
-    return incomingRecords().find(function (record) { return record.id === id; }) || null;
+  async function incomingById(id) {
+    return (await incomingRecords()).find(function (record) { return record.id === id; }) || null;
   }
 
-  function ncRawRecords() {
-    return (window.DkjRecordStore ? DkjRecordStore.list(FORM_NC_RAW) : []).filter(function (record) {
+  async function ncRawRecords() {
+    return (window.DkjRecordStore ? (await DkjRecordStore.list(FORM_NC_RAW)) : []).filter(function (record) {
       return record && record.lot;
     }).sort(function (a, b) { return String(b.processDate || b.createdAt || '').localeCompare(String(a.processDate || a.createdAt || '')); });
   }
 
-  function ncProductRecords() {
-    return (window.DkjRecordStore ? DkjRecordStore.list(FORM_NC_PRODUCT) : []).filter(function (record) {
+  async function ncProductRecords() {
+    return (window.DkjRecordStore ? (await DkjRecordStore.list(FORM_NC_PRODUCT)) : []).filter(function (record) {
       return record && record.lot;
     }).sort(function (a, b) { return String(b.docDate || b.createdAt || '').localeCompare(String(a.docDate || a.createdAt || '')); });
   }
 
-  function recallReports() {
-    return (window.DkjRecordStore ? DkjRecordStore.list(FORM_RECALL) : []).filter(function (record) {
+  async function recallReports() {
+    return (window.DkjRecordStore ? (await DkjRecordStore.list(FORM_RECALL)) : []).filter(function (record) {
       return record && record.lot;
     }).sort(function (a, b) { return String(b.startDate || b.docDate || b.createdAt || '').localeCompare(String(a.startDate || a.docDate || a.createdAt || '')); });
   }
 
-  function links() {
-    return (window.DkjRecordStore ? DkjRecordStore.list(FORM_LINK) : []).filter(function (record) {
+  async function links() {
+    return (window.DkjRecordStore ? (await DkjRecordStore.list(FORM_LINK)) : []).filter(function (record) {
       return record && record.rawLot && record.productionLot;
     }).sort(function (a, b) { return String(b.createdAt || '').localeCompare(String(a.createdAt || '')); });
   }
 
-  function drills() {
-    return (window.DkjRecordStore ? DkjRecordStore.list(FORM_DRILL) : []).sort(function (a, b) {
+  async function drills() {
+    return (window.DkjRecordStore ? (await DkjRecordStore.list(FORM_DRILL)) : []).sort(function (a, b) {
       return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
     });
   }
 
-  function selectIncoming() {
+  async function selectIncoming() {
     var select = $('linkSource');
     if (!select) return;
     var keep = select.value;
-    var list = incomingRecords();
+    var list = (await incomingRecords());
     select.innerHTML = '<option value="">원료 입고기록을 선택하세요</option>' + list.map(function (record) {
       return '<option value="' + esc(record.id) + '">' + esc((record.receiveDate || '-') + ' · ' + record.itemName + ' · LOT ' + record.lot + ' · ' + record.supplier) + '</option>';
     }).join('');
     if (keep && list.some(function (record) { return record.id === keep; })) select.value = keep;
   }
 
-  function selectedIncoming() {
+  async function selectedIncoming() {
     var id = $('linkSource').value;
-    return incomingRecords().find(function (record) { return record.id === id; }) || null;
+    return (await incomingRecords()).find(function (record) { return record.id === id; }) || null;
   }
 
-  function prefillLink() {
-    var source = selectedIncoming();
+  async function prefillLink() {
+    var source = (await selectedIncoming());
     if (!source) { setStatus('linkStatus', '원료 입고기록을 먼저 선택하세요.', true); return; }
     if (!$('linkProductionDate').value) $('linkProductionDate').value = source.receiveDate || today();
     if (!$('linkProductName').value) $('linkProductName').value = source.linkedProduct || source.itemName || '';
@@ -148,8 +151,8 @@
     }];
   }
 
-  function saveLink() {
-    var source = selectedIncoming();
+  async function saveLink() {
+    var source = (await selectedIncoming());
     var productionLot = $('linkProductionLot').value.trim();
     var productName = $('linkProductName').value.trim();
     var productionDate = $('linkProductionDate').value;
@@ -182,7 +185,7 @@
       locked: true,
       audit: makeAudit('trace_link_created', 'FR-014 ' + source.id + '에서 생성')
     };
-    DkjRecordStore.save(FORM_LINK, record);
+    (await DkjRecordStore.save(FORM_LINK, record));
     setStatus('linkStatus', '생산·출하 연결기록을 저장했습니다. 추적 실행 시 즉시 반영됩니다.');
     $('linkProductionLot').value = '';
     $('linkProductName').value = '';
@@ -193,8 +196,8 @@
     $('linkShipQty').value = '';
     $('linkInventoryQty').value = '';
     $('linkShipmentNo').value = '';
-    selectIncoming();
-    renderHistory();
+    (await selectIncoming());
+    (await renderHistory());
   }
 
   function matches(record, query, date) {
@@ -207,15 +210,15 @@
     return haystack.indexOf(query) !== -1;
   }
 
-  function runTrace() {
+  async function runTrace() {
     var query = lower($('traceLot').value);
     var direction = $('traceDirection').value;
     var basisDate = $('traceDate').value;
-    var incoming = incomingRecords();
-    var ncRecords = ncRawRecords();
-    var productNcRecords = ncProductRecords();
-    var recallRecordList = recallReports();
-    var linkRecords = links();
+    var incoming = (await incomingRecords());
+    var ncRecords = (await ncRawRecords());
+    var productNcRecords = (await ncProductRecords());
+    var recallRecordList = (await recallReports());
+    var linkRecords = (await links());
     if (!query) { setStatus('traceStatus', '추적할 LOT 또는 품목명을 입력하세요.', true); return; }
     traceStartedAt = nowIso();
 
@@ -408,7 +411,7 @@
     return (linked && linked.productName) || (nonconforming && nonconforming.subject) || (incoming && incoming.itemName) || currentResult.query;
   }
 
-  function createRecallDraft() {
+  async function createRecallDraft() {
     if (!currentResult) { setStatus('drillStatus', 'FR-016 초안을 만들려면 먼저 LOT 추적을 실행하세요.', true); return; }
     if (!window.DkjRecordStore) { setStatus('drillStatus', '기록 저장소를 불러오지 못했습니다.', true); return; }
     var writer = $('drillWriter').value.trim();
@@ -431,12 +434,12 @@
       locked: false,
       audit: makeAudit('recall_report_draft_created', '추적성·모의회수 화면에서 FR-016 초안 생성')
     };
-    var saved = DkjRecordStore.save(FORM_RECALL, record);
+    var saved = (await DkjRecordStore.save(FORM_RECALL, record));
     setStatus('drillStatus', 'FR-016 제품회수 보고서 초안을 생성했습니다. 회수등급·조치·종료결과를 확인하세요.');
     location.href = recordLink(FORM_RECALL, saved.id);
   }
 
-  function saveDrill() {
+  async function saveDrill() {
     if (!currentResult) { setStatus('drillStatus', '일보 기반 LOT 추적을 먼저 실행하세요.', true); return; }
     var lot = $('drillTargetLot').value.trim();
     var writer = $('drillWriter').value.trim();
@@ -485,18 +488,18 @@
       locked: true,
       audit: makeAudit('mock_recall_completed', minutes + '분 · 회수/확보율 ' + rate + '% · 수량차이 ' + fmt(num($('drillQtyGap').value)))
     };
-    DkjRecordStore.save(FORM_DRILL, record);
+    (await DkjRecordStore.save(FORM_DRILL, record));
     $('drillClock').textContent = '완료 ' + dateTime(finishedAt) + ' · ' + minutes + '분';
     setStatus('drillStatus', '모의회수 검증을 완료 저장했습니다. ' + (minutes <= 120 ? '2시간 목표를 충족했습니다.' : '2시간 목표를 초과했습니다. 개선조치를 검토하세요.'), minutes > 120);
-    renderHistory();
+    (await renderHistory());
   }
 
-  function renderHistory() {
+  async function renderHistory() {
     var target = $('traceHistory');
-    var linkRows = links().slice(0, 8).map(function (record) {
+    var linkRows = (await links()).slice(0, 8).map(function (record) {
       return '<div class="tr-history"><div><strong>연결 · ' + esc(record.rawLot) + ' → ' + esc(record.productionLot) + '</strong><small>' + esc(record.rawItemName) + ' · ' + esc(record.productName) + ' · 출하 ' + fmt(record.shipQty) + ' · 재고 ' + fmt(record.inventoryQty) + ' · ' + esc(record.createdAt ? dateTime(record.createdAt) : '-') + '</small></div><span class="tr-tag">일보 연계</span></div>';
     });
-    var drillRows = drills().slice(0, 8).map(function (record) {
+    var drillRows = (await drills()).slice(0, 8).map(function (record) {
       var template = record.scenarioTemplateName ? ' · ' + record.scenarioTemplateName : '';
       var effect = record.effectiveness && record.effectiveness.result ? ' · 효과검증 ' + record.effectiveness.result : '';
       return '<div class="tr-history"><div><strong>' + esc(record.drillType || '모의회수') + ' · ' + esc(record.targetLot) + '</strong><small>' + esc(record.scenario) + template + ' · ' + fmt(record.elapsedMinutes) + '분 · 확보율 ' + fmt(record.recoveryRate) + '%' + effect + ' · ' + esc(record.createdAt ? dateTime(record.createdAt) : '-') + '</small></div><span class="tr-tag">' + (record.withinTwoHours ? '2시간 이내' : '개선 필요') + '</span></div>';
@@ -522,10 +525,10 @@
     if (focusId) setTimeout(function () { var field = $(focusId); if (field) field.focus(); }, 420);
   }
 
-  function setupQuickLot(params) {
+  async function setupQuickLot(params) {
     var sourceId = params.get('from014') || '';
     var lot = params.get('lot') || '';
-    var source = incomingById(sourceId) || incomingRecords().find(function (record) { return lot && record.lot === lot; }) || null;
+    var source = (await incomingById(sourceId)) || (await incomingRecords()).find(function (record) { return lot && record.lot === lot; }) || null;
     var quick = $('quickLotCard');
     var quickMode = params.get('mode') === 'quick' || !!sourceId;
     if (lot) $('traceLot').value = lot;
@@ -534,7 +537,7 @@
     quick.classList.add('on');
     if (source) {
       $('linkSource').value = source.id;
-      prefillLink();
+      (await prefillLink());
       if (!$('linkWriter').value) $('linkWriter').value = source.inspector || source.createdBy || '';
       if (!$('drillWriter').value) $('drillWriter').value = source.inspector || source.createdBy || '';
       if (!$('drillScenario').value) $('drillScenario').value = 'FR-014 입고 LOT ' + source.lot + '에 대한 모의회수';
@@ -545,22 +548,22 @@
       $('quickLotMeta').textContent = '같은 기기에서 저장한 FR-014 기록인지 확인하세요.';
     }
 
-    $('quickTrace').addEventListener('click', function () {
-      runTrace();
+    $('quickTrace').addEventListener('click', async function () {
+      (await runTrace());
       scrollTo('traceResult');
     });
-    $('quickRecall').addEventListener('click', function () {
-      runTrace();
+    $('quickRecall').addEventListener('click', async function () {
+      (await runTrace());
       if (!currentResult) return;
       applyTrace();
       scrollTo('drillTargetLot', 'drillScenario');
     });
   }
 
-  function init() {
+  async function init() {
     $('linkProductionDate').value = today();
-    selectIncoming();
-    renderHistory();
+    (await selectIncoming());
+    (await renderHistory());
     $('runTrace').addEventListener('click', runTrace);
     $('clearTrace').addEventListener('click', clearTrace);
     $('prefillLink').addEventListener('click', prefillLink);
@@ -577,9 +580,9 @@
       $(id).addEventListener('change', updateLocationBalance);
     });
     updateLocationBalance();
-    setupQuickLot(new URLSearchParams(location.search));
+    (await setupQuickLot(new URLSearchParams(location.search)));
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  else (await init());
 })();

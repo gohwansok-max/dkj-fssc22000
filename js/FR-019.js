@@ -1,9 +1,9 @@
 /**
  * FR-019 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-019",
   "title": "내부심사 체크리스트",
   "pattern": "fr",

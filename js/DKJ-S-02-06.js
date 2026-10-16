@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-06 - matrix boot (SSOT: data/matrix-form-specs/DKJ-S-02-06.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjMatrixForm.mount({
+  await DkjMatrixForm.mount({
   "code": "DKJ-S-02-06",
   "title": "환기 및 급·배기시설점검표",
   "subtitle": "선행요건 · 매일 점검 · 6일 단위 결재 · 6항목 × 6일(토요일 휴무)",

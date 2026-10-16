@@ -1,9 +1,9 @@
 /**
  * FR-023 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-023",
   "title": "경영검토 입력자료",
   "pattern": "fr",

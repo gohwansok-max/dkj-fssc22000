@@ -1,9 +1,9 @@
 /**
  * DKJ-H-01-10 - matrix boot (SSOT: data/matrix-form-specs/DKJ-H-01-10.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjMatrixForm.mount({
+  await DkjMatrixForm.mount({
   "pattern": "matrix",
   "period": "year",
   "days": 12,

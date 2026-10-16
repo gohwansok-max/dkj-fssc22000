@@ -1,9 +1,9 @@
 /**
  * FR-001 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-001",
   "title": "문서 제·개정 요청서",
   "pattern": "fr",

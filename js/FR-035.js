@@ -1,9 +1,9 @@
 /**
  * FR-035 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-035",
   "title": "알레르겐 원료 평가표",
   "pattern": "fr",

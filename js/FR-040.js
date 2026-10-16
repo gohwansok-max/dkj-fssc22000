@@ -1,9 +1,9 @@
 /**
  * FR-040 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-040",
   "title": "추적성 점검 및 모의추적 기록",
   "pattern": "fr",

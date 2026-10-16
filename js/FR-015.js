@@ -1,7 +1,7 @@
 /**
  * FR-015 부적합 원부자재 처리기록
  */
-(function () {
+(async function () {
   'use strict';
 
   var FORM_ID = 'FR-015';
@@ -72,15 +72,15 @@
       // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
       // 이 서식은 state.locked 를 실시간으로 유지하지 않으므로(잠금은 collect() 결과에만
       // 적용) 저장돼 있던 기록의 실제 잠금 여부를 다시 물어 덮어쓰지 않게 한다.
-      onChange: function () {
+      onChange: async function () {
         if (editingId) {
-          var prev = DkjRecordStore.get(FORM_ID, editingId) || {};
+          var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
           // title·locked 는 saveRecord() 안에서만 계산되고 state 에는 남지 않으므로,
           // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목·잠금이 사라지지 않는다.
           var data = Object.assign({}, prev, collect(), { id: editingId, locked: !!prev.locked });
-          DkjRecordStore.save(FORM_ID, data);
+          (await DkjRecordStore.save(FORM_ID, data));
           setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
-          renderHistory();
+          (await renderHistory());
         } else {
           scheduleDraft();
         }
@@ -135,10 +135,10 @@
     });
   }
 
-  function fillFr014Select(selected) {
+  async function fillFr014Select(selected) {
     var sel = $('linkedFr014');
     if (!sel) return;
-    var list = DkjMaster.listFr014ForSelect();
+    var list = (await DkjMaster.listFr014ForSelect());
     var opts = '<option value="">— FR-014 선택 (선택) —</option>';
     list.forEach(function (r) {
       var label = r.receiveDate + ' ' + (r.itemName || '') + ' LOT:' + (r.lot || '') + ' [' + (r.judge || '') + ']';
@@ -148,9 +148,9 @@
     if (selected) sel.value = selected;
   }
 
-  function applyFr014(id) {
+  async function applyFr014(id) {
     if (!id || !window.DkjRecordStore) return;
-    var rec = DkjRecordStore.get('FR-014', id);
+    var rec = (await DkjRecordStore.get('FR-014', id));
     if (!rec) return;
     state.linkedFr014 = id;
     state.supplier = rec.supplier || '';
@@ -166,7 +166,7 @@
       state.disposition = rec.action === '반품' ? '반품' : rec.action === '폐기' ? '폐기' : '격리';
     }
     syncToForm();
-    fillFr014Select(id);
+    (await fillFr014Select(id));
     renderReasons();
     scheduleDraft();
   }
@@ -206,8 +206,8 @@
       el.addEventListener('input', function () { state[key] = el.value; scheduleDraft(); });
       el.addEventListener('change', function () { state[key] = el.value; scheduleDraft(); });
     });
-    $('linkedFr014').addEventListener('change', function () {
-      applyFr014(this.value);
+    $('linkedFr014').addEventListener('change', async function () {
+      (await applyFr014(this.value));
     });
     $('btnLot').addEventListener('click', function () {
       $('lot').value = DkjMaster.suggestLot($('processDate').value);
@@ -240,38 +240,43 @@
   function scheduleDraft() {
     clearTimeout(draftTimer);
     setStatus('작성 중…', false);
-    draftTimer = setTimeout(function () {
-      DkjRecordStore.saveDraft(FORM_ID, collect());
+    draftTimer = setTimeout(async function () {
+      (await DkjRecordStore.saveDraft(FORM_ID, collect()));
       setStatus('임시저장 ' + new Date().toLocaleTimeString('ko-KR'), false);
     }, 800);
   }
 
-  function saveRecord(lock) {
-    var data = collect();
-    var err = validate(data);
-    if (err) { alert(err); return; }
-    if (editingId) data.id = editingId;
-    // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "작성완료"가 잠깐
-    // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
-    clearTimeout(draftTimer);
-    data.locked = !!lock;
-    // 기록보관함·엑셀의 '기록제목' 칸에 쓰인다. 없으면 목록에서 어느 부적합 건인지 구분이 안 된다.
-    data.title = '부적합 원부자재 처리' +
-      (data.itemName ? ' · ' + data.itemName : '') +
-      (data.lot ? ' ' + data.lot : '');
-    var saved = DkjRecordStore.save(FORM_ID, data);
-    editingId = saved.id;
-    setStatus(lock ? '작성완료' : '저장 완료', true);
-    refreshApproval();
-    renderHistory();
-    if (lock && data.carRequired === '예') {
-      $('carBanner').hidden = false;
-    }
-    if (lock) $('btnLock').disabled = true;
+  var saveInFlight = false;
+  async function saveRecord(lock) {
+    if (saveInFlight) return;
+    saveInFlight = true;
+    try {
+      var data = collect();
+      var err = validate(data);
+      if (err) { alert(err); return; }
+      if (editingId) data.id = editingId;
+      // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "작성완료"가 잠깐
+      // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
+      clearTimeout(draftTimer);
+      data.locked = !!lock;
+      // 기록보관함·엑셀의 '기록제목' 칸에 쓰인다. 없으면 목록에서 어느 부적합 건인지 구분이 안 된다.
+      data.title = '부적합 원부자재 처리' +
+        (data.itemName ? ' · ' + data.itemName : '') +
+        (data.lot ? ' ' + data.lot : '');
+      var saved = (await DkjRecordStore.save(FORM_ID, data));
+      editingId = saved.id;
+      setStatus(lock ? '작성완료' : '저장 완료', true);
+      refreshApproval();
+      (await renderHistory());
+      if (lock && data.carRequired === '예') {
+        $('carBanner').hidden = false;
+      }
+      if (lock) $('btnLock').disabled = true;
+    } finally { saveInFlight = false; }
   }
 
-  function renderHistory() {
-    var list = DkjRecordStore.list(FORM_ID);
+  async function renderHistory() {
+    var list = (await DkjRecordStore.list(FORM_ID));
     var el = $('historyList');
     if (!list.length) {
       el.innerHTML = '<p style="color:#888;font-size:13px;">저장된 부적합 처리 기록이 없습니다.</p>';
@@ -285,8 +290,8 @@
         '<button type="button" class="pill-btn ghost" data-del="' + r.id + '">삭제</button></div></div>';
     }).join('');
     el.querySelectorAll('[data-edit]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var rec = DkjRecordStore.get(FORM_ID, btn.getAttribute('data-edit'));
+      btn.addEventListener('click', async function () {
+        var rec = (await DkjRecordStore.get(FORM_ID, btn.getAttribute('data-edit')));
         if (rec) {
           editingId = rec.id;
           state = JSON.parse(JSON.stringify(rec));
@@ -297,33 +302,33 @@
       });
     });
     el.querySelectorAll('[data-del]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', async function () {
         if (confirm('삭제할까요?')) {
-          DkjRecordStore.remove(FORM_ID, btn.getAttribute('data-del'));
-          renderHistory();
+          (await DkjRecordStore.remove(FORM_ID, btn.getAttribute('data-del')));
+          (await renderHistory());
         }
       });
     });
   }
 
-  function init() {
+  async function init() {
     renderReasons();
     fillDiscoverSteps();
-    fillFr014Select();
+    (await fillFr014Select());
     bindFields();
     mountApproval();
 
-    var draft = DkjRecordStore.loadDraft(FORM_ID);
+    var draft = (await DkjRecordStore.loadDraft(FORM_ID));
     if (draft && !draft.id) state = draft;
     syncToForm();
 
     var params = new URLSearchParams(location.search);
     var from014 = params.get('from014');
-    if (from014) applyFr014(from014);
+    if (from014) (await applyFr014(from014));
 
-    $('btnSave').addEventListener('click', function () { saveRecord(false); });
-    $('btnLock').addEventListener('click', function () {
-      if (confirm('작성완료 처리할까요?')) saveRecord(true);
+    $('btnSave').addEventListener('click', async function () { (await saveRecord(false)); });
+    $('btnLock').addEventListener('click', async function () {
+      if (confirm('작성완료 처리할까요?')) (await saveRecord(true));
     });
     $('btnNew').addEventListener('click', function () {
       editingId = null;
@@ -373,7 +378,7 @@
     });
 
     if (window.DkjUtil) {
-      window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
+      (await window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
         formId: FORM_ID,
         hasChecks: false,
         onClonePrev: function (cloned) {
@@ -385,19 +390,19 @@
           renderReasons();
           scheduleDraft();
         }
-      });
+      }));
       window.DkjUtil.attachChips(document);
       window.DkjUtil.autoFillUser(state, ['handler', 'writer', 'approver'], function () {
         syncToForm();
       });
     }
 
-    renderHistory();
+    (await renderHistory());
   }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
-    init();
+    (await init());
   }
 })();

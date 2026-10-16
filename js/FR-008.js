@@ -1,9 +1,9 @@
 /**
  * FR-008 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-008",
   "title": "연간 교육훈련 계획서",
   "pattern": "fr",

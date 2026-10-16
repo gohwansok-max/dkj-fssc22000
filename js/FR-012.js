@@ -1,9 +1,9 @@
 /**
  * FR-012 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-012",
   "title": "승인공급업체 목록",
   "pattern": "fr",

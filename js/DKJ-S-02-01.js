@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-01 - matrix boot (SSOT: data/matrix-form-specs/DKJ-S-02-01.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjMatrixForm.mount({
+  await DkjMatrixForm.mount({
   "code": "DKJ-S-02-01",
   "title": "작업장 위생점검 일지",
   "subtitle": "선행요건 · 매일 점검 · 주 단위 결재 · 35항목 × 7일 · PRP-001/002 연계",

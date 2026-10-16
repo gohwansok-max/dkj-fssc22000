@@ -11,6 +11,8 @@
  */
 (function (global) {
   'use strict';
+  function recordStorage() { return window.DkjStorage || window.localStorage; }
+
 
   var LIST_RE = /^dkj:records:(.+):list:v1$/;
 
@@ -66,6 +68,7 @@
   }
 
   function storageKeys() {
+    if (global.DkjStorage) return global.DkjStorage.keys();
     var keys = [];
     try {
       for (var i = 0; i < localStorage.length; i++) {
@@ -77,16 +80,16 @@
   }
 
   /** localStorage 안의 모든 기록을 서식 구분 없이 한 배열로 모은다. */
-  function collect() {
+  async function collect() {
     var out = [];
-    var keys = storageKeys();
+    var keys = (await storageKeys());
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
       var m = key && key.match(LIST_RE);
       if (!m) continue;
       var formId = m[1];
       var list;
-      try { list = JSON.parse(localStorage.getItem(key)) || []; } catch (e) { continue; }
+      try { list = JSON.parse((await recordStorage().getItem(key))) || []; } catch (e) { continue; }
       if (!Array.isArray(list)) continue;
       list.forEach(function (rec) {
         if (!rec || typeof rec !== 'object') return;
@@ -347,23 +350,23 @@
 
   /** 마지막 백업 시각 — js/dkj-backup-reminder.js 가 이 키를 읽어 주 1회 백업 배너를 띄운다. */
   var LAST_BACKUP_KEY = 'dkj:backup:lastBackupAt:v1';
-  function markBackedUp() {
-    try { localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString()); } catch (e) {}
+  async function markBackedUp() {
+    try { (await recordStorage().setItem(LAST_BACKUP_KEY, new Date().toISOString())); } catch (e) {}
   }
 
   /** 전체 기록 원본 백업 — 복원 가능한 형태(JSON). */
-  function toJsonBackup(filename) {
+  async function toJsonBackup(filename) {
     var dump = { site: '동김제농협 산지유통센터', exportedAt: new Date().toISOString(), records: {} };
-    var keys = storageKeys();
+    var keys = (await storageKeys());
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
       if (key && LIST_RE.test(key)) {
-        try { dump.records[key] = JSON.parse(localStorage.getItem(key)); } catch (e) {}
+        try { dump.records[key] = JSON.parse((await recordStorage().getItem(key))); } catch (e) {}
       }
     }
     download(new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' }),
       filename || ('동김제_기록백업_' + stamp() + '.json'));
-    markBackedUp();
+    (await markBackedUp());
     return Object.keys(dump.records).length;
   }
 
@@ -379,13 +382,13 @@
   var DRAFT_RE = /^dkj:records:(.+):draft:v1$/;
 
   /** 기록 목록(id·updatedAt 기준 병합)을 실제 저장소에 반영한다 — 같은 id 는 최신본만 남긴다. */
-  function restoreRecordsFrom(recordsObj) {
+  async function restoreRecordsFrom(recordsObj) {
     var added = 0;
-    Object.keys(recordsObj || {}).forEach(function (key) {
+    (await DkjAsync.forEach(Object.keys(recordsObj || {}), async function (key) {
       if (!LIST_RE.test(key)) return;
       var incoming = recordsObj[key] || [];
       var current = [];
-      try { current = JSON.parse(localStorage.getItem(key)) || []; } catch (e) {}
+      try { current = JSON.parse((await recordStorage().getItem(key))) || []; } catch (e) {}
       var byId = {};
       current.forEach(function (r) { if (r && r.id) byId[r.id] = r; });
       incoming.forEach(function (r) {
@@ -396,60 +399,65 @@
           byId[r.id] = r;
         }
       });
-      localStorage.setItem(key, JSON.stringify(Object.keys(byId).map(function (k) { return byId[k]; })));
-    });
+      (await recordStorage().setItem(key, JSON.stringify(Object.keys(byId).map(function (k) { return byId[k]; }))));
+    }));
     return added;
   }
 
   /** 백업 JSON 복원 — 같은 id 는 최신(updatedAt)만 남긴다. */
-  function restoreJson(text) {
+  async function restoreJson(text) {
     var dump = JSON.parse(text);
     if (!dump || !dump.records) throw new Error('BAD_BACKUP');
-    return restoreRecordsFrom(dump.records);
+    return (await restoreRecordsFrom(dump.records));
   }
 
   /** 전체 백업 — 기록 전체 + 시스템 설정(텔레그램 알림, 가동 캘린더, 생산 목표 등)을
    * 한 파일에 담는다. 로그인 세션·비밀번호 캐시(dkj:auth:*)는 담지 않는다. */
-  function toFullBackup(filename) {
+  async function toFullBackup(filename) {
     var dump = { site: '동김제농협 산지유통센터', exportedAt: new Date().toISOString(), records: {}, settings: {} };
-    var keys = storageKeys();
+    var keys = (await storageKeys());
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
       if (!key) continue;
       if (LIST_RE.test(key)) {
-        try { dump.records[key] = JSON.parse(localStorage.getItem(key)); } catch (e) {}
+        try { dump.records[key] = JSON.parse((await recordStorage().getItem(key))); } catch (e) {}
       } else if (key.indexOf('dkj:') === 0 && !SETTINGS_EXCLUDE_RE.test(key)) {
-        try { dump.settings[key] = JSON.parse(localStorage.getItem(key)); } catch (e) { dump.settings[key] = localStorage.getItem(key); }
+        try { dump.settings[key] = JSON.parse((await recordStorage().getItem(key))); } catch (e) { dump.settings[key] = (await recordStorage().getItem(key)); }
       }
     }
     download(new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' }),
       filename || ('동김제_전체백업_' + stamp() + '.json'));
-    markBackedUp();
+    (await markBackedUp());
     return { records: Object.keys(dump.records).length, settings: Object.keys(dump.settings).length };
   }
 
   /** 전체 백업 복원 — 기록은 병합, 설정값은 백업 시점 값으로 덮어쓴다.
    * 작성 중 임시본(draft)은 복원하지 않는다 — 지금 기기에서 더 진행된 입력을
    * 백업 시점의 옛 임시본으로 덮어쓸 수 있어서다. */
-  function restoreFullBackup(text) {
+  async function restoreFullBackup(text) {
     var dump = JSON.parse(text);
     if (!dump || (!dump.records && !dump.settings)) throw new Error('BAD_BACKUP');
-    var recordsAdded = restoreRecordsFrom(dump.records);
+    var recordsAdded = (await restoreRecordsFrom(dump.records));
     var settingsRestored = 0;
-    Object.keys(dump.settings || {}).forEach(function (key) {
+    (await DkjAsync.forEach(Object.keys(dump.settings || {}), async function (key) {
       if (!key || key.indexOf('dkj:') !== 0 || LIST_RE.test(key) || SETTINGS_EXCLUDE_RE.test(key) || DRAFT_RE.test(key)) return;
       try {
         var v = dump.settings[key];
-        localStorage.setItem(key, typeof v === 'string' ? v : JSON.stringify(v));
+        (await recordStorage().setItem(key, typeof v === 'string' ? v : JSON.stringify(v)));
         settingsRestored++;
       } catch (e) {}
-    });
+    }));
     return { records: recordsAdded, settings: settingsRestored };
   }
 
   /** 마지막 백업 시각(ISO) — 없으면 null. js/dkj-backup-reminder.js 가 이걸로 배너를 띄운다. */
-  function lastBackupAt() {
-    try { return localStorage.getItem(LAST_BACKUP_KEY); } catch (e) { return null; }
+  async function lastBackupAt() {
+    try { return (await recordStorage().getItem(LAST_BACKUP_KEY)); } catch (e) { return null; }
+  }
+
+  function consistent(work) {
+    if (!global.DkjStorage) return work();
+    return global.DkjStorage.ready().then(function () {return global.DkjStorage.exclusive(work);});
   }
 
   global.DkjExport = {
@@ -458,10 +466,10 @@
     toTable: toTable,
     toCsv: toCsv,
     toXlsx: toXlsx,
-    toJsonBackup: toJsonBackup,
+    toJsonBackup: function (value) { return consistent(function () {return toJsonBackup(value);}); },
     lastBackupAt: lastBackupAt,
-    restoreJson: restoreJson,
-    toFullBackup: toFullBackup,
-    restoreFullBackup: restoreFullBackup
+    restoreJson: function (value) { return consistent(function () {return restoreJson(value);}); },
+    toFullBackup: function (value) { return consistent(function () {return toFullBackup(value);}); },
+    restoreFullBackup: function (value) { return consistent(function () {return restoreFullBackup(value);}); }
   };
 })(window);

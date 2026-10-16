@@ -198,7 +198,7 @@
   function installHook() {
     if (!global.DkjRecordStore || global.DkjRecordStore.__auditHooked) return;
     var orig = global.DkjRecordStore.save;
-    global.DkjRecordStore.save = function (formId, record) {
+    var saveHook = function (formId, record) {
       var prev = record.id ? this.get(formId, record.id) : null;
       if (prev && prev.locked && (!record.locked || !sameLockedContent(prev, record))) {
         try { global.alert('작성완료(잠금)된 기록의 내용은 수정할 수 없습니다. 결재(서명)는 계속 진행할 수 있습니다.'); } catch (e) { /* alert 불가 환경 무시 */ }
@@ -215,6 +215,9 @@
       } catch (e) { /* 이력 실패가 저장을 막지 않는다 */ }
       return orig.call(this, formId, record);
     };
+    global.DkjRecordStore.save = global.DkjStorage ? function (formId, record) {
+      return global.DkjRecordStore.mutate(formId, function (core) { return saveHook.call(core, formId, record); });
+    } : saveHook;
     global.DkjRecordStore.__auditHooked = true;
   }
 
@@ -225,7 +228,7 @@
   function installRemoveGuard() {
     if (!global.DkjRecordStore || global.DkjRecordStore.__removeGuarded) return;
     var orig = global.DkjRecordStore.remove;
-    global.DkjRecordStore.remove = function (formId, id) {
+    var removeHook = function (formId, id) {
       var rec = this.get(formId, id);
       if (rec && rec.locked) {
         try { global.alert('작성완료(잠금)된 기록은 삭제할 수 없습니다.'); } catch (e) { /* alert 불가 환경 무시 */ }
@@ -233,6 +236,9 @@
       }
       return orig.call(this, formId, id);
     };
+    global.DkjRecordStore.remove = global.DkjStorage ? function (formId, id) {
+      return global.DkjRecordStore.mutate(formId, function (core) { return removeHook.call(core, formId, id); });
+    } : removeHook;
     global.DkjRecordStore.__removeGuarded = true;
   }
 
@@ -572,7 +578,7 @@
         '</div></details>';
 
       host.querySelectorAll('.apv-btn').forEach(function (b) {
-        b.addEventListener('click', function () {
+        b.addEventListener('click', DkjAsync.action(async function () {
           var key = b.getAttribute('data-stage');
           var st = getState();
           // 버튼은 잠가 뒀지만 화면을 만져 되살릴 수 있으니 누를 때 한 번 더 본다 —
@@ -626,7 +632,7 @@
             at: nowIso()
           };
           append(st, 'SIGN', u ? whoLabel(u) : signer.name, stageOf(key).label + ' 결재');
-          onChange(st);
+          await onChange(st);
           render();
           // confirm() 을 생략한 경우는 확정됐다는 사실 자체를 알리는 화면 반응이
           // 없으면 눌렀는지 안 눌렀는지 헷갈린다 — 짧게 토스트로 알린다.
@@ -634,7 +640,7 @@
             global.DkjUtil.toast('✓ ' + signer.name + ' 님으로 ' + stageOf(key).label + ' 결재가 확정됐습니다.');
           }
           notifyStageProgress(stageIdx, signer.name);
-        });
+        }));
       });
     }
 

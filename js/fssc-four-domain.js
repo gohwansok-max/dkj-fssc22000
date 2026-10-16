@@ -1,4 +1,4 @@
-(function () {
+(async function () {
   'use strict';
 
   var FORM_ID = 'FSSC-AR-HUB';
@@ -31,36 +31,36 @@
     return { label: '적합·유지', cls: '' };
   }
 
-  function allEvidence() {
+  async function allEvidence() {
     if (!window.DkjRecordStore) return [];
-    return window.DkjRecordStore.list(FORM_ID)
+    return (await window.DkjRecordStore.list(FORM_ID))
       .filter(function (record) { return record && record.recordType === 'fssc_additional_requirement_evidence'; })
       .sort(function (a, b) { return String(b.docDate || b.createdAt || '').localeCompare(String(a.docDate || a.createdAt || '')); });
   }
 
-  function existingCount(domain) {
+  async function existingCount(domain) {
     if (!window.DkjRecordStore) return 0;
-    return DOMAIN[domain].forms.reduce(function (sum, formId) {
-      return sum + window.DkjRecordStore.list(formId).length;
-    }, 0);
+    return (await DkjAsync.reduce(DOMAIN[domain].forms, async function (sum, formId) {
+      return sum + (await window.DkjRecordStore.list(formId)).length;
+    }, 0));
   }
 
-  function domainCount(domain) {
-    return existingCount(domain) + allEvidence().filter(function (record) { return record.domain === domain; }).length;
+  async function domainCount(domain) {
+    return (await existingCount(domain)) + (await allEvidence()).filter(function (record) { return record.domain === domain; }).length;
   }
 
-  function refreshSummary() {
+  async function refreshSummary() {
     var map = { fraud: 'sumFraud', defense: 'sumDefense', env: 'sumEnv', allergen: 'sumAllergen' };
-    Object.keys(map).forEach(function (domain) {
+    (await DkjAsync.forEach(Object.keys(map), async function (domain) {
       var el = document.getElementById(map[domain]);
-      if (el) el.textContent = String(domainCount(domain));
-    });
+      if (el) el.textContent = String((await domainCount(domain)));
+    }));
   }
 
-  function renderEvidence(domain) {
+  async function renderEvidence(domain) {
     var mount = document.getElementById('evidence-' + domain);
     if (!mount) return;
-    var rows = allEvidence().filter(function (record) { return record.domain === domain; });
+    var rows = (await allEvidence()).filter(function (record) { return record.domain === domain; });
     if (!rows.length) {
       mount.innerHTML = '<div class="empty">이 화면에서 등록한 실행·검증 이력이 없습니다. 공식 FR 서식 작성 후 현장 점검·검증 이력을 추가하세요.</div>';
       return;
@@ -78,10 +78,10 @@
     }).join('');
   }
 
-  function renderTeamSettingsSummary() {
+  async function renderTeamSettingsSummary() {
     var mount = document.getElementById('teamSettingsSummary');
     if (!mount || !window.DkjRecordStore) return;
-    var records = window.DkjRecordStore.list('HACCP-TEAM-SETTINGS')
+    var records = (await window.DkjRecordStore.list('HACCP-TEAM-SETTINGS'))
       .filter(function (record) { return record && record.locked; })
       .sort(function (a, b) { return String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')); });
     if (!records.length) {
@@ -92,10 +92,10 @@
     mount.innerHTML = '<strong>승인 기준 적용 중</strong> · ' + esc(setting.revision || '개정번호 미입력') + ' / 적용일 ' + esc(displayDate(setting.effectiveDate)) + ' / 환경 채취지점 ' + esc((setting.samplingSites || []).length) + '개 · 승인자 ' + esc((setting.signoff && setting.signoff.approver && setting.signoff.approver.name) || setting.approver || '미입력') + ' <a href="haccp-team-settings.html" style="color:#fff;font-weight:800;text-decoration:underline">개정이력 보기 →</a>';
   }
 
-  function refreshAll() {
-    refreshSummary();
-    renderTeamSettingsSummary();
-    Object.keys(DOMAIN).forEach(renderEvidence);
+  async function refreshAll() {
+    (await refreshSummary());
+    (await renderTeamSettingsSummary());
+    (await DkjAsync.forEach(Object.keys(DOMAIN), renderEvidence));
   }
 
   function setTab(domain) {
@@ -120,7 +120,7 @@
       date.value = today();
       var owner = form.querySelector('[name="owner"]');
       if (owner && user && !owner.value) owner.value = user.name || user.empId || '';
-      form.addEventListener('submit', function (event) {
+      form.addEventListener('submit', async function (event) {
         event.preventDefault();
         var domain = form.getAttribute('data-domain');
         var required = form.querySelectorAll('[required]');
@@ -150,24 +150,24 @@
           evidence: data.get('evidence') || '',
           audit: [{ at: new Date().toISOString(), action: 'fssc_additional_requirement_evidence_created', actor: ownerName }]
         };
-        window.DkjRecordStore.save(FORM_ID, record);
+        (await window.DkjRecordStore.save(FORM_ID, record));
         form.reset();
         form.querySelector('[name="docDate"]').value = today();
         if (owner && user) owner.value = user.name || user.empId || '';
-        refreshAll();
+        (await refreshAll());
         alert(DOMAIN[domain].label + ' 실행·검증 이력이 저장됐습니다. 이탈·보완 항목은 조치 완료 후 새 검증 이력을 추가하세요.');
       });
     });
   }
 
-  function init() {
+  async function init() {
     document.querySelectorAll('.tab').forEach(function (tab) {
       tab.addEventListener('click', function () { setTab(tab.getAttribute('data-domain')); });
     });
     prepareForms();
-    refreshAll();
+    (await refreshAll());
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  else (await init());
 })();

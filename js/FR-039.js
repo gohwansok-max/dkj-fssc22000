@@ -1,9 +1,9 @@
 /**
  * FR-039 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-039",
   "title": "부적합품관리 기록양식 세트",
   "pattern": "fr",

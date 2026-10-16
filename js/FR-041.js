@@ -1,9 +1,9 @@
 /**
  * FR-041 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-041",
   "title": "비상상황 발생보고서",
   "pattern": "fr",

@@ -1,9 +1,9 @@
 /**
  * DKJ-H-01-07 - report boot (SSOT: data/report-form-specs/DKJ-H-01-07.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjReportForm.mount({
+  await DkjReportForm.mount({
   "code": "DKJ-H-01-07",
   "title": "검증 결과 보고서",
   "subtitle": "HACCP · 검증 실시 후 · 결과 보고",

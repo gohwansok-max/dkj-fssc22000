@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-13 - matrix boot (SSOT: data/matrix-form-specs/DKJ-S-02-13.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjMatrixForm.mount({
+  await DkjMatrixForm.mount({
   "code": "DKJ-S-02-13",
   "title": "저수조관리 점검표",
   "subtitle": "선행요건 · 주간 점검 · 월 단위 시트 · 16항목 × 5주",

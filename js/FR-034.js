@@ -1,9 +1,9 @@
 /**
  * FR-034 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-034",
   "title": "식품사기 예방 실행계획서",
   "pattern": "fr",

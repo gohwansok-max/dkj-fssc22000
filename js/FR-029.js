@@ -1,9 +1,9 @@
 /**
  * FR-029 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-029",
   "title": "변경 영향평가표",
   "pattern": "fr",

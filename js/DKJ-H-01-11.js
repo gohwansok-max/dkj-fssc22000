@@ -1,9 +1,9 @@
 /**
  * DKJ-H-01-11 - report boot (SSOT: data/report-form-specs/DKJ-H-01-11.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjReportForm.mount({
+  await DkjReportForm.mount({
   "code": "DKJ-H-01-11",
   "title": "교육・훈련 일지",
   "subtitle": "HACCP · 교육 실시 시마다 · 참석자 명단 포함",

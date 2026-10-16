@@ -1,8 +1,8 @@
-(function(){
+(async function(){
   'use strict';
   var $=function(id){return document.getElementById(id);};
   var FORMS={capa:'CAPA-MANAGEMENT',periodic:'PERIODIC-ALERTS',drill:'EMERGENCY-DRILL',mock:'TRACE-DRILL',recall:'FR-016',trace:'FR-040',audit:'AUDIT-TRAIL'};
-  function list(id){try{return(window.DkjRecordStore&&DkjRecordStore.list(id))||[];}catch(e){return[];}}
+  async function list(id){try{return(window.DkjRecordStore&&(await DkjRecordStore.list(id)))||[];}catch(e){return[];}}
   function n(v){var x=Number(v);return isFinite(x)?x:0;}
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function today(){var d=new Date();d.setHours(0,0,0,0);return d;}
@@ -20,8 +20,8 @@
     var incomplete=c.filter(function(x){return x.workflowStatus&&x.workflowStatus!=='완료';});
     return {categories:c.length,total:total,incomplete:incomplete.length};
   }
-  function allData(){
-    var capa=list(FORMS.capa),periodic=list(FORMS.periodic),drill=list(FORMS.drill),mock=list(FORMS.mock),recall=list(FORMS.recall),trace=list(FORMS.trace),docs=documentSummary();
+  async function allData(){
+    var capa=(await list(FORMS.capa)),periodic=(await list(FORMS.periodic)),drill=(await list(FORMS.drill)),mock=(await list(FORMS.mock)),recall=(await list(FORMS.recall)),trace=(await list(FORMS.trace)),docs=documentSummary();
     var open=capa.filter(function(r){return !r.locked;});
     var capaOverdue=open.filter(function(r){var d=dayDiff(r.dueDate);return d!==null&&d<0;});
     var active=periodic.filter(function(r){return r.active!==false;});
@@ -32,8 +32,8 @@
     return {capa:capa,open:open,capaOverdue:capaOverdue,periodic:periodic,active:active,p:p,drill:drill,mock:mock,recall:recall,trace:trace,locked:locked,traceDone:traceDone,docs:docs,all:all};
   }
   function addSummary(root,level,num,title,text,href){var d=document.createElement('div');d.className='ex-summary-line '+(level||'');d.innerHTML='<i>'+num+'</i><div><b>'+esc(title)+'</b><br><span>'+esc(text)+'</span></div><a href="'+esc(href)+'">확인하기</a>';root.appendChild(d);}
-  function render(){
-    var x=allData(),critical=x.capaOverdue.length+x.p.overdue.length+x.p.missing.length,soon=x.p.soon.length+x.p.today.length;
+  async function render(){
+    var x=(await allData()),critical=x.capaOverdue.length+x.p.overdue.length+x.p.missing.length,soon=x.p.soon.length+x.p.today.length;
     $('exCritical').textContent=critical;$('exSoon').textContent=soon;$('exOpenCapa').textContent=x.open.length;$('exLocked').textContent=x.locked;$('exTraceDone').textContent=x.traceDone;
     var total=x.all.length,synced=!!(window.DkjCloudSync&&DkjCloudSync.enabled&&DkjCloudSync.enabled());
     $('exDataInfo').textContent='전자기록 '+total+'건 · '+(synced?'클라우드 동기화':'현재 기기 기록')+' · '+new Date().toLocaleString('ko-KR')+' 갱신';
@@ -57,6 +57,6 @@
     var review=[['문서·심사준비','문서 '+x.docs.total+'건 · 완료 외 상태 카테고리 '+x.docs.incomplete+'건','MDR·정본·개정·배포 상태 확인'],['CAPA','미종결 '+x.open.length+'건 · 기한초과 '+x.capaOverdue.length+'건','기한·책임자·효과검증·최종결재 확인'],['정기 관리','기한경과 '+x.p.overdue.length+'건 · 예정일 미등록 '+x.p.missing.length+'건','예정일 등록 및 완료기록 확인'],['비상·식품방어','훈련 '+x.drill.length+'건 · 잠금 '+x.drill.filter(function(r){return r.locked;}).length+'건','최근 훈련·개선조치·결재 증빙 확인'],['추적성·회수','종결 '+x.traceDone+'건','LOT·수량대조·연락·CAPA 연계 확인'],['전자결재','잠금 증빙 '+x.locked+'건','감사이력 무결성·권한·승인순서 확인']];
     $('exReviewRows').innerHTML=review.map(function(r){return '<tr><td><b>'+esc(r[0])+'</b></td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td></tr>';}).join('');
   }
-  function init(){ $('exRefresh').addEventListener('click',render);document.addEventListener('dkj:cloud-ready',render);document.addEventListener('dkj:records-changed',render);window.addEventListener('dkj:records-changed',render);window.addEventListener('storage',function(e){if(String(e.key||'').indexOf('dkj:records:')===0)render();});render(); }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  async function init(){ $('exRefresh').addEventListener('click',render);document.addEventListener('dkj:cloud-ready',render);document.addEventListener('dkj:records-changed',render);window.addEventListener('dkj:records-changed',render);window.addEventListener('storage',async function(e){if(String(e.key||'').indexOf('dkj:records:')===0)(await render());});(await render()); }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else (await init());
 })();

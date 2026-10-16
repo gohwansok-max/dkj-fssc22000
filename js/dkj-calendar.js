@@ -46,10 +46,10 @@
   }
 
   /** 하루치 집계 — 비생산일의 정기 서식은 분모·미작성에서 제외한다. */
-  function dayStat(date) {
+  async function dayStat(date) {
     var st = { done: 0, ng: 0, part: 0, todo: 0, total: 0, items: [] };
-    state.forms.forEach(function (f) {
-      var ev = global.DkjConsole.evaluate(f, date);
+    (await DkjAsync.forEach(state.forms, async function (f) {
+      var ev = (await global.DkjConsole.evaluate(f, date));
       st.items.push({ form: f, ev: ev });
       if (ev.state === 'off') return;
       st.total++;
@@ -57,15 +57,15 @@
       else if (ev.state === 'ng') st.ng++;
       else if (ev.state === 'part') st.part++;
       else st.todo++;
-    });
+    }));
     return st;
   }
 
   /** 셀 상태 — full | ng | part | miss | off | future */
-  function cellState(date, today) {
+  async function cellState(date, today) {
     if (date > today && !sameDay(date, today)) return { kind: 'future', st: null };
     if (global.DkjConsole && !global.DkjConsole.isProductionDay(date)) return { kind: 'off', st: null };
-    var st = dayStat(date);
+    var st = (await dayStat(date));
     var written = st.done + st.ng;
     var kind;
     if (st.ng > 0) kind = 'ng';
@@ -75,7 +75,7 @@
     return { kind: kind, st: st };
   }
 
-  function render() {
+  async function render() {
     var host = document.getElementById('ckCalGrid');
     if (!host) return;
     var today = new Date();
@@ -97,9 +97,9 @@
         return '<span class="' + (i === 0 ? 'sun' : (i === 6 ? 'sat' : '')) + '">' + w + '</span>';
       }).join('') + '</div><div class="ck-cal-body">';
 
-    cells.forEach(function (date) {
+    (await DkjAsync.forEach(cells, async function (date) {
       if (!date) { html += '<div class="ck-cal-cell empty"></div>'; return; }
-      var r = cellState(date, today);
+      var r = (await cellState(date, today));
       var isToday = sameDay(date, new Date());
       var isSel = state.selected && sameDay(date, state.selected);
       if (r.kind === 'miss') missTotal++;
@@ -121,7 +121,7 @@
         '" data-d="' + iso(date) + '">' +
         '<span class="ck-cal-num' + (date.getDay() === 0 ? ' sun' : (date.getDay() === 6 ? ' sat' : '')) +
         '">' + date.getDate() + '</span>' + badge + '<span class="ck-cal-state">' + status + '</span></button>';
-    });
+    }));
     html += '</div>';
     host.innerHTML = html;
 
@@ -139,11 +139,11 @@
     }
 
     host.querySelectorAll('[data-d]').forEach(function (b) {
-      b.addEventListener('click', function () {
+      b.addEventListener('click', async function () {
         var p = b.getAttribute('data-d').split('-');
         state.selected = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
-        render();
-        renderDetail();
+        (await render());
+        (await renderDetail());
       });
     });
 
@@ -155,7 +155,7 @@
 
   var LABEL = { todo: '미점검', done: '실시완료', part: '작성 중', ng: '미준수', none: '—', off: '작성 의무 없음' };
 
-  function renderDetail() {
+  async function renderDetail() {
     var host = document.getElementById('ckCalDetail');
     if (!host) return;
     if (!state.selected) { host.innerHTML = '<div class="ck-empty">날짜를 선택하세요.</div>'; return; }
@@ -188,7 +188,7 @@
     } else if (global.DkjConsole && !global.DkjConsole.isProductionDay(d)) {
       body = '<div class="ck-empty ck-empty-prominent">비생산일입니다. 정기 일지 작성 의무가 없습니다. 입고·부적합·고객불만 등 발생 기록만 필요 시 작성하세요.</div>';
     } else {
-      var st = dayStat(d);
+      var st = (await dayStat(d));
       body = '<div class="ck-list">' + st.items.map(function (it) {
         return '<a class="ck-row" href="' + esc(it.form.href) + '" style="text-decoration:none;color:inherit">' +
           '<span class="ck-sdot s-' + it.ev.state + '"></span>' +
@@ -198,36 +198,36 @@
     }
     host.innerHTML = head + operation + body;
     host.querySelectorAll('[data-calendar-mode]').forEach(function (button) {
-      button.addEventListener('click', function () {
+      button.addEventListener('click', async function () {
         if (!global.DkjConsole || !global.DkjConsole.setOperationDate) return;
         state.saveMessage = '저장 중…';
         state.saveError = false;
-        renderDetail();
-        global.DkjConsole.setOperationDate(d, button.getAttribute('data-calendar-mode')).then(function () {
+        (await renderDetail());
+        global.DkjConsole.setOperationDate(d, button.getAttribute('data-calendar-mode')).then(async function () {
           state.saveMessage = '이 기기와 공통 일정에 저장했습니다.';
           state.saveError = false;
-          render();
-          renderDetail();
-        }).catch(function (err) {
+          (await render());
+          (await renderDetail());
+        }).catch(async function (err) {
           state.saveMessage = err && err.message === 'ADMIN_REQUIRED' ? '시스템 관리자만 운영일을 변경할 수 있습니다.' : '기기에는 반영했지만 공통 일정 저장에 실패했습니다. 연결 후 다시 시도하세요.';
           state.saveError = true;
-          render();
-          renderDetail();
+          (await render());
+          (await renderDetail());
         });
       });
     });
   }
 
-  function move(delta) {
+  async function move(delta) {
     var m = state.month + delta;
     state.year += Math.floor(m / 12);
     state.month = ((m % 12) + 12) % 12;
     state.selected = null;
-    render();
-    renderDetail();
+    (await render());
+    (await renderDetail());
   }
 
-  function mount(cfg) {
+  async function mount(cfg) {
     var groups = (cfg && cfg.groups) || [];
     var daily = (groups.find(function (g) { return g.id === 'daily'; }) || {}).forms || [];
     state.forms = daily;
@@ -240,27 +240,27 @@
     var prev = document.getElementById('ckCalPrev');
     var next = document.getElementById('ckCalNext');
     var cur = document.getElementById('ckCalToday');
-    if (prev && !prev.dataset.bound) { prev.dataset.bound = '1'; prev.addEventListener('click', function () { move(-1); }); }
-    if (next && !next.dataset.bound) { next.dataset.bound = '1'; next.addEventListener('click', function () { move(1); }); }
+    if (prev && !prev.dataset.bound) { prev.dataset.bound = '1'; prev.addEventListener('click', async function () { (await move(-1)); }); }
+    if (next && !next.dataset.bound) { next.dataset.bound = '1'; next.addEventListener('click', async function () { (await move(1)); }); }
     if (cur && !cur.dataset.bound) {
       cur.dataset.bound = '1';
-      cur.addEventListener('click', function () {
+      cur.addEventListener('click', async function () {
         var n = new Date();
         state.year = n.getFullYear();
         state.month = n.getMonth();
         state.selected = n;
-        render();
-        renderDetail();
+        (await render());
+        (await renderDetail());
       });
     }
 
-    render();
-    renderDetail();
+    (await render());
+    (await renderDetail());
   }
 
-  global.addEventListener('dkj:operation-calendar-changed', function () {
-    render();
-    renderDetail();
+  global.addEventListener('dkj:operation-calendar-changed', async function () {
+    (await render());
+    (await renderDetail());
   });
-  global.DkjCalendar = { mount: mount, dayStat: dayStat, refresh: function () { render(); renderDetail(); } };
+  global.DkjCalendar = { mount: mount, dayStat: dayStat, refresh: async function () { (await render()); (await renderDetail()); } };
 })(window);

@@ -1,9 +1,9 @@
 /**
  * FR-045 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  await DkjFrForm.mount({
   "code": "FR-045",
   "title": "Loss & Waste 관리표",
   "pattern": "fr",

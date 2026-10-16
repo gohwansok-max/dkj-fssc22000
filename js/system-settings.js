@@ -357,20 +357,20 @@
     }
   }
 
-  function renderLastBackupStatus() {
+  async function renderLastBackupStatus() {
     var el = $('lastBackupStatus');
     if (!el || !window.DkjExport) return;
-    var last = window.DkjExport.lastBackupAt();
+    var last = (await window.DkjExport.lastBackupAt());
     el.textContent = last ? ('마지막 백업: ' + fmt(last)) : '아직 전체 백업을 한 번도 받지 않았습니다.';
   }
 
-  function handleFullBackup() {
+  async function handleFullBackup() {
     var msgEl = $('fullBackupMsg');
     try {
-      var result = window.DkjExport.toFullBackup();
+      var result = (await window.DkjExport.toFullBackup());
       if (msgEl) { msgEl.style.color = '#006b3f'; msgEl.textContent = '✅ 백업 파일을 내려받았습니다 (기록 ' + result.records + '종 · 설정 ' + result.settings + '건).'; }
       addAudit('전체 데이터 백업 다운로드', '시스템', '기록 ' + result.records + '종 · 설정 ' + result.settings + '건');
-      renderLastBackupStatus();
+      (await renderLastBackupStatus());
     } catch (e) {
       if (msgEl) { msgEl.style.color = '#b42318'; msgEl.textContent = '❌ 백업 실패: ' + e.message; }
     }
@@ -385,9 +385,9 @@
     }
     var msgEl = $('fullBackupMsg');
     var reader = new FileReader();
-    reader.onload = function () {
+    reader.onload = async function () {
       try {
-        var result = window.DkjExport.restoreFullBackup(String(reader.result));
+        var result = (await window.DkjExport.restoreFullBackup(String(reader.result)));
         if (msgEl) { msgEl.style.color = '#006b3f'; msgEl.textContent = '✅ 복원 완료 — 새 기록 ' + result.records + '건, 설정 ' + result.settings + '건 반영.'; }
         addAudit('전체 데이터 복원', '시스템', '새 기록 ' + result.records + '건 · 설정 ' + result.settings + '건');
         alert('복원이 완료됐습니다. 화면을 새로고침하면 반영된 내용을 볼 수 있습니다.');
@@ -426,7 +426,7 @@
     renderUsers();
     renderAudit();
     await loadTelegramConfig();
-    renderLastBackupStatus();
+    (await renderLastBackupStatus());
   }
 
   function boot() {

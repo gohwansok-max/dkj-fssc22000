@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-32 — generated FR boot
  */
-(function () {
+(async function () {
   'use strict';
-  DkjFrForm.mount({
+  (await DkjFrForm.mount({
   "code": "DKJ-S-02-32",
   "title": "음용수 잔류염소 점검일지",
   "pattern": "fr",
@@ -83,5 +83,5 @@
     "rows": [],
     "sections": []
   }
-});
+}));
 })();

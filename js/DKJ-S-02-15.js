@@ -1,9 +1,9 @@
 /**
  * DKJ-S-02-15 - ledger boot (SSOT: data/ledger-form-specs/DKJ-S-02-15.json)
  */
-(function () {
+(async function () {
   'use strict';
-  DkjLedgerForm.mount({
+  await DkjLedgerForm.mount({
   "code": "DKJ-S-02-15",
   "title": "부자재(포장재) 입고검사일지",
   "subtitle": "선행요건 · 입고 시마다 · 건별 기록",
