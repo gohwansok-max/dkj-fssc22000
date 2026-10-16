@@ -30,7 +30,19 @@
     return 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
   }
 
-  global.DkjRecordStore = {
+    /** 삭제 표식(tombstone)에는 본문을 남기지 않는다 — 화면·내보내기에 안 보이는 기록이
+   * 사진까지 그대로 localStorage 를 차지해, 지워도 저장 공간이 늘 가득 차 있었다
+   * (2026-10-16: 소독헹굼 일지 시험지 사진). 병합에 필요한 식별·추적 정보만 남긴다. */
+  var TOMBSTONE_KEEP = ['id', 'formId', 'title', 'workDate', 'docDate', 'checkDate', 'createdAt', 'createdBy',
+                        'createdByEmpId', 'createdByUid', 'updatedBy', 'updatedByEmpId', 'updatedByUid', 'audit',
+                        'deleted', 'deletedAt', 'deletedBy', 'deletedByEmpId', 'updatedAt'];
+  function slimTombstone(rec) {
+    var slim = {};
+    TOMBSTONE_KEEP.forEach(function (k) { if (rec[k] !== undefined) slim[k] = rec[k]; });
+    return slim;
+  }
+
+global.DkjRecordStore = {
     list: function (formId) {
       return readJson(listKey(formId), []).filter(function (r) { return !r || !r.deleted; });
     },
@@ -100,13 +112,7 @@
       if (idx < 0) return;
       var who = (global.DkjAuth && global.DkjAuth.user()) || null;
       var now = new Date().toISOString();
-      // 삭제 표식(tombstone)에는 본문을 남기지 않는다 — 화면·내보내기에 안 보이는 기록이
-      // 사진까지 그대로 localStorage 를 차지해, 지워도 저장 공간이 늘 가득 차 있었다
-      // (2026-10-16: 소독헹굼 일지 시험지 사진). 병합에 필요한 식별·추적 정보만 남긴다.
-      var KEEP = ['id', 'formId', 'title', 'workDate', 'docDate', 'checkDate', 'createdAt', 'createdBy',
-                  'createdByEmpId', 'createdByUid', 'updatedBy', 'updatedByEmpId', 'updatedByUid', 'audit'];
-      var slim = {};
-      KEEP.forEach(function (k) { if (list[idx][k] !== undefined) slim[k] = list[idx][k]; });
+      var slim = slimTombstone(list[idx]);
       list[idx] = Object.assign(slim, {
         deleted: true,
         deletedAt: now,
@@ -218,10 +224,45 @@
     });
   }
 
+
+  /* 이전 버전에서 삭제된 기록은 본문(사진 포함)이 그대로 남아 있다 — 기기마다 한 번 비운다.
+   * 삭제된 기록은 화면·내보내기에 안 보이므로 보이는 기록의 뜻은 바뀌지 않는다.
+   * updatedAt 을 올려 다른 기기·클라우드의 옛 본문도 같은 병합 규칙으로 정리되게 한다. */
+  var SLIM_ID = 'slim-deleted-tombstones-v1';
+  function slimOldTombstones() {
+    if (appliedIds().indexOf(SLIM_ID) !== -1) return;
+    var now = new Date().toISOString();
+    var keys = [];
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (/^dkj:records:.+:list:v1$/.test(k)) keys.push(k);
+      }
+    } catch (e) { return; }
+    keys.forEach(function (key) {
+      try {
+        var list = readJson(key, []);
+        if (!Array.isArray(list)) return;
+        var changed = false;
+        list = list.map(function (rec) {
+          if (!rec || rec.deleted !== true) return rec;
+          if (JSON.stringify(rec).length < 3000) return rec; // 이미 작다
+          changed = true;
+          var slim = slimTombstone(rec);
+          slim.updatedAt = now;
+          return slim;
+        });
+        if (changed) writeJson(key, list);
+      } catch (e) { /* 다음 접속 때 다시 시도 */ }
+    });
+    try { markApplied(SLIM_ID); } catch (e) {}
+  }
+
   // 스크립트 순서상 dkj-approval.js 가 아직 안 실렸을 수 있어 로드 완료 후에 돈다.
+  function runAll() { slimOldTombstones(); runMigrations(); }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runMigrations);
+    document.addEventListener('DOMContentLoaded', runAll);
   } else {
-    runMigrations();
+    runAll();
   }
 })(window);
