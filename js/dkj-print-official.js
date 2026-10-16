@@ -106,8 +106,26 @@
       }
       return '';
     }
+    // 작업시작전·작업종료시 행은 제품이 없어 물성보정·안정도 칸이 비었는데, 정본에서는
+    // 인접한 작업중 행의 값을 그대로 적어야 한다(2026-10-16 현장 요청): 작업시작전은
+    // 바로 다음 제품 행, 작업종료시는 바로 앞 제품 행의 값을 따른다. 전역(state) 값은
+    // 쓰지 않는다 — 제품별 중량구간이 달라 엉뚱한 기준이 찍힐 수 있다.
+    function rowAdjust(r) { return r.adjust || (r.time ? state.adjust : '') || ''; }
+    function rowStable(r) { return r.stable || (r.time ? state.stable : '') || ''; }
+    function neighborProductRow(i, step) {
+      for (var k = i + step; k >= 0 && k < rows.length; k += step) {
+        if (rowProductName(rows[k], k)) return rows[k];
+        var lb = rowTimepointLabel(rows[k], k);
+        if (rows[k].time && lb !== '작업중') return null; // 다른 시작전/종료시 행을 만나면 중단
+      }
+      return null;
+    }
+    function dash(v) { return v === '' || v == null ? '-' : v; }
     var monBody = rows.map(function (r, i) {
       var product = rowProductName(r, i);
+      var isFiller = !r.time && !product && !r.item && !r.fe && !r.sus; // 빈 여백 행
+      var edge = !product && !isFiller;       // 작업시작전·작업종료시 행
+      var nb = edge ? neighborProductRow(i, rowTimepointLabel(r, i) === '작업종료시' ? -1 : 1) : null;
       var nameCell = product
         ? '<td class="l">' + esc(product) + '</td>'
         : '<td class="c strong">' + esc(rowTimepointLabel(r, i)) + '</td>';
@@ -116,12 +134,11 @@
         '<td class="c">' + esc(r.time || '') + '</td>' +
         '<td class="c">' + ox(r.fe) + '</td>' +
         '<td class="c">' + ox(r.sus) + '</td>' +
-        '<td class="c">' + ox(r.prodOnly || '') + '</td>' +
-        '<td class="c">' + ox(r.prodFe) + '</td>' +
-        '<td class="c">' + ox(r.prodSus) + '</td>' +
-        // 제품이 없는 작업시작전·작업종료시 행에는 마지막 제품의 전역 기준을 상속하지 않는다.
-        '<td class="c">' + esc(product ? (r.adjust || (r.time ? state.adjust : '') || '') : '') + '</td>' +
-        '<td class="c">' + esc(product ? (r.stable || (r.time ? state.stable : '') || '') : '') + '</td>' +
+        '<td class="c">' + (edge ? ox(dash(r.prodOnly || '')) : ox(r.prodOnly || '')) + '</td>' +
+        '<td class="c">' + (edge ? ox(dash(r.prodFe)) : ox(r.prodFe)) + '</td>' +
+        '<td class="c">' + (edge ? ox(dash(r.prodSus)) : ox(r.prodSus)) + '</td>' +
+        '<td class="c">' + esc(product ? rowAdjust(r) : (edge ? dash(nb ? rowAdjust(nb) : '') : '')) + '</td>' +
+        '<td class="c">' + esc(product ? rowStable(r) : (edge ? dash(nb ? rowStable(nb) : '') : '')) + '</td>' +
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'
       );
@@ -142,10 +159,23 @@
     var fallbackPassFor = function (name) {
       var rowsForProduct = (state.rows || []).filter(function (r, i) { return rowProductName(r, i) === name; });
       var times = rowsForProduct.map(function (r) { return r.time; }).filter(Boolean).sort();
+      // 종료시각 = 그 제품 마지막 측정행 '다음' 행의 시각이다 — 같은 작업 안에서 다음
+      // 제품으로 바뀌면 그 제품의 시작시각, 작업종료시 행이면 그 행의 시각.
+      // (예전에는 제품 자신의 마지막 측정시각을 그대로 써서 일보의 종료시각과 어긋났다.)
+      var lastIdx = -1;
+      (state.rows || []).forEach(function (r, i) { if (rowProductName(r, i) === name) lastIdx = i; });
+      var endTime = '';
+      for (var k = lastIdx + 1; lastIdx >= 0 && k < rows.length; k++) {
+        var nextLabel = rowTimepointLabel(rows[k], k);
+        var nextProduct = rowProductName(rows[k], k);
+        if (nextLabel === '작업시작전') break;
+        if (nextProduct && nextProduct !== name) { endTime = rows[k].time || ''; break; }
+        if (nextLabel === '작업종료시' && !nextProduct) { endTime = rows[k].time || ''; break; }
+      }
       return {
         productName: name,
         start: times[0] || '',
-        end: times[times.length - 1] || '',
+        end: endTime || times[times.length - 1] || '',
         ok: rowsForProduct.some(function (r) { return r.judge === 'X'; }) ? '×' : '○',
         qty: state.passQty || '',
         note: state.remark || ''

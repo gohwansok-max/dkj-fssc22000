@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-test('CCP-2P print does not inherit a selected product stability for start/end rows', () => {
+test('CCP-2P print copies the adjacent product adjust/stable values into start/end rows (2026-10-16 현장 요청)', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'dkj-print-official.js'), 'utf8');
   const context = {
     esc(value) {
@@ -31,8 +31,8 @@ test('CCP-2P print does not inherit a selected product stability for start/end r
   };
   for (const label of ['작업시작전', '작업종료시']) {
     const cells = rowFor(label);
-    assert.equal(cells[7], '<td class="c"></td>');
-    assert.equal(cells[8], '<td class="c"></td>');
+    assert.equal(cells[7], '<td class="c">70</td>');
+    assert.equal(cells[8], '<td class="c">450</td>');
   }
   const productRow = html.match(/<tr><td class="l">제품A<\/td>[\s\S]*?<\/tr>/);
   assert.ok(productRow, 'product row should be printed');
