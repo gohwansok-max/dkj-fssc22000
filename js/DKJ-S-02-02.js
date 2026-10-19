@@ -71,6 +71,7 @@
     {
       "key": "offCnt",
       "label": "미점등 개소",
+      "default": "0",
       "width": "8%",
       "type": "num"
     },
@@ -91,6 +92,16 @@
       "align": "left"
     }
   ],
+  "autoJudge": {
+    "valueKey": "value",
+    "stdKeys": [
+      "std1",
+      "std2"
+    ],
+    "target": "judge",
+    "pass": "적합",
+    "fail": "부적합"
+  },
   "defaultRows": [
     {
       "zone": "일반 구역",
@@ -216,7 +227,8 @@
       "place": "발생장소",
       "point": "이상발생내역",
       "std1": "조치내역 및 결과",
-      "std2": "완료일시"
+      "std2": "완료일시",
+      "offCnt": ""
     }
   ],
   "legend": "※ 측정치가 기준치 미만이면 부적합으로 판정하고 조명 교체·보수 후 재측정한다."

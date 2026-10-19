@@ -169,6 +169,10 @@
         continue;
       }
       body += '<tr>' + cols.map(function (c) {
+        // 설비 종류상 해당 없는 칸(enableIf) — 화면에서 막힌 칸은 정본에서도 회색으로 찍는다.
+        if (c.enableIf && String(r[c.enableIf.field] || '').indexOf(c.enableIf.includes) === -1) {
+          return '<td class="c lg-cell lg-na"></td>';
+        }
         // lg-fix = 서식에 미리 인쇄된 칸(구역·항목 등). 길이를 알고 있어서 조밀
         // 인쇄에서 한 줄로 눌러도 되지만, 사람이 적는 칸은 눌러선 안 된다.
         return '<td class="' + (c.align === 'left' ? 'l' : 'c') + ' lg-cell' +
@@ -202,6 +206,27 @@
         : '<tr>' + cells + '</tr>';
     }
     return '<table class="off-correct mx-inc">' + head + body + '</table>';
+  }
+
+  /** 하단 부가 기재표 — spec.extraTable (예: 방충방서 카트리지 교체 내역). 값은 state.extraRows. */
+  function extraHtml(spec, state) {
+    var cfg = spec.extraTable;
+    if (!cfg) return '';
+    var cols = cfg.columns || [];
+    var rows = state.extraRows || [];
+    var count = Math.max(cfg.rows || 4, rows.length);
+    var head = '<tr class="off-nest-hd">' + cols.map(function (c) {
+      return '<th' + (c.width ? ' style="width:' + c.width + '"' : '') + '>' + esc(c.label) + '</th>';
+    }).join('') + '</tr>';
+    var body = '';
+    for (var i = 0; i < count; i++) {
+      var r = rows[i] || {};
+      body += '<tr>' + cols.map(function (c) {
+        return '<td class="' + (c.align === 'left' ? 'l' : 'c') + '">' + esc(r[c.key] || '') + '</td>';
+      }).join('') + '</tr>';
+    }
+    return '<div class="off-sec lg-extra-title">' + esc(cfg.label || '') + '</div>' +
+      '<table class="off-grid lg-extra">' + head + body + '</table>';
   }
 
   /** 인쇄할 (열 묶음 x 행 구간) 쪽 목록 */
@@ -249,6 +274,7 @@
         (last ? incidentHtml(spec, st) : '') +
         (last && spec.infoNote ? '<div class="off-box tiny lg-note">' + esc(spec.infoNote) + '</div>' : '') +
         (last && spec.legend ? '<div class="off-box tiny lg-legend">' + esc(spec.legend) + '</div>' : '') +
+        (last ? extraHtml(spec, st) : '') +
         '<div class="off-foot">' + esc(spec.orgName || '동김제농협 산지유통센터') +
         ' · ' + esc(spec.docNo || '') + ' · ' + (i + 1) + ' / ' + plan.length + '</div>' +
         '</section>';

@@ -788,6 +788,17 @@
     print-color-adjust: exact;
   }
 
+  /* 설비 종류상 기재 대상이 아닌 칸(enableIf) — 화면의 막힌 칸과 같이 회색 음영 */
+  .off-ledger .lg-cell.lg-na {
+    background: #d4d4d4 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .off-ledger .lg-extra-title { margin-top: 6pt; break-after: avoid; page-break-after: avoid; }
+  .off-ledger .lg-extra td { height: 16pt; }
+  .off-ledger .lg-extra { break-inside: avoid; page-break-inside: avoid; }
+
   .off-ledger .lg-off {
     color: #777;
     font-size: 7.5pt;

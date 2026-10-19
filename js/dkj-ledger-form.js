@@ -45,10 +45,19 @@
         incidents.push(ir);
       }
     }
+    var extraRows = [];
+    if (spec.extraTable) {
+      for (var e = 0; e < (spec.extraTable.rows || 4); e++) {
+        var er = {};
+        (spec.extraTable.columns || []).forEach(function (c) { er[c.key] = ''; });
+        extraRows.push(er);
+      }
+    }
     return {
       info: info,
       rows: rows,
       incidents: incidents,
+      extraRows: extraRows,
       approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
@@ -561,6 +570,24 @@
           var prevVal = state.rows[ri][key];
           state.rows[ri][key] = el.value;
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
+          // autoJudge — 측정값을 적으면 기준치(고시·사내 중 더 높은 값) 이상 여부로 판정 칸을 채운다.
+          // 입력 직후에만 계산하므로 저장된 기록을 열어도 값이 바뀌지 않고, 판정은 손으로 고칠 수 있다.
+          var aj = spec.autoJudge;
+          if (aj && key === aj.valueKey) {
+            var nums = [];
+            (aj.stdKeys || []).forEach(function (sk) {
+              var m = String(state.rows[ri][sk] || '').match(/\d+(?:\.\d+)?/);
+              if (m) nums.push(parseFloat(m[0]));
+            });
+            var val = parseFloat(el.value);
+            var verdict = '';
+            if (nums.length && !isNaN(val) && String(el.value).trim() !== '') {
+              verdict = val >= Math.max.apply(null, nums) ? aj.pass : aj.fail;
+            }
+            state.rows[ri][aj.target] = verdict;
+            var jt = host.querySelector('[data-r="' + ri + '"][data-c="' + aj.target + '"]');
+            if (jt) jt.value = verdict;
+          }
           if (spec.autoDateRange && key === spec.autoDateRange.dateKey) {
             applyAutoDateRange();
             renderInfo();
@@ -609,6 +636,37 @@
       applyLock();
     }
 
+    /** 하단 부가 기재표(spec.extraTable) — 예: 방충방서 카트리지 교체일자·교체 수량·파손 개수 */
+    function renderExtra() {
+      var host = $('extraGrid');
+      if (!host || !spec.extraTable) return;
+      var cfg = spec.extraTable;
+      var cols = cfg.columns || [];
+      if (!Array.isArray(state.extraRows)) state.extraRows = [];
+      // 옛 기록(이 표가 생기기 전)이나 행이 모자란 기록도 기본 행 수까지 채워 보여 준다.
+      while (state.extraRows.length < (cfg.rows || 4)) state.extraRows.push({});
+      var head = '<tr>' + cols.map(function (c) {
+        return '<th' + (c.width ? ' style="width:' + c.width + '"' : '') + '>' + esc(c.label) + '</th>';
+      }).join('') + '</tr>';
+      var body = state.extraRows.map(function (r, i) {
+        return '<tr>' + cols.map(function (c) {
+          var t = c.type === 'num' ? 'number' : (c.type === 'date' ? 'date' : 'text');
+          return '<td><input type="' + t + '"' + (t === 'number' ? ' min="0" step="1" inputmode="numeric"' : '') +
+            ' data-ex="' + i + '" data-ck="' + c.key + '" value="' + esc(r[c.key] || '') + '"></td>';
+        }).join('') + '</tr>';
+      }).join('');
+      host.innerHTML = '<h3 style="margin:0 0 6px;font-size:14px;">' + esc(cfg.label || '') + '</h3>' +
+        '<table class="mxf-inc"><thead>' + head + '</thead><tbody>' + body + '</tbody></table>';
+      host.querySelectorAll('[data-ex]').forEach(function (el) {
+        el.addEventListener('input', function () {
+          if (state.locked) return;
+          state.extraRows[Number(el.getAttribute('data-ex'))][el.getAttribute('data-ck')] = el.value;
+          scheduleDraft();
+        });
+      });
+      applyLock();
+    }
+
     function renderIncidents() {
       var host = $('incidentGrid');
       if (!host || !spec.incident) return;
@@ -638,7 +696,7 @@
       if (!host) return;
       host.classList.toggle('is-locked', !!state.locked);
       host.querySelectorAll('#ledgerGrid input, #ledgerGrid select, #ledgerGrid button, '
-        + '#infoFields input, #infoFields select, #incidentGrid input')
+        + '#infoFields input, #infoFields select, #incidentGrid input, #extraGrid input')
         .forEach(function (el) { el.disabled = !!state.locked; });
       // 잠금 해제 시에도 서식상 읽기전용인 칸은 계속 막아 둔다
       host.querySelectorAll('#infoFields [data-fixed]').forEach(function (el) { el.disabled = true; });
@@ -803,6 +861,7 @@
       applyAutoWeekday();
       renderGrid();
       renderIncidents();
+      renderExtra();
       refreshApproval();
     }
 
