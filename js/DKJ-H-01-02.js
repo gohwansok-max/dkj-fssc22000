@@ -728,12 +728,34 @@
   }
 
   var saveInFlight = false;
+  /** 값(구분·품목·O/X)은 있는데 시간이 비어 있는 측정행 — [{idx, label}] */
+  function rowsMissingTime() {
+    var out = [];
+    (state.rows || []).forEach(function (r, i) {
+      if (!r || r.time) return;
+      if (!(r.item || r.product || r.fe || r.sus || r.prodOnly || r.prodFe || r.prodSus)) return;
+      out.push({ idx: i, label: (i + 1) + '행' + (r.item ? ' ' + r.item : '') + (r.product ? '·' + r.product : '') });
+    });
+    return out;
+  }
+
   async function save(lock) {
     if (saveInFlight) return;
     saveInFlight = true;
     try {
       var err = validate();
       if (err) { alert(err); return; }
+      var missingTime = rowsMissingTime();
+      if (missingTime.length && window.DkjUtil && !DkjUtil.confirmMissingTime(missingTime.map(function (m) { return m.label; }), lock)) {
+        var firstEl = document.querySelector('#monBody tr[data-i="' + missingTime[0].idx + '"] [data-f="time"]');
+        missingTime.forEach(function (m) {
+          var el = document.querySelector('#monBody tr[data-i="' + m.idx + '"] [data-f="time"]');
+          if (el) el.classList.add('bad');
+        });
+        if (firstEl) { try { firstEl.scrollIntoView({ block: 'center' }); firstEl.focus(); } catch (e) {} }
+        setStatus('시간 입력 필요', false);
+        return;
+      }
       // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
       // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
       clearTimeout(draftTimer);

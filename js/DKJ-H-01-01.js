@@ -599,6 +599,24 @@
         return;
       }
       if (err) { alert(err); return; }
+      // 값(품목·측정값)은 있는데 시간이 비어 있는 행이 있으면 저장 전에 알린다.
+      var missingTime = [];
+      (state.rows || []).forEach(function (r, i) {
+        if (!r || r.time) return;
+        if (!((r.productName || '').trim() || r.ppm || r.soak || r.rinseSec || r.residualCl || r.rawMaterialKg)) return;
+        missingTime.push({ idx: i, label: (i + 1) + '행' + (r.productName ? ' ' + r.productName : '') });
+      });
+      if (!state.preWorkTime && state.preWorkPpm) missingTime.unshift({ idx: -1, label: '작업 시작 전 확인' });
+      if (missingTime.length && window.DkjUtil && !DkjUtil.confirmMissingTime(missingTime.map(function (m) { return m.label; }), lock)) {
+        var firstEl = null;
+        missingTime.forEach(function (m) {
+          var el = document.querySelector('tr[data-i="' + m.idx + '"] [data-f="time"]');
+          if (el) { el.classList.add('bad'); if (!firstEl) firstEl = el; }
+        });
+        if (firstEl) { try { firstEl.scrollIntoView({ block: 'center' }); firstEl.focus(); } catch (e) {} }
+        setStatus('시간 입력 필요', false);
+        return;
+      }
       // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 화면에 "저장됨"이
       // 잠깐 떴다가 곧이어 그 타이머가 뒤늦게 "임시저장"으로 덮어써서, 실제로는
       // 정상 저장됐는데도 작업자가 "임시저장만 된 건가?" 하고 헷갈리게 된다.

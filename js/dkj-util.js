@@ -170,6 +170,18 @@
     });
   }
 
+  /** 측정행에 값은 있는데 시간이 비어 있으면 저장 전에 알린다. labels: 시간이 빈 행 이름 목록.
+   *  [확인]=이대로 저장, [취소]=돌아가서 채움. 막지는 않는다(현장 작업을 세우지 않는다).
+   *  배경: 2026-10-16 금속검출·소독헹굼 일지에서 중간부터 시간·사진이 비어 저장돼 있었다 —
+   *  시간 누락을 저장 단계에서 바로 보이게 한다. */
+  function confirmMissingTime(labels, lock) {
+    if (!labels || !labels.length) return true;
+    var shown = labels.slice(0, 6).join(', ') + (labels.length > 6 ? ' 외 ' + (labels.length - 6) + '개' : '');
+    return global.confirm('⚠ 시간이 비어 있는 측정행이 ' + labels.length + '개 있습니다.\n(' + shown + ')\n\n' +
+      (lock ? '작성완료하면 잠겨서 이후 수정할 수 없습니다.\n' : '') +
+      '[취소]를 누르면 돌아가서 시간을 채울 수 있습니다.\n[확인]을 누르면 시간 없이 그대로 저장합니다.');
+  }
+
   /** 서식 툴바에 빠른 작성 도구 (전체 적합 / 최근기록 복사) 자동 주입 */
   async function attachQuickToolbar(toolbarEl, options) {
     if (!toolbarEl) toolbarEl = document.querySelector('.dkj-form-toolbar');
@@ -396,6 +408,7 @@
     autoFillUser: autoFillUser,
     attachChips: attachChips,
     attachQuickToolbar: attachQuickToolbar,
+    confirmMissingTime: confirmMissingTime,
     ensureStaffDatalist: ensureStaffDatalist,
     compressImageToDataUrl: compressImageToDataUrl,
     DEFAULT_PRESETS: DEFAULT_PRESETS
