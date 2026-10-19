@@ -536,11 +536,102 @@
     "dayKey": "day",
     "weekdayKey": "dow"
   },
-  "quickFillColumns": [
+  "autoJudgeRanges": [
     {
-      "key": "remark",
-      "value": "이상없음",
-      "label": "비고 \"이상없음\" 일괄채움"
+      "valueKey": "z1_am",
+      "target": "z1_amj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z1_pm",
+      "target": "z1_pmj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z2_am",
+      "target": "z2_amj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z2_pm",
+      "target": "z2_pmj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z3_am",
+      "target": "z3_amj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z3_pm",
+      "target": "z3_pmj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z4_am",
+      "target": "z4_amj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z4_pm",
+      "target": "z4_pmj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z5_am",
+      "target": "z5_amj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z5_pm",
+      "target": "z5_pmj",
+      "min": 10,
+      "max": 20
+    },
+    {
+      "valueKey": "z6_am",
+      "target": "z6_amj",
+      "min": 0,
+      "max": 5
+    },
+    {
+      "valueKey": "z6_pm",
+      "target": "z6_pmj",
+      "min": 0,
+      "max": 5
+    },
+    {
+      "valueKey": "z6_3",
+      "target": "z6_3j",
+      "min": 0,
+      "max": 5
+    },
+    {
+      "valueKey": "z7_am",
+      "target": "z7_amj",
+      "min": 0,
+      "max": 5
+    },
+    {
+      "valueKey": "z7_pm",
+      "target": "z7_pmj",
+      "min": 0,
+      "max": 5
+    },
+    {
+      "valueKey": "z7_3",
+      "target": "z7_3j",
+      "min": 0,
+      "max": 5
     }
   ],
   "legend": "※ 관리기준 이탈 시 즉시 조치하고 비고란에 기록한다.  적합 : 적 / 부적합 : 부  ※ 토요일은 휴무일로 점검 대상이 아니다.",

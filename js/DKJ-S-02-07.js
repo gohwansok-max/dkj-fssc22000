@@ -46,7 +46,7 @@
     {
       "key": "place",
       "label": "설치위치",
-      "width": "11%",
+      "width": "15%",
       "readonly": true,
       "align": "left"
     },
@@ -328,6 +328,40 @@
       "place": "완제품 냉장창고(2)"
     }
   ],
+  "printDensity": {
+    "rowHeight": "18pt",
+    "fontSize": "7pt"
+  },
+  "extraTable": {
+    "label": "카트리지 교체 내역",
+    "rows": 4,
+    "columns": [
+      {
+        "key": "date",
+        "label": "교체 일자",
+        "width": "28%",
+        "type": "date"
+      },
+      {
+        "key": "qty",
+        "label": "교체 수량 (EA)",
+        "width": "24%",
+        "type": "num"
+      },
+      {
+        "key": "broken",
+        "label": "파손 개수 (EA)",
+        "width": "24%",
+        "type": "num"
+      },
+      {
+        "key": "note",
+        "label": "비고",
+        "width": "24%",
+        "align": "left"
+      }
+    ]
+  },
   "infoNote": "[방충방서 모니터링 주기] *하계(하절기) : 5월~10월 – 1회/주 (월 4회 이상) *동계(동절기) : 11월~4월 – 1회/2주 (월 2회 이상)   [방충방서 관리 계절구분] 하계(하절기) / 동계(동절기) 구분에 따라 점검 주기를 달리한다. ※ 작업장 특성 및 보행해충 트랩 유입경로를 고려해 설치위치를 조정한다.",
   "legend": "※ 포집 수량이 관리기준을 초과하면 방제업체에 연락하고 개선조치 내역을 기록한다."
 });

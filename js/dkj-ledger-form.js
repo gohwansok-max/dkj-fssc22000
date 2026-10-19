@@ -45,10 +45,19 @@
         incidents.push(ir);
       }
     }
+    var extraRows = [];
+    if (spec.extraTable) {
+      for (var e = 0; e < (spec.extraTable.rows || 4); e++) {
+        var er = {};
+        (spec.extraTable.columns || []).forEach(function (c) { er[c.key] = ''; });
+        extraRows.push(er);
+      }
+    }
     return {
       info: info,
       rows: rows,
       incidents: incidents,
+      extraRows: extraRows,
       approvals: { writer: '', reviewer: '', approver: '' },
       signoff: {},
       // audit 를 여기서 만들어 둬야 저장 훅이 같은 배열에 이어 붙인다.
@@ -274,6 +283,12 @@
             var el = e.target.closest ? e.target.closest('[data-info]') : null;
             if (!el || !host.contains(el)) return;
             state.info[el.getAttribute('data-info')] = el.value;
+            // 맨 위에서 고른 점검자가 아래 결재 '작성' 칸의 작성자가 된다(따로 또 고르지 않는다).
+            if (el.getAttribute('data-info') === 'inspector' && el.value) {
+              state.approvals.writer = el.value;
+              if ($('writer')) $('writer').value = el.value;
+              global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+            }
             if (spec.autoWeekday && el.getAttribute('data-info') === spec.autoWeekday.monthField) {
               applyAutoWeekday(true);
               renderGrid();
@@ -472,6 +487,11 @@
       var range = (c.type === 'num' && (c.min != null || c.max != null))
         ? (c.min != null ? ' min="' + esc(c.min) + '"' : '') + (c.max != null ? ' max="' + esc(c.max) + '"' : '')
         : '';
+      // staff — 등록된 사용자 목록(dkjStaffList)에서 고르되 직접 입력도 된다
+      if (c.staff === true && t === 'text') {
+        return '<input type="text" list="dkjStaffList" data-r="' + ri + '" data-c="' + c.key +
+          '" value="' + esc(v) + '" placeholder="선택/입력">';
+      }
       return '<input type="' + t + '" data-r="' + ri + '" data-c="' + c.key + '" value="' +
         esc(v) + '"' + range + ' placeholder="' + esc(c.unit || '') + '">';
     }
@@ -553,8 +573,49 @@
         el.addEventListener(ev, function () {
           var key = el.getAttribute('data-c');
           var ri = Number(el.getAttribute('data-r'));
+          var prevVal = state.rows[ri][key];
           state.rows[ri][key] = el.value;
+          // autoStaff 열(반출자명 등)은 비어 있으면 맨 위 점검자로 채운다. 사람이 고른 값은 덮어쓰지 않는다.
+          COLS.forEach(function (ac) {
+            if (!ac.autoStaff || ac.key === key) return;
+            if (String(state.rows[ri][ac.key] || '').trim()) return;
+            var who = state.info && state.info.inspector;
+            if (!who) return;
+            state.rows[ri][ac.key] = who;
+            var at = host.querySelector('[data-r="' + ri + '"][data-c="' + ac.key + '"]');
+            if (at) at.value = who;
+          });
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
+          // autoJudge — 측정값을 적으면 기준치(고시·사내 중 더 높은 값) 이상 여부로 판정 칸을 채운다.
+          // 입력 직후에만 계산하므로 저장된 기록을 열어도 값이 바뀌지 않고, 판정은 손으로 고칠 수 있다.
+          // autoJudgeRanges — 열마다 허용 범위(min~max 포함)가 정해진 서식(예: 작업장 온도 일보).
+          (spec.autoJudgeRanges || []).forEach(function (rg) {
+            if (rg.valueKey !== key) return;
+            var rv = parseFloat(el.value);
+            var rverdict = '';
+            if (!isNaN(rv) && String(el.value).trim() !== '') {
+              rverdict = (rv >= rg.min && rv <= rg.max) ? (rg.pass || '적') : (rg.fail || '부');
+            }
+            state.rows[ri][rg.target] = rverdict;
+            var rt = host.querySelector('[data-r="' + ri + '"][data-c="' + rg.target + '"]');
+            if (rt) rt.value = rverdict;
+          });
+          var aj = spec.autoJudge;
+          if (aj && key === aj.valueKey) {
+            var nums = [];
+            (aj.stdKeys || []).forEach(function (sk) {
+              var m = String(state.rows[ri][sk] || '').match(/\d+(?:\.\d+)?/);
+              if (m) nums.push(parseFloat(m[0]));
+            });
+            var val = parseFloat(el.value);
+            var verdict = '';
+            if (nums.length && !isNaN(val) && String(el.value).trim() !== '') {
+              verdict = val >= Math.max.apply(null, nums) ? aj.pass : aj.fail;
+            }
+            state.rows[ri][aj.target] = verdict;
+            var jt = host.querySelector('[data-r="' + ri + '"][data-c="' + aj.target + '"]');
+            if (jt) jt.value = verdict;
+          }
           if (spec.autoDateRange && key === spec.autoDateRange.dateKey) {
             applyAutoDateRange();
             renderInfo();
@@ -567,7 +628,10 @@
           // 중이던 칸의 포커스가 날아가므로 그 칸 하나만 DOM 에서 직접 갱신한다.
           (spec.autoCopyColumns || []).forEach(function (cfg) {
             if (cfg.from !== key) return;
-            if (String(state.rows[ri][cfg.to] || '').trim()) return;
+            // sync: 대상 칸이 비었거나 아직 이전 원본값 그대로(=자동으로 따라온 값)이면 계속 따라간다.
+            // 사람이 따로 고친 값은 덮어쓰지 않는다. (예: 폐기물량 → 반출량)
+            var curTo = String(state.rows[ri][cfg.to] || '').trim();
+            if (curTo && !(cfg.sync && curTo === String(prevVal || '').trim())) return;
             var v = cfg.format === 'yyyymmdd' ? String(el.value || '').replace(/[^0-9]/g, '') : el.value;
             state.rows[ri][cfg.to] = v;
             var target = host.querySelector('[data-r="' + ri + '"][data-c="' + cfg.to + '"]');
@@ -594,6 +658,37 @@
           state.rows.splice(Number(b.getAttribute('data-del')), 1);
           if (!state.rows.length) state.rows.push(emptyRow(spec));
           renderGrid();
+          scheduleDraft();
+        });
+      });
+      applyLock();
+    }
+
+    /** 하단 부가 기재표(spec.extraTable) — 예: 방충방서 카트리지 교체일자·교체 수량·파손 개수 */
+    function renderExtra() {
+      var host = $('extraGrid');
+      if (!host || !spec.extraTable) return;
+      var cfg = spec.extraTable;
+      var cols = cfg.columns || [];
+      if (!Array.isArray(state.extraRows)) state.extraRows = [];
+      // 옛 기록(이 표가 생기기 전)이나 행이 모자란 기록도 기본 행 수까지 채워 보여 준다.
+      while (state.extraRows.length < (cfg.rows || 4)) state.extraRows.push({});
+      var head = '<tr>' + cols.map(function (c) {
+        return '<th' + (c.width ? ' style="width:' + c.width + '"' : '') + '>' + esc(c.label) + '</th>';
+      }).join('') + '</tr>';
+      var body = state.extraRows.map(function (r, i) {
+        return '<tr>' + cols.map(function (c) {
+          var t = c.type === 'num' ? 'number' : (c.type === 'date' ? 'date' : 'text');
+          return '<td><input type="' + t + '"' + (t === 'number' ? ' min="0" step="1" inputmode="numeric"' : '') +
+            ' data-ex="' + i + '" data-ck="' + c.key + '" value="' + esc(r[c.key] || '') + '"></td>';
+        }).join('') + '</tr>';
+      }).join('');
+      host.innerHTML = '<h3 style="margin:0 0 6px;font-size:14px;">' + esc(cfg.label || '') + '</h3>' +
+        '<table class="mxf-inc"><thead>' + head + '</thead><tbody>' + body + '</tbody></table>';
+      host.querySelectorAll('[data-ex]').forEach(function (el) {
+        el.addEventListener('input', function () {
+          if (state.locked) return;
+          state.extraRows[Number(el.getAttribute('data-ex'))][el.getAttribute('data-ck')] = el.value;
           scheduleDraft();
         });
       });
@@ -629,7 +724,7 @@
       if (!host) return;
       host.classList.toggle('is-locked', !!state.locked);
       host.querySelectorAll('#ledgerGrid input, #ledgerGrid select, #ledgerGrid button, '
-        + '#infoFields input, #infoFields select, #incidentGrid input')
+        + '#infoFields input, #infoFields select, #incidentGrid input, #extraGrid input')
         .forEach(function (el) { el.disabled = !!state.locked; });
       // 잠금 해제 시에도 서식상 읽기전용인 칸은 계속 막아 둔다
       host.querySelectorAll('#infoFields [data-fixed]').forEach(function (el) { el.disabled = true; });
@@ -789,11 +884,17 @@
         if ($(k)) $(k).value = state.approvals[k] || '';
       });
       if ($('remark')) $('remark').value = state.remark || '';
+      // 점검자가 있는데 작성자가 비어 있으면(옛 기록·새 일보) 점검자로 맞춘다.
+      if (!state.approvals.writer && state.info && state.info.inspector) {
+        state.approvals.writer = state.info.inspector;
+        if ($('writer')) $('writer').value = state.approvals.writer;
+      }
       applyAutoDateRange();
       renderInfo();
       applyAutoWeekday();
       renderGrid();
       renderIncidents();
+      renderExtra();
       refreshApproval();
     }
 

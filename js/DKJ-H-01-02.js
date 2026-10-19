@@ -420,10 +420,10 @@
         var info = state.passInfo[name] || {};
         var dis = state.locked ? ' disabled' : '';
         return '<tr data-pn="' + i + '"><td>' + esc(name) + '</td>' +
-          '<td><div class="mon-unit-wrap"><input type="number" class="mon-in pass-in" data-pf="qty" min="0" step="0.1" value="' + esc(info.qty || '') + '"' + dis + '><span class="mon-unit">kg</span></div></td>' +
+          '<td><div class="mon-unit-wrap"><input type="number" class="mon-in pass-in" data-pf="qty" min="0" step="0.1" value="' + esc(info.qty || '') + '"' + dis + '><span class="mon-unit">ea</span></div></td>' +
           '<td><input type="date" class="mon-in pass-in" data-pf="packDate" value="' + esc(info.packDate || '') + '"' + dis + '></td>' +
           '<td><div class="mon-unit-wrap"><input type="number" class="mon-in pass-in" data-pf="packUsage" min="0" step="1" value="' + esc(info.packUsage || '') + '"' + dis + '><span class="mon-unit">EA</span></div></td>' +
-          '<td><input type="text" class="mon-in pass-in" data-pf="note" maxlength="60" value="' + esc(info.note || '') + '"' + dis + '></td></tr>';
+          '<td><input type="text" class="mon-in pass-in" data-pf="note" maxlength="60" placeholder="부적합 수량은 숫자만(ea)" value="' + esc(info.note || '') + '"' + dis + '></td></tr>';
       }).join('') + '</tbody></table></div>';
     host.querySelectorAll('.pass-in').forEach(function (inp) {
       var onPass = function (e) {

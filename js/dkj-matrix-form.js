@@ -360,6 +360,8 @@
           var next = CYCLE_S[(CYCLE_S.indexOf(cur) + 1) % CYCLE_S.length];
           if (!state.checks[k]) state.checks[k] = new Array(N).fill('');
           state.checks[k][d] = next;
+          // 그 날 첫 체크이면 아래 점검자(서명)칸을 맨 위 작성자로 채운다(이미 있으면 그대로).
+          if (!state.signs[d] && state.approvals.writer) state.signs[d] = state.approvals.writer;
           renderMatrix();
           renderSummary();
           scheduleDraft();
@@ -631,6 +633,23 @@
       });
     }
 
+    /** 작성자를 고르면 점검 결과가 이미 있는 날의 빈 점검자(서명)칸을 그 작성자로 채운다. */
+    function fillEmptySigns() {
+      var who = state.approvals.writer;
+      if (!who || state.locked) return;
+      var changed = false;
+      for (var d = 0; d < N; d++) {
+        if (state.signs[d]) continue;
+        var any = Object.keys(state.checks || {}).some(function (k) { return state.checks[k] && state.checks[k][d]; });
+        if (!any) continue;
+        state.signs[d] = who;
+        var inp = document.querySelector('[data-sign="' + d + '"]');
+        if (inp) inp.value = who;
+        changed = true;
+      }
+      return changed;
+    }
+
     /* ---------- 인쇄 ---------- */
 
     function doPrint() {
@@ -642,6 +661,20 @@
         return el;
       })();
       sheet.innerHTML = global.DkjMatrixPrint.render(spec, state);
+      // 가로 인쇄 서식(printOrientation) — 인쇄하는 동안만 용지 방향을 가로로 바꾼다.
+      var orient = null;
+      if (spec.printOrientation === 'landscape') {
+        orient = document.createElement('style');
+        orient.id = 'dkjPageOrient';
+        orient.textContent = '@page { size: A4 landscape; margin: 10mm 10mm 10mm 10mm; }';
+        document.head.appendChild(orient);
+        var done = function () {
+          if (orient && orient.parentNode) orient.parentNode.removeChild(orient);
+          orient = null;
+          global.removeEventListener('afterprint', done);
+        };
+        global.addEventListener('afterprint', done);
+      }
       setTimeout(function () { window.print(); }, 120);
     }
 
@@ -670,6 +703,7 @@
         document.addEventListener('input', function (e) {
           if (e.target && e.target.id === k) {
             state.approvals[k] = e.target.value;
+            if (k === 'writer') fillEmptySigns();
             scheduleDraft();
             global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
           }
@@ -677,6 +711,7 @@
         document.addEventListener('change', function (e) {
           if (e.target && e.target.id === k) {
             state.approvals[k] = e.target.value;
+            if (k === 'writer') fillEmptySigns();
             scheduleDraft();
             global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
           }

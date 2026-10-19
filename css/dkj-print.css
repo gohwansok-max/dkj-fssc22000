@@ -561,6 +561,36 @@
   .off-matrix.mx-dense .mx-grid .mx-day { font-size: calc(var(--mx-font, 6.5pt) - 0.5pt); }
   .off-matrix.mx-dense .mx-sign { height: 26pt; }
 
+  /* ----- 가로 인쇄 (spec.printOrientation === 'landscape') -----
+     용지 방향 자체는 인쇄 직전에 dkj-matrix-form.js 가 @page 를 주입해 바꾼다.
+     여기서는 가로 폭(277mm)에 맞춰 열 폭·행 높이를 넓히고, 표/행이 쪽 경계에서 잘리지 않게 한다. */
+  .off-matrix.mx-landscape .mx-page {
+    min-height: 0;
+    break-after: page;
+  }
+  .off-matrix.mx-landscape .mx-grid {
+    flex: 0 0 auto;
+    height: auto;
+  }
+  .off-matrix.mx-landscape .mx-grid .mx-div { width: 6%; }
+  .off-matrix.mx-landscape .mx-grid .mx-item { width: 27%; }
+  .off-matrix.mx-landscape .mx-grid .mx-day { width: 1.9%; font-size: 8pt; padding: 0; }
+  .off-matrix.mx-landscape .mx-grid tbody td,
+  .off-matrix.mx-landscape .mx-grid tbody th {
+    height: 20pt;
+    font-size: 9pt;
+  }
+  .off-matrix.mx-landscape .mx-inc td { height: 16pt; }
+  .off-matrix.mx-landscape .mx-grid .mx-cell { font-size: 10pt; padding: 0; }
+  .off-matrix.mx-landscape .mx-grid thead th { height: 18pt; font-size: 9pt; }
+  .off-matrix.mx-landscape tr,
+  .off-matrix.mx-landscape .mx-inc,
+  .off-matrix.mx-landscape .mx-head {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .off-matrix.mx-landscape .mx-sign { height: 26pt; }
+
   /* ----- printDensity (보고서) ----- */
   .off-report.rp-dense .rp-lab,
   .off-report.rp-dense .rp-val,
@@ -757,6 +787,17 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  /* 설비 종류상 기재 대상이 아닌 칸(enableIf) — 화면의 막힌 칸과 같이 회색 음영 */
+  .off-ledger .lg-cell.lg-na {
+    background: #d4d4d4 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .off-ledger .lg-extra-title { margin-top: 6pt; break-after: avoid; page-break-after: avoid; }
+  .off-ledger .lg-extra td { height: 16pt; }
+  .off-ledger .lg-extra { break-inside: avoid; page-break-inside: avoid; }
 
   .off-ledger .lg-off {
     color: #777;

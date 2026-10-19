@@ -38,12 +38,10 @@
   /** 전자결재를 쓰는 서식(state.signoff 객체 있음)은 그 단계를 확정한 칸에만 서명 그림/이름을 찍는다.
    *  결재 전 칸에 이름이 미리 찍혀 서명처럼 보이는 것을 막는다. signoff 자체가 없는 호출은 종전 이름 표시. */
   function stageCell(state, stage, name) {
+    // signoff 가 없는 옛 기록·서식도 서명 전에는 빈칸이다(이름만 미리 찍히지 않게).
     var so = state && state.signoff;
-    if (so && typeof so === 'object') {
-      var rec = so[stage];
-      return rec && rec.at ? sigCell(rec, rec.name || name) : '';
-    }
-    return esc(name || '');
+    var rec = so && typeof so === 'object' ? so[stage] : null;
+    return rec && rec.at ? sigCell(rec, rec.name || name) : '';
   }
 
   function headerHtml(t, state) {

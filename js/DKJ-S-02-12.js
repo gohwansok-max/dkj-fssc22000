@@ -22,6 +22,7 @@
   "reviseDate": "-",
   "orgName": "동김제농협 산지유통센터",
   "pageBreakAfter": [],
+  "printOrientation": "landscape",
   "legend": "양호 : ○, 부적합(시정조치 필요) : ×, 해당없음 : —    /    점검주기 : 매일",
   "signRowLabel": "점검자 (서명)",
   "incident": {

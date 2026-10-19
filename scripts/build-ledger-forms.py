@@ -154,6 +154,12 @@ def render_html(code: str, spec: dict, v: str) -> str:
         else ""
     )
 
+    extra_html = (
+        '\n      <div class="mxf-scroll" id="extraGrid" style="margin-top:14px;"></div>'
+        if spec.get("extraTable")
+        else ""
+    )
+
     # 달력에서 지정한 비생산일을 대장 휴무행에 연동하는 기능(autoWeekday 서식 전용,
     # 2026-09-22 358d8c2)은 이 스크립트가 아니라 손으로 두 파일에만 넣었다 — 이후
     # --check 없이 재생성하면 이 스크립트 태그가 조용히 빠진다. autoWeekday가 있는
@@ -214,7 +220,7 @@ def render_html(code: str, spec: dict, v: str) -> str:
       <h2>② 기록 <span style="font-weight:500;color:#888;font-size:12px;">(건별로 행을 추가하세요)</span></h2>
 {toolbar}        <div class="mxf-quick"><button type="button" class="pill-btn ghost" id="btnAddRow">{add_label}</button></div>
       </div>
-      <div class="mxf-scroll" id="ledgerGrid"></div>{incident_html}
+      <div class="mxf-scroll" id="ledgerGrid"></div>{incident_html}{extra_html}
       <div class="dkj-field full" style="margin-top:12px;"><label for="remark">비고</label><textarea id="remark"></textarea></div>
     </section>
     <section class="dkj-panel">
