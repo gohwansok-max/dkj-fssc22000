@@ -57,6 +57,19 @@ function temperatureRow(day, value) {
   return { day: String(day), dow: '금', z1_am: value || '' };
 }
 
+test('internal alert settings are excluded without changing storage or hiding uncatalogued business records', async () => {
+  const initial = {
+    'dkj:records:PERIODIC-ALERTS:list:v1': JSON.stringify([{id:'alert'}]),
+    'dkj:records:PERIODIC-ALERT-SETTINGS:list:v1': JSON.stringify([{id:'settings'}]),
+    'dkj:records:DKJ-QC-001:list:v1': JSON.stringify([{id:'qc',locked:true}])
+  };
+  const store = storage(initial);
+  const rows = await loadExport(store).collect();
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].formId, 'DKJ-QC-001');
+  for (const [key,value] of Object.entries(initial)) assert.equal(store.getItem(key), value);
+});
+
 test('temperature draft is 작성 중 and is not shown in the archive', async () => {
   const key = 'dkj:records:DKJ-S-02-05:draft:v1';
   const localStorage = storage({
