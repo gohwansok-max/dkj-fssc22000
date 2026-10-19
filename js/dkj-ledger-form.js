@@ -283,6 +283,12 @@
             var el = e.target.closest ? e.target.closest('[data-info]') : null;
             if (!el || !host.contains(el)) return;
             state.info[el.getAttribute('data-info')] = el.value;
+            // 맨 위에서 고른 점검자가 아래 결재 '작성' 칸의 작성자가 된다(따로 또 고르지 않는다).
+            if (el.getAttribute('data-info') === 'inspector' && el.value) {
+              state.approvals.writer = el.value;
+              if ($('writer')) $('writer').value = el.value;
+              global.dispatchEvent(new CustomEvent('dkj:approval-changed'));
+            }
             if (spec.autoWeekday && el.getAttribute('data-info') === spec.autoWeekday.monthField) {
               applyAutoWeekday(true);
               renderGrid();
@@ -569,6 +575,16 @@
           var ri = Number(el.getAttribute('data-r'));
           var prevVal = state.rows[ri][key];
           state.rows[ri][key] = el.value;
+          // autoStaff 열(반출자명 등)은 비어 있으면 맨 위 점검자로 채운다. 사람이 고른 값은 덮어쓰지 않는다.
+          COLS.forEach(function (ac) {
+            if (!ac.autoStaff || ac.key === key) return;
+            if (String(state.rows[ri][ac.key] || '').trim()) return;
+            var who = state.info && state.info.inspector;
+            if (!who) return;
+            state.rows[ri][ac.key] = who;
+            var at = host.querySelector('[data-r="' + ri + '"][data-c="' + ac.key + '"]');
+            if (at) at.value = who;
+          });
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
           // autoJudge — 측정값을 적으면 기준치(고시·사내 중 더 높은 값) 이상 여부로 판정 칸을 채운다.
           // 입력 직후에만 계산하므로 저장된 기록을 열어도 값이 바뀌지 않고, 판정은 손으로 고칠 수 있다.
@@ -868,6 +884,11 @@
         if ($(k)) $(k).value = state.approvals[k] || '';
       });
       if ($('remark')) $('remark').value = state.remark || '';
+      // 점검자가 있는데 작성자가 비어 있으면(옛 기록·새 일보) 점검자로 맞춘다.
+      if (!state.approvals.writer && state.info && state.info.inspector) {
+        state.approvals.writer = state.info.inspector;
+        if ($('writer')) $('writer').value = state.approvals.writer;
+      }
       applyAutoDateRange();
       renderInfo();
       applyAutoWeekday();

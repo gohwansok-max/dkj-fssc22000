@@ -93,6 +93,7 @@
     {
       "key": "outBy",
       "staff": true,
+      "autoStaff": true,
       "label": "반출자명",
       "width": "16%"
     },
