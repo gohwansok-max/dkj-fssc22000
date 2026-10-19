@@ -43,7 +43,7 @@ test('CCP-2P 정본: 제품 종료시각은 다음 행(다음 제품 시작·작
     ]
   });
   const rows = cells(html);
-  const pass = (name) => rows.find((r) => r[0] === name && r.length === 4);
+  const pass = (name) => rows.find((r) => r[0] === name && r.length === 8);
   assert.deepEqual(pass('P1').slice(1, 3), ['08:27', '08:37']);
   assert.deepEqual(pass('P2').slice(1, 3), ['09:40', '09:42']);
   assert.deepEqual(pass('P3').slice(1, 3), ['09:42', '09:56']);

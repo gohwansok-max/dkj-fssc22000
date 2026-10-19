@@ -291,6 +291,8 @@
       // 제품 날인(일부인) 촬영본 — 1일 6회(1~6차, 2026-10-15 현장 요청으로 3회→6회).
       // 인쇄 시 맨 뒤에 별첨으로 붙는다.
       stampPhotos: [null, null, null, null, null, null],
+      // 제품별 통과 정보 — { 제품명: { qty, packDate, packUsage, note } }. 정본의 '제품 통과 시 이탈 여부' 표에 실린다.
+      passInfo: {},
       // 최근기록 복사로 따라온 슬롯이면 true — '전일 사진' 배지(화면 전용)
       stampCarried: [false, false, false, false, false, false],
       deviation: '',
@@ -391,7 +393,53 @@
     if (ban) ban.hidden = !state.hasDeviation;
   }
 
+  /** 제품별 통과 정보 — 통과량·포장재 입고일·포장재 사용량·특이사항.
+   *  정본의 '제품 통과 시 이탈 여부' 표가 제품별 한 줄이라 제품명을 키로 받는다
+   *  (측정행을 추가·삭제해도 입력값이 행 번호에 묶여 밀리지 않는다). */
+  function passProducts() {
+    var out = [];
+    (state.rows || []).forEach(function (r) {
+      var name = r && r.item === '작업중' ? (r.product || '') : '';
+      if (name && out.indexOf(name) === -1) out.push(name);
+    });
+    return out;
+  }
+
+  function renderPassInfo() {
+    var host = $('passInfoHost');
+    if (!host) return;
+    if (!state.passInfo || typeof state.passInfo !== 'object') state.passInfo = {};
+    var names = passProducts();
+    if (!names.length) {
+      host.innerHTML = '<p class="dkj-photo-empty">위 ② 모니터링에서 구분 "작업중"과 품목을 고르면 여기에 제품별 입력칸이 나타납니다.</p>';
+      return;
+    }
+    host.innerHTML = '<div class="mon-table-wrap"><table class="mon-table"><thead><tr>' +
+      '<th>제품명</th><th>통과량</th><th>포장재 입고일</th><th>포장재 사용량</th><th>특이사항</th></tr></thead><tbody>' +
+      names.map(function (name, i) {
+        var info = state.passInfo[name] || {};
+        var dis = state.locked ? ' disabled' : '';
+        return '<tr data-pn="' + i + '"><td>' + esc(name) + '</td>' +
+          '<td><div class="mon-unit-wrap"><input type="number" class="mon-in pass-in" data-pf="qty" min="0" step="0.1" value="' + esc(info.qty || '') + '"' + dis + '><span class="mon-unit">kg</span></div></td>' +
+          '<td><input type="date" class="mon-in pass-in" data-pf="packDate" value="' + esc(info.packDate || '') + '"' + dis + '></td>' +
+          '<td><div class="mon-unit-wrap"><input type="number" class="mon-in pass-in" data-pf="packUsage" min="0" step="1" value="' + esc(info.packUsage || '') + '"' + dis + '><span class="mon-unit">EA</span></div></td>' +
+          '<td><input type="text" class="mon-in pass-in" data-pf="note" maxlength="60" value="' + esc(info.note || '') + '"' + dis + '></td></tr>';
+      }).join('') + '</tbody></table></div>';
+    host.querySelectorAll('.pass-in').forEach(function (inp) {
+      var onPass = function (e) {
+        if (state.locked) return;
+        var name = names[Number(e.target.closest('tr').getAttribute('data-pn'))];
+        if (!state.passInfo[name]) state.passInfo[name] = {};
+        state.passInfo[name][e.target.getAttribute('data-pf')] = e.target.value;
+        scheduleDraft();
+      };
+      inp.addEventListener('input', onPass);
+      inp.addEventListener('change', onPass);
+    });
+  }
+
   function renderRows() {
+    renderPassInfo();
     var body = $('monBody');
     body.innerHTML = state.rows.map(function (row, i) {
       evaluateRow(row);
@@ -768,6 +816,7 @@
             $('lot').value = newLot;
             state.lot = newLot;
           }
+          loadForDate(el.value, true);
         }
         readForm();
         refreshApproval();
@@ -844,6 +893,8 @@
         keepPhotos: true,
         onClonePrev: function (cloned) {
           if (state.locked) return;
+          // 통과량·포장재·특이사항은 그날의 사실이라 이전 기록에서 가져오지 않는다.
+          cloned.passInfo = {};
           cloned.stampCarried = (cloned.stampPhotos || []).map(function (ph) { return !!ph; });
           state = Object.assign(emptyState(), cloned);
           editingId = null;
@@ -855,9 +906,43 @@
     }
   }
 
+  /** 날짜에 저장된 기록(없으면 같은 날짜 임시본)을 화면에 올린다. 불러왔으면 true. */
+  async function loadForDate(date, userDriven) {
+    if (!window.DkjDateLoad || !date) return false;
+    var hit = (await DkjDateLoad.resolve(FORM_ID, date, 'workDate'));
+    if (hit.kind === 'none') return false;
+    if (hit.kind === 'record' && hit.data.id && hit.data.id === editingId) return false;
+    // 아직 저장하지 않은 새 입력이 있으면 덮어쓰기 전에 확인한다.
+    if (userDriven && !editingId) {
+      readForm();
+      if (JSON.stringify(state.rows) !== JSON.stringify(emptyState().rows) &&
+          !confirm(date + ' 저장 기록을 불러오면 지금 입력 중인 내용은 사라집니다. 불러올까요?')) return false;
+    }
+    editingId = hit.kind === 'record' ? hit.data.id : (hit.data.id || null);
+    state = Object.assign(emptyState(), hit.data);
+    writeForm();
+    refreshApproval();
+    setStatus(hit.kind === 'record' ? date + ' 저장 기록 불러옴' : date + ' 임시저장 불러옴', true);
+    return true;
+  }
+
   async function init() {
     var draft = (await DkjRecordStore.loadDraft(FORM_ID));
     if (draft) state = Object.assign(emptyState(), draft);
+    // 업무 콘솔·달력에서 ?date= 로 들어오면 그 날짜의 기록을 바로 연다(없으면 그 날짜의 새 일지).
+    var qd = window.DkjDateLoad ? DkjDateLoad.queryDate() : '';
+    if (qd) {
+      var hit = (await DkjDateLoad.resolve(FORM_ID, qd, 'workDate'));
+      if (hit.kind === 'none') {
+        state = emptyState();
+        state.workDate = qd;
+        state.lot = dateToLot(qd);
+        editingId = null;
+      } else {
+        editingId = hit.data.id || null;
+        state = Object.assign(emptyState(), hit.data);
+      }
+    }
     loadProductOptions().then(async function () {
       writeForm();
       (await bind());

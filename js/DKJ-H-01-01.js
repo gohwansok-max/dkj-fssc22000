@@ -683,6 +683,7 @@
             $('lot').value = newLot;
             state.lot = newLot;
           }
+          loadForDate(el.value, true);
         }
         if (id === 'clMin' || id === 'clMax' || id === 'timeMin') {
           readForm();
@@ -837,9 +838,43 @@
     }
   }
 
+  /** 날짜에 저장된 기록(없으면 같은 날짜 임시본)을 화면에 올린다. 불러왔으면 true. */
+  async function loadForDate(date, userDriven) {
+    if (!window.DkjDateLoad || !date) return false;
+    var hit = (await DkjDateLoad.resolve(FORM_ID, date, 'workDate'));
+    if (hit.kind === 'none') return false;
+    if (hit.kind === 'record' && hit.data.id && hit.data.id === editingId) return false;
+    // 아직 저장하지 않은 새 입력이 있으면 덮어쓰기 전에 확인한다.
+    if (userDriven && !editingId) {
+      readForm();
+      if (JSON.stringify(state.rows) !== JSON.stringify(emptyState().rows) &&
+          !confirm(date + ' 저장 기록을 불러오면 지금 입력 중인 내용은 사라집니다. 불러올까요?')) return false;
+    }
+    editingId = hit.kind === 'record' ? hit.data.id : (hit.data.id || null);
+    state = Object.assign(emptyState(), hit.data);
+    writeForm();
+    refreshApproval();
+    setStatus(hit.kind === 'record' ? date + ' 저장 기록 불러옴' : date + ' 임시저장 불러옴', true);
+    return true;
+  }
+
   async function init() {
     var draft = (await DkjRecordStore.loadDraft(FORM_ID));
     if (draft) state = Object.assign(emptyState(), draft);
+    // 업무 콘솔·달력에서 ?date= 로 들어오면 그 날짜의 기록을 바로 연다(없으면 그 날짜의 새 일지).
+    var qd = window.DkjDateLoad ? DkjDateLoad.queryDate() : '';
+    if (qd) {
+      var hit = (await DkjDateLoad.resolve(FORM_ID, qd, 'workDate'));
+      if (hit.kind === 'none') {
+        state = emptyState();
+        state.workDate = qd;
+        state.lot = dateToLot(qd);
+        editingId = null;
+      } else {
+        editingId = hit.data.id || null;
+        state = Object.assign(emptyState(), hit.data);
+      }
+    }
     writeForm();
     (await bind());
     (await renderHistory());
