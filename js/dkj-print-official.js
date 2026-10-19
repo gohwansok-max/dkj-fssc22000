@@ -41,7 +41,9 @@
     var headerWriter = opt.writer || '';
     var headerReviewer = opt.reviewer || '';
     var headerApprover = opt.approver || '';
-    if (opt.requireFinalApprovalForNames) {
+    // signoff 객체가 넘어오면(전자결재를 쓰는 서식) 최종 승인 전에는 이름을 찍지 않는다.
+    // 예전엔 CCP-1BC 만 이 규칙을 따라, 승인 전 정본에도 검토·승인 예정자 이름이 서명처럼 찍혔다.
+    if (opt.requireFinalApprovalForNames || (opt.signoff && typeof opt.signoff === 'object')) {
       var signoff = opt.signoff || {};
       var finalApproved = !!(signoff.approver && signoff.approver.at);
       headerWriter = finalApproved && signoff.writer && signoff.writer.at ? (signoff.writer.name || '') : '';
@@ -249,7 +251,8 @@
         subtitle: '금속검출 공정',
         writer: writer,
         reviewer: state.confirmer || '',
-        approver: state.approver || ''
+        approver: state.approver || '',
+        signoff: state.signoff
       }) +
 
       '<table class="off-grid off-topmeta">' +
@@ -654,7 +657,8 @@
         subtitle: tmpl.subtitle || '선행요건 · PRP',
         writer: writer,
         reviewer: state.confirmer || '',
-        approver: state.approver || ''
+        approver: state.approver || '',
+        signoff: state.signoff
       }) +
       metaHtml +
       '<div class="off-sec">' + esc(section) + '</div>' +
@@ -712,7 +716,8 @@
         subtitle: tmpl.subtitle || '작업장·냉장 · 매일',
         writer: writer,
         reviewer: state.confirmer || '',
-        approver: state.approver || ''
+        approver: state.approver || '',
+        signoff: state.signoff
       }) +
 
       '<table class="off-grid off-topmeta">' +
@@ -791,7 +796,8 @@
         subtitle: tmpl.subtitle || '선행요건 · 월간',
         writer: writer,
         reviewer: state.confirmer || '',
-        approver: state.approver || ''
+        approver: state.approver || '',
+        signoff: state.signoff
       }) +
       '<table class="off-grid off-topmeta">' +
       '<tr>' +
@@ -857,7 +863,8 @@
         subtitle: '입고 · 매일',
         writer: state.inspector || '',
         reviewer: state.confirmer || '',
-        approver: state.approver || ''
+        approver: state.approver || '',
+        signoff: state.signoff
       }) +
       '<table class="off-grid off-topmeta">' +
       '<tr><th class="lab" style="width:12%">입고일자</th><td class="l" style="width:38%">' + dateCell(dt) + '</td>' +
@@ -920,7 +927,8 @@
         subtitle: '입고 부적합 · 격리·처리',
         writer: state.handler || '',
         reviewer: state.approver || '',
-        approver: state.approver || ''
+        approver: state.approver || '',
+        signoff: state.signoff
       }) +
       '<table class="off-grid off-topmeta">' +
       '<tr><th class="lab" style="width:12%">처리일자</th><td class="l" style="width:38%">' + dateCell(dt) + '</td>' +
@@ -1015,7 +1023,8 @@
         subtitle: tmpl.subtitle || 'FSSC22000 기록양식',
         writer: writer,
         reviewer: state.reviewer || state.confirmer || '',
-        approver: state.approver || ''
+        approver: state.approver || '',
+        signoff: state.signoff
       }) +
       metaHtml + oxHtml + secHtml +
       '<table class="off-grid">' +

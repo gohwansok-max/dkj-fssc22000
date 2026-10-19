@@ -210,7 +210,8 @@
     if (photo) {
       return '<div class="dkj-photo-card">' +
         '<img src="' + photo + '" data-view-stamp="' + i + '" title="클릭하여 원본보기">' +
-        '<div class="dkj-photo-card-cap">' + label + '</div>' +
+        '<div class="dkj-photo-card-cap">' + label +
+        ((state.stampCarried || [])[i] ? ' <span class="dkj-photo-carried" title="최근기록 복사로 가져온 이전 사진입니다. 오늘 촬영본으로 바꾸세요.">전일 사진</span>' : '') + '</div>' +
         '<div class="dkj-photo-card-actions">' +
         '<button type="button" class="pill-btn ghost sm" data-del-stamp="' + i + '">사진 삭제</button>' +
         '</div></div>';
@@ -226,6 +227,8 @@
     if (!host) return;
     if (!Array.isArray(state.stampPhotos)) state.stampPhotos = [];
     while (state.stampPhotos.length < 6) state.stampPhotos.push(null);
+    if (!Array.isArray(state.stampCarried)) state.stampCarried = [];
+    while (state.stampCarried.length < 6) state.stampCarried.push(false);
 
     host.innerHTML = [0, 1, 2, 3, 4, 5].map(buildStampSlot).join('');
 
@@ -237,6 +240,7 @@
         if (!file) return;
         var apply = function (dataUrl) {
           state.stampPhotos[i] = dataUrl;
+          state.stampCarried[i] = false;
           renderStampPhotos();
           scheduleDraft();
           if (window.DkjUtil && window.DkjUtil.toast) window.DkjUtil.toast('📷 ' + (i + 1) + '차 날인 사진이 첨부되었습니다.');
@@ -261,6 +265,7 @@
         if (state.locked) return;
         var i = Number(btn.getAttribute('data-del-stamp'));
         state.stampPhotos[i] = null;
+        state.stampCarried[i] = false;
         renderStampPhotos();
         scheduleDraft();
       });
@@ -286,6 +291,8 @@
       // 제품 날인(일부인) 촬영본 — 1일 6회(1~6차, 2026-10-15 현장 요청으로 3회→6회).
       // 인쇄 시 맨 뒤에 별첨으로 붙는다.
       stampPhotos: [null, null, null, null, null, null],
+      // 최근기록 복사로 따라온 슬롯이면 true — '전일 사진' 배지(화면 전용)
+      stampCarried: [false, false, false, false, false, false],
       deviation: '',
       corrective: '',
       confirmer: '',
@@ -834,8 +841,10 @@
       (await window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
         formId: FORM_ID,
         hasChecks: false,
+        keepPhotos: true,
         onClonePrev: function (cloned) {
           if (state.locked) return;
+          cloned.stampCarried = (cloned.stampPhotos || []).map(function (ph) { return !!ph; });
           state = Object.assign(emptyState(), cloned);
           editingId = null;
           writeForm();

@@ -41,7 +41,9 @@
       isCustomPpm: false, isCustomSoak: false, isCustomRinseSec: false, isCustomResidualCl: false, isCustomProduct: false,
       // paper(시험지)로 실측한 유효염소·잔류염소 결과를 사진으로 남긴다(측정행당 1장).
       // 인쇄 시 맨 뒤에 별첨으로 붙는다 — ccp1bc() 의 photoAttachmentHtml 참고.
-      photo: null
+      photo: null,
+      // 최근기록 복사로 따라온 사진이면 true — 전일 증빙이라 화면에 '전일 사진' 배지를 띄운다(화면 전용).
+      photoCarried: false
     };
   }
 
@@ -280,6 +282,7 @@
     if (row.photo) {
       return '<div class="dkj-photo-thumb-wrap">' +
         '<img src="' + row.photo + '" class="dkj-photo-thumb" data-view-photo="' + i + '" title="클릭하여 원본보기">' +
+        (row.photoCarried ? '<span class="dkj-photo-carried" title="최근기록 복사로 가져온 이전 사진입니다. 오늘 촬영본으로 바꾸세요.">전일</span>' : '') +
         '<button type="button" class="dkj-photo-del" data-del-photo="' + i + '" title="사진 삭제">✕</button>' +
         '</div>';
     }
@@ -339,9 +342,9 @@
     body.querySelectorAll('[data-toggle-rinseSec]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-toggle-rinseSec')); state.rows[i].isCustomRinseSec = !state.rows[i].isCustomRinseSec; renderRows(); scheduleDraft(); }); });
     body.querySelectorAll('[data-toggle-residualCl]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-toggle-residualCl')); state.rows[i].isCustomResidualCl = !state.rows[i].isCustomResidualCl; renderRows(); scheduleDraft(); }); });
     body.querySelectorAll('[data-del]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; state.rows.splice(Number(btn.getAttribute('data-del')), 1); if (!state.rows.length) state.rows.push(emptyRow()); renderRows(); scheduleDraft(); }); });
-    body.querySelectorAll('[data-photo-inp]').forEach(function (inp) { inp.addEventListener('change', function () { if (state.locked) return; var i = Number(inp.getAttribute('data-photo-inp')); var file = inp.files && inp.files[0]; if (!file) return; var apply = function (dataUrl) { state.rows[i].photo = dataUrl; renderRows(); scheduleDraft(); }; if (window.DkjUtil && window.DkjUtil.compressImageToDataUrl) window.DkjUtil.compressImageToDataUrl(file, apply, { maxDim: 600, quality: 0.5 }); else { var reader = new FileReader(); reader.onload = function (e) { apply(e.target.result); }; reader.readAsDataURL(file); } }); });
+    body.querySelectorAll('[data-photo-inp]').forEach(function (inp) { inp.addEventListener('change', function () { if (state.locked) return; var i = Number(inp.getAttribute('data-photo-inp')); var file = inp.files && inp.files[0]; if (!file) return; var apply = function (dataUrl) { state.rows[i].photo = dataUrl; state.rows[i].photoCarried = false; renderRows(); scheduleDraft(); }; if (window.DkjUtil && window.DkjUtil.compressImageToDataUrl) window.DkjUtil.compressImageToDataUrl(file, apply, { maxDim: 600, quality: 0.5 }); else { var reader = new FileReader(); reader.onload = function (e) { apply(e.target.result); }; reader.readAsDataURL(file); } }); });
     body.querySelectorAll('[data-view-photo]').forEach(function (img) { img.addEventListener('click', function () { var i = Number(img.getAttribute('data-view-photo')); var photo = state.rows[i] && state.rows[i].photo; if (photo) window.open(photo); }); });
-    body.querySelectorAll('[data-del-photo]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-del-photo')); state.rows[i].photo = null; renderRows(); scheduleDraft(); }); });
+    body.querySelectorAll('[data-del-photo]').forEach(function (btn) { btn.addEventListener('click', function () { if (state.locked) return; var i = Number(btn.getAttribute('data-del-photo')); state.rows[i].photo = null; state.rows[i].photoCarried = false; renderRows(); scheduleDraft(); }); });
     refreshDeviation(); renderPhotoAppendix();
   }
 
@@ -820,8 +823,10 @@
       (await window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
         formId: FORM_ID,
         hasChecks: false,
+        keepPhotos: true,
         onClonePrev: function (cloned) {
           if (state.locked) return;
+          (cloned.rows || []).forEach(function (r) { r.photoCarried = !!r.photo; });
           state = Object.assign(emptyState(), cloned);
           editingId = null;
           writeForm();

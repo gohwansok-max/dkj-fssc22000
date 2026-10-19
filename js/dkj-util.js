@@ -219,15 +219,21 @@
         clone.locked = false;
         clone.signoff = {};
         clone.audit = [];
+        // 직전 기록의 결재 이름이 남으면 새 기록이 이미 서명된 것처럼 보인다 — 결재 지정은
+        // 새 기록 기준으로 bindFlat 이 다시 채운다.
+        if (clone.approvals) clone.approvals = { writer: '', reviewer: '', approver: '' };
         // 일자 필드 오늘로 자동 갱신
         ['docDate', 'checkDate', 'workDate', 'inspectDate', 'date'].forEach(function (dk) {
           if (clone[dk]) clone[dk] = today();
         });
         // 사진(시험지·날인 등)은 그날의 증거라 복사하지 않는다 — 어제 사진이 오늘 기록에
         // 남는 것도 문제고, 같은 사진이 기록마다 복제돼 저장 공간을 먹었다.
-        clone = stripPhotos(clone);
+        // 단, 시험지·날인 사진을 매번 다시 찍기 번거로운 서식은 opts.keepPhotos 로 복사한다.
+        if (!opts.keepPhotos) clone = stripPhotos(clone);
         await opts.onClonePrev(clone);
-        toast('📋 최근 기록을 불러왔습니다 (일자: 오늘로 자동 설정, 사진은 복사되지 않음).');
+        toast(opts.keepPhotos
+          ? '📋 최근 기록을 불러왔습니다 (일자: 오늘로 자동 설정, 증빙사진 포함 — 오늘 촬영본으로 바꿀 칸은 사진을 지우고 다시 찍으세요).'
+          : '📋 최근 기록을 불러왔습니다 (일자: 오늘로 자동 설정, 사진은 복사되지 않음).');
       });
       var newBtn = toolbarEl.querySelector('#btnNew');
       if (newBtn && newBtn.nextSibling) toolbarEl.insertBefore(btnClone, newBtn.nextSibling);
