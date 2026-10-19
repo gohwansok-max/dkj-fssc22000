@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-VER = '?v=151'
+VER = '?v=152'
 FILES = ['dkj-async.js', 'dkj-store.js', 'dkj-storage-migration.js', 'dkj-storage.js', 'dkj-firebase-config.js', 'dkj-auth.js', 'dkj-cloud-sync.js']
 
 # 첫 번째 로컬 js 스크립트 (앞의 들여쓰기까지 함께 잡는다)
