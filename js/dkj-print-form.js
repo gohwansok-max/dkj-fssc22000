@@ -35,6 +35,17 @@
     return esc(name || '');
   }
 
+  /** 전자결재를 쓰는 서식(state.signoff 객체 있음)은 그 단계를 확정한 칸에만 서명 그림/이름을 찍는다.
+   *  결재 전 칸에 이름이 미리 찍혀 서명처럼 보이는 것을 막는다. signoff 자체가 없는 호출은 종전 이름 표시. */
+  function stageCell(state, stage, name) {
+    var so = state && state.signoff;
+    if (so && typeof so === 'object') {
+      var rec = so[stage];
+      return rec && rec.at ? sigCell(rec, rec.name || name) : '';
+    }
+    return esc(name || '');
+  }
+
   function headerHtml(t, state) {
     var org = t.orgName || '동김제농협 산지유통센터';
     var docNo = t.docNo || '';
@@ -59,9 +70,9 @@
       '<th class="ps-apv">작성</th><th class="ps-apv">검토</th><th class="ps-apv">승인</th>' +
       '</tr>' +
       '<tr>' +
-      '<td class="ps-sign">' + sigCell((state.signoff || {}).writer, writer) + '</td>' +
-      '<td class="ps-sign">' + sigCell((state.signoff || {}).reviewer, reviewer) + '</td>' +
-      '<td class="ps-sign">' + sigCell((state.signoff || {}).approver, approver) + '</td>' +
+      '<td class="ps-sign">' + stageCell(state, 'writer', writer) + '</td>' +
+      '<td class="ps-sign">' + stageCell(state, 'reviewer', reviewer) + '</td>' +
+      '<td class="ps-sign">' + stageCell(state, 'approver', approver) + '</td>' +
       '</tr>' +
       '</table>' +
       '<table class="ps-rev">' +

@@ -55,11 +55,11 @@
     var writerHtml = esc(headerWriter), reviewerHtml = esc(headerReviewer), approverHtml = esc(headerApprover);
     if (opt.requireFinalApprovalForNames || (opt.signoff && typeof opt.signoff === 'object')) {
       var signoff = opt.signoff || {};
-      var finalApproved = !!(signoff.approver && signoff.approver.at);
-      // 이름·손서명 모두 최종 승인 뒤에만 찍는다(승인 전 서명처럼 보이는 것을 막는다).
-      writerHtml = finalApproved && signoff.writer && signoff.writer.at ? sigCell(signoff.writer, signoff.writer.name || '') : '';
-      reviewerHtml = finalApproved && signoff.reviewer && signoff.reviewer.at ? sigCell(signoff.reviewer, signoff.reviewer.name || '') : '';
-      approverHtml = finalApproved && signoff.approver && signoff.approver.at ? sigCell(signoff.approver, signoff.approver.name || '') : '';
+      // 이름·손서명은 그 단계를 실제로 확정(서명)한 칸에만 찍는다 — 결재 전 칸에 이름이
+      // 미리 찍혀 서명처럼 보이는 것을 막는다. 확정한 사람의 칸은 바로 나온다.
+      writerHtml = signoff.writer && signoff.writer.at ? sigCell(signoff.writer, signoff.writer.name || '') : '';
+      reviewerHtml = signoff.reviewer && signoff.reviewer.at ? sigCell(signoff.reviewer, signoff.reviewer.name || '') : '';
+      approverHtml = signoff.approver && signoff.approver.at ? sigCell(signoff.approver, signoff.approver.name || '') : '';
     }
     return (
       '<table class="off-head">' +

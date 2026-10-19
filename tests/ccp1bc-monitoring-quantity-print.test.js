@@ -90,7 +90,7 @@ test('CCP-1BC print supports legacy replacement-time string and leaves a blank w
 });
 
 
-test('CCP-1BC official header hides all signatory names until final approval is confirmed', () => {
+test('CCP-1BC official header prints a signatory name only in the cell of a stage that was confirmed', () => {
   const state = {
     monitorName: '예정 작성자',
     confirmer: '예정 검토자',
@@ -101,15 +101,19 @@ test('CCP-1BC official header hides all signatory names until final approval is 
     }
   };
   const signBox = (html) => html.match(/<table class="off-apv">[\s\S]*?<\/table>/)[0];
+  const cells = (html) => [...signBox(html).matchAll(/<td class="off-sign">(.*?)<\/td>/g)].map((m) => m[1]);
 
+  // 작성·검토만 확정 → 그 두 칸에만 확정한 사람 이름, 승인 칸은 비어 있고 '예정' 이름은 어디에도 없다
   let html = loadPrinter().ccp1bc(state);
-  for (const name of ['예정 작성자', '예정 검토자', '예정 승인자', '확정 작성자', '확정 검토자']) {
-    assert.ok(!signBox(html).includes(name));
-  }
+  assert.deepEqual(cells(html), ['확정 작성자', '확정 검토자', '']);
+  for (const name of ['예정 작성자', '예정 검토자', '예정 승인자']) assert.ok(!signBox(html).includes(name));
 
   state.signoff.approver = { name: '확정 승인자', at: '2026-10-15T03:00:00.000Z' };
   html = loadPrinter().ccp1bc(state);
-  const box = signBox(html);
-  for (const name of ['확정 작성자', '확정 검토자', '확정 승인자']) assert.ok(box.includes(name));
-  for (const name of ['예정 작성자', '예정 검토자', '예정 승인자']) assert.ok(!box.includes(name));
+  assert.deepEqual(cells(html), ['확정 작성자', '확정 검토자', '확정 승인자']);
+  for (const name of ['예정 작성자', '예정 검토자', '예정 승인자']) assert.ok(!signBox(html).includes(name));
+
+  // 아무도 확정하지 않았으면 세 칸 모두 비어 있다
+  html = loadPrinter().ccp1bc(Object.assign({}, state, { signoff: {} }));
+  assert.deepEqual(cells(html), ['', '', '']);
 });

@@ -82,11 +82,14 @@
   function headHtml(spec, state) {
     var apv = state.approvals || {};
     function signCell(stage) {
-      var rec = (state.signoff || {})[stage];
+      var so = state.signoff;
+      var rec = so && typeof so === 'object' ? so[stage] : null;
+      // 전자결재(signoff 객체)를 쓰는 서식은 그 단계를 확정한 칸에만 서명 그림/이름을 찍는다.
+      if (so && typeof so === 'object' && !(rec && rec.at)) return '';
       if (global.DkjSignature && rec && rec.at && global.DkjSignature.isValid(rec.signature)) {
-        return global.DkjSignature.cellHtml(rec, apv[stage] || rec.name || '');
+        return global.DkjSignature.cellHtml(rec, rec.name || apv[stage] || '');
       }
-      return esc(apv[stage] || '');
+      return esc((rec && rec.at && rec.name) || apv[stage] || '');
     }
     return '' +
       '<table class="off-head mx-head">' +
