@@ -6,7 +6,8 @@
     "monthRows": "대장 서식(dayRow와 동일한 데이터) — 오늘 행이 비어 있으면 dayRow처럼 '작성 필요'로 재촉하되, 오늘 행을 채워도 이번 달 생산일 행이 전부 채워지기 전까지는 '완료'로 숨기지 않고 '작성 중'으로 남긴다. 매일 적지만 월 단위로 마감하는 서식(작업장 온도 등)용.",
     "perDay": "1일 1장 — info 날짜가 오늘인 기록이 있는지 본다.",
     "perPeriod": "주/월 1장 — 이번 주(월)에 해당하는 기록이 있는지 본다.",
-    "event": "발생 시 작성 — 미작성 판정을 하지 않고 최근 기록만 보여준다."
+    "event": "발생 시 작성 — 미작성 판정을 하지 않고 최근 기록만 보여준다.",
+    "monthlyApproval": "check.monthlyApproval:true — 월 단위 결재 서식. 오늘 입력을 마쳐도 그 달 시트가 작성완료(잠금)되기 전에는 '작성 중'으로 남긴다."
   },
   "operationCalendar": {
     "label": "기본 생산일: 월요일~금요일",
@@ -27,23 +28,13 @@
       "label": "매일 작성",
       "forms": [
         {
-          "code": "DKJ-QC-001",
-          "title": "일일 QC 순회 공정검사",
-          "priority": "critical",
-          "href": "records/DKJ-QC-001.html",
-          "ccp": true,
-          "check": {
-            "mode": "perDay",
-            "dateField": "workDate"
-          }
-        },
-        {
           "code": "DKJ-S-02-01",
           "title": "작업장 위생점검",
           "priority": "high",
           "href": "records/DKJ-S-02-01.html",
           "check": {
-            "mode": "dayColumn"
+            "mode": "dayColumn",
+            "monthlyApproval": true
           }
         },
         {
@@ -52,7 +43,8 @@
           "priority": "high",
           "href": "records/DKJ-S-02-03.html",
           "check": {
-            "mode": "dayColumn"
+            "mode": "dayColumn",
+            "monthlyApproval": true
           }
         },
         {
@@ -72,7 +64,8 @@
           "href": "records/DKJ-S-02-05.html",
           "check": {
             "mode": "monthRows",
-            "dayKey": "day"
+            "dayKey": "day",
+            "monthlyApproval": true
           }
         },
         {
@@ -81,7 +74,8 @@
           "priority": "high",
           "href": "records/DKJ-S-02-12.html",
           "check": {
-            "mode": "dayColumn"
+            "mode": "dayColumn",
+            "monthlyApproval": true
           }
         },
         {
@@ -91,7 +85,8 @@
           "href": "records/DKJ-S-02-09.html",
           "check": {
             "mode": "dayRow",
-            "dayKey": "day"
+            "dayKey": "day",
+            "monthlyApproval": true
           }
         },
         {
@@ -117,32 +112,13 @@
           }
         },
         {
-          "code": "DKJ-F-053",
-          "title": "생산일지",
-          "priority": "high",
-          "href": "records/DKJ-F-053.html",
-          "check": {
-            "mode": "perDay",
-            "dateField": "workDate"
-          }
-        },
-        {
-          "code": "DKJ-S-02-32",
-          "title": "음용수 잔류염소 점검일지",
-          "priority": "normal",
-          "href": "records/DKJ-S-02-32.html",
-          "check": {
-            "mode": "perDay",
-            "dateField": "docDate"
-          }
-        },
-        {
           "code": "DKJ-S-02-06",
           "title": "환기·급배기 점검",
           "priority": "normal",
           "href": "records/DKJ-S-02-06.html",
           "check": {
-            "mode": "dayColumn"
+            "mode": "dayColumn",
+            "monthlyApproval": true
           }
         }
       ]

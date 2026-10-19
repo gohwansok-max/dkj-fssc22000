@@ -99,3 +99,16 @@ test('calendar normalizes overrides without mutating data and prefers production
   assert.equal(calendar.updatedBy, 'operator');
   assert.equal(JSON.stringify(source), before);
 });
+
+test('monthlyApproval forms stay in progress until the month sheet is locked', () => {
+  const column = { mode: 'dayColumn', monthlyApproval: true };
+  const sheet = (locked) => ({ locked, days: ['2026-08-21'], checks: { a: ['O'], b: ['O'] } });
+  assert.equal(evaluate(column, [sheet(false)]).state, 'part');
+  assert.equal(evaluate(column, [sheet(true)]).state, 'done');
+  assert.equal(evaluate({ mode: 'dayColumn' }, [sheet(false)]).state, 'done');
+  const row = { mode: 'dayRow', dayKey: 'day', monthlyApproval: true };
+  const ledger = (locked) => ({ locked, info: { month: '2026-08' }, rows: [{ day: '21', a: '적' }] });
+  assert.equal(evaluate(row, [ledger(false)]).state, 'part');
+  assert.equal(evaluate(row, [ledger(true)]).state, 'done');
+  assert.equal(evaluate(column, [{ locked: false, days: ['2026-08-21'], checks: { a: ['X'] } }]).state, 'ng');
+});
