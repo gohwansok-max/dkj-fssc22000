@@ -375,7 +375,7 @@
    * dkj:backup:* 는 '언제 백업했는가' 메타 정보라 백업 내용물이 아니다 — 옛 백업을
    * 복원할 때 이 값까지 되돌아가면 방금 한 백업이 안 한 것처럼 보이므로 제외한다.
    * dkj:history:* 는 기록 덮어쓰기 전 버전 이력(이 기기 전용·사진 포함 대용량)이라 백업에 담지 않는다. */
-  var SETTINGS_EXCLUDE_RE = /^dkj:(auth:|chatbot:|backup:|history:)/;
+  var SETTINGS_EXCLUDE_RE = /^dkj:(auth:|chatbot:|backup:|history:|cache:)/;
 
   /** 작성 중 임시본(draft) — LIST_RE 에 안 걸려 '설정'으로 백업엔 담기지만, 복원 때
    * 그대로 덮어쓰면 지금 기기에서 더 진행된 임시본을 백업 시점의 옛 임시본으로 지울 수
