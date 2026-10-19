@@ -26,6 +26,9 @@
    * 직전 버전을 IndexedDB 에만(localStorage·클라우드·백업 제외) 서식별로 보관한다.
    * 기록 한 건당 5개, 서식당 60개까지 오래된 것부터 버린다. */
   var HISTORY_PER_RECORD = 5, HISTORY_PER_FORM = 60;
+  // 삭제 전 버전은 일반 이력과 별도로 30일(서식당 30건)까지 보관한다 — 삭제 뒤에 다른 저장이
+  // 쌓여 일반 이력이 밀려나도 삭제된 기록은 되살릴 수 있어야 한다.
+  var HISTORY_DELETE_DAYS = 30, HISTORY_DELETE_MAX = 30;
   var VOLATILE = ['updatedAt', 'updatedBy', 'updatedByEmpId', 'updatedByUid', 'audit', '_savedAt'];
   function historyKey(formId) { return 'dkj:history:' + formId + ':v1'; }
   function materialJson(rec) {
@@ -40,17 +43,27 @@
     },
     /** list(이력 배열)에 recs 를 덧붙인 새 배열을 돌려준다. 내용이 같은 버전은 중복 보관하지 않는다. */
     add: function (list, recs, reason, now) {
+      var stamp = now || new Date().toISOString();
       var out = list.slice();
       recs.forEach(function (rec) {
         if (!rec || !rec.id || rec.deleted) return;
         var json = materialJson(rec);
-        var dup = out.some(function (e) { return e.recordId === rec.id && materialJson(e.rec) === json; });
-        if (dup) return;
-        out.push({ recordId: rec.id, savedAt: now || new Date().toISOString(), reason: reason, rec: rec });
-        var mine = out.filter(function (e) { return e.recordId === rec.id; });
+        var same = out.filter(function (e) { return e.recordId === rec.id && materialJson(e.rec) === json; })[0];
+        if (same) {
+          // 이미 보관한 내용이 삭제되는 경우에는 그 항목을 '삭제 전 버전'으로 바꿔 보호한다.
+          if (reason === 'delete') { same.reason = 'delete'; same.savedAt = stamp; }
+          return;
+        }
+        out.push({ recordId: rec.id, savedAt: stamp, reason: reason, rec: rec });
+        var mine = out.filter(function (e) { return e.recordId === rec.id && e.reason !== 'delete'; });
         if (mine.length > HISTORY_PER_RECORD) out.splice(out.indexOf(mine[0]), 1);
       });
-      while (out.length > HISTORY_PER_FORM) out.shift();
+      var cutoff = Date.parse(stamp) - HISTORY_DELETE_DAYS * 86400000;
+      out = out.filter(function (e) { return e.reason !== 'delete' || !(Date.parse(e.savedAt) < cutoff); });
+      var normal = out.filter(function (e) { return e.reason !== 'delete'; });
+      while (normal.length > HISTORY_PER_FORM) out.splice(out.indexOf(normal.shift()), 1);
+      var removed = out.filter(function (e) { return e.reason === 'delete'; });
+      while (removed.length > HISTORY_DELETE_MAX) out.splice(out.indexOf(removed.shift()), 1);
       return out;
     }
   };
