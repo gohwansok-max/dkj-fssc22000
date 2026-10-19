@@ -572,6 +572,18 @@
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
           // autoJudge — 측정값을 적으면 기준치(고시·사내 중 더 높은 값) 이상 여부로 판정 칸을 채운다.
           // 입력 직후에만 계산하므로 저장된 기록을 열어도 값이 바뀌지 않고, 판정은 손으로 고칠 수 있다.
+          // autoJudgeRanges — 열마다 허용 범위(min~max 포함)가 정해진 서식(예: 작업장 온도 일보).
+          (spec.autoJudgeRanges || []).forEach(function (rg) {
+            if (rg.valueKey !== key) return;
+            var rv = parseFloat(el.value);
+            var rverdict = '';
+            if (!isNaN(rv) && String(el.value).trim() !== '') {
+              rverdict = (rv >= rg.min && rv <= rg.max) ? (rg.pass || '적') : (rg.fail || '부');
+            }
+            state.rows[ri][rg.target] = rverdict;
+            var rt = host.querySelector('[data-r="' + ri + '"][data-c="' + rg.target + '"]');
+            if (rt) rt.value = rverdict;
+          });
           var aj = spec.autoJudge;
           if (aj && key === aj.valueKey) {
             var nums = [];
