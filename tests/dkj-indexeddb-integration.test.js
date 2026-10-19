@@ -42,3 +42,12 @@ test('정리는 기본 꺼짐이며 플래그 없이 원본을 삭제하지 않�
  assert.equal((await e.ctx.DkjStorage.cleanup({enabled:true})).enabled,false);
  assert.equal(e.localWrites(),0);
 });
+test('저장 공간 80% 이상이면 경고하고 미만이면 조용하다',async()=>{
+ for(const[usage,warn]of[[85,true],[50,false]]){
+  const e=env();e.ctx.DkjStore.estimate=async()=>({usage,quota:100});
+  const els=[];e.ctx.document={readyState:'loading',addEventListener(){},body:{appendChild:el=>els.push(el)},getElementById:()=>els[0]||null,createElement:()=>({style:{},setAttribute(){}})};
+  assert.equal(await e.ctx.DkjStorage.checkQuota(),usage/100);
+  assert.equal(els.length>0&&/85%/.test(els[0].textContent||''),warn);
+ }
+ const e=env();e.ctx.DkjStore.estimate=async()=>null;assert.equal(await e.ctx.DkjStorage.checkQuota(),null);
+});
