@@ -663,13 +663,14 @@
     return '적합(○)';
   }
 
-  function inspectionResult() {
+  function inspectionResult(record) {
+    record = record || state;
     var missing = 0;
     var deviations = [];
     ['r1', 'r2', 'r3'].forEach(function (rk, ri) {
       CHECK_ITEMS.forEach(function (it) {
-        var val = state.checks[rk][it.key];
-        var absent = val === '' || val === null || val === undefined ||
+        var val = ((record.checks || {})[rk] || {})[it.key];
+        var absent = val === null || val === undefined || String(val).trim() === '' ||
           (it.type === 'num' && !Number.isFinite(Number(val))) ||
           (it.type === 'ox' && ['O', '○', 'X', '×'].indexOf(val) < 0) ||
           (it.type === 'spec' && !(it.options || []).some(function (opt) { return val === opt || val === opt + '㎜' || val === opt + 'mm'; }));
@@ -677,12 +678,51 @@
         else if (isBad(it, val)) deviations.push((ri + 1) + '차 ' + it.label + ': ' + val + (it.unit || '') + ' / ' + it.std);
       });
     });
-    var first = first20Judge(state.finishedItems);
+    var first = first20Judge(record.finishedItems);
     if (first === '부적합(×)') deviations.push('완제품 첫 20팩 전수점검 부적합');
     if (first === '미점검') missing++;
     return { missing: missing, deviations: deviations,
       judge: deviations.length ? '이탈발생' : (missing ? '미점검' : '적합') };
   }
+
+  function validationMessage(record, complete) {
+    if (!record.workDate) return '작업일자를 입력하세요.';
+    if (!String(record.lot || '').trim()) return '생산 LOT를 입력하세요.';
+    if (!String(record.inspector || '').trim()) return 'QC 검사자를 입력하세요.';
+    var result = inspectionResult(record);
+    var notes = String(record.deviationNotes || '').trim();
+    if (result.deviations.length && (!notes || /^(정상|없음|이상 없음|특이사항 없음)[.!\s]*$/.test(notes))) {
+      return '이탈 항목이 있습니다. 이탈 및 긴급조치 내역에 발생 상황과 실제 조치 결과를 기록한 뒤 저장하세요. 입력 중 내용은 임시 보관됩니다.';
+    }
+    if (complete && result.missing) return '미점검 ' + result.missing + '칸이 남아 있습니다. 첫 20팩을 포함한 모든 점검 후 작성완료·결재를 진행하세요.';
+    return '';
+  }
+
+  function showValidationError(message) {
+    var el = $('qcValidationStatus');
+    if (!el) return;
+    el.hidden = !message;
+    el.textContent = message;
+    if (message) { el.focus(); el.scrollIntoView({block: 'center'}); }
+  }
+
+  function allowComplete() {
+    readForm();
+    checkDeviations();
+    var message = validationMessage(state, true);
+    if (message) { showValidationError(message); setStatus('확정 불가 — 입력 내용을 확인하세요.', false); return false; }
+    if (!editingId) { showValidationError('먼저 저장한 뒤 작성 확정·결재를 진행하세요.'); return false; }
+    showValidationError('');
+    return true;
+  }
+
+  // 저장 API에서도 검사한다. 자동 임시 보관(saveDraft)은 검사하지 않아 작성 중 내용을 보존한다.
+  global.DkjRecordValidators = global.DkjRecordValidators || {};
+  global.DkjRecordValidators[FORM_ID] = function (record) {
+    var signing = Object.keys(record.signoff || {}).some(function (key) { return record.signoff[key] && record.signoff[key].at; });
+    var message = validationMessage(record, !!record.locked || signing);
+    if (message) throw new Error(message);
+  };
 
   function checkDeviations() {
     var result = inspectionResult();
@@ -1254,19 +1294,25 @@
       if (!state.workDate) { alert('작업일자를 입력하세요.'); return; }
       if (!state.lot) { alert('생산 LOT를 입력하세요.'); return; }
       if (!state.inspector) { alert('QC 검사자를 입력하세요.'); return; }
+      checkDeviations();
+      var message = validationMessage(state, !!lock);
+      if (message) { showValidationError(message); setStatus('저장·확정 불가 — 입력 내용을 확인하세요.', false); return; }
+      showValidationError('');
 
       // 대기 중인 임시저장 타이머를 지운다 — 안 지우면 저장 직후 "저장됨"이 잠깐
       // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
       clearTimeout(draftTimer);
-      state.locked = !!lock;
+
       var prodNames = (state.finishedItems || []).map(function (f) { return f.name; }).join(', ');
       var rec = (await DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
         id: editingId || undefined,
+        locked: !!lock,
         title: 'QC 순회 ' + prodNames + ' (' + state.lot + ')',
         judge: inspectionResult().judge,
         workDate: state.workDate
       })));
       editingId = rec.id;
+      state.locked = !!rec.locked;
       setStatus(lock ? '✓ 작성완료 확정됨' : '저장됨 ' + new Date().toLocaleTimeString(), true);
       if (apvUi) apvUi.render();
       (await renderHistory());
@@ -1747,6 +1793,7 @@
     if (window.DkjApproval) {
       apvUi = DkjApproval.mount({
         stages: ['writer', 'reviewer', 'approver'],
+        beforeSign: allowComplete,
         getState: function () { readForm(); return state; },
         // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
         // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
@@ -1755,7 +1802,7 @@
             // title/judge/workDate 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
             // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
             var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
-            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId })));
+            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId, judge: inspectionResult().judge })));
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
             (await renderHistory());
           } else {

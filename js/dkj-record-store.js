@@ -123,6 +123,9 @@
     },
 
     save: function (formId, record) {
+      var validator = global.DkjRecordValidators && global.DkjRecordValidators[formId];
+      if (typeof validator === 'function') validator(record);
+
       // list()는 deleted 기록을 걸러낸다 — 여기서 그걸 그대로 작업 배열로 쓰면 이 서식에
       // 아무 기록이나 하나 저장할 때마다 deleted 표식이 통째로 사라져(never written back)
       // 삭제된 기록이 되살아난다. 반드시 원본(raw, 걸러내지 않은) 배열로 읽고 써야 한다.

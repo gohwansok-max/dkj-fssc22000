@@ -70,6 +70,22 @@ test('internal alert settings are excluded without changing storage or hiding un
   for (const [key,value] of Object.entries(initial)) assert.equal(store.getItem(key), value);
 });
 
+test('record identity distinguishes LOT and rounds without altering source records', async () => {
+  const key='dkj:records:DKJ-QC-001:list:v1';
+  const rows=[
+    {id:'first',workDate:'2026-10-19',lot:'LOT-A',roundNo:1,createdAt:'2026-10-19T00:00:00Z',updatedAt:'2026-10-19T03:00:00Z'},
+    {id:'second',workDate:'2026-10-19',lot:'LOT-A',roundNo:2,createdAt:'2026-10-19T01:00:00Z',updatedAt:'2026-10-19T02:00:00Z'},
+    {id:'other-lot',workDate:'2026-10-19',lot:'LOT-B',createdAt:'2026-10-19T04:00:00Z'}
+  ];
+  const raw=JSON.stringify(rows), store=storage({[key]:raw});
+  const result=await loadExport(store).collect();
+  const a=result.find(r=>r.id==='first'),b=result.find(r=>r.id==='second'),c=result.find(r=>r.id==='other-lot');
+  assert.equal(a.mostRecentlyUpdated,true);assert.equal(b.mostRecentlyUpdated,false);
+  assert.equal(a.displaySequence,1);assert.equal(b.displaySequence,2);
+  assert.equal(a.round,'1');assert.equal(b.round,'2');assert.equal(c.round,'');
+  assert.equal(c.sameContextCount,1);assert.equal(store.getItem(key),raw);
+});
+
 test('temperature draft is 작성 중 and is not shown in the archive', async () => {
   const key = 'dkj:records:DKJ-S-02-05:draft:v1';
   const localStorage = storage({
