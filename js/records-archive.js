@@ -76,11 +76,17 @@
         '<td><input type="checkbox" data-pick="' + esc(r.id) + '"' + (selected[r.id] ? ' checked' : '') + ' aria-label="선택"></td>' +
         '<td><span class="arc-code">' + esc(r.formId) + '</span></td>' +
         '<td>' + esc(r.date || '-') + '</td>' +
-        '<td class="wrap">' + esc(r.title || r.formTitle || '-') + '</td>' +
+        '<td class="wrap">' + esc(r.title || r.formTitle || '-') +
+          '<div class="arc-record-identity">' +
+          (r.lot ? 'LOT ' + esc(r.lot) + ' · ' : '') +
+          (r.round ? '회차 ' + esc(r.round) + ' · ' : '') +
+          (r.sameContextCount > 1 ? '동일 일자' + (r.lot ? '·LOT' : '') + ' 기록 ' + r.displaySequence + '/' + r.sameContextCount + ' · ' : '') +
+          (r.mostRecentlyUpdated && r.sameContextCount > 1 ? '<strong>최근 수정</strong> · ' : '') +
+          '기록 ID ' + esc(r.id) + '</div></td>' +
         '<td>' + esc(r.writer || r.createdBy || '-') + '</td>' +
         '<td><span class="arc-status ' + (r.status === '작성완료' ? 'done' : 'wip') + '">' + esc(r.status) + '</span></td>' +
         '<td>' + esc(r.judge || '-') + '</td>' +
-        '<td>' + esc((r.updatedAt || '').replace('T', ' ').slice(0, 16)) + '</td>' +
+        '<td>' + esc(r.updatedAt ? new Date(r.updatedAt).toLocaleString('ko-KR', {timeZone:'Asia/Seoul'}) : '-') + '</td>' +
         '<td><a class="arc-btn" style="min-height:32px;padding:0 10px;" href="' + esc(open) + '">열기</a></td>' +
         '</tr>';
     }).join('');

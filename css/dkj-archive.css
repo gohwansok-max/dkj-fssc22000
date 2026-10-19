@@ -146,3 +146,6 @@
   .arc-table th, .arc-table td { border-bottom: 1px solid #999; white-space: normal; }
 }
 #arcSyncPill { white-space: normal; max-width: 100%; line-height: 1.6; text-align: left; }
+
+.arc-record-identity { margin-top:5px; color:#475467; font-size:12px; overflow-wrap:anywhere; }
+.arc-record-identity strong { color:#146c43; }
