@@ -1222,6 +1222,25 @@ input[type="number"]:out-of-range {
   cursor: pointer;
 }
 
+.dkj-photo-carried {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 8px;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  color: #e65100;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.dkj-photo-thumb-wrap .dkj-photo-carried {
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+}
+@media print { .dkj-photo-carried { display: none !important; } }
+
 .dkj-photo-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
