@@ -439,9 +439,9 @@
 
     var checks = { r1: {}, r2: {}, r3: {} };
     CHECK_ITEMS.forEach(function (it) {
-      checks.r1[it.key] = it.defaultVal;
-      checks.r2[it.key] = it.defaultVal;
-      checks.r3[it.key] = it.defaultVal;
+      checks.r1[it.key] = '';
+      checks.r2[it.key] = '';
+      checks.r3[it.key] = '';
     });
 
     var materials = defProd.bom.map(function (b) {
@@ -449,7 +449,7 @@
     });
 
     var finishedItems = [
-      { code: defProd.code, name: defProd.name, spec: defProd.spec, madeKg: '', madeBag: '', shippedKg: '', stockKg: '', first20: 'O' }
+      { code: defProd.code, name: defProd.name, spec: defProd.spec, madeKg: '', madeBag: '', shippedKg: '', stockKg: '', first20: '' }
     ];
 
     return {
@@ -467,7 +467,7 @@
       },
       // 최근기록 복사로 따라온 사진이면 true — 화면에 '전일' 배지(화면 전용). 사진을 바꾸거나 지우면 해제.
       photosCarried: {},
-      remarkPreset: '특이사항 없음 / 정상 가동',
+      remarkPreset: '',
       deviationNotes: '',
       confirmer: '',
       approver: '',
@@ -619,7 +619,7 @@
             madeBag: '',
             shippedKg: '',
             stockKg: '',
-            first20: 'O'
+            first20: ''
           });
         }
 
@@ -647,7 +647,7 @@
   }
 
   function isBad(item, val) {
-    if (!val) return false;
+    if (val === '' || val === null || val === undefined) return false;
     if (item.type === 'ox') return val === '×' || val === 'X';
     if (item.type === 'num') {
       var n = parseFloat(val);
@@ -657,16 +657,53 @@
     return false;
   }
 
-  function checkDeviations() {
-    var dev = false;
-    ['r1', 'r2', 'r3'].forEach(function (rk) {
+  function first20Judge(items) {
+    if ((items || []).some(function (f) { return f.first20 === 'X' || f.first20 === '×'; })) return '부적합(×)';
+    if (!items || !items.length || items.some(function (f) { return f.first20 !== 'O' && f.first20 !== '○'; })) return '미점검';
+    return '적합(○)';
+  }
+
+  function inspectionResult() {
+    var missing = 0;
+    var deviations = [];
+    ['r1', 'r2', 'r3'].forEach(function (rk, ri) {
       CHECK_ITEMS.forEach(function (it) {
-        if (isBad(it, state.checks[rk][it.key])) dev = true;
+        var val = state.checks[rk][it.key];
+        var absent = val === '' || val === null || val === undefined ||
+          (it.type === 'num' && !Number.isFinite(Number(val))) ||
+          (it.type === 'ox' && ['O', '○', 'X', '×'].indexOf(val) < 0) ||
+          (it.type === 'spec' && !(it.options || []).some(function (opt) { return val === opt || val === opt + '㎜' || val === opt + 'mm'; }));
+        if (absent) missing++;
+        else if (isBad(it, val)) deviations.push((ri + 1) + '차 ' + it.label + ': ' + val + (it.unit || '') + ' / ' + it.std);
       });
     });
+    var first = first20Judge(state.finishedItems);
+    if (first === '부적합(×)') deviations.push('완제품 첫 20팩 전수점검 부적합');
+    if (first === '미점검') missing++;
+    return { missing: missing, deviations: deviations,
+      judge: deviations.length ? '이탈발생' : (missing ? '미점검' : '적합') };
+  }
+
+  function checkDeviations() {
+    var result = inspectionResult();
+    var dev = result.deviations.length > 0;
     state.hasDeviation = dev;
     var ban = $('deviationBanner');
-    if (ban) ban.hidden = !dev;
+    if (ban) {
+      ban.hidden = !dev;
+      ban.textContent = '한계기준/규격 이탈 감지 — ' + result.deviations.join(' · ') + ' — 하단 이탈 및 긴급조치 내역에 조치 결과를 기록하세요.';
+    }
+    var status = $('qcJudgeStatus');
+    if (status) status.textContent = dev ? '판정: 이탈발생 · 조치 필요 (미점검 ' + result.missing + '칸)' :
+      (result.missing ? '판정: 미점검 ' + result.missing + '칸 — 모든 점검 후 적합 여부를 확인합니다.' : '판정: 적합');
+    var preset = $('remarkPreset');
+    if (preset) {
+      var normal = preset.querySelector('option[value="특이사항 없음 / 정상 가동"]');
+      if (normal) {
+        normal.disabled = dev;
+        normal.textContent = dev ? '이탈 발생 — 정상 판정 적용 안 됨' : '정상 — 특이사항 없음';
+      }
+    }
   }
 
   function renderMainCheckTable() {
@@ -976,7 +1013,7 @@
         '<td><input type="number" step="any" min="0" class="qc-in-box qc-mat-used" data-f="usedKg" value="' + (m.usedKg || '') + '" placeholder="kg"></td>' +
         '<td><input type="number" step="any" min="0" class="qc-in-box qc-mat-waste" data-f="wasteKg" value="' + (m.wasteKg || '') + '" placeholder="kg"></td>' +
         '<td class="qc-yield-val" style="font-weight:800;color:#009a44;font-size:13px;">' + (yRate ? yRate + '%' : '—') + '</td>' +
-        '<td style="color:#009a44;font-weight:700;">○ (적합)</td>' +
+        '<td>별도 성상 판정 없음</td>' +
         '<td><button type="button" class="pill-btn ghost sm qc-del-mat" data-idx="' + idx + '" style="padding:2px 6px;color:#d92d20;">✕</button></td>' +
         '</tr>';
     }).join('');
@@ -1015,6 +1052,7 @@
 
   // Update Finished Goods Totals Row
   function updateFinishedTotals() {
+    checkDeviations();
     var tfoot = $('finishedGoodsFoot');
     if (!tfoot) return;
 
@@ -1036,7 +1074,7 @@
       '<td style="text-align:right;padding-right:8px;color:#009a44;font-size:13.5px;">' + sumMadeBag + ' 봉</td>' +
       '<td style="text-align:right;padding-right:8px;">' + (Math.round(sumShippedKg * 10) / 10) + ' kg</td>' +
       '<td style="text-align:right;padding-right:8px;">' + (Math.round(sumStockKg * 10) / 10) + ' kg</td>' +
-      '<td colspan="2" style="text-align:center;color:#009a44;">전수점검 적합(○)</td>' +
+      '<td colspan="2" style="text-align:center;">전수점검 ' + first20Judge(state.finishedItems) + '</td>' +
       '</tr>';
   }
 
@@ -1133,6 +1171,8 @@
         var par = btn.closest('.qc-seg-control');
         var idx = Number(par.getAttribute('data-idx'));
         state.finishedItems[idx].first20 = btn.getAttribute('data-val');
+        updateFinishedTotals();
+        checkDeviations();
         par.querySelectorAll('.qc-seg-btn').forEach(function (b) { b.classList.remove('active'); });
         btn.classList.add('active');
         scheduleDraft();
@@ -1179,7 +1219,7 @@
     if ($('workDate')) $('workDate').value = curDate;
     if ($('lot')) $('lot').value = state.lot || makeLot(curDate);
     if ($('inspector')) $('inspector').value = state.inspector || '';
-    if ($('remarkPreset')) $('remarkPreset').value = state.remarkPreset || '특이사항 없음 / 정상 가동';
+    if ($('remarkPreset')) $('remarkPreset').value = state.remarkPreset || '';
     if ($('deviationNotes')) $('deviationNotes').value = state.deviationNotes || '';
     if ($('confirmer')) $('confirmer').value = state.confirmer || '';
     if ($('approver')) $('approver').value = state.approver || '';
@@ -1223,7 +1263,7 @@
       var rec = (await DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
         id: editingId || undefined,
         title: 'QC 순회 ' + prodNames + ' (' + state.lot + ')',
-        judge: state.hasDeviation ? '이탈발생' : '적합',
+        judge: inspectionResult().judge,
         workDate: state.workDate
       })));
       editingId = rec.id;
@@ -1246,7 +1286,7 @@
       var pName = (r.finishedItems && r.finishedItems.length) ? r.finishedItems.map(function(f){return f.name;}).join(', ') : (r.productName || '가공채소');
       return '<div class="dkj-history-item" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eaecf0;">' +
         '<div><strong>' + (r.workDate || '') + '</strong> · ' + pName + ' / LOT ' + (r.lot || '') +
-        ' <span class="badge ' + badgeCls + '">' + (r.judge || '적합') + '</span></div>' +
+        ' <span class="badge ' + badgeCls + '">' + (r.judge || '미판정') + '</span></div>' +
         '<div style="display:flex;gap:6px;">' +
         '<button type="button" class="pill-btn ghost sm" data-load="' + r.id + '">불러오기</button>' +
         '<button type="button" class="pill-btn ghost sm" data-del="' + r.id + '">삭제</button>' +
@@ -1335,7 +1375,7 @@
         '<td style="border:1px solid #000;text-align:right;padding-right:4px;">' + (m.usedKg || '') + '</td>' +
         '<td style="border:1px solid #000;text-align:right;padding-right:4px;">' + (m.wasteKg || '') + '</td>' +
         '<td style="border:1px solid #000;text-align:center;font-weight:bold;">' + (m.yieldRate ? m.yieldRate + '%' : '') + '</td>' +
-        '<td style="border:1px solid #000;text-align:center;">○ (적합)</td>' +
+        '<td style="border:1px solid #000;text-align:center;">별도 성상 판정 없음</td>' +
         '</tr>';
     }).join('');
 
@@ -1457,7 +1497,7 @@
       // 6. Bottom Notice & Deviations Record
       '<div style="border:1.5px solid #000;padding:4px 6px;font-size:7.5pt;background:#fffee6;line-height:1.3;">' +
         '<div><strong>★ [QC 중점관리]</strong> 가공 시작 시 첫 20팩은 외관·이물·실링·날인 100% 전수 확인 완료 (○)</div>' +
-        '<div style="margin-top:2px;"><strong>특이사항 / 이탈 및 조치기록:</strong> ' + (state.deviationNotes || state.remarkPreset || '이상 없음 / 정상 가동') + '</div>' +
+        '<div style="margin-top:2px;"><strong>특이사항 / 이탈 및 조치기록:</strong> ' + (state.deviationNotes || (state.hasDeviation ? '이탈발생 — 조치 내역 미입력' : (inspectionResult().missing ? '미점검 항목 있음' : (state.remarkPreset || '특이사항 미입력')))) + '</div>' +
       '</div>' +
       photoAttachmentHtml +
       '</div>';
@@ -1497,7 +1537,7 @@
     }
     if (Array.isArray(latest.finishedItems) && latest.finishedItems.length) {
       fresh.finishedItems = latest.finishedItems.map(function (f) {
-        return { code: f.code, name: f.name, spec: f.spec, madeKg: '', madeBag: '', shippedKg: '', stockKg: '', first20: f.first20 || 'O' };
+        return { code: f.code, name: f.name, spec: f.spec, madeKg: '', madeBag: '', shippedKg: '', stockKg: '', first20: '' };
       });
     }
     ['r1', 'r2', 'r3'].forEach(function (rk) {
@@ -1603,7 +1643,7 @@
           madeBag: '',
           shippedKg: '',
           stockKg: '',
-          first20: 'O'
+          first20: ''
         });
 
         syncMaterialsFromProducts();
