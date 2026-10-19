@@ -642,6 +642,20 @@
         return el;
       })();
       sheet.innerHTML = global.DkjMatrixPrint.render(spec, state);
+      // 가로 인쇄 서식(printOrientation) — 인쇄하는 동안만 용지 방향을 가로로 바꾼다.
+      var orient = null;
+      if (spec.printOrientation === 'landscape') {
+        orient = document.createElement('style');
+        orient.id = 'dkjPageOrient';
+        orient.textContent = '@page { size: A4 landscape; margin: 10mm 10mm 10mm 10mm; }';
+        document.head.appendChild(orient);
+        var done = function () {
+          if (orient && orient.parentNode) orient.parentNode.removeChild(orient);
+          orient = null;
+          global.removeEventListener('afterprint', done);
+        };
+        global.addEventListener('afterprint', done);
+      }
       setTimeout(function () { window.print(); }, 120);
     }
 

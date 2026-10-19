@@ -53,8 +53,9 @@
     // signoff 객체가 넘어오면(전자결재를 쓰는 서식) 최종 승인 전에는 이름을 찍지 않는다.
     // 예전엔 CCP-1BC 만 이 규칙을 따라, 승인 전 정본에도 검토·승인 예정자 이름이 서명처럼 찍혔다.
     var writerHtml = esc(headerWriter), reviewerHtml = esc(headerReviewer), approverHtml = esc(headerApprover);
-    if (opt.requireFinalApprovalForNames || (opt.signoff && typeof opt.signoff === 'object')) {
-      var signoff = opt.signoff || {};
+    // signoff 가 없는 호출(옛 기록·signoff 를 안 넘기는 서식)도 같은 규칙이다 — 서명 전에는 빈칸.
+    {
+      var signoff = (opt.signoff && typeof opt.signoff === 'object') ? opt.signoff : {};
       // 이름·손서명은 그 단계를 실제로 확정(서명)한 칸에만 찍는다 — 결재 전 칸에 이름이
       // 미리 찍혀 서명처럼 보이는 것을 막는다. 확정한 사람의 칸은 바로 나온다.
       writerHtml = signoff.writer && signoff.writer.at ? sigCell(signoff.writer, signoff.writer.name || '') : '';

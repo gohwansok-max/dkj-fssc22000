@@ -472,6 +472,11 @@
       var range = (c.type === 'num' && (c.min != null || c.max != null))
         ? (c.min != null ? ' min="' + esc(c.min) + '"' : '') + (c.max != null ? ' max="' + esc(c.max) + '"' : '')
         : '';
+      // staff — 등록된 사용자 목록(dkjStaffList)에서 고르되 직접 입력도 된다
+      if (c.staff === true && t === 'text') {
+        return '<input type="text" list="dkjStaffList" data-r="' + ri + '" data-c="' + c.key +
+          '" value="' + esc(v) + '" placeholder="선택/입력">';
+      }
       return '<input type="' + t + '" data-r="' + ri + '" data-c="' + c.key + '" value="' +
         esc(v) + '"' + range + ' placeholder="' + esc(c.unit || '') + '">';
     }
@@ -553,6 +558,7 @@
         el.addEventListener(ev, function () {
           var key = el.getAttribute('data-c');
           var ri = Number(el.getAttribute('data-r'));
+          var prevVal = state.rows[ri][key];
           state.rows[ri][key] = el.value;
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
           if (spec.autoDateRange && key === spec.autoDateRange.dateKey) {
@@ -567,7 +573,10 @@
           // 중이던 칸의 포커스가 날아가므로 그 칸 하나만 DOM 에서 직접 갱신한다.
           (spec.autoCopyColumns || []).forEach(function (cfg) {
             if (cfg.from !== key) return;
-            if (String(state.rows[ri][cfg.to] || '').trim()) return;
+            // sync: 대상 칸이 비었거나 아직 이전 원본값 그대로(=자동으로 따라온 값)이면 계속 따라간다.
+            // 사람이 따로 고친 값은 덮어쓰지 않는다. (예: 폐기물량 → 반출량)
+            var curTo = String(state.rows[ri][cfg.to] || '').trim();
+            if (curTo && !(cfg.sync && curTo === String(prevVal || '').trim())) return;
             var v = cfg.format === 'yyyymmdd' ? String(el.value || '').replace(/[^0-9]/g, '') : el.value;
             state.rows[ri][cfg.to] = v;
             var target = host.querySelector('[data-r="' + ri + '"][data-c="' + cfg.to + '"]');

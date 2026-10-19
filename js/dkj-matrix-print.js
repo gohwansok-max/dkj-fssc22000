@@ -85,11 +85,11 @@
       var so = state.signoff;
       var rec = so && typeof so === 'object' ? so[stage] : null;
       // 전자결재(signoff 객체)를 쓰는 서식은 그 단계를 확정한 칸에만 서명 그림/이름을 찍는다.
-      if (so && typeof so === 'object' && !(rec && rec.at)) return '';
+      if (!(rec && rec.at)) return '';
       if (global.DkjSignature && rec && rec.at && global.DkjSignature.isValid(rec.signature)) {
         return global.DkjSignature.cellHtml(rec, rec.name || apv[stage] || '');
       }
-      return esc((rec && rec.at && rec.name) || apv[stage] || '');
+      return esc(rec.name || apv[stage] || '');
     }
     return '' +
       '<table class="off-head mx-head">' +
@@ -300,12 +300,13 @@
     /* printDensity — A4 1쪽에 담아야 하는 서식만 치수를 직접 지정한다.
        { rowHeight, fontSize } 가 CSS 변수로 내려가고 mx-dense 클래스가 붙는다.
        지정하지 않은 서식의 정본 밀도는 그대로다(대장 쪽 dkj-ledger-print.js 와 같은 규약). */
+    var land = spec.printOrientation === 'landscape' ? ' mx-landscape' : '';
     var d = spec.printDensity;
-    if (!d) return '<div class="off-ccp off-matrix">' + html + '</div>';
+    if (!d) return '<div class="off-ccp off-matrix' + land + '">' + html + '</div>';
     var vars = [];
     if (d.rowHeight) vars.push('--mx-row-h:' + d.rowHeight);
     if (d.fontSize) vars.push('--mx-font:' + d.fontSize);
-    return '<div class="off-ccp off-matrix mx-dense"' +
+    return '<div class="off-ccp off-matrix mx-dense' + land + '"' +
       (vars.length ? ' style="' + vars.join(';') + '"' : '') + '>' + html + '</div>';
   }
 
