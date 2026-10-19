@@ -20,6 +20,41 @@
     return 'dkj:records:' + formId + ':draft:v1';
   }
 
+  /* ---------- 덮어쓰기 전 버전 이력 ----------
+   * 기록은 통째로 덮어쓰는 방식(마지막 저장이 이김)이라, 오래 열려 있던 화면이나 다른 기기의
+   * 저장이 사진·시간을 비운 채 덮어써도 되돌릴 수 없었다. 저장·삭제·동기화 병합으로 바뀌기
+   * 직전 버전을 IndexedDB 에만(localStorage·클라우드·백업 제외) 서식별로 보관한다.
+   * 기록 한 건당 5개, 서식당 60개까지 오래된 것부터 버린다. */
+  var HISTORY_PER_RECORD = 5, HISTORY_PER_FORM = 60;
+  var VOLATILE = ['updatedAt', 'updatedBy', 'updatedByEmpId', 'updatedByUid', 'audit', '_savedAt'];
+  function historyKey(formId) { return 'dkj:history:' + formId + ':v1'; }
+  function materialJson(rec) {
+    var o = {};
+    Object.keys(rec).sort().forEach(function (k) { if (VOLATILE.indexOf(k) < 0) o[k] = rec[k]; });
+    return JSON.stringify(o);
+  }
+  var History = {
+    key: historyKey,
+    parse: function (raw) {
+      try { var v = JSON.parse(raw); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+    },
+    /** list(이력 배열)에 recs 를 덧붙인 새 배열을 돌려준다. 내용이 같은 버전은 중복 보관하지 않는다. */
+    add: function (list, recs, reason, now) {
+      var out = list.slice();
+      recs.forEach(function (rec) {
+        if (!rec || !rec.id || rec.deleted) return;
+        var json = materialJson(rec);
+        var dup = out.some(function (e) { return e.recordId === rec.id && materialJson(e.rec) === json; });
+        if (dup) return;
+        out.push({ recordId: rec.id, savedAt: now || new Date().toISOString(), reason: reason, rec: rec });
+        var mine = out.filter(function (e) { return e.recordId === rec.id; });
+        if (mine.length > HISTORY_PER_RECORD) out.splice(out.indexOf(mine[0]), 1);
+      });
+      while (out.length > HISTORY_PER_FORM) out.shift();
+      return out;
+    }
+  };
+
   function readJson(key, fallback) {
     try {
       var raw = localStorage.getItem(key);
@@ -46,6 +81,14 @@
     localStorage.setItem(key, raw);
     mirror(key, raw);
     if (!backend) { try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { key: key, value: value } })); } catch (e) {} }
+  }
+
+  // 이력은 DkjStorage(IndexedDB) 경로에서만 쓴다 — localStorage 용량을 다시 압박하지 않기 위해서다.
+  function archive(formId, recs, reason) {
+    if (!backend || !recs.length) return;
+    var key = historyKey(formId);
+    var next = History.add(History.parse(localStorage.getItem(key)), recs, reason);
+    localStorage.setItem(key, JSON.stringify(next));
   }
 
   function uid() {
@@ -105,8 +148,10 @@
       }
       record.formId = formId;
       var idx = list.findIndex(function (r) { return r.id === record.id; });
-      if (idx >= 0) list[idx] = record;
-      else list.unshift(record);
+      if (idx >= 0) {
+        archive(formId, [list[idx]], 'save');
+        list[idx] = record;
+      } else list.unshift(record);
       writeJson(listKey(formId), list);
       this.clearDraft(formId);
       return record;
@@ -125,6 +170,7 @@
       var list = readJson(listKey(formId), []);
       var idx = list.findIndex(function (r) { return r.id === id; });
       if (idx < 0) return;
+      archive(formId, [list[idx]], 'delete');
       var who = (global.DkjAuth && global.DkjAuth.user()) || null;
       var now = new Date().toISOString();
       // 삭제 표식(tombstone)에는 본문을 남기지 않는다 — 화면·내보내기에 안 보이는 기록이
@@ -166,7 +212,7 @@
     async function mutate(formId, action) {
       await backend.ready();
       return backend.exclusive(async function () {
-        var keys = [listKey(formId), draftKey(formId), 'dkj:migrations:v1'];
+        var keys = [listKey(formId), draftKey(formId), historyKey(formId), 'dkj:migrations:v1'];
         var values = Object.create(null);
         for (var key of keys) {
           var raw = await global.DkjStore.get(key);
@@ -176,7 +222,16 @@
         var result, writes;
         try { result = action(core); writes = staged.writes; }
         finally { staged = null; }
-        await global.DkjStore.batch(writes);
+        // 저장·임시저장·삭제는 결재 훅 등이 mutate 를 직접 부르기도 하므로, 실패 보고는 실제
+        // 쓰기 지점 한 곳에서 한다. 기록 목록 쓰기(list)와 임시저장(draft)을 따로 추적해,
+        // 임시저장이 성공했다고 실패한 저장의 경고가 사라지지 않게 한다.
+        var kind = writes[listKey(formId)] !== undefined ? 'list' : 'draft';
+        try { await global.DkjStore.batch(writes); }
+        catch (error) {
+          if (Object.keys(writes).length && typeof backend.reportWrite === 'function') backend.reportWrite(kind, false, error);
+          throw error;
+        }
+        if (Object.keys(writes).length && typeof backend.reportWrite === 'function') backend.reportWrite(kind, true);
         if (Object.keys(writes).length) {
           Object.keys(writes).forEach(function (key) { backend.notify(key); });
           global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: {key: listKey(formId)} }));
@@ -193,7 +248,10 @@
       };
     });
     publicStore.mutate = mutate;
+    publicStore.History = History;
     global.DkjRecordStore = publicStore;
+  } else {
+    core.History = History;
   }
 
   /* ---------- 1회성 데이터 정정 ----------

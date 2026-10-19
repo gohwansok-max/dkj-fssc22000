@@ -5,6 +5,8 @@
   var KEY_RE = /^dkj:records:(.+):(list|draft):v1$/;
   var SRC_IDB = 'IndexedDB(현재)';
   var SRC_LS = 'localStorage(이전 시점 백업)';
+  var SRC_HIST = '이전 버전(덮어쓰기·삭제 전)';
+  var HIST_RE = /^dkj:history:(.+):v1$/;
 
   // 사진은 data:image 문자열, 시간은 time / *Time 키의 비어 있지 않은 문자열로 센다.
   function scan(v, acc, key) {
@@ -33,6 +35,10 @@
       if (KEY_RE.test(k)) keys[k] = 1;
     }
     var groups = Object.create(null); // "formId|recordId" -> {formId, id, kind, copies:[]}
+    function groupOf(formId, kind, id) {
+      var gk = formId + '|' + kind + '|' + id;
+      return groups[gk] || (groups[gk] = {formId: formId, kind: kind, id: id, copies: []});
+    }
     for (var key of Object.keys(keys)) {
       var m = KEY_RE.exec(key), formId = m[1], kind = m[2];
       var sources = [[SRC_IDB, await global.DkjStore.get(key)], [SRC_LS, global.localStorage.getItem(key)]];
@@ -46,12 +52,25 @@
           if (!rec || typeof rec !== 'object') return;
           var id = kind === 'list' ? rec.id : '(임시본)';
           if (!id) return;
-          var gk = formId + '|' + kind + '|' + id;
-          var g = groups[gk] || (groups[gk] = {formId: formId, kind: kind, id: id, copies: []});
+          var g = groupOf(formId, kind, id);
           var d = describe(rec, JSON.stringify(rec));
           d.source = pair[0];
           g.copies.push(d);
         });
+      });
+    }
+    // 저장·삭제·동기화 병합으로 덮어쓰이기 직전에 보관한 이전 버전들
+    for (var hkey of (await global.DkjStore.keys())) {
+      var hm = HIST_RE.exec(hkey);
+      if (!hm) continue;
+      var hraw = await global.DkjStore.get(hkey), entries = [];
+      try { entries = JSON.parse(hraw) || []; } catch (e) {}
+      entries.forEach(function (en) {
+        if (!en || !en.rec || !en.recordId) return;
+        var d = describe(en.rec, JSON.stringify(en.rec));
+        d.source = SRC_HIST + ' · ' + String(en.savedAt || '').slice(0, 19).replace('T', ' ') + ' · ' + (en.reason === 'delete' ? '삭제' : en.reason === 'sync' ? '동기화' : '저장');
+        d.isHistory = true;
+        groupOf(hm[1], 'list', en.recordId).copies.push(d);
       });
     }
     return Object.keys(groups).map(function (k) { return groups[k]; });
@@ -96,7 +115,9 @@
         var isBest = g.differs && score(c) === best;
         var acts = '<button class="btn" data-dl="' + gi + ':' + ci + '">JSON 받기</button>';
         var idbCopy = g.copies.filter(function (x) { return x.source === SRC_IDB; })[0];
-        if (g.kind === 'list' && c.source === SRC_LS && isBest && idbCopy && !idbCopy.locked && !c.deleted) {
+        var canRestore = g.kind === 'list' && isBest && !c.deleted && !(idbCopy && !idbCopy.deleted && idbCopy.locked) &&
+          (c.source === SRC_LS ? !!idbCopy : !!c.isHistory);
+        if (canRestore) {
           acts += ' <button class="btn primary" data-restore="' + gi + ':' + ci + '">이 사본으로 복원</button>';
         }
         html += '<tr class="' + (isBest ? 'best' : '') + '"><td>' + esc(g.formId) + '</td><td>' + esc(label(c.rec)) + ' <small>' + esc(g.id) + '</small>' +
