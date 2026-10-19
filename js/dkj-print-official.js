@@ -179,8 +179,10 @@
         start: times[0] || '',
         end: endTime || times[times.length - 1] || '',
         ok: rowsForProduct.some(function (r) { return r.judge === 'X'; }) ? '×' : '○',
-        qty: state.passQty || '',
-        note: state.remark || ''
+        qty: ((state.passInfo || {})[name] || {}).qty || state.passQty || '',
+        packDate: ((state.passInfo || {})[name] || {}).packDate || '',
+        packUsage: ((state.passInfo || {})[name] || {}).packUsage || '',
+        note: ((state.passInfo || {})[name] || {}).note || ''
       };
     };
     var passList = productsUsed.map(fallbackPassFor);
@@ -189,7 +191,11 @@
         '<td class="l">' + esc(p.productName || prod) + '</td>' +
         '<td class="c">' + esc(p.start || '') + '</td>' +
         '<td class="c">' + esc(p.end || '') + '</td>' +
-        '<td class="c">' + (p.ok === '×' ? '부적합' : '적합') + '</td></tr>';
+        '<td class="c">' + (p.ok === '×' ? '부적합' : '적합') + '</td>' +
+        '<td class="c">' + (p.qty ? esc(p.qty) + ' kg' : '') + '</td>' +
+        '<td class="c">' + esc(p.packDate || '') + '</td>' +
+        '<td class="c">' + (p.packUsage ? esc(p.packUsage) + ' EA' : '') + '</td>' +
+        '<td class="l">' + esc(p.note || '') + '</td></tr>';
     }).join('');
 
     var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
@@ -310,7 +316,8 @@
       '<div class="off-sec">금속검출기 제품 통과 시 이탈 여부</div>' +
       '<table class="off-grid">' +
       '<thead><tr>' +
-      '<th>제품명</th><th>작업시작시간</th><th>작업종료시간</th><th>이탈여부</th>' +
+      '<th style="width:19%">제품명</th><th style="width:9%">작업시작시간</th><th style="width:9%">작업종료시간</th><th style="width:8%">이탈여부</th>' +
+      '<th style="width:9%">통과량</th><th style="width:14%">포장재 입고일</th><th style="width:11%">포장재 사용량</th><th style="width:21%">특이사항</th>' +
       '</tr></thead><tbody>' + passRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +
