@@ -18,9 +18,10 @@
 /* 1. 플로팅 트리거 버튼 (우측 하단 네비게이션 버튼 위쪽에 배치) */
 .dkj-chatbot-trigger {
   position: fixed;
-  bottom: 70px;
+  bottom: calc(70px + var(--dkj-pwa-bar-h, 0px));
   right: 18px;
-  z-index: 2147482001;
+  /* 로그인 마스크(2147483000)보다 위 — 로그인 전에도 불편접수를 쓸 수 있어야 한다 */
+  z-index: 2147483001;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -89,13 +90,13 @@
 /* 2. 챗봇 대화 패널 */
 .dkj-chatbot-panel {
   position: fixed;
-  bottom: 125px;
+  bottom: calc(125px + var(--dkj-pwa-bar-h, 0px));
   right: 18px;
-  z-index: 2147482002;
+  z-index: 2147483002;
   width: 390px;
   height: 580px;
   max-width: calc(100vw - 32px);
-  max-height: calc(100vh - 145px);
+  max-height: calc(100vh - 145px - var(--dkj-pwa-bar-h, 0px));
   background: var(--dkj-cb-bg);
   border-radius: 20px;
   box-shadow: var(--dkj-cb-shadow);
@@ -107,13 +108,17 @@
   opacity: 0;
   transform: translateY(20px) scale(0.96);
   pointer-events: none;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  /* 닫힌 패널은 키보드 포커스도 받지 않게 한다(닫는 애니메이션이 끝난 뒤 숨김) */
+  visibility: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.25s;
 }
 
 .dkj-chatbot-panel.is-open {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 /* 헤더 */

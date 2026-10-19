@@ -58,7 +58,7 @@
       '.dkj-pwa-bar.update{background:#009a44}' +
       '.dkj-pwa-bar button{border:0;border-radius:999px;padding:6px 14px;' +
       'font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:#222}' +
-      '.dkj-pwa-ver{position:fixed;right:6px;bottom:6px;z-index:9997;' +
+      '.dkj-pwa-ver{position:fixed;left:6px;bottom:calc(2px + var(--dkj-pwa-bar-h, 0px));z-index:9997;' +
       'font-size:10px;line-height:1;padding:3px 7px;border-radius:999px;' +
       "font-family:'Noto Sans KR','Malgun Gothic',sans-serif;" +
       'background:rgba(0,0,0,.4);color:#fff;pointer-events:none;opacity:.7}' +
@@ -86,12 +86,24 @@
       b.addEventListener('click', onClick);
       el.appendChild(b);
     }
+    // 화면 아래 띠가 뜨면 우측 불편접수·빠른이동, 좌측 보조도구가 띠 위로 올라가게 높이를 알려 준다.
+    syncBarHeight();
     return el;
   }
 
   function removeBar(id) {
     var el = doc.getElementById(id);
     if (el && el.parentNode) el.parentNode.removeChild(el);
+    syncBarHeight();
+  }
+
+  function syncBarHeight() {
+    var h = 0;
+    ['dkjPwaUpdate', 'dkjPwaOffline'].forEach(function (id) {
+      var b = doc.getElementById(id);
+      if (b && b.offsetHeight > h) h = b.offsetHeight;
+    });
+    doc.documentElement.style.setProperty('--dkj-pwa-bar-h', h ? h + 'px' : '0px');
   }
 
   /* ---------- 오프라인 표시 ---------- */
