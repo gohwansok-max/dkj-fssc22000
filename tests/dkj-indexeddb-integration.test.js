@@ -123,3 +123,34 @@ test('삭제 전 버전은 일반 이력이 밀려나도 30일간 보존되고 �
  let many=[];for(let i=0;i<40;i++)many=H.add(many,[{id:'d'+i,title:'t'+i}],'delete','2026-10-02T00:00:00Z');
  assert.equal(many.length,30);assert.equal(many[0].recordId,'d10');
 });
+test('삭제 안전장치: 작업자는 본인이 24시간 안에 쓴 기록만, 관리자는 입력 확인 뒤 삭제하고 선택 삭제는 확인을 건너뛴다',async()=>{
+ const e=env();const R=e.ctx.DkjRecordStore;const alerts=[],prompts=[];let answer='삭제';
+ e.ctx.alert=m=>alerts.push(m);e.ctx.prompt=m=>{prompts.push(m);return answer;};
+ let user={name:'작업자',empId:'0009',role:'worker'};e.ctx.DkjAuth={user:()=>user};
+ // 본인 기록(방금 작성)은 '삭제'를 입력하면 지워지고, 입력 확인에 기록 정보가 표시된다
+ const own=await R.save('T',{title:'내 일지',workDate:'2026-10-19',rows:[{a:1},{a:2}]});
+ assert.equal(await R.remove('T',own.id),undefined);
+ assert.equal(await R.get('T',own.id),null);
+ assert.match(prompts[0],/내 일지/);assert.match(prompts[0],/입력 행: 2개/);assert.match(prompts[0],/"삭제"를 입력/);
+ // 다른 사람이 쓴 기록은 작업자가 지울 수 없고, 입력창도 뜨지 않는다
+ user={name:'관리자',empId:'0001',role:'manager'};
+ const others=await R.save('T',{title:'월간 기록',rows:[]});
+ user={name:'작업자',empId:'0009',role:'worker'};prompts.length=0;
+ assert.equal(await R.remove('T',others.id),false);
+ assert.ok(await R.get('T',others.id));assert.equal(prompts.length,0);assert.match(alerts.at(-1),/작업자는 본인이/);
+ // 본인 기록이어도 24시간이 지나면 작업자는 지울 수 없다
+ const old=await R.save('T',{title:'어제 일지',rows:[]});
+ const key='dkj:records:T:list:v1';const list=JSON.parse(e.disk.get(key));
+ list.find(r=>r.id===old.id).createdAt=new Date(Date.now()-3*86400000).toISOString();e.disk.set(key,JSON.stringify(list));
+ assert.equal(await R.remove('T',old.id),false);assert.ok(await R.get('T',old.id));
+ // 관리자: 입력이 다르거나 취소하면 지워지지 않고, '삭제'를 입력하면 지워진다
+ user={name:'관리자',empId:'0001',role:'manager'};
+ answer='아니오';assert.equal(await R.remove('T',others.id),false);assert.ok(await R.get('T',others.id));
+ answer=null;assert.equal(await R.remove('T',others.id),false);assert.ok(await R.get('T',others.id));
+ answer='삭제';await R.remove('T',others.id);assert.equal(await R.get('T',others.id),null);
+ // 이미 자체 확인을 거친 호출(기록보관함 선택 삭제)은 입력 확인을 건너뛴다
+ prompts.length=0;answer='아니오';await R.remove('T',old.id,{confirmed:true});
+ assert.equal(await R.get('T',old.id),null);assert.equal(prompts.length,0);
+ // 지운 기록은 이력에 남아 복구할 수 있다
+ assert.ok(JSON.parse(e.disk.get('dkj:history:T:v1')).some(x=>x.recordId===others.id&&x.reason==='delete'));
+});
