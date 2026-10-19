@@ -25,7 +25,7 @@ function loadPrinter() {
 
 test('CCP-1BC official printer URL uses the updated cache revision', () => {
   // 전역 캐시는 index.html 정본을 따르며 별도 인쇄 리비전 검사는 유지한다.
-  assert.match(formHtmlSource, new RegExp('dkj-print-official\\.js\\?v=' + currentCacheVersion + '&rev=137'));
+  assert.match(formHtmlSource, new RegExp('dkj-print-official\\.js\\?v=' + currentCacheVersion + '&rev=139'));
 });
 
 test('CCP-1BC form stores raw material input on each monitoring row', () => {
@@ -71,9 +71,9 @@ test('CCP-1BC print lists replacement times separately from monitoring rows', ()
   const changeTimesTable = html.match(/<table class="off-grid off-change-times">[\s\S]*?<\/table>/)[0];
 
   assert.doesNotMatch(monitoringTable, /교체 시각|08:15|12:40/);
-  assert.match(changeTimesTable, /교체 회차/);
-  assert.match(changeTimesTable, /1회[\s\S]*08:15/);
-  assert.match(changeTimesTable, /2회[\s\S]*12:40/);
+  assert.doesNotMatch(changeTimesTable, /교체 회차|1회|2회/);
+  assert.match(changeTimesTable, /교체 시각/);
+  assert.match(changeTimesTable, /08:15[\s\S]*12:40/);
   assert.ok(html.indexOf(changeTimesTable) > html.indexOf(monitoringTable));
 });
 
@@ -85,7 +85,7 @@ test('CCP-1BC print supports legacy replacement-time string and leaves a blank w
 
   const emptyHtml = loadPrinter().ccp1bc({ changeTimes: ['', ' '] });
   const emptyTable = emptyHtml.match(/<table class="off-grid off-change-times">[\s\S]*?<\/table>/)[0];
-  assert.match(emptyTable, /1회/);
+  assert.match(emptyTable, /height:14pt/);
   assert.doesNotMatch(emptyTable, /08:30|12:30/);
 });
 

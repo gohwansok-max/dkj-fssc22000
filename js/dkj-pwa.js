@@ -222,6 +222,21 @@
       global.DkjQuickNav.render();
       return;
     }
+    // 빠른 이동 모듈을 싣지 않은 화면(업무 콘솔·기록센터·보관함 등)에도 오른쪽 아래
+    // 새로고침 버튼이 뜨게, 스타일과 모듈을 이 자리에서 불러온다. 모듈은 로드되면 스스로 그린다.
+    var root = siteRoot();
+    if (root && !doc.getElementById('dkjQuickNavCss')) {
+      var v = cacheVersion();
+      var link = doc.createElement('link');
+      link.id = 'dkjQuickNavCss';
+      link.rel = 'stylesheet';
+      link.href = root + 'css/dkj-quick-nav.css' + (v ? '?v=' + v : '');
+      doc.head.appendChild(link);
+      var sc = doc.createElement('script');
+      sc.src = root + 'js/dkj-quick-nav.js' + (v ? '?v=' + v : '');
+      doc.head.appendChild(sc);
+      return;
+    }
     var p = (global.location && global.location.pathname) || '';
     var isConsoleHome = (/(?:^|\/)index\.html$/i.test(p) || /\/dkj-fssc22000\/?$/i.test(p) || p === '/') && p.indexOf('/records/') === -1;
     if (isConsoleHome || doc.getElementById('dkjQuickNav')) return;

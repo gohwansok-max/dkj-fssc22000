@@ -37,6 +37,14 @@
     var m = raw.match(/(\d{4})\D+(\d{1,2})/);
     return m ? (Number(m[1]) * 100 + Number(m[2])) : null;
   }
+  /** check.monthlyApproval — 월 단위로 결재하는 서식은 오늘 입력을 마쳤어도 그 달 시트가
+   *  '작성완료'(잠금)되기 전에는 완료로 보지 않고 '작성 중'으로 남겨 목록에서 계속 챙기게 한다.
+   *  기준 이탈(ng)은 그대로 드러낸다. rec 는 오늘이 속한 달 시트 기록. */
+  function awaitLock(form, res, rec) {
+    if (!(form.check && form.check.monthlyApproval) || !res || res.state !== 'done') return res;
+    if (rec && rec.locked) return res;
+    return { state: 'part', note: res.note + ' · 작성완료(결재) 전' };
+  }
   /** 반환: {state:'todo'|'done'|'part'|'ng'|'none'|'off', note:string} */
   function evaluate(form, date, records, draft, isProductionDay) {
     if (form._dailyDuty && !isProductionDay(date)) return { state: 'off', note: '비생산일 · 작성 의무 없음' };
@@ -82,12 +90,14 @@
       var unitLabel = weekMode ? '이번 주' : '오늘';
       var bestState = null;
       var matchedRec = null;
+      var anyColUnlocked = false;
       for (var i = 0; i < recs.length; i++) {
         var colRecord = recs[i];
         if (!colRecord || !colRecord.days || !colRecord.checks) continue;
         var idx = colRecord.days.indexOf(target);
         if (idx < 0) continue;
         matchedRec = colRecord;
+        if (!colRecord.locked) anyColUnlocked = true;
         var keys = Object.keys(colRecord.checks);
         if (!keys.length) continue;
         var filled = 0;
@@ -133,7 +143,7 @@
         }
         return { state: 'done', note: '이번 달 전체(' + totalWeeks + '주) 입력 완료' };
       }
-      return bestState;
+      return awaitLock(form, bestState, anyColUnlocked ? null : matchedRec);
     }
     if (mode === 'dayRow' || mode === 'monthRows') {
       var dayKey = form.check.dayKey || 'day';
@@ -197,9 +207,9 @@
         if (filledDays < needDays.length) {
           return { state: 'part', note: '오늘 입력됨 · 이번 달 ' + filledDays + '/' + needDays.length + ' 완료' };
         }
-        return { state: 'done', note: '이번 달 전체(' + needDays.length + '일) 입력 완료' };
+        return awaitLock(form, { state: 'done', note: '이번 달 전체(' + needDays.length + '일) 입력 완료' }, monthRec);
       }
-      return rowState;
+      return awaitLock(form, rowState, monthRec);
     }
     return { state: 'none', note: '' };
   }

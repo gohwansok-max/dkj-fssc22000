@@ -708,3 +708,6 @@ img.brand-logo {
     display: none !important;
   }
 }
+
+/* 당겨서 새로고침 방지 — 현장 태블릿에서 스크롤 중 저절로 새로고침돼 작성 중인 기록이 날아가던 문제 */
+html, body { overscroll-behavior-y: none; }
