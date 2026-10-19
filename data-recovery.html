@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#006b3f">
+  <title>기록 복구 점검 | 동김제농협 산지유통센터</title>
+  <style>
+    :root{--green:#006b3f;--ink:#12253a;--muted:#61746a;--line:#d8e5dd;--bg:#f3f8f5;--red:#b42318;--amber:#9b5c00}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Noto Sans KR","Malgun Gothic",Arial,sans-serif}
+    .page{max-width:1100px;margin:auto;padding:20px 16px 64px}
+    h1{margin:0 0 6px;font-size:24px}
+    .desc{margin:0 0 14px;color:var(--muted);font-size:13px}
+    .card{background:#fff;border:1px solid var(--line);border-radius:14px;margin:14px 0;padding:16px}
+    .card h2{font-size:16px;margin:0 0 4px}
+    .warn{background:#fff7e7;border:1px solid #f0d79c;color:#6d5000;border-radius:10px;padding:10px 12px;font-size:13px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:6px 8px;border-bottom:1px solid #e5eee8;text-align:left;vertical-align:top}
+    th{background:#edf7f1;color:#315a43;font-size:12px}
+    tr.best td{background:#f1fbf4}
+    .btn{border:1px solid #b9d5c5;background:#fff;color:#075f39;border-radius:8px;padding:6px 10px;font:700 13px inherit;cursor:pointer}
+    .btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+    .tag{display:inline-block;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:800;background:#eef5f1;color:#176844}
+    .tag.bad{background:#fff0eb;color:#8b260d}
+    .wrap{overflow:auto}
+    #msg{margin:10px 0;font-size:13px}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>기록 복구 점검</h1>
+    <p class="desc">이 기기에 남아 있는 같은 기록의 여러 사본(IndexedDB 현재본 · localStorage 이전 시점 백업 · 임시본)을 비교해 사진·시간이 더 많이 남은 버전을 찾습니다. 조회는 읽기 전용이며, 복원은 사람이 눌렀을 때만 실행됩니다.</p>
+    <div class="warn">
+      <strong>점검 전 주의</strong> — 이 기기의 브라우저 사이트 데이터·캐시를 지우거나 시크릿 창으로 옮기지 마세요. 작성 중이던 화면이 아직 열려 있으면 새로고침하지 말고 먼저 저장하세요.
+      아래 목록에 사진·시간이 남은 사본이 없다면, 저장이 실패한 시점 이후 입력분은 이 기기에 없습니다(다른 기기의 같은 기록도 확인하세요).
+    </div>
+    <div id="msg">불러오는 중…</div>
+    <div id="out"></div>
+  </main>
+
+  <script src="js/dkj-async.js?v=138"></script>
+  <script src="js/dkj-store.js?v=138"></script>
+  <script src="js/dkj-storage-migration.js?v=138"></script>
+  <script src="js/dkj-storage.js?v=138"></script>
+  <script src="js/dkj-util.js?v=138"></script>
+  <script src="js/dkj-auth.js?v=138"></script>
+  <script src="js/dkj-record-store.js?v=138"></script>
+  <script src="js/dkj-approval.js?v=138"></script>
+  <script src="js/data-recovery.js?v=138"></script>
+</body>
+</html>
