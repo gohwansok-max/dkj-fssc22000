@@ -190,7 +190,9 @@
     } else {
       var st = (await dayStat(d));
       body = '<div class="ck-list">' + st.items.map(function (it) {
-        return '<a class="ck-row" href="' + esc(it.form.href) + '" style="text-decoration:none;color:inherit">' +
+        var rowHref = it.form.href + (it.form.href.indexOf('?') === -1 ? '?' : '&') + 'date=' +
+          d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        return '<a class="ck-row" href="' + esc(rowHref) + '" style="text-decoration:none;color:inherit">' +
           '<span class="ck-sdot s-' + it.ev.state + '"></span>' +
           '<span class="nm">' + esc(it.form.title) + '</span>' +
           '<span class="rt">' + LABEL[it.ev.state] + '</span></a>';

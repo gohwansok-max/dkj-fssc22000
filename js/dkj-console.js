@@ -184,9 +184,14 @@
   }
 
   /* ---------- 화면 렌더 ---------- */
+  /** 일보 링크에 날짜를 실어, 열자마자 그 날짜에 저장된 기록이 자동으로 불러와지게 한다. */
+  function withDate(href, day) {
+    if (!href || !day || /[?&]date=/.test(href) || /^(#|https?:)/.test(href)) return href;
+    return href + (href.indexOf('?') === -1 ? '?' : '&') + 'date=' + day;
+  }
   function tileHtml(form, ev) {
     var priority = priorityValue(form);
-    return '<a class="ck-tile is-' + ev.state + ' p-' + priority + '" href="' + esc(form.href) + '">' +
+    return '<a class="ck-tile is-' + ev.state + ' p-' + priority + '" href="' + esc(withDate(form.href, iso(new Date()))) + '">' +
       '<div class="ck-tile-top"><span class="ck-code">' + esc(form.code) + '</span>' +
       (form.ccp ? '<span class="ck-ccp">CCP</span>' : '') +
       (priority > 1 ? '<span class="ck-priority">' + PRIORITY_LABEL[form.priority || 'critical'] + '</span>' : '') + '</div>' +
@@ -273,9 +278,9 @@
   function renderAlerts(evals, production) {
     var alerts = [];
     evals.forEach(function (item) {
-      if (item.ev.state === 'ng') alerts.push({ level: 'urgent', label: '즉시 확인', text: item.f.title + ' · ' + item.ev.note, href: item.f.href });
-      else if (production && item.ev.state === 'todo' && priorityValue(item.f) === 3) alerts.push({ level: 'urgent', label: 'CCP 우선', text: item.f.title + ' · 미작성', href: item.f.href });
-      else if (production && (item.ev.state === 'todo' || item.ev.state === 'part') && priorityValue(item.f) > 1) alerts.push({ level: 'notice', label: '오늘 처리', text: item.f.title + ' · ' + item.ev.note, href: item.f.href });
+      if (item.ev.state === 'ng') alerts.push({ level: 'urgent', label: '즉시 확인', text: item.f.title + ' · ' + item.ev.note, href: withDate(item.f.href, iso(new Date())) });
+      else if (production && item.ev.state === 'todo' && priorityValue(item.f) === 3) alerts.push({ level: 'urgent', label: 'CCP 우선', text: item.f.title + ' · 미작성', href: withDate(item.f.href, iso(new Date())) });
+      else if (production && (item.ev.state === 'todo' || item.ev.state === 'part') && priorityValue(item.f) > 1) alerts.push({ level: 'notice', label: '오늘 처리', text: item.f.title + ' · ' + item.ev.note, href: withDate(item.f.href, iso(new Date())) });
     });
     alerts.sort(function (a, b) { return (a.level === 'urgent' ? -1 : 1) - (b.level === 'urgent' ? -1 : 1); });
     var host = document.getElementById('ckAlerts');
