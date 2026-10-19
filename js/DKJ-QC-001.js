@@ -1378,10 +1378,12 @@
     // 결재칸 — 손서명이 확정된 단계는 서명 그림(+이름), 아니면 이름만(종전 그대로).
     function apvCell(stage, name) {
       var rec = (state.signoff || {})[stage];
-      if (global.DkjSignature && rec && rec.at && global.DkjSignature.isValid(rec.signature)) {
-        return global.DkjSignature.cellHtml(rec, name || rec.name || '');
+      // 그 단계를 확정(서명)한 칸에만 이름/서명 그림을 찍는다 — 결재 전 이름이 미리 찍히지 않게.
+      if (!(rec && rec.at)) return '';
+      if (global.DkjSignature && global.DkjSignature.isValid(rec.signature)) {
+        return global.DkjSignature.cellHtml(rec, rec.name || name || '');
       }
-      return name || '';
+      return String(rec.name || name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     p.innerHTML = '<div style="width:200mm;margin:0 auto;padding:4mm 2mm;font-family:sans-serif;font-size:8.0pt;color:#000;line-height:1.2;">' +
@@ -1392,7 +1394,7 @@
         '</div>' +
         '<table style="border-collapse:collapse;width:170px;text-align:center;font-size:8pt;border:1.5px solid #000;">' +
           '<tr><th style="border:1px solid #000;background:#eef2f6;width:33%;height:14pt;">작 성</th><th style="border:1px solid #000;background:#eef2f6;width:33%;">검 토</th><th style="border:1px solid #000;background:#eef2f6;width:34%;">승 인</th></tr>' +
-          '<tr><td style="border:1px solid #000;height:30pt;font-weight:bold;">' + apvCell('writer', state.inspector) + '</td><td style="border:1px solid #000;font-weight:bold;">' + apvCell('reviewer', state.confirmer) + '</td><td style="border:1px solid #000;font-weight:bold;">' + apvCell('approver', state.approver) + '</td></tr>' +
+          '<tr><td class="qc-sign" style="border:1px solid #000;height:30pt;font-weight:bold;">' + apvCell('writer', state.inspector) + '</td><td class="qc-sign" style="border:1px solid #000;font-weight:bold;">' + apvCell('reviewer', state.confirmer) + '</td><td class="qc-sign" style="border:1px solid #000;font-weight:bold;">' + apvCell('approver', state.approver) + '</td></tr>' +
         '</table>' +
       '</div>' +
 

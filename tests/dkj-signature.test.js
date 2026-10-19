@@ -56,7 +56,7 @@ test('결재칸 HTML: 서명 그림이 있으면 그림+이름, 없으면 이름
   assert.equal(S.cellHtml({ name: '<b>x</b>', signature: 'bad' }, ''), '&lt;b&gt;x&lt;/b&gt;');
 });
 
-test('정본 인쇄(CCP-2P): 최종 승인 뒤에만 서명 그림이 결재칸에 들어간다', () => {
+test('정본 인쇄(CCP-2P): 서명한 단계의 칸에만 서명 그림이 들어간다(승인 전 칸은 비어 있다)', () => {
   const { ctx } = load('dkj-print-official.js');
   const at = '2026-10-19T01:00:00Z';
   const signed = {
@@ -70,5 +70,9 @@ test('정본 인쇄(CCP-2P): 최종 승인 뒤에만 서명 그림이 결재칸�
   const html = ctx.DkjPrintOfficial.ccp2p(signed);
   assert.equal((html.match(/class="sig-img"/g) || []).length, 3);
   const partial = ctx.DkjPrintOfficial.ccp2p(Object.assign({}, signed, { signoff: { writer: signed.signoff.writer } }));
-  assert.equal((partial.match(/class="sig-img"/g) || []).length, 0);
+  assert.equal((partial.match(/class="sig-img"/g) || []).length, 1);   // 작성만 서명 → 작성칸만
+  const none = ctx.DkjPrintOfficial.ccp2p(Object.assign({}, signed, { signoff: {}, confirmer: '검토자', approver: '승인자' }));
+  assert.equal((none.match(/class="sig-img"/g) || []).length, 0);
+  const signCells = [...none.matchAll(/<td class="off-sign">(.*?)<\/td>/g)].map((m) => m[1]);
+  assert.deepEqual(signCells, ['', '', '']);                            // 결재 전에는 이름도 찍지 않는다
 });
