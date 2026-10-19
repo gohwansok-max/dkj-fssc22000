@@ -102,12 +102,13 @@
     return out;
   }
 
-  function emptyState(spec) {
+  /** refIso: 시트가 속할 기준 날짜(달력의 ?date= 용). 없으면 오늘. */
+  function emptyState(spec, refIso) {
     var startDow = resolveStartDow(spec);
-    var refWs = weekStartOf(null, startDow);
+    var refWs = weekStartOf(refIso || null, startDow);
     var isMonth = spec.period === 'month';
     var isDayMonth = isMonth && spec.dayMode === 'day';
-    var days = isDayMonth ? monthDays(null) : isMonth ? monthWeekStarts(refWs, startDow) : buildDays(refWs, spec.days || 6, 1);
+    var days = isDayMonth ? monthDays(refIso || null) : isMonth ? monthWeekStarts(refWs, startDow) : buildDays(refWs, spec.days || 6, 1);
     var ws = isMonth ? days[0] : refWs;
     var n = days.length;
     var checks = {};
@@ -783,6 +784,25 @@
     async function init() {
       var draft = (await DkjRecordStore.loadDraft(FORM_ID));
       if (draft) state = Object.assign(emptyState(spec), draft);
+      // 달력·콘솔에서 ?date= 로 들어오면 그 날짜가 속한 주·월 시트를 연다(js/dkj-date-autoload.js).
+      // 이번 주기는 아래 기존 이어쓰기(잠긴 기록은 새 시트)가 맡고, 지난 주기는 잠긴 기록도 열어 보여준다.
+      var dateHandled = false;
+      var qd = (global.DkjDateLoad && (spec.period === 'week' || spec.period === 'month')) ? DkjDateLoad.queryDate() : '';
+      if (qd) {
+        var wantKey = periodKeyOf(emptyState(spec, qd).weekStart);
+        if (wantKey !== periodKeyOf(emptyState(spec).weekStart)) {
+          dateHandled = true;
+          if (!draft || periodKeyOf(state.weekStart) !== wantKey) {
+            var hit = null;
+            (await DkjRecordStore.list(FORM_ID)).forEach(function (r) {
+              if (!r || r.deleted || !r.weekStart || periodKeyOf(r.weekStart) !== wantKey) return;
+              if (!hit || (Date.parse(r.updatedAt || 0) || 0) > (Date.parse(hit.updatedAt || 0) || 0)) hit = r;
+            });
+            if (hit) { editingId = hit.id; state = Object.assign(emptyState(spec, qd), hit); }
+            else { editingId = null; state = emptyState(spec, qd); }
+          }
+        }
+      }
       writeForm();
       (await bind());
       (await renderHistory());
@@ -806,7 +826,7 @@
       // week·month 주기 서식은 draft·딥링크가 없으면 이번 주기 기존(미잠금) 기록을
       // 자동으로 이어서 연다 — js/dkj-ledger-form.js 의 같은 로직과 동일한 이유
       // (2026-09-23, DKJ-S-02-03 중복 발견으로 추가).
-      if (!draft && !opened) {
+      if (!draft && !opened && !dateHandled) {
         var current = (await findCurrentPeriodRecord());
         if (current) {
           editingId = current.id;

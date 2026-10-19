@@ -386,8 +386,44 @@
     async function init() {
       var draft = (await DkjRecordStore.loadDraft(FORM_ID));
       if (draft) state = restoreState(spec, draft);
+      // 달력·콘솔에서 ?date= 로 들어오거나 일자 칸을 바꾸면 그 날짜의 최종 저장 기록을 자동으로 연다
+      // (js/dkj-date-autoload.js). 기록이 없으면 그 날짜의 새 서식으로 연다.
+      var dateKey = $('docDate') ? 'docDate' : ($('checkDate') ? 'checkDate' : '');
+      var loadForDate = null;
+      if (dateKey && global.DkjDateLoad) {
+        var dateMatch = DkjDateLoad.match.byField(dateKey);
+        loadForDate = async function (date, userDriven) {
+          var hit = (await DkjDateLoad.resolve(FORM_ID, date, dateMatch));
+          if (hit.kind === 'none') return false;
+          if (hit.kind === 'record' && hit.data.id && hit.data.id === editingId) return false;
+          // 아직 저장하지 않은 새 입력이 있으면 덮어쓰기 전에 확인한다.
+          if (userDriven && !editingId) {
+            readForm();
+            if (JSON.stringify(state.checks) !== JSON.stringify(emptyState(spec).checks) &&
+                !confirm(date + ' 저장 기록을 불러오면 지금 입력 중인 내용은 사라집니다. 불러올까요?')) return false;
+          }
+          editingId = hit.data.id || null;
+          state = restoreState(spec, hit.data);
+          writeForm();
+          setStatus(hit.kind === 'record' ? date + ' 저장 기록 불러옴' : date + ' 임시저장 불러옴', true);
+          return true;
+        };
+        var qd = DkjDateLoad.queryDate();
+        if (qd) {
+          var first = (await DkjDateLoad.resolve(FORM_ID, qd, dateMatch));
+          if (first.kind === 'none') {
+            state = emptyState(spec);
+            state[dateKey] = qd;
+            editingId = null;
+          } else {
+            editingId = first.data.id || null;
+            state = restoreState(spec, first.data);
+          }
+        }
+      }
       writeForm();
       (await bind());
+      if (loadForDate) DkjDateLoad.watch(function (el) { return el.id === dateKey; }, function (v) { return loadForDate(v, true); });
       (await renderHistory());
       mountApproval();
       refreshApproval();

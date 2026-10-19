@@ -236,6 +236,7 @@ def render_html(code: str, spec: dict, v: str) -> str:
   <script src="../js/dkj-nav-bar.js?v={v}"></script>
   <script src="../js/dkj-record-store.js?v={v}"></script>
   <script src="../js/dkj-deeplink.js?v={v}"></script>
+  <script src="../js/dkj-date-autoload.js?v={v}"></script>
   <script src="../js/dkj-approval.js?v={v}"></script>{calendar_script}
   <script src="../js/dkj-ledger-print.js?v={v}"></script>
   <script src="../js/dkj-ledger-form.js?v={v}"></script>

@@ -54,3 +54,24 @@ test('같은 날짜 임시본이 기록보다 나중이면 임시본, 아니면 
   assert.equal((await load([], newer).resolve('X', '2026-10-19')).kind, 'draft');
   assert.equal((await load(list, { workDate: '2026-10-18', _savedAt: '2026-10-20T00:00:00Z' }).resolve('X', '2026-10-19')).kind, 'record');
 });
+
+test('matcher: 월 시트·주·월 단위 점검·옛 형식 월', async () => {
+  const dl = load([], null);
+  const m = dl.match;
+  assert.ok(m.byMonth('month')({ info: { month: '2026-10' } }, '2026-10-19'));
+  assert.ok(m.byMonth('month')({ info: { month: '2026 . 10' } }, '2026-10-02'));
+  assert.ok(!m.byMonth('month')({ info: { month: '2026-09' } }, '2026-10-19'));
+  assert.ok(m.byPeriod('checkDate', 'month')({ info: { checkDate: '2026-10-03' } }, '2026-10-30'));
+  assert.ok(!m.byPeriod('checkDate', 'month')({ info: { checkDate: '2026-09-30' } }, '2026-10-01'));
+  // 2026-10-19 는 월요일 → 같은 주는 10-19~10-25
+  assert.ok(m.byPeriod('checkDate', 'week')({ checkDate: '2026-10-25' }, '2026-10-19'));
+  assert.ok(!m.byPeriod('checkDate', 'week')({ checkDate: '2026-10-26' }, '2026-10-19'));
+  assert.ok(m.byField('checkDate')({ info: { checkDate: '2026-10-19' } }, '2026-10-19'));
+});
+
+test('resolve 는 function matcher 도 받는다', async () => {
+  const dl = load([{ id: 'a', info: { month: '2026-09' }, updatedAt: '2026-09-30T00:00:00Z' }], null);
+  const hit = await dl.resolve('X', '2026-09-15', dl.match.byMonth('month'));
+  assert.equal(hit.kind, 'record');
+  assert.equal(hit.data.id, 'a');
+});

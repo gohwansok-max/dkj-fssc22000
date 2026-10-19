@@ -836,7 +836,33 @@
         PRODUCTS_BOM_NOTE = (results[1] && results[1].bomNote) || '';
         var draft = (await DkjRecordStore.loadDraft(FORM_ID));
         state = draft ? Object.assign(emptyState(master, PRODUCTS), draft) : (await buildNextState());
+        // 달력·콘솔에서 ?date= 로 들어오면 그 작업일에 저장된 기록을 자동으로 연다(js/dkj-date-autoload.js).
+        // 그 날짜 기록이 없으면 종전대로(어제 기록 이어받기·임시본) 둔다 — 이어받기 계산이 작업일에 묶여 있다.
+        var prodMatch = global.DkjDateLoad ? DkjDateLoad.match.byField('workDate') : null;
+        var loadForDate = async function (date, userDriven) {
+          if (!prodMatch) return false;
+          var hit = (await DkjDateLoad.resolve(FORM_ID, date, prodMatch));
+          if (hit.kind === 'none') return false;
+          if (hit.kind === 'record' && hit.data.id && hit.data.id === editingId) return false;
+          if (userDriven && !editingId && !confirm(date + ' 저장 기록을 불러오면 지금 입력 중인 내용은 사라집니다. 불러올까요?')) return false;
+          editingId = hit.data.id || null;
+          state = Object.assign(emptyState(master, PRODUCTS), hit.data);
+          writeForm();
+          setStatus(hit.kind === 'record' ? date + ' 저장 기록 불러옴' : date + ' 임시저장 불러옴', true);
+          return true;
+        };
+        var qd = prodMatch ? DkjDateLoad.queryDate() : '';
+        if (qd) {
+          var first = (await DkjDateLoad.resolve(FORM_ID, qd, prodMatch));
+          if (first.kind !== 'none') {
+            editingId = first.data.id || null;
+            state = Object.assign(emptyState(master, PRODUCTS), first.data);
+          }
+        }
         writeForm();
+        if (prodMatch) DkjDateLoad.watch(function (el) {
+          return el.getAttribute && el.getAttribute('data-target') === 'info' && el.getAttribute('data-f') === 'workDate';
+        }, function (v) { return loadForDate(v, true); });
         bind();
         (await renderHistory());
         mountApproval();

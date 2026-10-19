@@ -13,6 +13,7 @@
   "title": "조도 점검일지",
   "subtitle": "선행요건 · 측정위치별 조도 측정 · 고정 항목",
   "docNo": "DKJ-S-02-02",
+  "dateLoad": "month",
   "infoFields": [
     {
       "id": "checkDate",

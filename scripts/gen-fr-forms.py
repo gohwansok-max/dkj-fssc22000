@@ -1015,6 +1015,7 @@ def render_html(spec: dict) -> str:
   <script src="../js/dkj-record-store.js?v={v}"></script>
   <script src="../js/dkj-approval.js?v={v}"></script>
   <script src="../js/dkj-deeplink.js?v={v}"></script>
+  <script src="../js/dkj-date-autoload.js?v={v}"></script>
   <script src="../js/dkj-print-official.js?v={v}"></script>
   <script src="../js/dkj-print-form.js?v={v}"></script>
   <script src="../js/dkj-fr-form.js?v={v}"></script>

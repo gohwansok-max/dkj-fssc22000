@@ -882,9 +882,56 @@
       }
     }
 
+    /* 일자별 기록 자동 불러오기(js/dkj-date-autoload.js) — 달력·콘솔의 ?date= 링크로 들어오거나
+       일자(월) 칸을 바꾸면 그 날짜가 속한 기록을 연다. '같은 날짜'의 뜻은 서식마다 다르다:
+         월 단위 시트(autoWeekday)  → 같은 달의 시트
+         dateLoad:'month'|'week'    → 같은 달·같은 주에 작성한 기록(주·월 점검)
+         그 밖                      → 점검일자가 정확히 같은 기록 */
+    var DATE_ID = spec.autoWeekday ? spec.autoWeekday.monthField
+      : ((spec.infoFields || []).filter(function (f) { return f.type === 'date'; })[0] || {}).id;
+    var DATE_MATCH = null;
+    if (global.DkjDateLoad && DATE_ID) {
+      DATE_MATCH = spec.autoWeekday ? DkjDateLoad.match.byMonth(DATE_ID)
+        : (spec.dateLoad === 'month' || spec.dateLoad === 'week') ? DkjDateLoad.match.byPeriod(DATE_ID, spec.dateLoad)
+        : DkjDateLoad.match.byField(DATE_ID);
+    }
+    function stateForDate(date) {
+      var st = emptyState(spec);
+      st.info[DATE_ID] = spec.autoWeekday ? date.slice(0, 7) : date;
+      return st;
+    }
+    /** 화면을 건드리지 않고 그 날짜의 상태를 고른다: {state, editingId, kind} 또는 null(해당 기록 없음) */
+    async function pickForDate(date) {
+      var hit = (await DkjDateLoad.resolve(FORM_ID, date, DATE_MATCH));
+      if (hit.kind === 'none') return null;
+      return { state: Object.assign(emptyState(spec), hit.data), editingId: hit.data.id || null, kind: hit.kind };
+    }
+    async function loadForDate(date) {
+      if (!DATE_MATCH) return false;
+      var picked = (await pickForDate(date));
+      if (!picked || (picked.kind === 'record' && picked.editingId && picked.editingId === editingId)) return false;
+      // 아직 저장하지 않은 새 입력이 있으면 덮어쓰기 전에 확인한다.
+      if (!editingId && JSON.stringify(state.rows) !== JSON.stringify(emptyState(spec).rows) &&
+          !confirm(date + ' 저장 기록을 불러오면 지금 입력 중인 내용은 사라집니다. 불러올까요?')) return false;
+      editingId = picked.editingId;
+      state = picked.state;
+      writeForm();
+      setStatus(picked.kind === 'record' ? date + ' 저장 기록 불러옴' : date + ' 임시저장 불러옴', true);
+      return true;
+    }
+
     async function init() {
       var draft = (await DkjRecordStore.loadDraft(FORM_ID));
       if (draft) state = Object.assign(emptyState(spec), draft);
+      // ?date= 진입 — 월 시트는 '이번 달'이면 아래 기존 이어쓰기(잠긴 기록은 새 시트)가 맡는다.
+      var dateHandled = false;
+      var qd = DATE_MATCH ? DkjDateLoad.queryDate() : '';
+      if (qd && !(spec.autoWeekday && qd.slice(0, 7) === thisMonth())) {
+        dateHandled = true;
+        var first = (await pickForDate(qd));
+        if (first) { editingId = first.editingId; state = first.state; }
+        else { editingId = null; state = stateForDate(qd); }
+      }
       writeForm();
       mountApproval();
       (await bind());
@@ -912,7 +959,8 @@
       // 했고, 안 누르고 그냥 입력·저장하면 같은 달 기록이 여러 건으로 쪼개져 다른 기기·
       // 다른 날 입력한 내용이 안 보이는 것처럼 보였다(2026-09-22). 이번 달 진행 중인
       // 기록이 있으면 자동으로 이어서 연다.
-      if (!draft && !opened) {
+      if (DATE_MATCH) DkjDateLoad.watch(function (el) { return el.id === DATE_ID; }, function (v) { return loadForDate(v); });
+      if (!draft && !opened && !dateHandled) {
         var current = (await findCurrentPeriodRecord());
         if (current) {
           editingId = current.id;
