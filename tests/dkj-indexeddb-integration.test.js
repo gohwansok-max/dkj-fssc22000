@@ -103,3 +103,23 @@ test('클라우드 병합으로 바뀌는 이 기기의 기존 버전을 이력�
  await e.ctx.DkjCloudSync.archiveReplaced('dkj:records:U:list:v1',JSON.stringify([local]),[local]);
  assert.equal(e.disk.get('dkj:history:U:v1'),undefined);
 });
+test('삭제 전 버전은 일반 이력이 밀려나도 30일간 보존되고 만료·건수 상한을 지킨다',async()=>{
+ const e=env();const R=e.ctx.DkjRecordStore;const hk='dkj:history:T:v1';
+ const doomed=await R.save('T',{title:'삭제될 월 기록',rows:[{v:1}]});
+ await R.remove('T',doomed.id);
+ // 다른 기록 저장이 70번 쌓여 일반 이력(서식당 60개)이 가득 차도
+ const other=await R.save('T',{title:'다른 기록',n:0});
+ for(let i=1;i<=70;i++){const cur=await R.get('T',other.id);await R.save('T',{...cur,n:i});}
+ const hist=JSON.parse(e.disk.get(hk));
+ assert.ok(hist.some(x=>x.recordId===doomed.id&&x.reason==='delete'),'삭제 전 버전이 밀려났다');
+ assert.ok(hist.filter(x=>x.reason!=='delete').length<=60);
+ // 같은 내용이 이미 일반 이력에 있던 기록을 삭제하면 그 항목이 삭제 전 버전으로 승격된다
+ const H=e.ctx.DkjRecordStore.History;const rec={id:'x',title:'t',updatedAt:'2026-10-01T00:00:00Z'};
+ let list=H.add([],[rec],'save','2026-10-01T00:00:00Z');
+ list=H.add(list,[{...rec,updatedAt:'2026-10-02T00:00:00Z'}],'delete','2026-10-02T00:00:00Z');
+ assert.equal(list.length,1);assert.equal(list[0].reason,'delete');assert.equal(list[0].savedAt,'2026-10-02T00:00:00Z');
+ // 30일이 지나면 삭제 전 버전도 만료되고, 서식당 30건을 넘으면 오래된 것부터 버린다
+ assert.equal(H.add(list,[{id:'y',title:'new'}],'save','2026-11-05T00:00:00Z').some(x=>x.recordId==='x'),false);
+ let many=[];for(let i=0;i<40;i++)many=H.add(many,[{id:'d'+i,title:'t'+i}],'delete','2026-10-02T00:00:00Z');
+ assert.equal(many.length,30);assert.equal(many[0].recordId,'d10');
+});

@@ -27,6 +27,19 @@
       updatedAt: rec.updatedAt || '', deleted: !!rec.deleted, locked: !!rec.locked};
   }
 
+  // 시각은 한국 시간으로 보여 준다(저장값은 UTC 라 그대로 읽으면 9시간 어긋난다).
+  function kst(iso) {
+    var t = Date.parse(iso);
+    if (!isFinite(t)) return String(iso || '').slice(0, 19).replace('T', ' ');
+    var p = new Intl.DateTimeFormat('sv-SE', {timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false}).format(new Date(t));
+    return p;
+  }
+  function whoDeleted(rec) {
+    var who = [rec.deletedBy, rec.deletedByEmpId ? '(' + rec.deletedByEmpId + ')' : ''].filter(Boolean).join('');
+    return '삭제: ' + (who || '삭제자 기록 없음') + ' · ' + kst(rec.deletedAt || rec.updatedAt);
+  }
+
   async function readAll() {
     var keys = Object.create(null);
     (await global.DkjStore.keys()).forEach(function (k) { if (KEY_RE.test(k)) keys[k] = 1; });
@@ -68,7 +81,7 @@
       entries.forEach(function (en) {
         if (!en || !en.rec || !en.recordId) return;
         var d = describe(en.rec, JSON.stringify(en.rec));
-        d.source = SRC_HIST + ' · ' + String(en.savedAt || '').slice(0, 19).replace('T', ' ') + ' · ' + (en.reason === 'delete' ? '삭제' : en.reason === 'sync' ? '동기화' : '저장');
+        d.source = SRC_HIST + ' · ' + kst(en.savedAt) + ' · ' + (en.reason === 'delete' ? '삭제' : en.reason === 'sync' ? '동기화' : '저장');
         d.isHistory = true;
         groupOf(hm[1], 'list', en.recordId).copies.push(d);
       });
@@ -96,33 +109,45 @@
   var groupsCache = [];
 
   function render(groups) {
-    // 사본이 둘 이상이고 서로 사진·시간 수가 다른 것을 앞에 둔다.
+    // 삭제된 기록에 되살릴 수 있는 사본이 있는 것을 맨 앞에, 그다음 사진·시간 수가 다른 것을 앞에 둔다.
     var rows = groups.filter(function (g) { return g.copies.length > 0; }).map(function (g) {
       var scores = g.copies.map(score);
       g.differs = g.copies.length > 1 && Math.max.apply(null, scores) !== Math.min.apply(null, scores);
+      var idb = g.copies.filter(function (x) { return x.source === SRC_IDB; })[0];
+      g.deletedNow = g.kind === 'list' && !!(idb && idb.deleted);
+      var alive = g.copies.filter(function (x) { return !x.deleted; });
+      g.recoverable = g.deletedNow && alive.length > 0;
+      // 삭제 복구는 가장 최근에 수정된 사본을 권장한다.
+      g.newestAlive = alive.slice().sort(function (a, b) { return String(b.updatedAt).localeCompare(String(a.updatedAt)); })[0] || null;
       return g;
     }).sort(function (a, b) {
-      return (b.differs - a.differs) || String(b.copies[0].updatedAt).localeCompare(String(a.copies[0].updatedAt));
+      return (b.recoverable - a.recoverable) || (b.differs - a.differs) ||
+        String(b.copies[0].updatedAt).localeCompare(String(a.copies[0].updatedAt));
     });
     groupsCache = rows; // 버튼의 data-* 인덱스는 정렬된 이 배열 기준이다.
     var diff = rows.filter(function (g) { return g.differs; }).length;
-    document.getElementById('msg').innerHTML = '기록·임시본 ' + rows.length + '건 중 <strong>사본 간 사진·시간 수가 다른 것 ' + diff + '건</strong>' +
-      (diff ? ' — 아래 초록색 행이 사진·시간이 가장 많이 남은 사본입니다.' : '. 복원할 차이는 이 기기에서 발견되지 않았습니다.');
-    var html = '<div class="card"><div class="wrap"><table><thead><tr><th>서식</th><th>기록</th><th>저장 위치</th><th>수정시각</th><th>사진</th><th>시간 입력</th><th>크기</th><th></th></tr></thead><tbody>';
+    var rec = rows.filter(function (g) { return g.recoverable; }).length;
+    var del = rows.filter(function (g) { return g.deletedNow; }).length;
+    document.getElementById('msg').innerHTML = '기록·임시본 ' + rows.length + '건 · 삭제된 기록 ' + del + '건 중 <strong>되살릴 수 있는 사본이 있는 것 ' + rec + '건</strong> · ' +
+      '사본 간 사진·시간 수가 다른 것 ' + diff + '건' +
+      ((rec || diff) ? ' — 초록색 행이 권장 사본입니다.' : '. 복원할 차이는 이 기기에서 발견되지 않았습니다.');
+    var html = '<div class="card"><div class="wrap"><table><thead><tr><th>서식</th><th>기록</th><th>저장 위치</th><th>수정시각(한국)</th><th>사진</th><th>시간 입력</th><th>크기</th><th></th></tr></thead><tbody>';
     rows.forEach(function (g, gi) {
       var best = Math.max.apply(null, g.copies.map(score));
       g.copies.forEach(function (c, ci) {
-        var isBest = g.differs && score(c) === best;
+        var isBest = g.recoverable ? c === g.newestAlive : (g.differs && score(c) === best);
         var acts = '<button class="btn" data-dl="' + gi + ':' + ci + '">JSON 받기</button>';
         var idbCopy = g.copies.filter(function (x) { return x.source === SRC_IDB; })[0];
-        var canRestore = g.kind === 'list' && isBest && !c.deleted && !(idbCopy && !idbCopy.deleted && idbCopy.locked) &&
-          (c.source === SRC_LS ? !!idbCopy : !!c.isHistory);
+        // 삭제된 기록은 어떤 사본이든(사진·시간이 없는 서식 포함) 되살릴 수 있다.
+        // 삭제되지 않은 기록은 현재본이 잠기지 않았고 사진·시간이 더 많이 남은 사본만 복원 대상이다.
+        var canRestore = g.kind === 'list' && !c.deleted && c.source !== SRC_IDB && (g.deletedNow ||
+          (isBest && !(idbCopy && !idbCopy.deleted && idbCopy.locked) && (c.source === SRC_LS ? !!idbCopy : !!c.isHistory)));
         if (canRestore) {
-          acts += ' <button class="btn primary" data-restore="' + gi + ':' + ci + '">이 사본으로 복원</button>';
+          acts += ' <button class="btn primary" data-restore="' + gi + ':' + ci + '">' + (g.deletedNow ? '삭제 복구' : '이 사본으로 복원') + '</button>';
         }
         html += '<tr class="' + (isBest ? 'best' : '') + '"><td>' + esc(g.formId) + '</td><td>' + esc(label(c.rec)) + ' <small>' + esc(g.id) + '</small>' +
-          (c.deleted ? ' <span class="tag bad">삭제표식</span>' : '') + (c.locked ? ' <span class="tag">잠금</span>' : '') + '</td><td>' + esc(c.source) +
-          '</td><td>' + esc(c.updatedAt.slice(0, 19).replace('T', ' ')) + '</td><td>' + c.photos + '</td><td>' + c.times + '</td><td>' + c.kb + 'KB</td><td>' + acts + '</td></tr>';
+          (c.deleted ? ' <span class="tag bad">삭제표식</span><br><small>' + esc(whoDeleted(c.rec)) + '</small>' : '') + (c.locked ? ' <span class="tag">잠금</span>' : '') + '</td><td>' + esc(c.source) +
+          '</td><td>' + esc(kst(c.updatedAt)) + '</td><td>' + c.photos + '</td><td>' + c.times + '</td><td>' + c.kb + 'KB</td><td>' + acts + '</td></tr>';
       });
     });
     html += '</tbody></table></div></div>';
@@ -146,7 +171,10 @@
       download('복구사본_' + sel.g.formId + '_' + sel.g.id + '.json', JSON.stringify(sel.c.rec, null, 2));
       return;
     }
-    if (!global.confirm('이 사본(사진 ' + sel.c.photos + '장, 시간 ' + sel.c.times + '건)으로 현재 기록을 덮어씁니다.\n덮어쓰기 전 현재본은 화면에서 JSON으로 받아 두세요. 계속할까요?')) return;
+    var msg = sel.g.deletedNow
+      ? '삭제된 기록을 이 사본(수정 ' + kst(sel.c.updatedAt) + ', 사진 ' + sel.c.photos + '장, 시간 ' + sel.c.times + '건)으로 되살립니다.\n되살린 뒤에는 이 사본의 내용이 현재 기록이 됩니다. 계속할까요?'
+      : '이 사본(사진 ' + sel.c.photos + '장, 시간 ' + sel.c.times + '건)으로 현재 기록을 덮어씁니다.\n덮어쓰기 전 현재본은 화면에서 JSON으로 받아 두세요. 계속할까요?';
+    if (!global.confirm(msg)) return;
     try {
       await global.DkjRecordStore.save(sel.g.formId, sel.c.rec);
       global.alert('복원했습니다. 해당 서식 화면의 불러오기 목록에서 확인하세요.');
