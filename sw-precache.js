@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-6cda028c3e00';
+self.DKJ_SW_VERSION = 'v1-411795e4383d';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -24,6 +24,7 @@ self.DKJ_PRECACHE = [
   './css/dkj-quick-nav.css',
   './css/dkj-tokens.css',
   './css/dkj-yield-widget.css',
+  './data-recovery.html',
   './data/asset-sources.json',
   './data/console-forms.json',
   './data/doc-assets.json',
@@ -253,6 +254,7 @@ self.DKJ_PRECACHE = [
   './js/capa-management.js',
   './js/company-profile.js',
   './js/console-forms.bundle.js',
+  './js/data-recovery.js',
   './js/dkj-accessibility.js',
   './js/dkj-approval.js',
   './js/dkj-async.js',
