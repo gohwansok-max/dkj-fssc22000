@@ -182,6 +182,16 @@
       '[취소]를 누르면 돌아가서 시간을 채울 수 있습니다.\n[확인]을 누르면 시간 없이 그대로 저장합니다.');
   }
 
+  /** 작성완료(잠금)는 시간이 빈 측정행이 남아 있으면 진행시키지 않는다 — 잠그면 이후 수정이 막혀
+   *  빠진 시간을 채울 수 없기 때문이다. 알림을 띄우고 항상 true(=중단)를 돌려준다. */
+  function blockMissingTime(labels) {
+    var shown = labels.slice(0, 6).join(', ') + (labels.length > 6 ? ' 외 ' + (labels.length - 6) + '개' : '');
+    global.alert('⛔ 시간이 비어 있는 측정행이 ' + labels.length + '개 있어 작성완료할 수 없습니다.\n(' + shown + ')\n\n' +
+      '작성완료하면 잠겨서 이후 수정할 수 없으니, 시간을 모두 입력한 뒤 다시 눌러 주세요.\n' +
+      '(시간을 아직 모르면 [저장]으로 임시 보관할 수 있습니다.)');
+    return true;
+  }
+
   /** 서식 툴바에 빠른 작성 도구 (전체 적합 / 최근기록 복사) 자동 주입 */
   async function attachQuickToolbar(toolbarEl, options) {
     if (!toolbarEl) toolbarEl = document.querySelector('.dkj-form-toolbar');
@@ -409,6 +419,7 @@
     attachChips: attachChips,
     attachQuickToolbar: attachQuickToolbar,
     confirmMissingTime: confirmMissingTime,
+    blockMissingTime: blockMissingTime,
     ensureStaffDatalist: ensureStaffDatalist,
     compressImageToDataUrl: compressImageToDataUrl,
     DEFAULT_PRESETS: DEFAULT_PRESETS

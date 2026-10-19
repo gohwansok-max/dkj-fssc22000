@@ -607,7 +607,7 @@
         missingTime.push({ idx: i, label: (i + 1) + '행' + (r.productName ? ' ' + r.productName : '') });
       });
       if (!state.preWorkTime && state.preWorkPpm) missingTime.unshift({ idx: -1, label: '작업 시작 전 확인' });
-      if (missingTime.length && window.DkjUtil && !DkjUtil.confirmMissingTime(missingTime.map(function (m) { return m.label; }), lock)) {
+      if (missingTime.length && window.DkjUtil && (lock ? DkjUtil.blockMissingTime(missingTime.map(function (m) { return m.label; })) : !DkjUtil.confirmMissingTime(missingTime.map(function (m) { return m.label; }), false))) {
         var firstEl = null;
         missingTime.forEach(function (m) {
           var el = document.querySelector('tr[data-i="' + m.idx + '"] [data-f="time"]');
