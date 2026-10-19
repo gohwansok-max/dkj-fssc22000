@@ -1637,6 +1637,27 @@
       state.workDate = todayStr();
       state.lot = makeLot(state.workDate);
     }
+    // 달력·콘솔에서 ?date= 로 들어오면 그 날짜의 최종 저장 기록을 자동으로 연다(js/dkj-date-autoload.js).
+    // 저장된 기록은 그날의 증거라 연동 값으로 덮지 않는다. 기록이 없으면 그 날짜의 새 시트(연동 적용).
+    var dateMatch = global.DkjDateLoad ? DkjDateLoad.match.byField('workDate') : null;
+    var openedByDate = false;
+    var qd = dateMatch ? DkjDateLoad.queryDate() : '';
+    if (qd) {
+      var firstHit = (await DkjDateLoad.resolve(FORM_ID, qd, dateMatch));
+      if (firstHit.kind === 'record') {
+        editingId = firstHit.data.id || null;
+        state = Object.assign(emptyState(), firstHit.data);
+        openedByDate = true;
+      } else if (firstHit.kind === 'draft') {
+        state = Object.assign(emptyState(), firstHit.data);
+        draft = firstHit.data;
+      } else {
+        draft = null;
+        state = emptyState();
+        state.workDate = qd;
+        state.lot = makeLot(qd);
+      }
+    }
     
     // 검사자(작성)는 로그인한 사람 이름으로 채운다(추적성) — 다른 사람이 로그인해도
     // 늘 같은 이름이 미리 채워져 있으면 확인 없이 그대로 저장될 위험이 있어, 이전엔
@@ -1654,12 +1675,26 @@
     // 온도 일보이고, 두 서식에 서로 다른 값이 남는 것을 막는 것이 연동의 목적이다.
     // 저장된 기록을 불러올 때는 덮지 않는다(아래 renderHistory 의 불러오기).
     // 임시본을 복원한 경우에는 이미 적어 둔 값을 지우지 않는다(clearMissing=false).
-    var initLink = (await applyAllLinks(!draft));
+    var initLink = openedByDate ? null : (await applyAllLinks(!draft));
 
     writeForm();
     renderLinkNotice(initLink);
     bind();
     (await renderHistory());
+    if (dateMatch) {
+      DkjDateLoad.watch(function (el) { return el.id === 'workDate'; }, async function (date) {
+        var hit = (await DkjDateLoad.resolve(FORM_ID, date, dateMatch));
+        if (hit.kind === 'none') return;
+        if (hit.kind === 'record' && hit.data.id && hit.data.id === editingId) return;
+        // 아직 저장하지 않은 새 입력이 있으면 덮어쓰기 전에 확인한다.
+        if (!editingId && !confirm(date + ' 저장 기록을 불러오면 지금 입력 중인 내용은 사라집니다. 불러올까요?')) return;
+        editingId = hit.data.id || null;
+        state = Object.assign(emptyState(), hit.data);
+        writeForm();
+        renderLinkNotice(null);   // 불러온 기록은 연동으로 덮지 않는다
+        setStatus(hit.kind === 'record' ? date + ' 저장 기록 불러옴' : date + ' 임시저장 불러옴', true);
+      });
+    }
 
     // staff picker 변환 후에도 DKJ-QC-001 전용 값 강제 동기화
     setTimeout(function () {

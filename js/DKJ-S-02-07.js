@@ -13,6 +13,7 @@
   "title": "방충방서 점검일지",
   "subtitle": "선행요건 · 설비별 포집 수량 계수",
   "docNo": "DKJ-S-02-07",
+  "dateLoad": "week",
   "infoFields": [
     {
       "id": "checkDate",
