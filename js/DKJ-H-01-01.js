@@ -820,6 +820,7 @@
       (await window.DkjUtil.attachQuickToolbar($('btnSave') ? $('btnSave').parentNode : null, {
         formId: FORM_ID,
         hasChecks: false,
+        keepPhotos: true,
         onClonePrev: function (cloned) {
           if (state.locked) return;
           state = Object.assign(emptyState(), cloned);
