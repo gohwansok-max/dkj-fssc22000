@@ -353,7 +353,9 @@
   /** 마지막 백업 시각 — js/dkj-backup-reminder.js 가 이 키를 읽어 주 1회 백업 배너를 띄운다. */
   var LAST_BACKUP_KEY = 'dkj:backup:lastBackupAt:v1';
   async function markBackedUp() {
-    try { (await recordStorage().setItem(LAST_BACKUP_KEY, new Date().toISOString())); } catch (e) {}
+    try { (await recordStorage().setItem(LAST_BACKUP_KEY, new Date().toISOString()));
+      if (global.dispatchEvent && typeof CustomEvent !== 'undefined') global.dispatchEvent(new CustomEvent('dkj:backup-status'));
+    } catch (e) {}
   }
 
   /** 전체 기록 원본 백업 — 복원 가능한 형태(JSON). */

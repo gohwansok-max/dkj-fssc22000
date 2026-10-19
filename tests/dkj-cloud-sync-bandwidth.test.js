@@ -21,6 +21,21 @@ function env(mode=1,useAbort=true){
  return {ctx,db,calls,document,events,docEvents,timeouts,intervals,putLocal:v=>localStorage.map.set(key,JSON.stringify(v)),putRemote:(v,stamp=1)=>db.records[encode(key)]={value:copy(v),updatedAt:stamp},hook:f=>hook=f,jsonHook:f=>jsonHook=f,offline:v=>fail=v,local:()=>JSON.parse(localStorage.getItem(key)),sync:()=>ctx.DkjCloudSync.sync(),flush:async()=>{for(let i=0;i<100;i++)await Promise.resolve();}};
 }
 const tests=[];function test(n,f){tests.push([n,f]);}
+test('status distinguishes waiting, success, failure and offline without changing last successful time',async()=>{
+ const e=env();
+ assert.match(await e.ctx.DkjCloudSync.describeStatus(),/확인 대기.*확인 이력 없음/);
+ await e.sync();
+ assert.match(await e.ctx.DkjCloudSync.describeStatus(),/동기화 성공/);
+ const last=await e.ctx.DkjCloudSync.lastSync();
+ e.offline(true);
+ await assert.rejects(e.sync());
+ assert.match(await e.ctx.DkjCloudSync.describeStatus(),/동기화 실패/);
+ assert.equal(await e.ctx.DkjCloudSync.lastSync(),last);
+ e.ctx.navigator.onLine=false;
+ assert.match(await e.ctx.DkjCloudSync.describeStatus(),/오프라인/);
+ e.ctx.navigator.onLine=true;e.offline(false);await e.sync();
+ assert.match(await e.ctx.DkjCloudSync.describeStatus(),/동기화 성공/);
+});
 test('unchanged polls: shallow keys and timestamp only',async()=>{const e=env();e.putLocal([rec('a')]);e.putRemote([rec('a')]);await e.sync();e.calls.length=0;await e.sync();assert.deepEqual(e.calls.map(c=>[c.path,c.shallow]),[['records',true],['records/'+encode(key)+'/updatedAt',false]]);assert.equal(e.calls.some(c=>c.method!=='GET'),false);});
 test('changed row merges local-only, deleted flag, audit, approvals',async()=>{const e=env();e.putLocal([rec('a')]);e.putRemote([rec('a')]);await e.sync();e.putRemote([{...rec('a',2),deleted:true,audit:[{id:'audit'}],signoff:{qa:{name:'ok'}}},rec('remote')],2);e.putLocal([rec('a'),rec('local')]);await e.sync();assert.equal(e.local().length,3);const r=e.local().find(r=>r.id==='a');assert.equal(r.deleted,true);assert.equal(r.audit[0].id,'audit');assert.equal(r.signoff.qa.name,'ok');assert.equal(e.db.records[encode(key)].value.length,3);});
 test('missing local storage defeats cached revision',async()=>{const e=env();e.putLocal([rec('a')]);e.putRemote([rec('a')]);await e.sync();e.ctx.localStorage.map.delete(key);e.calls.length=0;await e.sync();assert.equal(e.local().length,1);assert(e.calls.some(c=>c.path==='records/'+encode(key)));});

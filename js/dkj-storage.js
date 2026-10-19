@@ -112,11 +112,11 @@
     var el = global.document.getElementById('dkj-storage-status');
     if (!el) {
       el = global.document.createElement('div'); el.id = 'dkj-storage-status'; el.setAttribute('role', 'status');
-      el.style.cssText = 'position:fixed;right:12px;bottom:12px;z-index:9998;max-width:340px;padding:7px 12px;border-radius:8px;font-size:12px;background:#eef7f0;color:#205b32;';
+      el.style.cssText = 'position:relative;clear:both;margin:12px;max-width:100%;padding:7px 12px;border-radius:8px;font-size:12px;background:#eef7f0;color:#205b32;';
       global.document.body.appendChild(el);
     }
     el.textContent = message;
-    if (bad) { el.style.background = '#fff0eb'; el.style.color = '#8b260d'; }
+    el.style.background = bad ? '#fff0eb' : '#eef7f0'; el.style.color = bad ? '#8b260d' : '#205b32';
   }
   // 저장 실패는 입력한 사진·시간이 저장되지 않았다는 뜻이다. 다음 저장이 성공할 때까지
   // 화면 위에 경고를 남기고, 그 사이 화면을 닫거나 새로고침하려 하면 확인을 받는다.
@@ -137,16 +137,32 @@
   function reportWrite(op, ok, error) {
     if (ok) delete failedOps[op]; else failedOps[op] = true;
     renderFailure(error);
+    if (ok) { deviceStatus = '기기 저장 완료'; refreshStorageStatus().catch(showError); }
   }
   global.addEventListener('beforeunload', function (event) {
     if (!failing()) return;
     event.preventDefault();
     event.returnValue = '';
   });
+  var deviceStatus = '기기 저장소 확인 중', statusTicket = 0, quotaWarning = '';
+  async function refreshStorageStatus() {
+    var ticket = ++statusTicket;
+    var cloud = global.DkjCloudSync && global.DkjCloudSync.describeStatus
+      ? await global.DkjCloudSync.describeStatus() : '클라우드 동기화 사용 안 함';
+    var backup = await getItem('dkj:backup:lastBackupAt:v1');
+    if (ticket !== statusTicket || failing()) return;
+    status((quotaWarning || deviceStatus) + ' · ' + cloud + ' · 마지막 백업: ' +
+      (backup ? new Date(backup).toLocaleString('ko-KR', {timeZone:'Asia/Seoul'}) : '이 기기에서 받은 이력 없음'), !!quotaWarning);
+  }
+  ['dkj:sync-status', 'dkj:backup-status', 'online', 'offline'].forEach(function (name) {
+    global.addEventListener(name, function () { refreshStorageStatus().catch(showError); });
+  });
+
   function startStatus() {
     ready().then(async function () {
       var persisted = await global.DkjStore.requestPersistence();
-      status(persisted ? '기기 저장소 준비됨 · 영구 보관 허용' : '기기 저장소 준비됨 · 정기 백업을 권장합니다.');
+      deviceStatus = persisted ? '기기 저장소 준비 (영구 보관 허용)' : '기기 저장소 준비';
+      await refreshStorageStatus();
       return checkQuota();
     }).catch(showError);
   }
@@ -156,8 +172,10 @@
     var est = await global.DkjStore.estimate();
     if (!est || !est.quota || !(est.usage >= 0)) return null;
     var ratio = est.usage / est.quota;
+    quotaWarning = '';
     if (ratio >= QUOTA_WARN_RATIO) {
-      status('기기 저장 공간 ' + Math.round(ratio * 100) + '% 사용 중입니다. 기록보관함에서 JSON 백업을 받고 관리자에게 알려 주세요.', true);
+      quotaWarning = '기기 저장 공간 ' + Math.round(ratio * 100) + '% 사용 중 · JSON 백업 후 관리자 문의';
+      await refreshStorageStatus();
     }
     return ratio;
   }

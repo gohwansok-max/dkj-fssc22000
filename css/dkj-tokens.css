@@ -23,7 +23,7 @@ input#monitorName, input#owner, input#containmentOwner, input#correctiveOwner,
 input#actionOwner, input#verifier, input#drillWriter, input#drillReviewer,
 input#drillCorrectiveOwner, input#leader, input#evaluator, input#chair,
 input#chairperson, input#reviewOwner, input#cultureOwner, input#trainer,
-input#worker, input#operator, input#contact, input#arcWriter, input#inspectorName,
+input#worker, input#operator, input#contact, input#inspectorName,
 input#confirmerName, input#workerName, input#driller, input#auditor, input#cleaner,
 input#driver, input#immediateOwner, input#actionManager, input#personInCharge,
 input#checkPerson, input#workPerson, input#author {

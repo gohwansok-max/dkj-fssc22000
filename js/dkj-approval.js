@@ -488,7 +488,7 @@
       'owner', 'containmentOwner', 'correctiveOwner', 'actionOwner', 'verifier',
       'drillWriter', 'drillReviewer', 'drillCorrectiveOwner', 'leader', 'evaluator',
       'chair', 'chairperson', 'reviewOwner', 'cultureOwner', 'trainer', 'worker',
-      'operator', 'contact', 'arcWriter', 'inspectorName', 'confirmerName',
+      'operator', 'contact', 'inspectorName', 'confirmerName',
       'workerName', 'driller', 'auditor', 'cleaner', 'driver', 'immediateOwner',
       'actionManager', 'personInCharge', 'checkPerson', 'workPerson', 'author'
     ];

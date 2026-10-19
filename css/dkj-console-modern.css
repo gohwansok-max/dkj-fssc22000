@@ -205,17 +205,7 @@
     box-shadow: 0 8px 20px rgba(0, 83, 207, .25);
   }
 
-  #btnHeaderLang {
-    order: 20;
-    margin-top: auto;
-    background: rgba(255, 199, 44, .10) !important;
-    border-color: rgba(255, 199, 44, .25) !important;
-    color: #ffe49a !important;
-  }
-
-  #btnHeaderLang::before { content: "◎"; color: #ffd45b; }
-
-  .ck-menu-toggle { order: 21; }
+.ck-menu-toggle { order: 21; }
   .ck-menu-toggle::before { content: "☰"; }
   .ck-menu-toggle .ck-menu-icon { display: none; }
 

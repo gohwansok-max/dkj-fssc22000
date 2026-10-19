@@ -97,7 +97,7 @@
   }
 
   function apply() {
-    view = window.DkjExport.filter(all, conditions());
+    view = window.DkjExport.filter(all, conditions()).filter(function (r) { return !$('arcWriter').value || (r.writer || r.createdBy || '') === $('arcWriter').value; });
     // 화면에서 사라진 기록의 선택은 풀어 준다(안 보이는 걸 내보내면 혼란스럽다)
     var visible = {};
     view.forEach(function (r) { visible[r.id] = 1; });
@@ -131,10 +131,10 @@
   }
 
   function bind() {
-    ['arcFrom', 'arcTo', 'arcForm', 'arcStatus'].forEach(function (id) {
+    ['arcFrom', 'arcTo', 'arcForm', 'arcStatus', 'arcWriter'].forEach(function (id) {
       $(id).addEventListener('change', apply);
     });
-    ['arcWriter', 'arcQuery'].forEach(function (id) {
+    ['arcQuery'].forEach(function (id) {
       $(id).addEventListener('keydown', function (e) {
         if (e.key === 'Enter') apply();
       });
@@ -216,6 +216,7 @@
     $('arcBackup').addEventListener('click', async function () {
       var n = (await window.DkjExport.toJsonBackup());
       if (!n) alert('백업할 기록이 없습니다.');
+      syncPill();
     });
 
     $('arcRestore').addEventListener('click', function () {
@@ -240,25 +241,29 @@
     });
   }
 
-  function syncPill() {
+  async function syncPill() {
     var pill = $('arcSyncPill');
     if (!pill) return;
-    var on = window.DkjAuth && window.DkjAuth.configured();
-    var user = window.DkjAuth && window.DkjAuth.user();
-    var syncing = window.DkjCloudSync && window.DkjCloudSync.ready && window.DkjCloudSync.ready();
-    if (syncing && user) {
-      pill.textContent = '클라우드 동기화 · ' + user.name;
-    } else if (on) {
-      pill.textContent = '클라우드 동기화 (로그인 필요)';
-    } else {
-      pill.className = 'status-pill wip';
-      pill.textContent = '기기 저장 — 백업을 권합니다';
-    }
+    pill.className = 'status-pill wip';
+    pill.textContent = window.DkjCloudSync && window.DkjCloudSync.describeStatus
+      ? await window.DkjCloudSync.describeStatus() : '클라우드 동기화 사용 안 함';
+    var backup = await window.DkjExport.lastBackupAt();
+    pill.textContent += ' · 마지막 백업: ' + (backup ? new Date(backup).toLocaleString('ko-KR', {timeZone:'Asia/Seoul'}) : '이 기기에서 받은 이력 없음');
+  }
+
+  function fillWriterOptions() {
+    var sel = $('arcWriter'), previous = sel.value;
+    var names = Array.from(new Set(all.map(function (r) { return r.writer || r.createdBy || ''; }).filter(Boolean))).sort();
+    sel.innerHTML = '<option value="">전체 작성자</option>' + names.map(function (name) {
+      return '<option value="' + esc(name) + '">' + esc(name) + '</option>';
+    }).join('');
+    if (names.indexOf(previous) >= 0) sel.value = previous;
   }
 
   async function load() {
     all = (await window.DkjExport.collect());
     fillFormOptions();
+    fillWriterOptions();
     apply();
     syncPill();
   }
@@ -271,6 +276,7 @@
     var prevForm = formSel ? formSel.value : '';
     all = (await window.DkjExport.collect());
     fillFormOptions();
+    fillWriterOptions();
     if (formSel && prevForm) formSel.value = prevForm;
     apply();
   }
@@ -280,4 +286,6 @@
   // 로그인은 페이지가 로드된 뒤 비동기로 완료된다 — 로그인 직후에도 배지가 갱신되도록 다시 그린다.
   document.addEventListener('dkj:auth-ready', syncPill);
   window.addEventListener('dkj:records-changed', refreshFromCloud);
+  window.addEventListener('dkj:sync-status', syncPill);
+  window.addEventListener('dkj:backup-status', syncPill);
 })();
