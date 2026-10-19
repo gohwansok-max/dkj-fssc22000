@@ -118,6 +118,31 @@
     el.textContent = message;
     if (bad) { el.style.background = '#fff0eb'; el.style.color = '#8b260d'; }
   }
+  // 저장 실패는 입력한 사진·시간이 저장되지 않았다는 뜻이다. 다음 저장이 성공할 때까지
+  // 화면 위에 경고를 남기고, 그 사이 화면을 닫거나 새로고침하려 하면 확인을 받는다.
+  var failedOps = Object.create(null);
+  function failing() { return Object.keys(failedOps).length > 0; }
+  function renderFailure(error) {
+    if (!global.document || !global.document.body || !global.document.createElement) return;
+    var el = global.document.getElementById('dkj-write-failure');
+    if (!failing()) { if (el && el.parentNode) el.parentNode.removeChild(el); return; }
+    if (!el) {
+      el = global.document.createElement('div'); el.id = 'dkj-write-failure'; el.setAttribute('role', 'alert');
+      el.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:10000;padding:12px 16px;font-size:14px;font-weight:700;background:#b42318;color:#fff;text-align:center;';
+      global.document.body.appendChild(el);
+    }
+    el.textContent = '저장에 실패했습니다. 입력한 사진·시간이 저장되지 않았습니다. 이 화면을 닫거나 새로고침하지 말고 다시 저장한 뒤, 계속 실패하면 관리자에게 알려 주세요.' +
+      (error && error.message ? ' (' + error.message + ')' : '');
+  }
+  function reportWrite(op, ok, error) {
+    if (ok) delete failedOps[op]; else failedOps[op] = true;
+    renderFailure(error);
+  }
+  global.addEventListener('beforeunload', function (event) {
+    if (!failing()) return;
+    event.preventDefault();
+    event.returnValue = '';
+  });
   function startStatus() {
     ready().then(async function () {
       var persisted = await global.DkjStore.requestPersistence();
@@ -181,5 +206,5 @@
     });
   }
   global.DkjStorage = { ready: ready, getItem: getItem, setItem: setItem, removeItem: removeItem,
-    keys: keys, notify: changed, exclusive: exclusive, initialized: function () { return initialized; }, cleanup: cleanup, checkQuota: checkQuota };
+    keys: keys, notify: changed, exclusive: exclusive, initialized: function () { return initialized; }, cleanup: cleanup, checkQuota: checkQuota, reportWrite: reportWrite, writeFailing: failing };
 })(window);

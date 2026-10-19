@@ -151,10 +151,31 @@
     return schemaMode;
   }
 
+  // 클라우드 병합으로 이 기기의 기록이 다른 내용으로 바뀌면, 바뀌기 전 버전을 이력에 남긴다
+  // (updatedAt 이 더 늦은 쪽이 통째로 이기므로, 사진·시간이 빠진 사본이 이겨도 되살릴 수 있게).
+  async function archiveReplaced(key, expectedRaw, mergedList) {
+    var H = global.DkjRecordStore && global.DkjRecordStore.History;
+    var m = key.match(KEY_RE);
+    if (!H || !m || !global.DkjStore || !expectedRaw) return;
+    try {
+      var before = JSON.parse(expectedRaw);
+      var nextById = {};
+      mergedList.forEach(function (r) { if (r && r.id) nextById[r.id] = r; });
+      var replaced = (Array.isArray(before) ? before : []).filter(function (r) {
+        return r && r.id && !r.deleted && nextById[r.id] && JSON.stringify(nextById[r.id]) !== JSON.stringify(r);
+      });
+      if (!replaced.length) return;
+      var hk = H.key(m[1]);
+      var cur = await global.DkjStore.get(hk);
+      await global.DkjStore.set(hk, JSON.stringify(H.add(H.parse(cur), replaced, 'sync')));
+    } catch (e) { console.error('[DkjCloudSync] 병합 전 버전 보관 실패', e); }
+  }
+
   async function writeLocal(key, list, expected) {
     if (global.DkjStorage) {
       return global.DkjStorage.exclusive(async function () {
         if (await global.DkjStorage.getItem(key) !== expected) return false;
+        await archiveReplaced(key, expected, list);
         writingLocal = true;
         try { await global.DkjStorage.setItem(key, JSON.stringify(list)); }
         finally { writingLocal = false; }
@@ -593,6 +614,7 @@
     lastSync: async function () { try { return (await recordStorage().getItem(LAST_SYNC_KEY)); } catch (e) { return null; } },
     isSyncKey: isSyncKey,
     mergeRecords: mergeRecords,
+    archiveReplaced: archiveReplaced,
     schemaMode: function () { return schemaMode; },
     removeRecord: removeRecord,
     nodeKey: nodeKey,
