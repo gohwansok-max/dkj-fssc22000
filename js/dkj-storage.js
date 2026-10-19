@@ -122,7 +122,19 @@
     ready().then(async function () {
       var persisted = await global.DkjStore.requestPersistence();
       status(persisted ? '기기 저장소 준비됨 · 영구 보관 허용' : '기기 저장소 준비됨 · 정기 백업을 권장합니다.');
+      return checkQuota();
     }).catch(showError);
+  }
+  // origin 전체 추정치 기준이다. 80% 이상이면 기록 저장이 막히기 전에 백업·정리를 안내한다.
+  var QUOTA_WARN_RATIO = 0.8;
+  async function checkQuota() {
+    var est = await global.DkjStore.estimate();
+    if (!est || !est.quota || !(est.usage >= 0)) return null;
+    var ratio = est.usage / est.quota;
+    if (ratio >= QUOTA_WARN_RATIO) {
+      status('기기 저장 공간 ' + Math.round(ratio * 100) + '% 사용 중입니다. 기록보관함에서 JSON 백업을 받고 관리자에게 알려 주세요.', true);
+    }
+    return ratio;
   }
   if (global.document && global.document.addEventListener) {
     if (global.document.readyState === 'loading') global.document.addEventListener('DOMContentLoaded', startStatus);
@@ -169,5 +181,5 @@
     });
   }
   global.DkjStorage = { ready: ready, getItem: getItem, setItem: setItem, removeItem: removeItem,
-    keys: keys, notify: changed, exclusive: exclusive, initialized: function () { return initialized; }, cleanup: cleanup };
+    keys: keys, notify: changed, exclusive: exclusive, initialized: function () { return initialized; }, cleanup: cleanup, checkQuota: checkQuota };
 })(window);
