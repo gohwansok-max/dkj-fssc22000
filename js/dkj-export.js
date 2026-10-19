@@ -102,6 +102,8 @@
           id: rec.id || '',
           date: pick(rec, DATE_KEYS) || (rec.createdAt || '').slice(0, 10),
           title: rec.title || '',
+          lot: pick(rec, ['lot', 'lotNo', 'batchNo', 'productionLot']),
+          round: pick(rec, ['round', 'roundNo', 'cycle', 'sequence']),
           writer: pick(rec, WRITER_KEYS),
           reviewer: pick(rec, REVIEW_KEYS),
           approver: pick(rec, APPROVE_KEYS),
@@ -115,8 +117,24 @@
         });
       });
     }
+    var groups = Object.create(null);
+    out.forEach(function (row) {
+      var key = JSON.stringify([row.formId, row.date, row.lot]);
+      (groups[key] = groups[key] || []).push(row);
+    });
+    Object.keys(groups).forEach(function (key) {
+      var group = groups[key];
+      group.sort(function (a, b) { return String(a.createdAt || a.id).localeCompare(String(b.createdAt || b.id)) || String(a.id).localeCompare(String(b.id)); });
+      var latest = group.slice().sort(function (a, b) { return String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')) || String(b.id).localeCompare(String(a.id)); })[0];
+      group.forEach(function (row, i) {
+        row.sameContextCount = group.length;
+        row.displaySequence = i + 1; // 실제 작업 회차가 아닌, 동일 조건 기록을 구분하는 목록 순번
+        row.mostRecentlyUpdated = row === latest;
+      });
+    });
     out.sort(function (a, b) {
-      return String(b.date || b.createdAt).localeCompare(String(a.date || a.createdAt));
+      return String(b.date || b.createdAt).localeCompare(String(a.date || a.createdAt)) ||
+        String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || ''));
     });
     return out;
   }

@@ -640,6 +640,7 @@
         b.addEventListener('click', DkjAsync.action(async function () {
           var key = b.getAttribute('data-stage');
           var st = getState();
+          if (opts.beforeSign && (await opts.beforeSign(key, st)) === false) return;
           // 버튼은 잠가 뒀지만 화면을 만져 되살릴 수 있으니 누를 때 한 번 더 본다 —
           // 역할 권한뿐 아니라 이전 단계가 끝났는지도 다시 확인한다.
           var stageIdx = stages.findIndex(function (x) { return x.key === key; });
