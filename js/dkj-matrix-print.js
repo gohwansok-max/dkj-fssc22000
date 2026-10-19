@@ -81,6 +81,13 @@
 
   function headHtml(spec, state) {
     var apv = state.approvals || {};
+    function signCell(stage) {
+      var rec = (state.signoff || {})[stage];
+      if (global.DkjSignature && rec && rec.at && global.DkjSignature.isValid(rec.signature)) {
+        return global.DkjSignature.cellHtml(rec, apv[stage] || rec.name || '');
+      }
+      return esc(apv[stage] || '');
+    }
     return '' +
       '<table class="off-head mx-head">' +
       '<tr>' +
@@ -93,9 +100,9 @@
       '</tr>' +
       '<tr>' +
       '<th class="mx-mlab">제정일자</th><td class="mx-mval">' + esc(spec.enactDate || '') + '</td>' +
-      '<td class="mx-sign" rowspan="3">' + esc(apv.writer || '') + '</td>' +
-      '<td class="mx-sign" rowspan="3">' + esc(apv.reviewer || '') + '</td>' +
-      '<td class="mx-sign" rowspan="3">' + esc(apv.approver || '') + '</td>' +
+      '<td class="mx-sign" rowspan="3">' + signCell('writer') + '</td>' +
+      '<td class="mx-sign" rowspan="3">' + signCell('reviewer') + '</td>' +
+      '<td class="mx-sign" rowspan="3">' + signCell('approver') + '</td>' +
       '</tr>' +
       '<tr><th class="mx-mlab">개정일자</th><td class="mx-mval">' + esc(spec.reviseDate || '-') + '</td></tr>' +
       '<tr><th class="mx-mlab">개정번호</th><td class="mx-mval">' + esc(spec.rev != null ? spec.rev : '0') + '</td></tr>' +

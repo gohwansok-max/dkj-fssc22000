@@ -14,7 +14,11 @@
     var signoff = state.signoff || {};
     function confirmedName(stage) {
       var record = signoff[stage];
-      return record && record.at ? (record.name || '') : '';
+      if (!(record && record.at)) return '';
+      if (global.DkjSignature && global.DkjSignature.isValid(record.signature)) {
+        return global.DkjSignature.cellHtml(record, record.name || '');
+      }
+      return esc(record.name || '');
     }
     return '' +
       '<table class="off-head mx-head">' +
@@ -26,9 +30,9 @@
       '<th class="mx-apv">작 성</th><th class="mx-apv">검 토</th><th class="mx-apv">승 인</th>' +
       '</tr>' +
       '<tr><th class="mx-mlab">제정일자</th><td class="mx-mval">' + esc(spec.enactDate || '') + '</td>' +
-      '<td class="mx-sign" rowspan="3">' + esc(confirmedName('writer')) + '</td>' +
-      '<td class="mx-sign" rowspan="3">' + esc(confirmedName('reviewer')) + '</td>' +
-      '<td class="mx-sign" rowspan="3">' + esc(confirmedName('approver')) + '</td></tr>' +
+      '<td class="mx-sign" rowspan="3">' + confirmedName('writer') + '</td>' +
+      '<td class="mx-sign" rowspan="3">' + confirmedName('reviewer') + '</td>' +
+      '<td class="mx-sign" rowspan="3">' + confirmedName('approver') + '</td></tr>' +
       '<tr><th class="mx-mlab">개정일자</th><td class="mx-mval">' + esc(spec.reviseDate || '-') + '</td></tr>' +
       '<tr><th class="mx-mlab">개정번호</th><td class="mx-mval">' + esc(spec.rev != null ? spec.rev : '0') + '</td></tr>' +
       '</table>';

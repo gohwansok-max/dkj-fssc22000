@@ -717,7 +717,9 @@
       var apvHead = signRows.length ? signRows.map(function (r) { return '<th class="ps-apv">' + esc(r.label) + '</th>'; }).join('')
         : '<th class="ps-apv">작성</th><th class="ps-apv">검토</th><th class="ps-apv">승인</th>';
       var apvCells = signRows.length ? signRows.map(function (r) {
-        return '<td class="ps-sign">' + esc(r.name || '') + (r.signed ? '<div style="font-size:7pt;color:#555;">' + esc(fmtAt(r.at)) + '</div>' : '') + '</td>';
+        var nameHtml = (global.DkjSignature && r.signed && global.DkjSignature.isValid(r.signature))
+          ? global.DkjSignature.cellHtml({ name: r.name, signature: r.signature }, r.name) : esc(r.name || '');
+        return '<td class="ps-sign">' + nameHtml + (r.signed ? '<div style="font-size:7pt;color:#555;">' + esc(fmtAt(r.at)) + '</div>' : '') + '</td>';
       }).join('') : '<td class="ps-sign"></td><td class="ps-sign"></td><td class="ps-sign"></td>';
 
       /* 그날 실제로 움직인 행만 인쇄한다 — 미사용 원재료까지 다 찍으면 한 장을 넘긴다 */

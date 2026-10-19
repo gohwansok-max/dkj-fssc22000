@@ -34,6 +34,18 @@
     document.head.appendChild(s);
   }
 
+  /* 손서명 모듈 — 결재 화면·정본 인쇄가 모두 쓰므로 이 파일이 뜰 때 함께 불러온다
+     (서식 HTML 을 일일이 고치지 않아도 되게). 못 불러와도 종전 확인창 방식으로 동작한다. */
+  (function loadSignature() {
+    if (global.DkjSignature || !SELF_SRC) return;
+    var url = SELF_SRC.replace(/dkj-approval\.js(\?.*)?$/, 'dkj-signature.js$1');
+    if (url === SELF_SRC) return;
+    var s = document.createElement('script');
+    s.src = url;
+    s.onerror = function () { /* 서명 모듈이 없으면 종전 방식 */ };
+    document.head.appendChild(s);
+  })();
+
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -572,6 +584,8 @@
       return '<div class="apv-stage' + (done ? ' done' : '') + '">' +
         '<div class="apv-lab">' + esc(st.label) + '</div>' +
         '<div class="apv-name">' + esc(shown) + '</div>' + mismatch +
+        (done && global.DkjSignature && global.DkjSignature.isValid(sign.signature)
+          ? '<img class="apv-sig" src="' + sign.signature + '" alt="서명">' : '') +
         '<div class="apv-at">' + (done ? esc(fmt(sign.at)) : '미결재') + '</div>' +
         (done
           ? '<span class="apv-mark">서명됨</span>'
@@ -656,15 +670,24 @@
           // 사람과 결재란에 적힌 이름이 이미 일치하면 다시 물어볼 게 없다 — 이때만
           // confirm() 을 생략해 클릭 한 번을 줄인다. 이름이 다르거나 미로그인 상태,
           // 검토·승인 단계는 잘못 확정하면 되돌릴 수 없어 그대로 확인을 거친다.
-          var skipConfirm = key === 'writer' && u && claimed && claimed === u.name;
-          if (!skipConfirm) {
-            var msg = signer.name + ' 님으로 ' + stageOf(key).label +
-                      ' 결재를 확정합니다.\n확정 후에는 취소할 수 없습니다.';
-            if (u && claimed && claimed !== u.name) {
-              msg = '결재란에 적힌 이름은 「' + claimed + '」 이지만, 지금 로그인한 사람은 「' +
-                    u.name + '」 입니다.\n\n서명은 로그인한 ' + u.name + ' 님으로 남습니다.\n' + msg;
-            }
-            if (!confirm(msg)) return;
+          var msg = signer.name + ' 님으로 ' + stageOf(key).label +
+                    ' 결재를 확정합니다.\n확정 후에는 취소할 수 없습니다.';
+          if (u && claimed && claimed !== u.name) {
+            msg = '결재란에 적힌 이름은 「' + claimed + '」 이지만, 지금 로그인한 사람은 「' +
+                  u.name + '」 입니다.\n\n서명은 로그인한 ' + u.name + ' 님으로 남습니다.\n' + msg;
+          }
+          // 손서명 — 서명 창이 확정 확인을 겸한다(저장해 둔 서명이 있으면 버튼 한 번).
+          // 서명 모듈이 없을 때만 종전 확인창 방식.
+          var sig = null;
+          var skipConfirm = false;
+          if (global.DkjSignature) {
+            sig = await global.DkjSignature.capture({
+              stageLabel: stageOf(key).label, name: signer.name, empId: signer.empId, message: msg
+            });
+            if (!sig) return;
+          } else {
+            skipConfirm = key === 'writer' && u && claimed && claimed === u.name;
+            if (!skipConfirm && !confirm(msg)) return;
           }
 
           if (!st.signoff) st.signoff = {};
@@ -674,9 +697,11 @@
             uid: (u && u.uid) || '',
             source: signer.source,
             claimed: claimed && claimed !== signer.name ? claimed : undefined,
+            signature: sig ? sig.data : undefined,
             at: nowIso()
           };
-          append(st, 'SIGN', u ? whoLabel(u) : signer.name, stageOf(key).label + ' 결재');
+          append(st, 'SIGN', u ? whoLabel(u) : signer.name,
+            stageOf(key).label + ' 결재' + (sig ? (sig.reused ? ' (저장된 손서명 사용)' : ' (손서명)') : ''));
           await onChange(st);
           render();
           // confirm() 을 생략한 경우는 확정됐다는 사실 자체를 알리는 화면 반응이
@@ -760,8 +785,26 @@
   global.addEventListener('load', attachStaffPickers);
   document.addEventListener('dkj:record-loaded', attachStaffPickers);
 
+  /** 인쇄용 결재 행 [{key,label,name,signed,at,signature}] — 확정된 서명(signoff)만 담는다. */
+  function signRows(state, opts) {
+    var so = (state && state.signoff) || {};
+    var keys = (opts && opts.stages) || ['writer', 'reviewer', 'approver'];
+    return STAGES.filter(function (st) { return keys.indexOf(st.key) !== -1; }).map(function (st) {
+      var rec = so[st.key] || null;
+      var done = !!(rec && rec.at);
+      return {
+        key: st.key, label: st.label,
+        name: done ? (rec.name || '') : '',
+        signed: done, at: done ? rec.at : '',
+        signature: done ? rec.signature : undefined
+      };
+    });
+  }
+
   global.DkjApproval = {
     mount: mount,
+    signRows: signRows,
+    formatAt: fmt,
     bindFlat: bindFlat,
     append: append,
     verify: verify,
