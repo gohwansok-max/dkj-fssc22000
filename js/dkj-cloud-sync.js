@@ -21,9 +21,42 @@
   var POLL_MS = 30000;
   var schemaMode = null; // 'legacy' | 'v2'
   var writingLocal = false, timers = {}, poller = null, started = false;
-  // Cache only this page's verified revision + exact local snapshot. Never trust a
-  // persisted revision after reload or after local records have disappeared/changed.
+  // 메모리 캐시는 이 화면에서 확인한 변경 번호 + 이 기기 기록 원문이다. 새로 열었을 때는
+  // 아래 REV_CACHE_KEY 에 남긴 번호를 쓰되, 이 기기 기록의 SHA-256 이 같을 때만 믿는다
+  // (기록이 없어졌거나 바뀌었으면 믿지 않고 전체를 받아 검증한다).
   var legacyCache = Object.create(null), localVersions = Object.create(null);
+  // 화면을 새로 열 때마다 위 메모리 캐시가 비워져 모든 서식의 기록을 처음부터 다시 받던 것이
+  // 한 달 45GB 다운로드의 원인이었다(저장량은 5MB). 키별로 '마지막으로 확인한 클라우드 변경
+  // 번호'와 '그때 이 기기 기록의 SHA-256'을 IndexedDB 에 남겨, 새로 열었을 때 둘 다 그대로면
+  // 다운로드를 건너뛴다. 해시가 다르면(기록이 없어졌거나 바뀜) 예전처럼 전체를 받아 검증한다.
+  var REV_CACHE_KEY = 'dkj:cache:cloud-revisions:v1';
+  var revMap = null, revDirty = false;
+  function sha(raw) {
+    var M = global.DkjStorageMigration;
+    return (M && typeof M.hash === 'function' && global.crypto && global.crypto.subtle && typeof raw === 'string')
+      ? M.hash(raw) : Promise.resolve(null);
+  }
+  async function loadRevMap() {
+    if (revMap) return revMap;
+    revMap = Object.create(null);
+    try {
+      var raw = global.DkjStore && typeof global.DkjStore.get === 'function' ? await global.DkjStore.get(REV_CACHE_KEY) : null;
+      var saved = raw ? JSON.parse(raw) : null;
+      if (saved && typeof saved === 'object') Object.keys(saved).forEach(function (k) { revMap[k] = saved[k]; });
+    } catch (e) { /* 캐시가 없거나 깨졌으면 예전처럼 전체를 받는다 */ }
+    return revMap;
+  }
+  async function rememberRevision(key, revision, raw) {
+    var hash = await sha(raw);
+    if (!hash) return;
+    (await loadRevMap())[key] = { revision: revision, localHash: hash };
+    revDirty = true;
+  }
+  async function flushRevMap() {
+    if (!revDirty || !revMap || !global.DkjStore || typeof global.DkjStore.set !== 'function') return;
+    revDirty = false;
+    try { await global.DkjStore.set(REV_CACHE_KEY, JSON.stringify(revMap)); } catch (e) { revDirty = true; }
+  }
   var syncFlight = null, operationTail = Promise.resolve();
   function visible() { return typeof document === 'undefined' || document.visibilityState !== 'hidden'; }
   function exclusive(work) {
@@ -212,15 +245,25 @@
 
   async function legacyPushKey(key) {
     if (!isSyncKey(key)) return;
-    var value = parse((await recordStorage().getItem(key)));
+    var raw = (await recordStorage().getItem(key));
+    var value = parse(raw);
     if (!Array.isArray(value)) return;
+    var version = localVersions[key] || 0;
     delete legacyCache[key];
+    var stamp = Date.now();
     await request('records/' + nodeKey(key), 'PUT', {
       value: value,
-      updatedAt: Date.now(),
+      updatedAt: stamp,
       updatedBy: (auth().user() && auth().user().name) || '',
       device: navigator.userAgent.slice(0, 120)
     });
+    // 방금 올린 내용이 곧 클라우드의 최신본이다. 캐시를 지운 채 두면 30초 뒤 동기화가
+    // 내가 올린 목록 전체를 다시 내려받는다. 올리는 동안 기록이 바뀌지 않았을 때만 기억한다.
+    if ((localVersions[key] || 0) === version && (await recordStorage().getItem(key)) === raw) {
+      legacyCache[key] = { revision: stamp, localRaw: raw };
+      await rememberRevision(key, stamp, raw);
+      await flushRevMap();
+    }
   }
 
   function storageKeys() {
@@ -265,6 +308,13 @@
       var cached = legacyCache[key];
       var hasRevision = (typeof revision === 'number' && isFinite(revision)) ||
         (typeof revision === 'string' && revision.length > 0);
+      if (!cached && hasRevision && Array.isArray(localVal) && before) {
+        var saved = (await loadRevMap())[key];
+        if (saved && saved.localHash && saved.revision === revision && (await sha(before)) === saved.localHash) {
+          legacyCache[key] = { revision: revision, localRaw: before };
+          continue;
+        }
+      }
       if (hasRevision && cached && cached.revision === revision &&
           Array.isArray(localVal) && before === cached.localRaw) continue;
       var version = localVersions[key] || 0;
@@ -287,6 +337,7 @@
       else if (hasRevision && row.updatedAt === revision &&
           (localVersions[key] || 0) === version && (await recordStorage().getItem(key)) === mergedRaw) {
         legacyCache[key] = { revision: revision, localRaw: mergedRaw };
+        await rememberRevision(key, revision, mergedRaw);
       }
     }
     var localKeys = (await storageKeys());
@@ -294,6 +345,7 @@
       var k = localKeys[i];
       if (isSyncKey(k) && !cloud[nodeKey(k)]) { await legacyPushKey(k); pushedNew++; }
     }
+    (await flushRevMap());
     (await markSynced());
     if (touched) {
       try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { source: 'cloud', mode: 'legacy' } })); } catch (e) {}
