@@ -364,9 +364,9 @@
       .map(function (t) { return String(t || '').trim(); }).filter(Boolean);
     var replacementBody = replacementTimes.length
       ? replacementTimes.map(function (time, i) {
-        return '<tr><td class="c">' + (i + 1) + '회</td><td class="c">' + esc(time) + '</td></tr>';
+        return '<tr><td class="c">' + esc(time) + '</td></tr>';
       }).join('')
-      : '<tr><td class="c">1회</td><td style="height:14pt"></td></tr>';
+      : '<tr><td style="height:14pt"></td></tr>';
     var monBody = '<tr><td class="c strong">' + esc(state.preWorkTime || '') + '</td>' +
       '<td class="c strong">작업 시작 전 확인</td><td class="c"></td>' +
       '<td class="c">' + esc(state.preWorkPpm || '') + '</td><td></td><td></td><td></td>' +
@@ -385,21 +385,15 @@
         '<td class="c">' + (r.judge ? ox(r.judge) : '') + '</td>' +
         '<td class="c">' + esc(r.sign || (r.time ? writer : '')) + '</td></tr>'; }).join('');
 
-    var lotRows = (state.lotLog || [{
-      start: (state.rows && state.rows[0] && state.rows[0].time) || '',
-      end: (state.rows && state.rows[state.rows.length - 1] && state.rows[state.rows.length - 1].time) || '',
-      ok: state.hasDeviation ? '×' : '', qty: state.rawMaterialKg || state.processQty || '', note: state.remark || ''
-    }]).map(function (p) { return '<tr>' +
-      '<td class="c">' + esc(p.start) + '</td><td class="c">' + esc(p.end) + '</td>' +
-      '<td class="c">' + ox(p.ok) + '</td><td class="c">' + esc(p.qty) + '</td>' +
-      '<td class="l">' + esc(p.note) + '</td></tr>'; }).join('');
-
-    var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
+    // 입력 화면의 기본값 '-'(해당 없음)은 이탈 기재로 보지 않는다.
+    var devText = String(state.deviation || '').trim();
+    var corText = String(state.corrective || '').trim();
+    var hasDev = !!((devText && devText !== '-') || (corText && corText !== '-') || state.hasDeviation);
     var devBody = hasDev
       ? '<tr>' +
         '<td class="c">' + esc((state.rows && state.rows.find(function (r) { return r.judge === 'X'; }) || {}).time || '') + '</td>' +
-        '<td class="l">' + esc(state.deviation || '한계기준 이탈') + '</td>' +
-        '<td class="l">' + esc(state.corrective || '') + '</td>' +
+        '<td class="l">' + esc(devText && devText !== '-' ? devText : '한계기준 이탈') + '</td>' +
+        '<td class="l">' + esc(corText === '-' ? '' : corText) + '</td>' +
         '<td class="c"></td>' +
         '<td class="c">' + esc(writer) + '</td>' +
         '<td class="c">' + esc(state.confirmer || '') + '</td></tr>'
@@ -408,16 +402,13 @@
 
     var limitTable =
       '<table class="off-nest">' +
-      '<tr class="off-nest-hd"><th>구분</th><th>항목</th><th>한계기준</th><th>측정방법</th></tr>' +
-      '<tr><td class="c" rowspan="2">소독</td><td class="l">유효염소농도</td>' +
-      '<td class="c">' + esc(state.clMin || 50) + ' ~ ' + esc(state.clMax || 200) + ' ppm</td>' +
-      '<td class="c">시험지 측정</td></tr>' +
-      '<tr><td class="l">침지시간</td><td class="c">≥ ' + esc(state.timeMin || 60) + ' 초</td>' +
-      '<td class="c">타이머·관찰</td></tr>' +
-      '<tr><td class="c" rowspan="2">헹굼</td><td class="l">헹굼시간</td><td class="c">50 ~ 60 초</td>' +
-      '<td class="c">타이머·관찰</td></tr>' +
-      '<tr><td class="l">잔류염소농도</td><td class="c">4 ppm 미만</td>' +
-      '<td class="c">시험지 측정</td></tr>' +
+      '<colgroup><col style="width:20%"><col style="width:40%"><col style="width:40%"></colgroup>' +
+      '<tr class="off-nest-hd"><th>구분</th><th>항목</th><th>한계기준</th></tr>' +
+      '<tr><td class="c" rowspan="2">소독</td><td class="c">유효염소농도</td>' +
+      '<td class="c">' + esc(state.clMin || 50) + ' ~ ' + esc(state.clMax || 200) + ' ppm</td></tr>' +
+      '<tr><td class="c">침지시간</td><td class="c">≥ ' + esc(state.timeMin || 60) + ' 초</td></tr>' +
+      '<tr><td class="c" rowspan="2">헹굼</td><td class="c">헹굼시간</td><td class="c">50 ~ 60 초</td></tr>' +
+      '<tr><td class="c">잔류염소농도</td><td class="c">4 ppm 미만</td></tr>' +
       '</table>';
 
     var methodHtml =
@@ -473,8 +464,6 @@
       '<td class="l" colspan="3">작업시작 전, 작업 중 LOT별(또는 2시간), 품목 변경시, 작업종료 시, 소독액 교체 시</td></tr>' +
       '<tr><th class="lab">모니터링<br>방법</th>' +
       '<td class="l tiny" colspan="3">' + methodHtml + '</td></tr>' +
-      '<tr><th class="lab">원물 투입량</th><td class="l">' + esc(state.rawMaterialKg || '') + ' kg</td>' +
-      '<th class="lab">소독제</th><td class="l">' + esc(state.disinfectant || 'NaOCl') + '</td></tr>' +
       '</table>' +
 
       '<div class="off-sec">● 소독·헹굼공정(CCP-1BC) 모니터링 결과 ●</div>' +
@@ -489,19 +478,12 @@
 
       '<div class="off-sec">소독액·헹굼수 교체 시각</div>' +
       '<table class="off-grid off-change-times">' +
-      '<thead><tr><th style="width:28%">교체 회차</th><th style="width:72%">교체 시각</th></tr></thead>' +
+      '<thead><tr><th>교체 시각</th></tr></thead>' +
       '<tbody>' + replacementBody + '</tbody></table>' +
 
       '<table class="off-grid off-correct">' +
       '<tr><th class="lab vert">이탈시<br>개선조치<br>방법</th>' +
       '<td class="l tiny">' + correctiveHtml + '</td></tr></table>' +
-
-      '<div class="off-sec">소독·헹굼 처리 LOT별 이탈 여부</div>' +
-      '<table class="off-grid">' +
-      '<thead><tr>' +
-      '<th>최초 처리시간</th><th>종료시간</th>' +
-      '<th>이탈여부(○/×)</th><th>투입량(kg)</th><th>특이사항</th>' +
-      '</tr></thead><tbody>' + lotRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +
       '<table class="off-grid">' +

@@ -64,8 +64,9 @@
       timeMin: 20,
       monitorName: '',
       rows: [emptyRow(), emptyRow(), emptyRow()],
-      deviation: '',
-      corrective: '',
+      // 해당 없음은 '-' 로 미리 채워 둔다(이탈이 있을 때만 작업자가 고쳐 쓴다).
+      deviation: '-',
+      corrective: '-',
       confirmer: '',
       approver: '',
       remark: '',
@@ -504,7 +505,13 @@
     state.workDate = $('workDate').value;
     state.disinfectant = $('disinfectant').value;
     state.productName = Array.from(new Set((state.rows || []).map(function (r) { return (r.productName || '').trim(); }).filter(Boolean))).join(', ');
-    state.rawMaterialKg = $('rawMaterialKg') ? $('rawMaterialKg').value : (state.rawMaterialKg || '');
+    // 원물 투입량은 측정행별로만 입력한다. 총량은 행 합계로 계산해 다른 화면이 읽는 값을 유지한다.
+    var kgSum = 0, kgAny = false;
+    (state.rows || []).forEach(function (r) {
+      var n = parseFloat(r.rawMaterialKg);
+      if (!isNaN(n)) { kgSum += n; kgAny = true; }
+    });
+    state.rawMaterialKg = kgAny ? String(Math.round(kgSum * 100) / 100) : '';
     state.lot = $('lot').value.trim();
     state.clMin = Number($('clMin').value) || 0;
     state.clMax = Number($('clMax').value) || 0;
@@ -522,7 +529,6 @@
     $('workDate').value = state.workDate || today();
     $('disinfectant').value = state.disinfectant || 'NaOCl';
     $('lot').value = state.lot || dateToLot(state.workDate || today());
-    if ($('rawMaterialKg')) $('rawMaterialKg').value = state.rawMaterialKg || '';
     $('clMin').value = state.clMin;
     $('clMax').value = state.clMax;
     $('timeMin').value = state.timeMin;
@@ -562,7 +568,6 @@
     if (!state.workDate) return '작업일자를 입력하세요.';
     if (!(state.rows || []).some(function (r) { return (r.productName || '').trim(); })) return '모니터링 행에서 품목을 선택하세요.';
     if (!state.lot) return 'LOT를 입력하세요.';
-    if (state.rawMaterialKg && (!Number.isFinite(Number(state.rawMaterialKg)) || Number(state.rawMaterialKg) < 0 || Number(state.rawMaterialKg) >= 8)) return '원물 투입량은 0 이상 8kg 미만으로 입력하세요.';
     if (!state.monitorName) return '모니터링 담당자를 입력하세요.';
     var invalidRowQuantity = (state.rows || []).some(function (r) {
       var value = r.rawMaterialKg;
@@ -572,10 +577,10 @@
     var filled = state.rows.filter(function (r) { return r.ppm || r.soak || r.rinseSec || r.residualCl; });
     if (!filled.length && !state.preWorkPpm) return '모니터링 측정값을 1건 이상 입력하세요.';
     if (state.hasDeviation) {
-      if (!(state.deviation || '').trim() || state.deviation === '해당없음') {
+      if (!(state.deviation || '').trim() || /^(-|해당\s*없음)$/.test(state.deviation.trim())) {
         return '한계기준 이탈 시 이탈 내용을 기록하세요.';
       }
-      if (!(state.corrective || '').trim()) {
+      if (!(state.corrective || '').trim() || /^(-|해당\s*없음)$/.test(state.corrective.trim())) {
         return '이탈 시 시정조치를 기록하세요.';
       }
     }
@@ -689,7 +694,7 @@
 
   async function bind() {
     // 기본 필드 이벤트 바인딩
-    ['workDate', 'disinfectant', 'lot', 'rawMaterialKg', 'clMin', 'clMax', 'timeMin', 'monitorName', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
+    ['workDate', 'disinfectant', 'lot', 'clMin', 'clMax', 'timeMin', 'monitorName', 'deviation', 'corrective', 'confirmer', 'approver', 'remark'].forEach(function (id) {
       var el = $(id);
       if (!el) return;
       var onFieldInput = function () {
