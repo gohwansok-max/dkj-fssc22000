@@ -20,7 +20,7 @@
     var link = document.createElement('link');
     link.id = 'dkj-chatbot-css';
     link.rel = 'stylesheet';
-    link.href = getBaseHref() + 'css/dkj-chatbot.css?v=129';
+    link.href = getBaseHref() + 'css/dkj-chatbot.css?v=156';
     document.head.appendChild(link);
   }
 
@@ -289,6 +289,7 @@
     this.elMic = document.getElementById('dkjChatbotMic');
     this.elSpeechStatus = document.getElementById('dkjChatbotSpeechStatus');
     this.elClose = document.getElementById('dkjChatbotClose');
+    if (!this.isOpen) this.elPanel.setAttribute('inert', '');
   };
 
   ChatbotWidget.prototype.setupSpeechRecognition = function () {
@@ -439,6 +440,7 @@
     this.isOpen = true;
     this.elPanel.classList.add('is-open');
     this.elPanel.setAttribute('aria-hidden', 'false');
+    this.elPanel.removeAttribute('inert');
     this.saveState();
     this.scrollToBottom();
     setTimeout(function () {
@@ -451,6 +453,7 @@
     this.isOpen = false;
     this.elPanel.classList.remove('is-open');
     this.elPanel.setAttribute('aria-hidden', 'true');
+    this.elPanel.setAttribute('inert', '');
     this.saveState();
   };
 

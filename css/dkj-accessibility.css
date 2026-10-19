@@ -1,5 +1,5 @@
 /* 동김제농협 스마트 HACCP — 쉬운 사용·다국어 안내 공통 보조 도구 */
-.dkj-assist{position:fixed;left:18px;bottom:18px;z-index:2147481999;display:flex;align-items:center;gap:6px;padding:8px;border:2px solid #007a3d;border-radius:14px;background:#ffffff;box-shadow:0 8px 30px rgba(0,0,0,.25);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
+.dkj-assist{position:fixed;left:18px;bottom:calc(24px + var(--dkj-pwa-bar-h, 0px));z-index:2147481999;display:flex;align-items:center;gap:6px;padding:8px;border:2px solid #007a3d;border-radius:14px;background:#ffffff;box-shadow:0 8px 30px rgba(0,0,0,.25);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
 .dkj-assist button{min-width:44px;min-height:44px;padding:0 12px;border:1.5px solid #86b9a3;border-radius:10px;background:#f4fbf7;color:#075c34;font:800 13.5px/1 inherit;cursor:pointer}
 .dkj-assist button:hover,.dkj-assist button:focus-visible{outline:none;border-color:#007a3d;background:#e1f5e9;box-shadow:0 0 0 3px rgba(0,154,68,.25)}
 .dkj-assist .dkj-assist-tablet{min-width:68px;color:#005b35;border-color:#86b9a3;background:#eef9f2}

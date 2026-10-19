@@ -150,7 +150,7 @@
     if (!el) {
       el = document.createElement('div');
       el.id = 'dkj-cloud-status';
-      el.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:2147483647;padding:7px 12px;' +
+      el.style.cssText = 'position:fixed;left:18px;bottom:calc(96px + var(--dkj-pwa-bar-h, 0px));z-index:2147483647;padding:7px 12px;' +
         'border-radius:18px;color:#fff;font:600 12px "Noto Sans KR",sans-serif;box-shadow:0 2px 10px #0004';
       document.body.appendChild(el);
     }

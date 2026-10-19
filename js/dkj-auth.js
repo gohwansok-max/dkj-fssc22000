@@ -613,6 +613,7 @@
       '.dkj-auth-bar button{border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;color:#475569}@media print{.dkj-auth-bar,.dkj-auth-mask,.dkj-auth-weak{display:none!important}}',
       '.dkj-auth-weak{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;font-size:13px;line-height:1.6;color:#7c2d12;background:#fff7ed;border-bottom:2px solid #fb923c}',
       '.dkj-auth-weak b{color:#9a3412}.dkj-auth-weak a{color:#9a3412;font-weight:700}',
+      'html.dkj-auth-locked,html.dkj-auth-locked body{height:100%;overflow:hidden}html.dkj-auth-locked body>*:not(.dkj-auth-mask):not(#dkjChatbotContainer){visibility:hidden!important}',
       '.dkj-auth-weak button{flex:none;border:1px solid #fdba74;background:#fff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer;color:#9a3412}'
     ].join('');
     document.head.appendChild(s);
@@ -625,6 +626,8 @@
     mask.className = 'dkj-auth-mask';
     mask.innerHTML = '<form class="dkj-auth-card"><h1>동김제농협 스마트 HACCP</h1><p>업무 콘솔을 이용하려면 로그인이 필요합니다.<br>사번과 비밀번호를 입력하세요.</p><label for="dkjEmpId">사번</label><input id="dkjEmpId" inputmode="numeric" autocomplete="username" required><label for="dkjPw">비밀번호</label><input id="dkjPw" type="password" autocomplete="current-password" required><button type="submit">로그인</button><p class="dkj-auth-err">' + (reason || '') + '</p></form>';
     document.body.appendChild(mask);
+    // 로그인 전에는 뒤쪽 화면을 숨기고 문서 높이를 화면에 고정한다(보이지 않는 스크롤·포커스 방지).
+    document.documentElement.classList.add('dkj-auth-locked');
     var form = mask.querySelector('form'), err = mask.querySelector('.dkj-auth-err'), btn = mask.querySelector('button');
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -632,7 +635,7 @@
       if (!id || !pw) return;
       btn.disabled = true; err.textContent = '';
       login(id, pw).then(function () {
-        mask.remove(); renderBar(); emitReady();
+        mask.remove(); document.documentElement.classList.remove('dkj-auth-locked'); renderBar(); emitReady();
       }).catch(function (ex) {
         btn.disabled = false;
         var code = String((ex && (ex.code || ex.message)) || 'UNKNOWN_ERROR');
