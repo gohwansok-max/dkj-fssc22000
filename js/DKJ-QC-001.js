@@ -465,6 +465,8 @@
         chlorinePaper: null,
         lotPrint: null
       },
+      // 최근기록 복사로 따라온 사진이면 true — 화면에 '전일' 배지(화면 전용). 사진을 바꾸거나 지우면 해제.
+      photosCarried: {},
       remarkPreset: '특이사항 없음 / 정상 가동',
       deviationNotes: '',
       confirmer: '',
@@ -720,6 +722,7 @@
           photoColHtml = '<div class="qc-photo-box">' +
             '<div class="qc-photo-preview-wrap">' +
               '<img src="' + curPhoto + '" class="qc-photo-thumb" alt="미리보기" onclick="window.open(this.src)" title="클릭하여 원본보기">' +
+              (state.photosCarried && state.photosCarried[it.photoKey] ? '<span class="dkj-photo-carried" title="최근기록 복사로 가져온 이전 사진입니다. 오늘 촬영본으로 바꾸세요.">전일</span>' : '') +
               '<button type="button" class="qc-photo-del" data-del-photo="' + it.photoKey + '" title="사진 삭제">✕</button>' +
             '</div>' +
           '</div>';
@@ -823,6 +826,7 @@
           handleImageUpload(file, function (dataUrl) {
             state.photos = state.photos || {};
             state.photos[pKey] = dataUrl;
+            if (state.photosCarried) state.photosCarried[pKey] = false;
             renderMainCheckTable();
             renderPhotoSection();
             scheduleDraft();
@@ -841,6 +845,7 @@
         var pKey = btn.getAttribute('data-del-photo');
         if (state.photos && state.photos[pKey]) {
           state.photos[pKey] = null;
+          if (state.photosCarried) state.photosCarried[pKey] = false;
           renderMainCheckTable();
           renderPhotoSection();
           scheduleDraft();
@@ -881,6 +886,7 @@
         if (photo) {
           bodyEl.innerHTML = '<div class="qc-photo-preview-box">' +
             '<img src="' + photo + '" class="qc-photo-img-large" alt="' + cfg.title + ' 실물" onclick="window.open(this.src)" title="클릭하여 원본보기">' +
+            (state.photosCarried && state.photosCarried[cfg.key] ? '<div><span class="dkj-photo-carried">전일 사진 — 오늘 촬영본으로 바꾸세요</span></div>' : '') +
             '<div class="qc-photo-actions">' +
               '<label class="pill-btn ghost sm" style="position:relative;cursor:pointer;">📷 사진 변경' +
                 '<input type="file" accept="image/*" capture="environment" data-sec-photo="' + cfg.key + '" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;">' +
@@ -909,6 +915,7 @@
           handleImageUpload(file, function (dataUrl) {
             state.photos = state.photos || {};
             state.photos[pKey] = dataUrl;
+            if (state.photosCarried) state.photosCarried[pKey] = false;
             renderMainCheckTable();
             renderPhotoSection();
             scheduleDraft();
@@ -926,6 +933,7 @@
         var pKey = btn.getAttribute('data-sec-del');
         if (state.photos && state.photos[pKey]) {
           state.photos[pKey] = null;
+          if (state.photosCarried) state.photosCarried[pKey] = false;
           renderMainCheckTable();
           renderPhotoSection();
           scheduleDraft();
@@ -1444,6 +1452,77 @@
       '</div>';
   }
 
+  /** 연동으로 채워지는 칸 — 최근기록 복사에서는 가져오지 않고 오늘 값으로 다시 채운다. */
+  function linkedCheckKeys() {
+    return Object.keys(TEMP_LINK).concat(['c09', 'c10', 'c11', 'c18', 'c19', 'c20', 'c21']);
+  }
+
+  /** 가장 최근 저장된 일보에서 '직접 입력하는 점검 내용'만 오늘 새 일보로 복사한다.
+   *  - 일자·LOT 는 오늘, 작성자·검토·승인은 지금 화면 값 유지, 결재·서명·감사이력은 초기화
+   *  - 연동 칸(온도·CCP-1BC·CCP-2P)은 어제 값이 오늘 값처럼 남으면 안 되므로 비우고 오늘 연동 값으로 채움
+   *  - 수량(투입·사용·생산·출고)과 이탈 내용은 그날의 사실이라 비움
+   *  - 사진은 복사하되 '전일' 배지를 붙임(오늘 촬영본으로 교체 유도) */
+  // 사용자가 직접 손댄 적이 있는지 — 화면을 처음 연 상태(기본값)에서는 복사 확인창을 띄우지 않는다.
+  var userTouched = false;
+  document.addEventListener('input', function () { userTouched = true; }, true);
+  document.addEventListener('change', function () { userTouched = true; }, true);
+
+  async function clonePrev() {
+    var list = ((await DkjRecordStore.list(FORM_ID)) || []).filter(function (r) { return r && !r.deleted; });
+    if (!list.length) { alert('복사할 이전 저장 기록이 없습니다.'); return; }
+    readForm();
+    // 저장하지 않은 새 입력이 있으면 덮어쓰기 전에 확인한다.
+    if (!editingId && userTouched &&
+        !confirm('최근 기록을 복사하면 지금 입력 중인 내용은 사라집니다. 계속할까요?')) return;
+    var latest = list[0];
+    var fresh = emptyState();
+    var linked = linkedCheckKeys();
+    if (latest.roundTimes) fresh.roundTimes = Object.assign({}, fresh.roundTimes, latest.roundTimes);
+    if (Array.isArray(latest.selectedCodes) && latest.selectedCodes.length) fresh.selectedCodes = latest.selectedCodes.slice();
+    if (Array.isArray(latest.materials) && latest.materials.length) {
+      fresh.materials = latest.materials.map(function (m) {
+        return { name: m.name, ratio: m.ratio, supplier: m.supplier, inKg: '', usedKg: '', wasteKg: '', yieldRate: '' };
+      });
+    }
+    if (Array.isArray(latest.finishedItems) && latest.finishedItems.length) {
+      fresh.finishedItems = latest.finishedItems.map(function (f) {
+        return { code: f.code, name: f.name, spec: f.spec, madeKg: '', madeBag: '', shippedKg: '', stockKg: '', first20: f.first20 || 'O' };
+      });
+    }
+    ['r1', 'r2', 'r3'].forEach(function (rk) {
+      Object.keys(fresh.checks[rk]).forEach(function (ck) {
+        if (linked.indexOf(ck) !== -1) { fresh.checks[rk][ck] = ''; return; }
+        var v = latest.checks && latest.checks[rk] && latest.checks[rk][ck];
+        if (v !== undefined && v !== null) fresh.checks[rk][ck] = v;
+      });
+    });
+    if (latest.remarkPreset) fresh.remarkPreset = latest.remarkPreset;
+    ['chlorinePaper', 'lotPrint'].forEach(function (pk) {
+      var p = latest.photos && latest.photos[pk];
+      if (typeof p === 'string' && p.indexOf('data:image/') === 0) {
+        fresh.photos[pk] = p;
+        fresh.photosCarried[pk] = true;
+      }
+    });
+    fresh.inspector = state.inspector || '';
+    fresh.confirmer = state.confirmer || '';
+    fresh.approver = state.approver || '';
+    fresh.approvals = { writer: fresh.inspector, reviewer: fresh.confirmer, approver: fresh.approver };
+    editingId = null;
+    state = fresh;
+    userTouched = false;
+    writeForm();
+    renderLinkNotice((await applyAllLinks(true)));   // 연동 칸은 오늘 값으로
+    renderMainCheckTable();
+    checkDeviations();
+    scheduleDraft();
+    setStatus('최근 기록 복사 — 연동 칸은 오늘 값, 수량 칸은 비움', false);
+    if (window.DkjUtil && window.DkjUtil.toast) {
+      window.DkjUtil.toast('📋 최근 기록을 불러왔습니다 (일자: 오늘, 연동 칸은 오늘 값으로, 수량 칸은 비움' +
+        (fresh.photosCarried.chlorinePaper || fresh.photosCarried.lotPrint ? ', 사진은 \'전일\' 표시 — 오늘 촬영본으로 교체' : '') + ').');
+    }
+  }
+
   function bind() {
     if ($('workDate')) {
       $('workDate').addEventListener('change', async function () {
@@ -1589,6 +1668,13 @@
         state = emptyState();
         writeForm();
         setStatus('새 일보', false);
+      });
+    }
+
+    if ($('btnClonePrev')) {
+      $('btnClonePrev').addEventListener('click', async function () {
+        if (state.locked) { setStatus('작성완료된 기록은 고칠 수 없습니다. [새 일보]를 누른 뒤 복사하세요.', false); return; }
+        (await clonePrev());
       });
     }
 
