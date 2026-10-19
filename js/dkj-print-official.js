@@ -203,10 +203,11 @@
         '<td class="c">' + esc(p.start || '') + '</td>' +
         '<td class="c">' + esc(p.end || '') + '</td>' +
         '<td class="c">' + (p.ok === '×' ? '부적합' : '적합') + '</td>' +
-        '<td class="c">' + (p.qty ? esc(p.qty) + ' kg' : '') + '</td>' +
         '<td class="c">' + esc(p.packDate || '') + '</td>' +
+        '<td class="c">' + esc(p.qty || '') + '</td>' +
         '<td class="c">' + (p.packUsage ? esc(p.packUsage) + ' EA' : '') + '</td>' +
-        '<td class="l">' + esc(p.note || '') + '</td></tr>';
+        // 특이사항에 숫자만 적으면 부적합 수량이므로 단위 ea 를 붙인다(문장은 그대로).
+        '<td class="l">' + (/^\d+(\.\d+)?$/.test(String(p.note || '').trim()) ? esc(String(p.note).trim()) + ' ea' : esc(p.note || '')) + '</td></tr>';
     }).join('');
 
     var hasDev = !!(state.deviation || state.corrective || state.hasDeviation);
@@ -328,7 +329,7 @@
       '<table class="off-grid">' +
       '<thead><tr>' +
       '<th style="width:19%">제품명</th><th style="width:9%">작업시작시간</th><th style="width:9%">작업종료시간</th><th style="width:8%">이탈여부</th>' +
-      '<th style="width:9%">통과량</th><th style="width:14%">포장재 입고일</th><th style="width:11%">포장재 사용량</th><th style="width:21%">특이사항</th>' +
+      '<th style="width:14%">포장재 입고일</th><th style="width:9%">통과량</th><th style="width:11%">포장재 사용량</th><th style="width:21%">특이사항</th>' +
       '</tr></thead><tbody>' + passRows + '</tbody></table>' +
 
       '<div class="off-sec">한계기준 이탈 발생 내역 및 개선 조치 사항</div>' +
