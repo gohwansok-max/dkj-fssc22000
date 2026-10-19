@@ -746,7 +746,7 @@
       var err = validate();
       if (err) { alert(err); return; }
       var missingTime = rowsMissingTime();
-      if (missingTime.length && window.DkjUtil && !DkjUtil.confirmMissingTime(missingTime.map(function (m) { return m.label; }), lock)) {
+      if (missingTime.length && window.DkjUtil && (lock ? DkjUtil.blockMissingTime(missingTime.map(function (m) { return m.label; })) : !DkjUtil.confirmMissingTime(missingTime.map(function (m) { return m.label; }), false))) {
         var firstEl = document.querySelector('#monBody tr[data-i="' + missingTime[0].idx + '"] [data-f="time"]');
         missingTime.forEach(function (m) {
           var el = document.querySelector('#monBody tr[data-i="' + m.idx + '"] [data-f="time"]');
