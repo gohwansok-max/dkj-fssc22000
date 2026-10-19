@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
 (async()=>{const browser=await chromium.launch({channel:'msedge',headless:true}),context=await browser.newContext({serviceWorkers:'block'});
 await context.route('**/*',route=>{const u=route.request().url();if(u.includes('/js/dkj-firebase-config.js'))return route.fulfill({contentType:'application/javascript',body:'window.DKJ_FIREBASE = {};'});return u.startsWith('http://127.0.0.1:5500/')?route.continue():route.abort();});
-const page=await context.newPage(),errors=[],dialogs=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',async d=>{dialogs.push(d.message());await d.accept();});
+const page=await context.newPage(),errors=[],dialogs=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',async d=>{dialogs.push(d.message());await d.accept(d.type()==='prompt'?'삭제':undefined);});
 for(const form of ['DKJ-H-01-01','DKJ-H-01-02','DKJ-F-053','DKJ-QC-001','DKJ-S-02-01','DKJ-S-02-02','DKJ-S-02-09','DKJ-S-02-12','DKJ-S-02-32','FR-014']){
  dialogs.length=0;await page.goto('http://127.0.0.1:5500/records/'+form+'.html');await page.evaluate(()=>DkjStorage.ready());await page.waitForTimeout(160);
  await page.evaluate(()=>{document.querySelectorAll('input:not([type=file]):not([type=hidden]),textarea,select').forEach(el=>{

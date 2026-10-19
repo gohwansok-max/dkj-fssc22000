@@ -167,6 +167,14 @@
     if (!dl && !rs) return;
     var sel = pick(dl || rs);
     if (!sel.g || !sel.c) return;
+    // 복원은 관리자 이상만 한다(작업자는 조회와 JSON 받기만 가능). 로그인 정보가 없으면 제한하지 않는다.
+    if (rs) {
+      var me = global.DkjAuth && typeof global.DkjAuth.user === 'function' ? global.DkjAuth.user() : null;
+      if (me && ['system_admin', 'responsible', 'manager'].indexOf(me.role) < 0) {
+        global.alert('기록 복원은 관리자 이상만 할 수 있습니다. 관리자에게 요청하세요.');
+        return;
+      }
+    }
     if (dl) {
       download('복구사본_' + sel.g.formId + '_' + sel.g.id + '.json', JSON.stringify(sel.c.rec, null, 2));
       return;

@@ -208,7 +208,7 @@
       var picked = view.filter(function (r) { return selected[r.id]; });
       if (!picked.length) { alert('삭제할 기록을 먼저 선택하세요.'); return; }
       if (!confirm(picked.length + '건을 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.\n계속할까요?')) return;
-      (await DkjAsync.forEach(picked, async function (r) { (await window.DkjRecordStore.remove(r.formId, r.id)); }));
+      (await DkjAsync.forEach(picked, async function (r) { (await window.DkjRecordStore.remove(r.formId, r.id, { confirmed: true })); }));
       selected = {};
       (await load());
     });

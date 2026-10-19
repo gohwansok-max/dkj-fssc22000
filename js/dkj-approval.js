@@ -222,22 +222,67 @@
   }
 
   /* ---------- 삭제 차단 ----------
-     작성완료(잠금)된 기록은 지울 수 없어야 한다 — 지금까지는 각 서식의 '최근 기록'
-     삭제 버튼이 잠금 여부를 보지 않고 DkjRecordStore.remove 를 그대로 불렀다.
-     모든 서식이 이 store 하나를 거치므로, 저장 훅과 같은 방식으로 여기 한 곳만 막는다. */
+     모든 서식이 이 store 하나를 거치므로 삭제 안전장치는 여기 한 곳에 둔다.
+     1) 작성완료(잠금)된 기록은 지울 수 없다.
+     2) 권한 — 시스템 관리자·책임자·관리자는 삭제할 수 있고, 작업자는 본인이 24시간 안에
+        작성한 기록(오입력 정정)만 지울 수 있다.
+     3) 확인 — 지울 기록의 서식·제목·일자·마지막 수정을 보여 주고 '삭제' 를 직접 입력해야 한다.
+        기록보관함의 선택 삭제처럼 이미 자체 확인을 거친 호출은 opts.confirmed 로 건너뛴다.
+     삭제한 기록은 휴지통(data-recovery.html)에서 관리자가 30일 안에 되살릴 수 있다.
+     (2026-10-19: 월간·주간 정식 기록이 삭제 한 번으로 사라진 사고의 재발 방지) */
+  var DELETE_ROLES = { system_admin: 1, responsible: 1, manager: 1 };
+  var WORKER_DELETE_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+  function deleteLabel(rec) {
+    return [rec.workDate || rec.docDate || rec.checkDate || '', rec.title || rec.productName || ''].filter(Boolean).join(' · ') || rec.id;
+  }
+  function deleteDetail(formId, rec) {
+    var when = '';
+    try {
+      when = new Date(rec.updatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
+    } catch (e) { when = rec.updatedAt || ''; }
+    var who = rec.updatedBy || rec.createdBy || '';
+    var rows = Array.isArray(rec.rows) ? rec.rows.length : null;
+    return '다음 기록을 삭제합니다.\n\n' +
+      '서식: ' + formId + '\n기록: ' + deleteLabel(rec) + '\n' +
+      '마지막 수정: ' + (who ? who + ' · ' : '') + when + '\n' +
+      (rows !== null ? '입력 행: ' + rows + '개\n' : '') +
+      '\n삭제하면 목록에서 사라지고, 관리자만 휴지통에서 30일 안에 되살릴 수 있습니다.\n' +
+      '계속하려면 아래에 "삭제"를 입력하세요.';
+  }
+
   function installRemoveGuard() {
     if (!global.DkjRecordStore || global.DkjRecordStore.__removeGuarded) return;
     var orig = global.DkjRecordStore.remove;
-    var removeHook = function (formId, id) {
+    var removeHook = function (formId, id, opts) {
       var rec = this.get(formId, id);
       if (rec && rec.locked) {
         try { global.alert('작성완료(잠금)된 기록은 삭제할 수 없습니다.'); } catch (e) { /* alert 불가 환경 무시 */ }
         return false;
       }
+      if (rec) {
+        var u = me();
+        if (u && !DELETE_ROLES[u.role]) {
+          var age = Date.now() - Date.parse(rec.createdAt || 0);
+          var own = !!rec.createdByEmpId && rec.createdByEmpId === u.empId && age >= 0 && age <= WORKER_DELETE_WINDOW_MS;
+          if (!own) {
+            try { global.alert('작업자는 본인이 24시간 안에 작성한 기록만 삭제할 수 있습니다.\n이 기록의 삭제가 필요하면 관리자에게 요청하세요.'); } catch (e) { /* alert 불가 환경 무시 */ }
+            return false;
+          }
+        }
+        if (!(opts && opts.confirmed) && typeof global.prompt === 'function') {
+          var typed = global.prompt(deleteDetail(formId, rec), '');
+          if (typed === null) return false;
+          if (String(typed).trim() !== '삭제') {
+            try { global.alert('입력이 "삭제"와 달라 삭제하지 않았습니다.'); } catch (e) { /* alert 불가 환경 무시 */ }
+            return false;
+          }
+        }
+      }
       return orig.call(this, formId, id);
     };
-    global.DkjRecordStore.remove = global.DkjStorage ? function (formId, id) {
-      return global.DkjRecordStore.mutate(formId, function (core) { return removeHook.call(core, formId, id); });
+    global.DkjRecordStore.remove = global.DkjStorage ? function (formId, id, opts) {
+      return global.DkjRecordStore.mutate(formId, function (core) { return removeHook.call(core, formId, id, opts); });
     } : removeHook;
     global.DkjRecordStore.__removeGuarded = true;
   }

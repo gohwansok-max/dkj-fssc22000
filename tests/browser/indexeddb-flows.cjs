@@ -13,7 +13,7 @@ const fs=require('fs'), assert=require('node:assert/strict');
   console.log('PAGE',file,await page.locator('#dkj-storage-status').innerText());
  }
  await page.goto('http://127.0.0.1:5500/records/FR-001.html');await page.evaluate(()=>DkjStorage.ready());await page.waitForTimeout(100);
- const dialogs=[];page.on('dialog',async d=>{dialogs.push(d.message());await d.accept();});
+ const dialogs=[];page.on('dialog',async d=>{dialogs.push(d.message());await d.accept(d.type()==='prompt'?'삭제':undefined);});
  // 화면 입력·저장 경로를 실제 클릭으로 확인한다.
  await page.evaluate(()=>{
   document.querySelectorAll('input:not([type=file]):not([type=hidden]),textarea,select').forEach(el=>{
