@@ -23,14 +23,23 @@
     };
   }
 
+  /** 결재칸 — 서명 그림이 있으면 그림(+이름), 없으면 이름만. js/dkj-signature.js 가 없으면 이름만. */
+  function sigCell(rec, name) {
+    if (global.DkjSignature && rec && rec.at && global.DkjSignature.isValid(rec.signature)) {
+      return global.DkjSignature.cellHtml(rec, name || rec.name || '');
+    }
+    return esc(name || '');
+  }
+
+  /** writer·reviewer·approver 는 이미 이스케이프된 HTML(이름 또는 서명 그림). */
   function signBox(writer, reviewer, approver) {
     return (
       '<table class="off-apv">' +
       '<tr><th class="off-apv-lab" rowspan="2">결<br>재</th>' +
       '<th>작성</th><th>검토</th><th>승인</th></tr>' +
-      '<tr><td class="off-sign">' + esc(writer || '') + '</td>' +
-      '<td class="off-sign">' + esc(reviewer || '') + '</td>' +
-      '<td class="off-sign">' + esc(approver || '') + '</td></tr>' +
+      '<tr><td class="off-sign">' + (writer || '') + '</td>' +
+      '<td class="off-sign">' + (reviewer || '') + '</td>' +
+      '<td class="off-sign">' + (approver || '') + '</td></tr>' +
       '</table>'
     );
   }
@@ -43,12 +52,14 @@
     var headerApprover = opt.approver || '';
     // signoff 객체가 넘어오면(전자결재를 쓰는 서식) 최종 승인 전에는 이름을 찍지 않는다.
     // 예전엔 CCP-1BC 만 이 규칙을 따라, 승인 전 정본에도 검토·승인 예정자 이름이 서명처럼 찍혔다.
+    var writerHtml = esc(headerWriter), reviewerHtml = esc(headerReviewer), approverHtml = esc(headerApprover);
     if (opt.requireFinalApprovalForNames || (opt.signoff && typeof opt.signoff === 'object')) {
       var signoff = opt.signoff || {};
       var finalApproved = !!(signoff.approver && signoff.approver.at);
-      headerWriter = finalApproved && signoff.writer && signoff.writer.at ? (signoff.writer.name || '') : '';
-      headerReviewer = finalApproved && signoff.reviewer && signoff.reviewer.at ? (signoff.reviewer.name || '') : '';
-      headerApprover = finalApproved && signoff.approver && signoff.approver.at ? (signoff.approver.name || '') : '';
+      // 이름·손서명 모두 최종 승인 뒤에만 찍는다(승인 전 서명처럼 보이는 것을 막는다).
+      writerHtml = finalApproved && signoff.writer && signoff.writer.at ? sigCell(signoff.writer, signoff.writer.name || '') : '';
+      reviewerHtml = finalApproved && signoff.reviewer && signoff.reviewer.at ? sigCell(signoff.reviewer, signoff.reviewer.name || '') : '';
+      approverHtml = finalApproved && signoff.approver && signoff.approver.at ? sigCell(signoff.approver, signoff.approver.name || '') : '';
     }
     return (
       '<table class="off-head">' +
@@ -64,7 +75,7 @@
       '<div class="off-title">' + esc(opt.title) + '</div>' +
       '<div class="off-sub">' + esc(opt.subtitle) + '</div>' +
       '</td>' +
-      '<td class="off-apv-wrap">' + signBox(headerWriter, headerReviewer, headerApprover) + '</td>' +
+      '<td class="off-apv-wrap">' + signBox(writerHtml, reviewerHtml, approverHtml) + '</td>' +
       '</tr></table>'
     );
   }

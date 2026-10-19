@@ -27,6 +27,14 @@
     return el;
   }
 
+  /** 결재칸 — 서명 그림이 있으면 그림(+이름), 없으면 이름만. js/dkj-signature.js 가 없으면 이름만. */
+  function sigCell(rec, name) {
+    if (global.DkjSignature && rec && rec.at && global.DkjSignature.isValid(rec.signature)) {
+      return global.DkjSignature.cellHtml(rec, name || rec.name || '');
+    }
+    return esc(name || '');
+  }
+
   function headerHtml(t, state) {
     var org = t.orgName || '동김제농협 산지유통센터';
     var docNo = t.docNo || '';
@@ -51,9 +59,9 @@
       '<th class="ps-apv">작성</th><th class="ps-apv">검토</th><th class="ps-apv">승인</th>' +
       '</tr>' +
       '<tr>' +
-      '<td class="ps-sign">' + esc(writer) + '</td>' +
-      '<td class="ps-sign">' + esc(reviewer) + '</td>' +
-      '<td class="ps-sign">' + esc(approver) + '</td>' +
+      '<td class="ps-sign">' + sigCell((state.signoff || {}).writer, writer) + '</td>' +
+      '<td class="ps-sign">' + sigCell((state.signoff || {}).reviewer, reviewer) + '</td>' +
+      '<td class="ps-sign">' + sigCell((state.signoff || {}).approver, approver) + '</td>' +
       '</tr>' +
       '</table>' +
       '<table class="ps-rev">' +
