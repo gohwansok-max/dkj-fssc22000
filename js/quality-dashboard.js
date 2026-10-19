@@ -195,7 +195,7 @@
   async function render() {
     (await data()); var m = metrics(); renderBars(m); (await renderSources()); renderAlerts(m); renderLiveAlerts(m); history();
     var total = state.filtered.length, synced = window.DkjCloudSync && DkjCloudSync.enabled && DkjCloudSync.enabled();
-    setText('dataInfo', '전자기록 ' + total + '건 집계 · ' + (synced ? '클라우드 동기화 사용' : '현재 기기 저장 기록 기준') + ' · ' + new Date().toLocaleString('ko-KR') + ' 갱신');
+    setText('dataInfo', '전자기록 ' + total + '건 집계 · ' + '이 기기 기록 집계 (동기화 상태는 하단 참고)' + ' · ' + new Date().toLocaleString('ko-KR') + ' 갱신');
     state.initialized = true;
   }
   async function requestPermission() {

@@ -36,7 +36,7 @@
     var x=(await allData()),critical=x.capaOverdue.length+x.p.overdue.length+x.p.missing.length,soon=x.p.soon.length+x.p.today.length;
     $('exCritical').textContent=critical;$('exSoon').textContent=soon;$('exOpenCapa').textContent=x.open.length;$('exLocked').textContent=x.locked;$('exTraceDone').textContent=x.traceDone;
     var total=x.all.length,synced=!!(window.DkjCloudSync&&DkjCloudSync.enabled&&DkjCloudSync.enabled());
-    $('exDataInfo').textContent='전자기록 '+total+'건 · '+(synced?'클라우드 동기화':'현재 기기 기록')+' · '+new Date().toLocaleString('ko-KR')+' 갱신';
+    $('exDataInfo').textContent='전자기록 '+total+'건 · '+'이 기기 기록 집계 (동기화 상태는 하단 참고)'+' · '+new Date().toLocaleString('ko-KR')+' 갱신';
     var summary=$('exSummary');summary.innerHTML='';
     addSummary(summary,critical?'danger':'',1,'품질 위험',critical?'즉시 확인 '+critical+'건: CAPA 기한초과·정기관리 예정일 미등록을 먼저 확인하세요.':'현재 기록에서 기한초과 CAPA와 예정일 미등록 정기관리 항목이 없습니다.','quality-dashboard.html');
     addSummary(summary,soon?'warn':'',2,'정기 관리',soon?'오늘·7일 이내 예정 '+soon+'건입니다. 담당자와 실시·완료 기록을 확인하세요.':'오늘·7일 이내 정기 관리 경보가 없습니다.','periodic-alerts.html');

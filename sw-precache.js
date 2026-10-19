@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-79921b856d13';
+self.DKJ_SW_VERSION = 'v1-f24db57c3e5a';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -269,7 +269,6 @@ self.DKJ_PRECACHE = [
   './js/dkj-export.js',
   './js/dkj-firebase-config.js',
   './js/dkj-fr-form.js',
-  './js/dkj-i18n.js',
   './js/dkj-ledger-form.js',
   './js/dkj-ledger-print.js',
   './js/dkj-links.js',

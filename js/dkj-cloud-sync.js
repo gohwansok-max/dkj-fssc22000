@@ -67,6 +67,44 @@
   function localChanged(key) {
     localVersions[key] = (localVersions[key] || 0) + 1;
     delete legacyCache[key];
+    pendingKeys[key] = localVersions[key];
+    notifyStatus();
+  }
+
+  // 화면 안내용 메모리 상태. 기록·동기화 저장 형식은 변경하지 않는다.
+  var syncStatus = 'waiting', pendingKeys = Object.create(null), activeSyncs = 0;
+  function notifyStatus() {
+    try { global.dispatchEvent(new CustomEvent('dkj:sync-status')); } catch (e) {}
+  }
+  function observeSync(work, key) {
+    var versions = Object.assign({}, localVersions);
+    activeSyncs++;
+    notifyStatus();
+    return Promise.resolve(work).then(function (value) {
+      if (key) {
+        if (pendingKeys[key] === versions[key]) delete pendingKeys[key];
+      } else {
+        Object.keys(pendingKeys).forEach(function (k) {
+          if (pendingKeys[k] === versions[k]) delete pendingKeys[k];
+        });
+      }
+      syncStatus = 'success';
+      return value;
+    }, function (error) { syncStatus = 'error'; throw error; }).finally(function () {
+      activeSyncs--; notifyStatus();
+    });
+  }
+  async function describeStatus() {
+    var last = null;
+    try { last = await recordStorage().getItem(LAST_SYNC_KEY); } catch (e) {}
+    var label = !ready() ? '클라우드 동기화 사용 안 함 (설정·로그인 확인)' :
+      ((global.navigator && global.navigator.onLine === false) ? '오프라인 · 동기화 대기' :
+      (activeSyncs ? '클라우드 동기화 진행 중' :
+      (syncStatus === 'error' ? '클라우드 동기화 실패 · 재시도 필요' :
+      (Object.keys(pendingKeys).length ? '변경 기록 동기화 대기' :
+      (syncStatus === 'success' ? '클라우드 동기화 성공' : '클라우드 동기화 확인 대기')))));
+    return label + ' · 마지막 전체 동기화 성공: ' +
+      (last ? new Date(last).toLocaleString('ko-KR', {timeZone:'Asia/Seoul'}) : '확인 이력 없음');
   }
 
   function auth() { return global.DkjAuth; }
@@ -350,7 +388,7 @@
     if (touched) {
       try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { source: 'cloud', mode: 'legacy' } })); } catch (e) {}
     }
-    if (!silent) toast('☁️ 기존 동기화 완료 · 보안 전환 준비 중');
+    if (!silent) toast('☁️ 클라우드 동기화 성공');
     if (touched && !sessionStorage.getItem('dkj_cloud_reloaded')) {
       sessionStorage.setItem('dkj_cloud_reloaded', '1');
       setTimeout(function () { location.reload(); }, 700);
@@ -553,11 +591,11 @@
   function syncAll(silent) {
     if (!ready() || (silent && !visible())) return Promise.resolve();
     if (syncFlight) return syncFlight;
-    syncFlight = exclusive(async function () {
+    syncFlight = observeSync(exclusive(async function () {
       if (!ready() || (silent && !visible())) return;
       var mode = await readSchemaMode();
       return mode === 'v2' ? v2SyncAll(silent) : legacySyncAll(silent);
-    });
+    }));
     var flight = syncFlight;
     flight.then(function () { if (syncFlight === flight) syncFlight = null; },
       function () { if (syncFlight === flight) syncFlight = null; });
@@ -565,12 +603,12 @@
   }
 
   function syncKey(key) {
-    return exclusive(async function () {
+    return observeSync(exclusive(async function () {
       if (!ready() || !isSyncKey(key)) return;
       var mode = await readSchemaMode();
       if (mode === 'legacy') return legacyPushKey(key);
       return v2SyncForm(formIdOf(key));
-    });
+    }), key);
   }
 
   function queue(key) {
@@ -662,6 +700,7 @@
   global.DkjCloudSync = {
     start: start,
     ready: ready,
+    describeStatus: describeStatus,
     sync: function () { return syncAll(false); },
     lastSync: async function () { try { return (await recordStorage().getItem(LAST_SYNC_KEY)); } catch (e) { return null; } },
     isSyncKey: isSyncKey,

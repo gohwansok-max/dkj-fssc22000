@@ -145,3 +145,4 @@
   .arc-table th { color: #000; background: #eee; }
   .arc-table th, .arc-table td { border-bottom: 1px solid #999; white-space: normal; }
 }
+#arcSyncPill { white-space: normal; max-width: 100%; line-height: 1.6; text-align: left; }

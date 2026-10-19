@@ -57,7 +57,6 @@ ADMIN_EMP_ID_FILES = [
     'js/dkj-auth.js',
     'js/dkj-backup-reminder.js',
     'js/dkj-chatbot.js',
-    'js/dkj-i18n.js',
     'js/records-archive.js',
     'js/system-settings.js',
     'system-settings.html',

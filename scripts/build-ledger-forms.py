@@ -17,7 +17,7 @@
     python scripts/build-ledger-forms.py --check      # 쓰지 않고 차이만 보고(종료코드 1)
 
 껍데기는 지금 배포본과 같아야 한다 — 상단 내비, 로그인·클라우드 동기화, 전자결재
-패널, 딥링크, PWA, 다국어, 접근성 스크립트, 캐시버전 `?v=NN`. 2026-09-08 에 대장
+패널, 딥링크, PWA, 접근성 스크립트, 캐시버전 `?v=NN`. 2026-09-08 에 대장
 서식 10종이 HTML·부트 JS 모두 바이트 단위로 같게 재생성되는 것을 확인했다.
 **템플릿을 고쳤으면 `--check` 로 기존 파일과 같은지 먼저 확인하고 커밋할 것.**
 
@@ -243,7 +243,6 @@ def render_html(code: str, spec: dict, v: str) -> str:
   <script src="../js/{esc(code)}.js?v={v}"></script>
   <script src="../js/dkj-pwa.js?v={v}"></script>
   <script src="../js/dkj-quick-nav.js?v={v}"></script>
-  <script src="../js/dkj-i18n.js?v={v}"></script>
   <script src="../js/dkj-accessibility.js?v={v}"></script>
 </body>
 </html>

@@ -144,8 +144,7 @@ matrix·ledger 엔진으로 이관돼, 실행하면 현장 서식을 옛 O/X 버
 
 `js/dkj-chatbot.js`는 선택 메뉴 없이 불편사항 입력창을 바로 열고, 전송한 메시지를 기존
 `DkjTelegram.sendMessage()` 경로로 관리자 텔레그램에 전달합니다. 음성 입력은 브라우저 내장
-Web Speech API(`SpeechRecognition`/`webkitSpeechRecognition`)를 사용하며 한국어·베트남어 UI
-언어에 맞춰 인식합니다. 오인식 방지를 위해 음성 결과는 입력칸에만 채우고 사용자가 확인 후
+Web Speech API(`SpeechRecognition`/`webkitSpeechRecognition`)를 사용하며 한국어로 인식합니다. 베트남어 번역 엔진과 전환 UI는 제거했습니다. 오인식 방지를 위해 음성 결과는 입력칸에만 채우고 사용자가 확인 후
 전송해야 합니다. 전송 실패 시 입력 내용을 복원하며, 지원하지 않는 브라우저에서는 마이크
 버튼만 비활성화됩니다. 텔레그램 Bot Token과 Chat ID는 기존 localStorage 키
 `dkj:telegram:config:v1`을 유지하면서 RTDB `system/settings/telegram`에도 저장하고 재조회해

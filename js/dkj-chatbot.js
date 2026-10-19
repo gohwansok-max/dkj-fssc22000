@@ -68,13 +68,6 @@
       .replace(/'/g, '&#039;');
   }
 
-  function translate(text) {
-    if (global.DkjI18n && typeof global.DkjI18n.t === 'function') {
-      return global.DkjI18n.t(text);
-    }
-    return text;
-  }
-
   // 지능형 응답 지식 엔진
   var KnowledgeEngine = {
     answer: function (query) {
@@ -359,7 +352,7 @@
     var self = this;
     if (!this.elSpeechStatus) return;
     clearTimeout(this.speechStatusTimer);
-    this.elSpeechStatus.textContent = message ? translate(message) : '';
+    this.elSpeechStatus.textContent = message ? String(message) : '';
     this.elSpeechStatus.classList.toggle('is-error', !!isError);
     if (message && !keep) {
       this.speechStatusTimer = setTimeout(function () {
@@ -392,11 +385,7 @@
     this.speechTranscriptReceived = false;
     this.speechError = false;
     this.stopRequested = false;
-    var lang = document.documentElement.lang || '';
-    if (global.DkjI18n && typeof global.DkjI18n.getLanguage === 'function') {
-      lang = global.DkjI18n.getLanguage();
-    }
-    this.recognition.lang = String(lang).toLowerCase().indexOf('vi') === 0 ? 'vi-VN' : 'ko-KR';
+    this.recognition.lang = 'ko-KR';
     try {
       this.recognition.start();
     } catch (e) {
