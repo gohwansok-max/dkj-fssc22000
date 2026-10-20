@@ -102,13 +102,13 @@
     if (!window.DkjTelegram && !document.getElementById('dkj-telegram-script')) {
       var s1 = document.createElement('script');
       s1.id = 'dkj-telegram-script';
-      s1.src = (base || '') + 'js/dkj-telegram-config.js?v=168';
+      s1.src = (base || '') + 'js/dkj-telegram-config.js?v=169';
       document.body.appendChild(s1);
     }
     if (!window.DkjChatbot && !document.getElementById('dkj-chatbot-script')) {
       var s2 = document.createElement('script');
       s2.id = 'dkj-chatbot-script';
-      s2.src = (base || '') + 'js/dkj-chatbot.js?v=168';
+      s2.src = (base || '') + 'js/dkj-chatbot.js?v=169';
       document.body.appendChild(s2);
     }
   }

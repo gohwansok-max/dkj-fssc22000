@@ -266,6 +266,8 @@
         var v = (o && o.value !== undefined) ? o.value : o;
         if (v === '__register__') {
           registry.forEach(function (rv) {
+            // 서식에 고정된 값(예: 1896)이 등록 목록에도 있으면 한 번만 보인다
+            if (fixedValues.indexOf(rv) !== -1) return;
             parts.push('<option value="' + esc(rv) + '">' + esc(rv) + '</option>');
           });
         }
