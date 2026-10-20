@@ -280,6 +280,27 @@
         ' · ' + esc(spec.docNo || '') + ' · ' + (i + 1) + ' / ' + plan.length + '</div>' +
         '</section>';
     }).join('');
+    // photoSection — 촬영본이 있으면 별첨 쪽(다음 장)에 크게 싣는다. 기록지 글씨가 읽혀야 해서
+    // 한 장에 한 컷씩, 가로폭을 꽉 채운다.
+    var pc = spec.photoSection;
+    var shots = pc && Array.isArray(st.photos) ? st.photos.filter(function (s) {
+      return typeof s === 'string' && s.indexOf('data:image/') === 0;
+    }) : [];
+    if (shots.length) {
+      html += '<section class="mx-page" style="break-before:page;page-break-before:always;">' +
+        headHtml(spec, st) + infoHtml(spec, st) +
+        '<div style="font-size:11pt;font-weight:700;text-align:center;border-bottom:1.5pt solid #000;' +
+        'padding:6pt 0;margin:8pt 0;">' + esc(pc.printTitle || pc.title || '') + '</div>' +
+        shots.map(function (src, i) {
+          return '<div style="break-inside:avoid;page-break-inside:avoid;border:0.6pt solid #000;' +
+            'padding:4pt;margin-bottom:8pt;"><img src="' + src + '" style="width:100%;max-height:' +
+            (shots.length > 2 ? '58mm' : shots.length > 1 ? '82mm' : '130mm') + ';object-fit:contain;display:block;">' +
+            '<div style="margin-top:3pt;font-size:7.5pt;text-align:center;">' +
+            esc(pc.title || '') + ' ' + (i + 1) + '/' + shots.length + '</div></div>';
+        }).join('') +
+        '<div class="off-foot">' + esc(spec.orgName || '동김제농협 산지유통센터') +
+        ' · ' + esc(spec.docNo || '') + ' · 별첨</div></section>';
+    }
     /* printDensity — A4 1쪽에 담아야 하는 서식만 치수를 직접 지정한다.
        { rowHeight, fontSize } 를 주면 조밀 인쇄 클래스(lg-dense)와 함께 그 값이
        CSS 변수로 내려간다. 행 수가 서식마다 다르므로(28~55행) 한 값으로는 어떤 건

@@ -169,6 +169,16 @@ def render_html(code: str, spec: dict, v: str) -> str:
         else ""
     )
 
+    # photoSection — 촬영본(온도기록지 등)을 첨부하는 구역. 사양에 있을 때만 화면에 그린다.
+    photo_html = (
+        '\n    <section class="dkj-panel">\n'
+        f'      <h2>{esc(spec["photoSection"]["title"])}</h2>\n'
+        f'      <p style="margin:0 0 8px;color:#666;font-size:12px;">{esc(spec["photoSection"].get("hint", ""))}</p>\n'
+        '      <div id="photoGrid"></div>\n    </section>'
+        if spec.get("photoSection")
+        else ""
+    )
+
     # 달력에서 지정한 비생산일을 대장 휴무행에 연동하는 기능(autoWeekday 서식 전용,
     # 2026-09-22 358d8c2)은 이 스크립트가 아니라 손으로 두 파일에만 넣었다 — 이후
     # --check 없이 재생성하면 이 스크립트 태그가 조용히 빠진다. autoWeekday가 있는
@@ -231,7 +241,7 @@ def render_html(code: str, spec: dict, v: str) -> str:
       </div>
       <div class="mxf-scroll" id="ledgerGrid"></div>{incident_html}{extra_html}
       <div class="dkj-field full" style="margin-top:12px;"><label for="remark">비고</label><textarea id="remark"></textarea></div>
-    </section>
+    </section>{photo_html}
     <section class="dkj-panel">
       <h2>전자결재 · 감사이력</h2>
       <div id="approvalPanel"></div>

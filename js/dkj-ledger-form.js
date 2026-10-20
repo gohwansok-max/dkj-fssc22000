@@ -64,6 +64,7 @@
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
       audit: [],
       remark: '',
+      photos: [],
       locked: false
     };
   }
@@ -763,6 +764,7 @@
         + '#infoFields input, #infoFields select, #incidentGrid input, #extraGrid input')
         .forEach(function (el) { el.disabled = !!state.locked; });
       // 잠금 해제 시에도 서식상 읽기전용인 칸은 계속 막아 둔다
+      renderPhotos();
       host.querySelectorAll('#infoFields [data-fixed]').forEach(function (el) { el.disabled = true; });
       ['btnBulkOk', 'btnBulkNg'].forEach(function (id) {
         if ($(id)) $(id).disabled = !!state.locked;
@@ -931,7 +933,55 @@
       renderGrid();
       renderIncidents();
       renderExtra();
+      renderPhotos();
       refreshApproval();
+    }
+
+    /** spec.photoSection — 촬영본(온도기록지 등)을 state.photos(data URL 배열)에 담는다.
+        정본 인쇄(dkj-ledger-print.js)가 별첨 쪽에 크게 싣는다. */
+    function renderPhotos() {
+      var host = $('photoGrid');
+      var cfg = spec.photoSection;
+      if (!host || !cfg) return;
+      var max = cfg.max || 3;
+      if (!Array.isArray(state.photos)) state.photos = [];
+      var cards = state.photos.map(function (src, i) {
+        return '<div class="lgf-photo-card"><img src="' + esc(src) + '" alt="' + esc(cfg.title) + ' ' + (i + 1) + '">' +
+          '<button type="button" class="pill-btn ghost" data-photo-del="' + i + '"' +
+          (state.locked ? ' disabled' : '') + '>삭제</button></div>';
+      }).join('');
+      var add = state.photos.length < max
+        ? '<label class="pill-btn green lgf-photo-add">📷 사진 촬영·선택' +
+          '<input type="file" accept="image/*" capture="environment" id="photoInput" hidden' +
+          (state.locked ? ' disabled' : '') + '></label>'
+        : '<span style="color:#888;font-size:12px;">최대 ' + max + '장까지 첨부할 수 있습니다.</span>';
+      host.innerHTML = '<div class="lgf-photo-row">' + cards + '</div><div style="margin-top:8px;">' + add + '</div>';
+      var inp = $('photoInput');
+      if (inp) inp.addEventListener('change', function () {
+        var file = inp.files && inp.files[0];
+        if (!file || state.locked) return;
+        var apply = function (dataUrl) {
+          state.photos.push(dataUrl);
+          renderPhotos();
+          scheduleDraft();
+        };
+        // 기록지 글씨가 읽혀야 하므로 소독수 시험지(600px)보다 크게 줄인다
+        if (global.DkjUtil && global.DkjUtil.compressImageToDataUrl) {
+          global.DkjUtil.compressImageToDataUrl(file, apply, { maxDim: 1400, quality: 0.7 });
+        } else {
+          var reader = new FileReader();
+          reader.onload = function (e) { apply(e.target.result); };
+          reader.readAsDataURL(file);
+        }
+      });
+      host.querySelectorAll('[data-photo-del]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (state.locked) return;
+          state.photos.splice(Number(b.getAttribute('data-photo-del')), 1);
+          renderPhotos();
+          scheduleDraft();
+        });
+      });
     }
 
     function doPrint() {
