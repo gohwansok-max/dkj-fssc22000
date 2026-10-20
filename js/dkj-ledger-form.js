@@ -552,7 +552,8 @@
         }).join('') + '</datalist>';
       }
       COLS.filter(function (c) { return c.type === 'combo'; }).forEach(function (c) {
-        one('lgfList_' + c.key, c.choices);
+        // customLabel — 목록 끝에 '직접 입력' 항목을 붙인다(고르면 칸이 비워져 바로 칠 수 있다)
+        one('lgfList_' + c.key, c.customLabel ? (c.choices || []).concat([c.customLabel]) : c.choices);
         if (c.choicesBy && c.choicesBy.map) {
           Object.keys(c.choicesBy.map).forEach(function (k, i) {
             one('lgfList_' + c.key + '_' + i, c.choicesBy.map[k]);
@@ -597,6 +598,12 @@
         el.addEventListener(ev, function () {
           var key = el.getAttribute('data-c');
           var ri = Number(el.getAttribute('data-r'));
+          // '직접 입력'을 고르면 글자를 남기지 않고 비운 채 그 칸에 바로 입력하게 한다
+          var keyCol = COLS.filter(function (cc) { return cc.key === key; })[0];
+          if (keyCol && keyCol.customLabel && el.value === keyCol.customLabel) {
+            el.value = '';
+            el.focus();
+          }
           var prevVal = state.rows[ri][key];
           state.rows[ri][key] = el.value;
           // autoStaff 열(반출자명 등)은 비어 있으면 맨 위 점검자로 채운다. 사람이 고른 값은 덮어쓰지 않는다.

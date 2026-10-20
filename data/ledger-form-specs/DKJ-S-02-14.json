@@ -33,15 +33,12 @@
       "required": true,
       "type": "combo",
       "choices": [
-        "운봉",
-        "의령농가",
-        "프레쉬엣지",
-        "㈜팜덕",
-        "태원식품산업주식회사",
-        "㈜다님길",
-        "영광산업"
+        "운봉농협",
+        "샐러디팜",
+        "햇뜸"
       ],
-      "placeholder": "선택/입력"
+      "placeholder": "선택/입력",
+      "customLabel": "직접 입력"
     },
     {
       "key": "item",
