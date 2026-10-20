@@ -15,7 +15,7 @@
     if (loading) return;
     loading = true;
     var script = document.createElement('script');
-    script.src = base + 'js/dkj-sidebar.js?v=167';
+    script.src = base + 'js/dkj-sidebar.js?v=168';
     script.onload = function () {
       loading = false;
       if (global.DkjSidebar) global.DkjSidebar.mount({ base: base, compact: false });

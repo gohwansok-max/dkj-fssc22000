@@ -1506,3 +1506,11 @@ input[type="number"]:out-of-range {
 .lgf-photo-card { width: 220px; display: flex; flex-direction: column; gap: 6px; }
 .lgf-photo-card img { width: 100%; height: 160px; object-fit: contain; background: #f4f4f4; border: 1px solid #ccc; border-radius: 8px; }
 .lgf-photo-add { cursor: pointer; display: inline-block; }
+
+/* allowDash 숫자 칸 — 글자 칸이라 :out-of-range 가 걸리지 않아 클래스로 같은 강조를 준다 */
+input.lgf-oor {
+  border-color: var(--st-ng);
+  background: var(--st-ng-bg);
+  color: var(--st-ng);
+  font-weight: 700;
+}

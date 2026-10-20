@@ -83,7 +83,8 @@
       "min": 0,
       "max": 5,
       "unit": "℃",
-      "group": "냉장"
+      "group": "냉장",
+      "allowDash": true
     },
     {
       "key": "shape",
@@ -234,9 +235,13 @@
           "label": "-",
           "allergen": "-",
           "judge": "적",
-          "result": "입고"
+          "result": "입고",
+          "carTemp": "-"
         }
-      }
+      },
+      "keepIfSet": [
+        "carTemp"
+      ]
     }
   ]
 });

@@ -484,6 +484,12 @@
         return '<input type="text" list="' + comboListId(c, row) + '" data-r="' + ri + '" data-c="' + c.key +
           '" value="' + esc(v) + '" placeholder="' + esc(c.placeholder || '선택/입력') + '">';
       }
+      // allowDash — '-'(해당없음)도 적어야 하는 숫자 칸(예: 냉장차량 온도). number 칸은 글자를
+      // 받지 못하므로 글자 칸으로 그리고, min~max 를 벗어난 숫자만 이탈 색(lgf-oor)을 입힌다.
+      if (c.type === 'num' && c.allowDash) {
+        return '<input type="text" inputmode="decimal" class="lgf-dashnum' + (isOutOfRange(c, v) ? ' lgf-oor' : '') +
+          '" data-r="' + ri + '" data-c="' + c.key + '" value="' + esc(v) + '" placeholder="' + esc(c.unit || '') + '">';
+      }
       var t = c.type === 'num' ? 'number' : (c.type === 'date' ? 'date' : 'text');
       // min/max 를 주면 브라우저가 :out-of-range 로 자동 강조한다(css/dkj-form.css) —
       // 관리기준이 확인된 숫자 칸에만 준다, 없는 칸은 그대로 자유 범위다.
@@ -572,10 +578,21 @@
         if (af.on !== key) return;
         var vals = af.values && (af.values[value] || af.values['*']);
         if (!vals) return;
-        Object.keys(vals).forEach(function (fk) { state.rows[ri][fk] = vals[fk]; });
+        Object.keys(vals).forEach(function (fk) {
+          // keepIfSet — 사람이 이미 적은 칸(예: 측정한 차량 온도)은 덮어쓰지 않는다
+          if ((af.keepIfSet || []).indexOf(fk) !== -1 && String(state.rows[ri][fk] || '').trim()) return;
+          state.rows[ri][fk] = vals[fk];
+        });
         done = true;
       });
       return done;
+    }
+
+    /** allowDash 숫자 칸의 관리기준 이탈 여부 — '-'·빈칸·숫자가 아닌 글자는 이탈이 아니다 */
+    function isOutOfRange(c, v) {
+      var n = parseFloat(v);
+      if (isNaN(n) || !/^\s*-?\d/.test(String(v))) return false;
+      return (c.min != null && n < c.min) || (c.max != null && n > c.max);
     }
 
     function renderGrid() {
@@ -621,6 +638,7 @@
           }
           var prevVal = state.rows[ri][key];
           state.rows[ri][key] = el.value;
+          if (keyCol && keyCol.allowDash) el.classList.toggle('lgf-oor', isOutOfRange(keyCol, el.value));
           // autoStaff 열(반출자명 등)은 비어 있으면 맨 위 점검자로 채운다. 사람이 고른 값은 덮어쓰지 않는다.
           COLS.forEach(function (ac) {
             if (!ac.autoStaff || ac.key === key) return;
