@@ -1500,3 +1500,17 @@ input[type="number"]:out-of-range {
 /* 정본 인쇄 결재칸의 서명 그림 — 칸 높이(28~36pt)를 넘지 않게 */
 .sig-img { display: block; margin: 0 auto; max-height: 20pt; max-width: 90%; object-fit: contain; }
 .sig-name { font-size: 6pt; line-height: 1.1; margin-top: 1pt; text-align: center; color: #222; }
+
+/* 촬영본 첨부 구역(ledger spec.photoSection) — 온도기록지 등 */
+.lgf-photo-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.lgf-photo-card { width: 220px; display: flex; flex-direction: column; gap: 6px; }
+.lgf-photo-card img { width: 100%; height: 160px; object-fit: contain; background: #f4f4f4; border: 1px solid #ccc; border-radius: 8px; }
+.lgf-photo-add { cursor: pointer; display: inline-block; }
+
+/* allowDash 숫자 칸 — 글자 칸이라 :out-of-range 가 걸리지 않아 클래스로 같은 강조를 준다 */
+input.lgf-oor {
+  border-color: var(--st-ng);
+  background: var(--st-ng-bg);
+  color: var(--st-ng);
+  font-weight: 700;
+}

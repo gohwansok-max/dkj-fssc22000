@@ -53,7 +53,7 @@
     function mountSidebar() {
       if (global.DkjSidebar) { global.DkjSidebar.mount({ base: b, compact: true }); return; }
       var script = document.createElement('script');
-      script.src = b + 'js/dkj-sidebar.js?v=163';
+      script.src = b + 'js/dkj-sidebar.js?v=172';
       script.onload = function () { if (global.DkjSidebar) global.DkjSidebar.mount({ base: b, compact: true }); };
       document.head.appendChild(script);
     }

@@ -13,13 +13,7 @@
   "enactDate": "2026. 02. 13",
   "reviseDate": "-",
   "orgName": "동김제농협 산지유통센터",
-  "rows": 10,
-  "autoCopyColumns": [
-    {
-      "from": "inDate",
-      "to": "mfgDate"
-    }
-  ],
+  "rows": 6,
   "infoFields": [
     {
       "id": "checkDate",
@@ -37,34 +31,24 @@
   ],
   "columns": [
     {
-      "key": "inDate",
-      "label": "입고 일자",
-      "width": "7%",
-      "type": "date",
-      "required": true
-    },
-    {
       "key": "vendor",
       "label": "업체명",
-      "width": "8%",
+      "width": "11%",
       "align": "left",
       "required": true,
       "type": "combo",
       "choices": [
-        "운봉",
-        "의령농가",
-        "프레쉬엣지",
-        "㈜팜덕",
-        "태원식품산업주식회사",
-        "㈜다님길",
-        "영광산업"
+        "운봉농협",
+        "샐러디팜",
+        "햇뜸"
       ],
-      "placeholder": "선택/입력"
+      "placeholder": "선택/입력",
+      "customLabel": "직접 입력"
     },
     {
       "key": "item",
       "label": "품 목 명",
-      "width": "11%",
+      "width": "15%",
       "align": "left",
       "required": true,
       "type": "combo",
@@ -99,7 +83,8 @@
       "min": 0,
       "max": 5,
       "unit": "℃",
-      "group": "냉장"
+      "group": "냉장",
+      "allowDash": true
     },
     {
       "key": "shape",
@@ -228,6 +213,36 @@
       "required": true
     }
   ],
-  "legend": "※ 점검사항 - 적합 : O, 부적합 : X, 해당없음 : -  (이물혼입여부·알러지 유무는 유 / 무 / - 로 기재)  ※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다."
+  "legend": "※ 점검사항 - 적합 : O, 부적합 : X, 해당없음 : -  (이물혼입여부·알러지 유무는 유 / 무 / - 로 기재)  ※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다.",
+  "noAddRow": true,
+  "photoSection": {
+    "title": "온도기록지(타코메타 기록지) 사진",
+    "hint": "입고 차량의 온도기록지를 촬영해 첨부하세요(최대 3장). 인쇄(정본) 2쪽에 크게 출력됩니다.",
+    "max": 3,
+    "printTitle": "[별첨] 입고 차량 온도기록지(타코메타 기록지)"
+  },
+  "autoFillByChoice": [
+    {
+      "on": "item",
+      "values": {
+        "*": {
+          "shape": "O",
+          "carState": "O",
+          "pallet": "O",
+          "foreign": "무",
+          "pack": "O",
+          "doc": "O",
+          "label": "-",
+          "allergen": "-",
+          "judge": "적",
+          "result": "입고",
+          "carTemp": "-"
+        }
+      },
+      "keepIfSet": [
+        "carTemp"
+      ]
+    }
+  ]
 });
 })();

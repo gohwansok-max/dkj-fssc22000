@@ -10,7 +10,11 @@
   "orgName": "동김제농협 산지유통센터",
   "rows": 10,
   "autoCopyColumns": [
-    { "from": "inDate", "to": "lot", "format": "yyyymmdd" }
+    {
+      "from": "inDate",
+      "to": "lot",
+      "format": "yyyymmdd"
+    }
   ],
   "infoFields": [
     {
@@ -41,14 +45,38 @@
       "label": "업 체 명",
       "width": "10%",
       "align": "left",
-      "required": true
+      "required": true,
+      "type": "combo",
+      "choices": [],
+      "placeholder": "업체 선택"
+    },
+    {
+      "key": "kind",
+      "label": "구분",
+      "width": "6%",
+      "type": "choice",
+      "choices": [
+        "포장재",
+        "박스"
+      ],
+      "screenOnly": true
     },
     {
       "key": "item",
       "label": "품 목 명",
       "width": "12%",
       "align": "left",
-      "required": true
+      "required": true,
+      "type": "combo",
+      "choices": [],
+      "choicesBy": {
+        "field": "kind",
+        "map": {
+          "포장재": [],
+          "박스": []
+        }
+      },
+      "placeholder": "품목 선택"
     },
     {
       "key": "lot",
@@ -162,5 +190,20 @@
       "required": true
     }
   ],
-  "legend": "※ 점검사항 - 적합 : O, 부적합 : X, 해당없음 : -  (서류검토는 유 / 무 / - 로 기재)  ※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다."
+  "legend": "※ 점검사항 - 적합 : O, 부적합 : X, 해당없음 : -  (서류검토는 유 / 무 / - 로 기재)  ※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다.",
+  "noAddRow": true,
+  "autoFillByChoice": [
+    {
+      "on": "kind",
+      "values": {
+        "박스": {
+          "mark": "O",
+          "printState": "O",
+          "pack": "O",
+          "dirty": "O",
+          "seal": "-"
+        }
+      }
+    }
+  ]
 }

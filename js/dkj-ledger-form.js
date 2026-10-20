@@ -64,6 +64,7 @@
       // 없으면 저장할 때마다 새 배열이 생겨 감사이력이 1건으로 초기화된다.
       audit: [],
       remark: '',
+      photos: [],
       locked: false
     };
   }
@@ -72,6 +73,8 @@
     if (!spec || !spec.code) throw new Error('DkjLedgerForm: spec.code required');
     var FORM_ID = spec.code;
     var COLS = spec.columns || [];
+    // 행이 서식에 고정된 대장(defaultRows)이거나 noAddRow 인 서식은 행 추가·삭제 열이 없다
+    var FIXED_ROWS = !!(spec.defaultRows || spec.noAddRow);
     var state = emptyState(spec);
     var editingId = null;
     var draftTimer = null;
@@ -478,8 +481,14 @@
       }
       // combo — 자주 쓰는 품목을 목록에서 고르되 목록에 없는 것도 직접 칠 수 있다
       if (c.type === 'combo') {
-        return '<input type="text" list="lgfList_' + c.key + '" data-r="' + ri + '" data-c="' + c.key +
+        return '<input type="text" list="' + comboListId(c, row) + '" data-r="' + ri + '" data-c="' + c.key +
           '" value="' + esc(v) + '" placeholder="' + esc(c.placeholder || '선택/입력') + '">';
+      }
+      // allowDash — '-'(해당없음)도 적어야 하는 숫자 칸(예: 냉장차량 온도). number 칸은 글자를
+      // 받지 못하므로 글자 칸으로 그리고, min~max 를 벗어난 숫자만 이탈 색(lgf-oor)을 입힌다.
+      if (c.type === 'num' && c.allowDash) {
+        return '<input type="text" inputmode="decimal" class="lgf-dashnum' + (isOutOfRange(c, v) ? ' lgf-oor' : '') +
+          '" data-r="' + ri + '" data-c="' + c.key + '" value="' + esc(v) + '" placeholder="' + esc(c.unit || '') + '">';
       }
       var t = c.type === 'num' ? 'number' : (c.type === 'date' ? 'date' : 'text');
       // min/max 를 주면 브라우저가 :out-of-range 로 자동 강조한다(css/dkj-form.css) —
@@ -528,14 +537,62 @@
       return out;
     }
 
+    /** combo 열이 참조하는 datalist id — choicesBy 가 있으면 다른 열의 값(예: 구분)에 따라 목록이 갈린다 */
+    function comboListId(c, row) {
+      if (c.choicesBy && row) {
+        var sel = String(row[c.choicesBy.field] || '');
+        if (c.choicesBy.map && c.choicesBy.map[sel] && c.choicesBy.map[sel].length) {
+          return 'lgfList_' + c.key + '_' + Object.keys(c.choicesBy.map).indexOf(sel);
+        }
+      }
+      return 'lgfList_' + c.key;
+    }
+
     /** combo 열이 참조하는 <datalist> 를 표 앞에 한 번만 깐다 */
     function datalistHtml() {
-      return COLS.filter(function (c) { return c.type === 'combo' && (c.choices || []).length; })
-        .map(function (c) {
-          return '<datalist id="lgfList_' + c.key + '">' + c.choices.map(function (o) {
-            return '<option value="' + esc(o) + '"></option>';
-          }).join('') + '</datalist>';
-        }).join('');
+      var out = '';
+      function one(id, list) {
+        if (!list || !list.length) return;
+        out += '<datalist id="' + id + '">' + list.map(function (o) {
+          return '<option value="' + esc(o) + '"></option>';
+        }).join('') + '</datalist>';
+      }
+      COLS.filter(function (c) { return c.type === 'combo'; }).forEach(function (c) {
+        // customLabel — 목록 끝에 '직접 입력' 항목을 붙인다(고르면 칸이 비워져 바로 칠 수 있다)
+        one('lgfList_' + c.key, c.customLabel ? (c.choices || []).concat([c.customLabel]) : c.choices);
+        if (c.choicesBy && c.choicesBy.map) {
+          Object.keys(c.choicesBy.map).forEach(function (k, i) {
+            one('lgfList_' + c.key + '_' + i, c.choicesBy.map[k]);
+          });
+        }
+      });
+      return out;
+    }
+
+    /** autoFillByChoice — 값을 고르면 정해진 점검 칸을 한 번에 채운다('*' 는 어떤 값이든).
+        고른 직후에만 적용하므로 저장된 기록을 열 때는 값이 바뀌지 않고, 이후 손으로 고칠 수 있다. */
+    function applyAutoFill(key, ri, value) {
+      var done = false;
+      if (state.locked || !String(value || '').trim()) return false;
+      (spec.autoFillByChoice || []).forEach(function (af) {
+        if (af.on !== key) return;
+        var vals = af.values && (af.values[value] || af.values['*']);
+        if (!vals) return;
+        Object.keys(vals).forEach(function (fk) {
+          // keepIfSet — 사람이 이미 적은 칸(예: 측정한 차량 온도)은 덮어쓰지 않는다
+          if ((af.keepIfSet || []).indexOf(fk) !== -1 && String(state.rows[ri][fk] || '').trim()) return;
+          state.rows[ri][fk] = vals[fk];
+        });
+        done = true;
+      });
+      return done;
+    }
+
+    /** allowDash 숫자 칸의 관리기준 이탈 여부 — '-'·빈칸·숫자가 아닌 글자는 이탈이 아니다 */
+    function isOutOfRange(c, v) {
+      var n = parseFloat(v);
+      if (isNaN(n) || !/^\s*-?\d/.test(String(v))) return false;
+      return (c.min != null && n < c.min) || (c.max != null && n > c.max);
     }
 
     function renderGrid() {
@@ -543,7 +600,7 @@
       if (!host) return;
       var thead = global.DkjLedgerPrint
         ? global.DkjLedgerPrint.theadHtml(
-            spec.defaultRows ? COLS : COLS.concat([{ key: '__act', label: '' }]))
+            FIXED_ROWS ? COLS : COLS.concat([{ key: '__act', label: '' }]))
         : '';
       var body = state.rows.map(function (r, ri) {
         var cells = isRowDisabled(r)
@@ -552,7 +609,7 @@
               return '<td>' + cellInput(c, ri, r[c.key] || '', r) + '</td>';
             }).join('');
         return '<tr' + (isRowDisabled(r) ? ' class="lgf-row-off"' : '') + '>' + cells +
-          (spec.defaultRows ? '' :
+          (FIXED_ROWS ? '' :
             '<td class="lgf-act"><button type="button" class="lgf-del" data-del="' + ri +
             '">삭제</button></td>') + '</tr>';
       }).join('');
@@ -573,8 +630,15 @@
         el.addEventListener(ev, function () {
           var key = el.getAttribute('data-c');
           var ri = Number(el.getAttribute('data-r'));
+          // '직접 입력'을 고르면 글자를 남기지 않고 비운 채 그 칸에 바로 입력하게 한다
+          var keyCol = COLS.filter(function (cc) { return cc.key === key; })[0];
+          if (keyCol && keyCol.customLabel && el.value === keyCol.customLabel) {
+            el.value = '';
+            el.focus();
+          }
           var prevVal = state.rows[ri][key];
           state.rows[ri][key] = el.value;
+          if (keyCol && keyCol.allowDash) el.classList.toggle('lgf-oor', isOutOfRange(keyCol, el.value));
           // autoStaff 열(반출자명 등)은 비어 있으면 맨 위 점검자로 채운다. 사람이 고른 값은 덮어쓰지 않는다.
           COLS.forEach(function (ac) {
             if (!ac.autoStaff || ac.key === key) return;
@@ -586,6 +650,12 @@
             if (at) at.value = who;
           });
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
+          // autoFillByChoice — 구분(박스 등)을 고르면 정해진 점검 칸을 한 번에 채운다.
+          // 고른 직후에만 적용하므로 저장된 기록을 열 때는 값이 바뀌지 않고, 이후 손으로 고칠 수 있다.
+          var filled = el.tagName === 'SELECT' && applyAutoFill(key, ri, el.value);
+          if (filled || (el.tagName === 'SELECT' && COLS.some(function (cc) {
+            return cc.choicesBy && cc.choicesBy.field === key;
+          }))) { renderGrid(); scheduleDraft(); return; }
           // autoJudge — 측정값을 적으면 기준치(고시·사내 중 더 높은 값) 이상 여부로 판정 칸을 채운다.
           // 입력 직후에만 계산하므로 저장된 기록을 열어도 값이 바뀌지 않고, 판정은 손으로 고칠 수 있다.
           // autoJudgeRanges — 열마다 허용 범위(min~max 포함)가 정해진 서식(예: 작업장 온도 일보).
@@ -638,6 +708,15 @@
             if (target) target.value = v;
           });
           scheduleDraft();
+        });
+      });
+      // 글자 칸(combo)은 한 글자마다 채우면 입력 중 칸이 다시 그려지므로, 고르거나 입력을 마친 뒤(change)에만 채운다
+      host.querySelectorAll('input[data-r][data-c]').forEach(function (el) {
+        el.addEventListener('change', function () {
+          if (applyAutoFill(el.getAttribute('data-c'), Number(el.getAttribute('data-r')), el.value)) {
+            renderGrid();
+            scheduleDraft();
+          }
         });
       });
       host.querySelectorAll('[data-tg]').forEach(function (b) {
@@ -727,6 +806,7 @@
         + '#infoFields input, #infoFields select, #incidentGrid input, #extraGrid input')
         .forEach(function (el) { el.disabled = !!state.locked; });
       // 잠금 해제 시에도 서식상 읽기전용인 칸은 계속 막아 둔다
+      renderPhotos();
       host.querySelectorAll('#infoFields [data-fixed]').forEach(function (el) { el.disabled = true; });
       ['btnBulkOk', 'btnBulkNg'].forEach(function (id) {
         if ($(id)) $(id).disabled = !!state.locked;
@@ -895,7 +975,55 @@
       renderGrid();
       renderIncidents();
       renderExtra();
+      renderPhotos();
       refreshApproval();
+    }
+
+    /** spec.photoSection — 촬영본(온도기록지 등)을 state.photos(data URL 배열)에 담는다.
+        정본 인쇄(dkj-ledger-print.js)가 별첨 쪽에 크게 싣는다. */
+    function renderPhotos() {
+      var host = $('photoGrid');
+      var cfg = spec.photoSection;
+      if (!host || !cfg) return;
+      var max = cfg.max || 3;
+      if (!Array.isArray(state.photos)) state.photos = [];
+      var cards = state.photos.map(function (src, i) {
+        return '<div class="lgf-photo-card"><img src="' + esc(src) + '" alt="' + esc(cfg.title) + ' ' + (i + 1) + '">' +
+          '<button type="button" class="pill-btn ghost" data-photo-del="' + i + '"' +
+          (state.locked ? ' disabled' : '') + '>삭제</button></div>';
+      }).join('');
+      var add = state.photos.length < max
+        ? '<label class="pill-btn green lgf-photo-add">📷 사진 촬영·선택' +
+          '<input type="file" accept="image/*" capture="environment" id="photoInput" hidden' +
+          (state.locked ? ' disabled' : '') + '></label>'
+        : '<span style="color:#888;font-size:12px;">최대 ' + max + '장까지 첨부할 수 있습니다.</span>';
+      host.innerHTML = '<div class="lgf-photo-row">' + cards + '</div><div style="margin-top:8px;">' + add + '</div>';
+      var inp = $('photoInput');
+      if (inp) inp.addEventListener('change', function () {
+        var file = inp.files && inp.files[0];
+        if (!file || state.locked) return;
+        var apply = function (dataUrl) {
+          state.photos.push(dataUrl);
+          renderPhotos();
+          scheduleDraft();
+        };
+        // 기록지 글씨가 읽혀야 하므로 소독수 시험지(600px)보다 크게 줄인다
+        if (global.DkjUtil && global.DkjUtil.compressImageToDataUrl) {
+          global.DkjUtil.compressImageToDataUrl(file, apply, { maxDim: 1400, quality: 0.7 });
+        } else {
+          var reader = new FileReader();
+          reader.onload = function (e) { apply(e.target.result); };
+          reader.readAsDataURL(file);
+        }
+      });
+      host.querySelectorAll('[data-photo-del]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (state.locked) return;
+          state.photos.splice(Number(b.getAttribute('data-photo-del')), 1);
+          renderPhotos();
+          scheduleDraft();
+        });
+      });
     }
 
     function doPrint() {

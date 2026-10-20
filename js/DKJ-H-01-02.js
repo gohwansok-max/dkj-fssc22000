@@ -430,7 +430,21 @@
         if (state.locked) return;
         var name = names[Number(e.target.closest('tr').getAttribute('data-pn'))];
         if (!state.passInfo[name]) state.passInfo[name] = {};
-        state.passInfo[name][e.target.getAttribute('data-pf')] = e.target.value;
+        var pf = e.target.getAttribute('data-pf');
+        state.passInfo[name][pf] = e.target.value;
+        // 포장재 사용량 = 통과량 + 특이사항에 숫자만 적은 부적합 수량. 두 칸 중 하나를 고친 순간에만
+        // 다시 계산하므로 저장된 기록을 열어도 값이 바뀌지 않고, 사용량 칸은 손으로 고칠 수 있다.
+        if (pf === 'qty' || pf === 'note') {
+          var row = e.target.closest('tr');
+          var pi = state.passInfo[name];
+          var q = parseFloat(pi.qty);
+          var noteTxt = String(pi.note || '').trim();
+          var n = /^\d+(\.\d+)?$/.test(noteTxt) ? parseFloat(noteTxt) : NaN;
+          var sum = (isNaN(q) ? 0 : q) + (isNaN(n) ? 0 : n);
+          pi.packUsage = (isNaN(q) && isNaN(n)) ? '' : String(Math.round(sum * 10) / 10);
+          var usage = row.querySelector('[data-pf="packUsage"]');
+          if (usage) usage.value = pi.packUsage;
+        }
         scheduleDraft();
       };
       inp.addEventListener('input', onPass);
