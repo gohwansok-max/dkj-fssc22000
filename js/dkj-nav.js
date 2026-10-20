@@ -1,239 +1,29 @@
-/**
- * 동김제 포털 — 코엔에프형 메가메뉴 GNB
- * menu-catalog.json 기반. 모든 페이지에서 동일 메뉴 노출.
- *
- * 사용:
- *   <nav class="gnb" id="gnb" data-dkj-nav data-active="docs" data-base=""></nav>
- *   <script src="js/dkj-nav.js"></script>
- */
+/* 동김제농협 전역 메뉴 로더. 실제 메뉴 UI는 공통 dkj-sidebar 컴포넌트가 담당한다. */
 (function (global) {
   'use strict';
-
-  var CACHE = null;
-
-  function baseOf(el) {
-    var b = (el && el.getAttribute('data-base')) || '';
-    if (b && b.slice(-1) !== '/' && b !== '') b += '/';
-    return b;
+  var loading = false;
+  function baseOf(root) {
+    var base = (root && root.getAttribute('data-base')) || '';
+    if (base && base.slice(-1) !== '/') base += '/';
+    return base;
   }
-
-  function href(base, path) {
-    if (!path) return '#';
-    if (/^(https?:|mailto:|#)/i.test(path)) return path;
-    return base + path;
-  }
-
-  function loadMenu(base) {
-    if (CACHE) return Promise.resolve(CACHE);
-    if (global.DKJ_MENU_CATALOG) {
-      CACHE = global.DKJ_MENU_CATALOG;
-      return Promise.resolve(CACHE);
-    }
-    return fetch(base + 'data/menu-catalog.json')
-      .then(function (r) {
-        if (!r.ok) throw new Error('menu-catalog');
-        return r.json();
-      })
-      .then(function (d) {
-        CACHE = d;
-        return d;
-      })
-      .catch(function () {
-        return new Promise(function (resolve) {
-          var s = document.createElement('script');
-          s.src = base + 'js/menu-catalog.bundle.js';
-          s.onload = function () {
-            CACHE = global.DKJ_MENU_CATALOG || { gnb: [], quickLinks: [] };
-            resolve(CACHE);
-          };
-          s.onerror = function () {
-            CACHE = { gnb: [], quickLinks: [] };
-            resolve(CACHE);
-          };
-          document.head.appendChild(s);
-        });
-      });
-  }
-
-    function allowed(link) {
-    if (!link || !link.requiredRole) return true;
-    if (link.requiredRole === 'system_admin') {
-      return !!(global.DkjAuth && global.DkjAuth.isSystemAdmin && global.DkjAuth.isSystemAdmin());
-    }
-    return false;
-  }
-
-  function renderMega(item, base) {
-    var cols = (item.columns || []).map(function (col) {
-      var links = (col.links || []).filter(allowed).map(function (lnk) {
-        return '<a href="' + esc(href(base, lnk.href)) + '">' + esc(lnk.label) + '</a>';
-      }).join('');
-      if (!links) return '';
-      return '<div class="mega-col"><div class="mega-title">' + esc(col.title) + '</div>' + links + '</div>';
-    }).join('');
-
-    return (
-      '<div class="gnb-item" data-nav="' + esc(item.id) + '">' +
-        '<button type="button" class="gnb-trigger" aria-expanded="false">' + esc(item.label) + '</button>' +
-        '<div class="mega-menu" role="menu">' +
-          '<div class="mega-grid">' + cols + '</div>' +
-          '<div class="mega-foot">' +
-            '<a href="' + esc(href(base, 'docs-center.html')) + '">문서센터 전체 →</a>' +
-            '<a href="' + esc(href(base, 'records-center.html')) + '">기록양식 전체 →</a>' +
-          '</div>' +
-        '</div>' +
-      '</div>'
-    );
-  }
-
-  function bindInteractions(root) {
-    var items = root.querySelectorAll('.gnb-item');
-    var backdrop = document.getElementById('megaBackdrop');
-    if (!backdrop) {
-      backdrop = document.createElement('div');
-      backdrop.id = 'megaBackdrop';
-      backdrop.className = 'mega-backdrop';
-      document.body.appendChild(backdrop);
-    }
-
-    var leaveTimer = null;
-
-    function closeAll() {
-      if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
-      items.forEach(function (it) {
-        it.classList.remove('open');
-        var btn = it.querySelector('.gnb-trigger');
-        if (btn) btn.setAttribute('aria-expanded', 'false');
-      });
-      backdrop.classList.remove('show');
-      root.classList.remove('mega-open');
-    }
-
-    function openItem(it) {
-      if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
-      items.forEach(function (other) {
-        if (other !== it) {
-          other.classList.remove('open');
-          var obtn = other.querySelector('.gnb-trigger');
-          if (obtn) obtn.setAttribute('aria-expanded', 'false');
-        }
-      });
-      it.classList.add('open');
-      var btn = it.querySelector('.gnb-trigger');
-      if (btn) btn.setAttribute('aria-expanded', 'true');
-      backdrop.classList.add('show');
-      root.classList.add('mega-open');
-    }
-
-    items.forEach(function (it) {
-      var btn = it.querySelector('.gnb-trigger');
-      if (!btn) return;
-
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var isOpen = it.classList.contains('open');
-        if (isOpen) {
-          closeAll();
-        } else {
-          openItem(it);
-        }
-      });
-
-      it.addEventListener('mouseenter', function () {
-        openItem(it);
-      });
-
-      it.addEventListener('mouseleave', function () {
-        if (leaveTimer) clearTimeout(leaveTimer);
-        leaveTimer = setTimeout(function () {
-          closeAll();
-        }, 280);
-      });
-    });
-
-    backdrop.addEventListener('click', closeAll);
-    document.addEventListener('click', function (e) {
-      if (!root.contains(e.target)) closeAll();
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeAll();
-    });
-  }
-
-  function markActive(root, activeId) {
-    if (!activeId) return;
-    root.querySelectorAll('.gnb-item').forEach(function (it) {
-      if (it.getAttribute('data-nav') === activeId) {
-        it.classList.add('active');
-      }
-    });
-    root.querySelectorAll('.gnb-static').forEach(function (a) {
-      if (a.getAttribute('data-nav') === activeId) a.classList.add('active');
-    });
-  }
-
-  function render(root, menu) {
-    var base = baseOf(root);
-    var active = root.getAttribute('data-active') || '';
-    var parts = [];
-
-    parts.push('<a class="gnb-static" data-nav="home" href="' + esc(href(base, 'index.html')) + '">홈</a>');
-
-    (menu.gnb || []).forEach(function (item) {
-      parts.push(renderMega(item, base));
-    });
-
-    parts.push('<a class="gnb-static" data-nav="records" href="' + esc(href(base, 'records-center.html')) + '">기록센터</a>');
-    parts.push('<a class="gnb-static" data-nav="archive" href="' + esc(href(base, 'records-archive.html')) + '">기록보관함</a>');
-    parts.push('<a class="gnb-static" data-nav="periodic-alerts" href="' + esc(href(base, 'periodic-alerts.html')) + '">정기 알림</a>');
-    parts.push('<a class="gnb-static" data-nav="mdr" href="' + esc(href(base, 'mdr-register.html')) + '">MDR</a>');
-    if (global.DkjAuth && global.DkjAuth.isSystemAdmin && global.DkjAuth.isSystemAdmin()) {
-      parts.push('<a class="gnb-static" data-nav="system" href="' + esc(href(base, 'system-settings.html')) + '">시스템 설정</a>');
-    }
-
-    root.innerHTML = parts.join('');
-    root.classList.add('gnb-mega');
-    bindInteractions(root);
-    markActive(root, active);
-
-    // mobile hamburger already exists — keep open class toggle
-    var toggle = document.getElementById('menuToggle');
-    if (toggle && !toggle._dkjBound) {
-      toggle._dkjBound = true;
-      toggle.addEventListener('click', function () {
-        var open = root.classList.toggle('open');
-        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-    }
-  }
-
   function init() {
-    var nodes = document.querySelectorAll('[data-dkj-nav], #gnb');
-    if (!nodes.length) return;
-    var first = nodes[0];
-    var base = baseOf(first);
-    loadMenu(base)
-      .then(function (menu) {
-        nodes.forEach(function (el) {
-          render(el, menu);
-        });
-      })
-      .catch(function (err) {
-        console.warn('[DkjNav] menu load failed', err);
-      });
+    var root = document.querySelector('[data-dkj-nav], #gnb, #dkjNav');
+    if (!root) return;
+    var base = baseOf(root);
+    if (global.DkjSidebar) { global.DkjSidebar.mount({ base: base, compact: false }); return; }
+    if (loading) return;
+    loading = true;
+    var script = document.createElement('script');
+    script.src = base + 'js/dkj-sidebar.js?v=163';
+    script.onload = function () {
+      loading = false;
+      if (global.DkjSidebar) global.DkjSidebar.mount({ base: base, compact: false });
+    };
+    script.onerror = function () { loading = false; console.warn('[DkjNav] sidebar failed to load'); };
+    document.head.appendChild(script);
   }
-
-  global.DkjNav = { init: init, loadMenu: loadMenu };
-
-  document.addEventListener('dkj:auth-ready', function () {
-    CACHE = null;
-    init();
-  });
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  global.DkjNav = { init: init };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })(window);

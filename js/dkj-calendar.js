@@ -153,7 +153,8 @@
     }
   }
 
-  var LABEL = { todo: '미점검', done: '실시완료', part: '작성 중', ng: '미준수', none: '—', off: '작성 의무 없음' };
+  // 달력 배지와 날짜별 상세 목록에서 같은 용어를 쓴다. NG는 실제 저장된 기준 이탈만 뜻한다.
+  var LABEL = { todo: '미점검', done: '실시완료', part: '작성 중', ng: '부적합', none: '—', off: '작성 의무 없음' };
 
   async function renderDetail() {
     var host = document.getElementById('ckCalDetail');

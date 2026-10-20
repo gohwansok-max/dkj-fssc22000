@@ -325,3 +325,5 @@
   .prod-print-page .ps-foot { margin-top: 5pt; font-size: 7.6pt; line-height: 1.35; }
   .prod-print-page .ps-brand { margin-top: 6pt; }
 }
+
+.prod-empty-state{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px;border:1px solid #dce9e1;border-radius:12px;background:#f7fbf8;color:#586b60}.prod-empty-state p{margin:0;line-height:1.55}.prod-empty-state a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:9px;background:#087341;color:#fff!important;font-weight:800;text-decoration:none}.prod-empty-state a:hover{background:#005b35}@media(max-width:700px){.prod-empty-state{align-items:stretch}.prod-empty-state a{width:100%}}

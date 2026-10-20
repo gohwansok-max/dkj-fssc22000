@@ -44,10 +44,20 @@
 
     host.innerHTML =
       '<div class="nv-bar">' +
+      '<button type="button" class="nv-sidebar-toggle" id="nvSideToggle" aria-expanded="false" aria-controls="gnb">☰ 전체 메뉴</button>' +
       '<a class="nv-home" href="' + b + 'index.html">홈</a>' +
       '<div class="nv-tabs">' + tabs + '</div>' +
       '<button type="button" class="nv-toggle" id="nvToggle" aria-expanded="false">서식 이동 ▾</button>' +
       '</div><div class="nv-drop" id="nvDrop">' + panels + '</div>';
+
+    function mountSidebar() {
+      if (global.DkjSidebar) { global.DkjSidebar.mount({ base: b, compact: true }); return; }
+      var script = document.createElement('script');
+      script.src = b + 'js/dkj-sidebar.js?v=163';
+      script.onload = function () { if (global.DkjSidebar) global.DkjSidebar.mount({ base: b, compact: true }); };
+      document.head.appendChild(script);
+    }
+    mountSidebar();
 
     var drop = document.getElementById('nvDrop');
     var toggle = document.getElementById('nvToggle');
