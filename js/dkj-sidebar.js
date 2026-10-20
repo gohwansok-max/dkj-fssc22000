@@ -29,7 +29,7 @@
   function loadCss(base) {
     if (document.getElementById('dkjSidebarCss')) return;
     var link = document.createElement('link'); link.id = 'dkjSidebarCss'; link.rel = 'stylesheet';
-    link.href = base + 'css/dkj-sidebar.css?v=170'; document.head.appendChild(link);
+    link.href = base + 'css/dkj-sidebar.css?v=171'; document.head.appendChild(link);
   }
   function mount(options) {
     options = options || {};

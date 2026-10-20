@@ -40,10 +40,15 @@
           "label": "1896"
         },
         {
+          "value": "2768",
+          "label": "2768"
+        },
+        {
           "value": "__register__",
           "label": "+ 새 차량번호 등록"
         }
-      ]
+      ],
+      "default": "1896"
     },
     {
       "id": "destination1",
@@ -70,7 +75,8 @@
         },
         "양산",
         "오산"
-      ]
+      ],
+      "default": "오산"
     },
     {
       "id": "departTime1",
@@ -102,10 +108,15 @@
           "label": "1896"
         },
         {
+          "value": "2768",
+          "label": "2768"
+        },
+        {
           "value": "__register__",
           "label": "+ 새 차량번호 등록"
         }
-      ]
+      ],
+      "default": "2768"
     },
     {
       "id": "destination2",
@@ -118,7 +129,8 @@
         },
         "출하",
         "회수"
-      ]
+      ],
+      "default": "출하"
     },
     {
       "id": "arrivalPlace2",
@@ -131,7 +143,8 @@
         },
         "양산",
         "오산"
-      ]
+      ],
+      "default": "양산"
     },
     {
       "id": "departTime2",
