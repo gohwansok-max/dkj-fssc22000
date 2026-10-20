@@ -5,7 +5,7 @@
  *  - getSaved/setSaved/clearSaved(empId) : 내 서명 보관. **이 기기 localStorage 에만** 둔다.
  *      (RTDB 규칙이 열려 있어 서명 원본을 클라우드에 따로 올리지 않는다. 서명을 한 기록은
  *       signoff 안에 그림이 들어가 기록과 함께 동기화된다 — 그건 그 기록의 증빙이다.)
- *  - cellHtml(record, fallbackName) : 인쇄 결재칸 HTML. 서명 그림이 있으면 그림+이름, 없으면 이름만.
+ *  - cellHtml(record, fallbackName) : 인쇄 결재칸 HTML. 서명 그림이 있으면 그림만, 없으면 이름만.
  *
  *  저장된 서명은 '로그인한 사번' 기준으로만 꺼낸다. 다른 사람 서명을 불러오는 경로는 없다.
  *  단, 비밀번호가 사번과 같은 계정은 누구나 그 사람으로 로그인할 수 있어 서명 재사용도 같은
@@ -50,12 +50,13 @@
     try { global.localStorage.removeItem(savedKey(empId)); } catch (e) {}
   }
 
-  /** 결재칸에 들어갈 HTML. 서명 그림이 있으면 그림 + 작은 이름, 없으면 이름만(종전 그대로). */
+  /** 결재칸에 들어갈 HTML. 서명 그림이 있으면 그림만, 없으면 이름만(종전 그대로). */
   function cellHtml(record, fallbackName) {
     var name = (record && record.name) || fallbackName || '';
     if (record && isValid(record.signature)) {
-      return '<img class="sig-img" src="' + record.signature + '" alt="서명">' +
-        (name ? '<div class="sig-name">' + esc(name) + '</div>' : '');
+      // 서명 그림이 있으면 이름은 따로 찍지 않는다 — 손서명이 곧 결재 표시이고, 아래 이름이
+      // 겹쳐 보이면 칸이 지저분해진다(2026-10-21 현장 요청). 이름은 alt 로만 남긴다.
+      return '<img class="sig-img" src="' + record.signature + '" alt="' + esc(name || '서명') + '">';
     }
     return esc(name);
   }
