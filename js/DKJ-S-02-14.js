@@ -13,13 +13,7 @@
   "enactDate": "2026. 02. 13",
   "reviseDate": "-",
   "orgName": "동김제농협 산지유통센터",
-  "rows": 10,
-  "autoCopyColumns": [
-    {
-      "from": "inDate",
-      "to": "mfgDate"
-    }
-  ],
+  "rows": 6,
   "infoFields": [
     {
       "id": "checkDate",
@@ -37,16 +31,9 @@
   ],
   "columns": [
     {
-      "key": "inDate",
-      "label": "입고 일자",
-      "width": "7%",
-      "type": "date",
-      "required": true
-    },
-    {
       "key": "vendor",
       "label": "업체명",
-      "width": "8%",
+      "width": "11%",
       "align": "left",
       "required": true,
       "type": "combo",
@@ -64,7 +51,7 @@
     {
       "key": "item",
       "label": "품 목 명",
-      "width": "11%",
+      "width": "15%",
       "align": "left",
       "required": true,
       "type": "combo",
@@ -228,6 +215,7 @@
       "required": true
     }
   ],
-  "legend": "※ 점검사항 - 적합 : O, 부적합 : X, 해당없음 : -  (이물혼입여부·알러지 유무는 유 / 무 / - 로 기재)  ※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다."
+  "legend": "※ 점검사항 - 적합 : O, 부적합 : X, 해당없음 : -  (이물혼입여부·알러지 유무는 유 / 무 / - 로 기재)  ※ 판정 부적합 시 반품 처리하고 부적합품 처리 보고서(DKJ-S-02-19)를 작성한다.",
+  "noAddRow": true
 });
 })();

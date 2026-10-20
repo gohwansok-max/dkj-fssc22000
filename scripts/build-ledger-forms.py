@@ -103,6 +103,15 @@ def render_html(code: str, spec: dict, v: str) -> str:
     # 행이 서식에 고정된 대장(구역별·일자별)은 작업자가 행을 늘릴 일이 없다.
     # 버튼 자체를 지우면 툴바 높이가 달라져 표가 흔들려서, 자리만 비워 둔다.
     add_label = "　" if spec.get("defaultRows") else "+ 행 추가"
+    # noAddRow — 행 추가·삭제 없이 시트의 행 수를 고정한다(버튼과 안내 문구 모두 제거).
+    add_button = (
+        "" if spec.get("noAddRow") else
+        f'<button type="button" class="pill-btn ghost" id="btnAddRow">{add_label}</button>'
+    )
+    row_hint = (
+        "" if spec.get("noAddRow") else
+        ' <span style="font-weight:500;color:#888;font-size:12px;">(건별로 행을 추가하세요)</span>'
+    )
 
     # bulkChoice — 값 하나만 일괄 입력하는 서식(예: DKJ-S-02-04 "전체 O")은 ngText 를
     # 생략한다. 그러면 두 번째 버튼도, 온도일보 전용 폭 클래스(temperature-bulk-actions)도
@@ -217,8 +226,8 @@ def render_html(code: str, spec: dict, v: str) -> str:
       </div>
     </section>
     <section class="dkj-panel">
-      <h2>② 기록 <span style="font-weight:500;color:#888;font-size:12px;">(건별로 행을 추가하세요)</span></h2>
-{toolbar}        <div class="mxf-quick"><button type="button" class="pill-btn ghost" id="btnAddRow">{add_label}</button></div>
+      <h2>② 기록{row_hint}</h2>
+{toolbar}        <div class="mxf-quick">{add_button}</div>
       </div>
       <div class="mxf-scroll" id="ledgerGrid"></div>{incident_html}{extra_html}
       <div class="dkj-field full" style="margin-top:12px;"><label for="remark">비고</label><textarea id="remark"></textarea></div>

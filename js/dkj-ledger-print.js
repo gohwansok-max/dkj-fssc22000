@@ -231,7 +231,8 @@
 
   /** 인쇄할 (열 묶음 x 행 구간) 쪽 목록 */
   function pagePlan(spec, state) {
-    var cols = spec.columns || [];
+    // screenOnly 열(화면 전용 선택값)은 정본에 싣지 않는다
+    var cols = (spec.columns || []).filter(function (c) { return !c.screenOnly; });
     var rows = state.rows || [];
     var total = Math.max(spec.defaultRows ? spec.defaultRows.length : (spec.rows || 12), rows.length);
 

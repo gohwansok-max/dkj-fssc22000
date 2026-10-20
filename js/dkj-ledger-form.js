@@ -72,6 +72,8 @@
     if (!spec || !spec.code) throw new Error('DkjLedgerForm: spec.code required');
     var FORM_ID = spec.code;
     var COLS = spec.columns || [];
+    // 행이 서식에 고정된 대장(defaultRows)이거나 noAddRow 인 서식은 행 추가·삭제 열이 없다
+    var FIXED_ROWS = !!(spec.defaultRows || spec.noAddRow);
     var state = emptyState(spec);
     var editingId = null;
     var draftTimer = null;
@@ -478,7 +480,7 @@
       }
       // combo — 자주 쓰는 품목을 목록에서 고르되 목록에 없는 것도 직접 칠 수 있다
       if (c.type === 'combo') {
-        return '<input type="text" list="lgfList_' + c.key + '" data-r="' + ri + '" data-c="' + c.key +
+        return '<input type="text" list="' + comboListId(c, row) + '" data-r="' + ri + '" data-c="' + c.key +
           '" value="' + esc(v) + '" placeholder="' + esc(c.placeholder || '선택/입력') + '">';
       }
       var t = c.type === 'num' ? 'number' : (c.type === 'date' ? 'date' : 'text');
@@ -528,14 +530,35 @@
       return out;
     }
 
+    /** combo 열이 참조하는 datalist id — choicesBy 가 있으면 다른 열의 값(예: 구분)에 따라 목록이 갈린다 */
+    function comboListId(c, row) {
+      if (c.choicesBy && row) {
+        var sel = String(row[c.choicesBy.field] || '');
+        if (c.choicesBy.map && c.choicesBy.map[sel] && c.choicesBy.map[sel].length) {
+          return 'lgfList_' + c.key + '_' + Object.keys(c.choicesBy.map).indexOf(sel);
+        }
+      }
+      return 'lgfList_' + c.key;
+    }
+
     /** combo 열이 참조하는 <datalist> 를 표 앞에 한 번만 깐다 */
     function datalistHtml() {
-      return COLS.filter(function (c) { return c.type === 'combo' && (c.choices || []).length; })
-        .map(function (c) {
-          return '<datalist id="lgfList_' + c.key + '">' + c.choices.map(function (o) {
-            return '<option value="' + esc(o) + '"></option>';
-          }).join('') + '</datalist>';
-        }).join('');
+      var out = '';
+      function one(id, list) {
+        if (!list || !list.length) return;
+        out += '<datalist id="' + id + '">' + list.map(function (o) {
+          return '<option value="' + esc(o) + '"></option>';
+        }).join('') + '</datalist>';
+      }
+      COLS.filter(function (c) { return c.type === 'combo'; }).forEach(function (c) {
+        one('lgfList_' + c.key, c.choices);
+        if (c.choicesBy && c.choicesBy.map) {
+          Object.keys(c.choicesBy.map).forEach(function (k, i) {
+            one('lgfList_' + c.key + '_' + i, c.choicesBy.map[k]);
+          });
+        }
+      });
+      return out;
     }
 
     function renderGrid() {
@@ -543,7 +566,7 @@
       if (!host) return;
       var thead = global.DkjLedgerPrint
         ? global.DkjLedgerPrint.theadHtml(
-            spec.defaultRows ? COLS : COLS.concat([{ key: '__act', label: '' }]))
+            FIXED_ROWS ? COLS : COLS.concat([{ key: '__act', label: '' }]))
         : '';
       var body = state.rows.map(function (r, ri) {
         var cells = isRowDisabled(r)
@@ -552,7 +575,7 @@
               return '<td>' + cellInput(c, ri, r[c.key] || '', r) + '</td>';
             }).join('');
         return '<tr' + (isRowDisabled(r) ? ' class="lgf-row-off"' : '') + '>' + cells +
-          (spec.defaultRows ? '' :
+          (FIXED_ROWS ? '' :
             '<td class="lgf-act"><button type="button" class="lgf-del" data-del="' + ri +
             '">삭제</button></td>') + '</tr>';
       }).join('');
@@ -586,6 +609,19 @@
             if (at) at.value = who;
           });
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
+          // autoFillByChoice — 구분(박스 등)을 고르면 정해진 점검 칸을 한 번에 채운다.
+          // 고른 직후에만 적용하므로 저장된 기록을 열 때는 값이 바뀌지 않고, 이후 손으로 고칠 수 있다.
+          var filled = false;
+          (spec.autoFillByChoice || []).forEach(function (af) {
+            if (af.on !== key || state.locked) return;
+            var vals = af.values && af.values[el.value];
+            if (!vals) return;
+            Object.keys(vals).forEach(function (fk) { state.rows[ri][fk] = vals[fk]; });
+            filled = true;
+          });
+          if (filled || (el.tagName === 'SELECT' && COLS.some(function (cc) {
+            return cc.choicesBy && cc.choicesBy.field === key;
+          }))) { renderGrid(); scheduleDraft(); return; }
           // autoJudge — 측정값을 적으면 기준치(고시·사내 중 더 높은 값) 이상 여부로 판정 칸을 채운다.
           // 입력 직후에만 계산하므로 저장된 기록을 열어도 값이 바뀌지 않고, 판정은 손으로 고칠 수 있다.
           // autoJudgeRanges — 열마다 허용 범위(min~max 포함)가 정해진 서식(예: 작업장 온도 일보).
