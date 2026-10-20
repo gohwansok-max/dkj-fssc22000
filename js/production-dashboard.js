@@ -163,7 +163,11 @@
   function renderOverallChart() {
     var host = $('dashOverallChart'); if (!host) return;
     var series = overallSeries();
-    if (!series.length) { host.innerHTML = '<p style="color:#888;padding:12px;">해당 기간 저장된 생산일지가 없습니다.</p>'; return; }
+    if (!series.length) {
+      host.innerHTML = '<div class="prod-empty-state"><p>해당 기간 저장된 생산일지가 없습니다. 생산일지를 저장하면 수율 추이가 여기에 표시됩니다.</p>' +
+        '<a class="link-chip" href="records/DKJ-F-053.html">생산일지 작성</a></div>';
+      return;
+    }
     host.innerHTML = renderBarChart(series, getTarget(), { height: 190 });
   }
 
@@ -224,7 +228,7 @@
     }).join('');
     host.innerHTML = '<div class="prod-table-wrap"><table class="prod-table"><thead><tr>' +
       '<th>작업일</th><th>투입량(kg)</th><th>실적수율</th><th>불량율</th><th>폐기량(kg)</th><th>물질수지</th><th>상태</th><th></th>' +
-      '</tr></thead><tbody>' + (rowsHtml || '<tr><td colspan="8" style="padding:16px;color:#888;">해당 기간 저장된 생산일지가 없습니다.</td></tr>') + '</tbody></table></div>';
+      '</tr></thead><tbody>' + (rowsHtml || '<tr><td colspan="8" style="padding:16px;color:#888;">해당 기간 저장된 생산일지가 없습니다. <a href="records/DKJ-F-053.html">생산일지 작성</a></td></tr>') + '</tbody></table></div>';
   }
 
   /* ---------- 폐기 원인 파레토 ---------- */
