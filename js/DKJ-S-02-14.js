@@ -232,7 +232,9 @@
           "pack": "O",
           "doc": "O",
           "label": "-",
-          "allergen": "-"
+          "allergen": "-",
+          "judge": "적",
+          "result": "입고"
         }
       }
     }
