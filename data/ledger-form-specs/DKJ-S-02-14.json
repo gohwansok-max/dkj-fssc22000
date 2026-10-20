@@ -214,5 +214,22 @@
     "hint": "입고 차량의 온도기록지를 촬영해 첨부하세요(최대 3장). 인쇄(정본) 2쪽에 크게 출력됩니다.",
     "max": 3,
     "printTitle": "[별첨] 입고 차량 온도기록지(타코메타 기록지)"
-  }
+  },
+  "autoFillByChoice": [
+    {
+      "on": "item",
+      "values": {
+        "*": {
+          "shape": "O",
+          "carState": "O",
+          "pallet": "O",
+          "foreign": "무",
+          "pack": "O",
+          "doc": "O",
+          "label": "-",
+          "allergen": "-"
+        }
+      }
+    }
+  ]
 }

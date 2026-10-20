@@ -563,6 +563,21 @@
       return out;
     }
 
+    /** autoFillByChoice — 값을 고르면 정해진 점검 칸을 한 번에 채운다('*' 는 어떤 값이든).
+        고른 직후에만 적용하므로 저장된 기록을 열 때는 값이 바뀌지 않고, 이후 손으로 고칠 수 있다. */
+    function applyAutoFill(key, ri, value) {
+      var done = false;
+      if (state.locked || !String(value || '').trim()) return false;
+      (spec.autoFillByChoice || []).forEach(function (af) {
+        if (af.on !== key) return;
+        var vals = af.values && (af.values[value] || af.values['*']);
+        if (!vals) return;
+        Object.keys(vals).forEach(function (fk) { state.rows[ri][fk] = vals[fk]; });
+        done = true;
+      });
+      return done;
+    }
+
     function renderGrid() {
       var host = $('ledgerGrid');
       if (!host) return;
@@ -619,14 +634,7 @@
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
           // autoFillByChoice — 구분(박스 등)을 고르면 정해진 점검 칸을 한 번에 채운다.
           // 고른 직후에만 적용하므로 저장된 기록을 열 때는 값이 바뀌지 않고, 이후 손으로 고칠 수 있다.
-          var filled = false;
-          (spec.autoFillByChoice || []).forEach(function (af) {
-            if (af.on !== key || state.locked) return;
-            var vals = af.values && af.values[el.value];
-            if (!vals) return;
-            Object.keys(vals).forEach(function (fk) { state.rows[ri][fk] = vals[fk]; });
-            filled = true;
-          });
+          var filled = el.tagName === 'SELECT' && applyAutoFill(key, ri, el.value);
           if (filled || (el.tagName === 'SELECT' && COLS.some(function (cc) {
             return cc.choicesBy && cc.choicesBy.field === key;
           }))) { renderGrid(); scheduleDraft(); return; }
@@ -682,6 +690,15 @@
             if (target) target.value = v;
           });
           scheduleDraft();
+        });
+      });
+      // 글자 칸(combo)은 한 글자마다 채우면 입력 중 칸이 다시 그려지므로, 고르거나 입력을 마친 뒤(change)에만 채운다
+      host.querySelectorAll('input[data-r][data-c]').forEach(function (el) {
+        el.addEventListener('change', function () {
+          if (applyAutoFill(el.getAttribute('data-c'), Number(el.getAttribute('data-r')), el.value)) {
+            renderGrid();
+            scheduleDraft();
+          }
         });
       });
       host.querySelectorAll('[data-tg]').forEach(function (b) {
