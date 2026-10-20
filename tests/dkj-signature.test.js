@@ -47,11 +47,11 @@ test('저장된 서명은 사번별로 이 기기에만 보관한다', () => {
   assert.equal(S.getSaved('0001'), null);
 });
 
-test('결재칸 HTML: 서명 그림이 있으면 그림+이름, 없으면 이름만, 잘못된 값은 이름만', () => {
+test('결재칸 HTML: 서명 그림이 있으면 그림만(이름 글자는 찍지 않음), 없으면 이름만, 잘못된 값은 이름만', () => {
   const { ctx } = load();
   const S = ctx.DkjSignature;
   assert.match(S.cellHtml({ name: '홍길동', signature: PNG }, ''), /<img class="sig-img" src="data:image\/png;base64,/);
-  assert.match(S.cellHtml({ name: '홍길동', signature: PNG }, ''), /홍길동/);
+  assert.doesNotMatch(S.cellHtml({ name: '홍길동', signature: PNG }, ''), /sig-name|>홍길동</);
   assert.equal(S.cellHtml({ name: '홍길동' }, ''), '홍길동');
   assert.equal(S.cellHtml({ name: '<b>x</b>', signature: 'bad' }, ''), '&lt;b&gt;x&lt;/b&gt;');
 });
