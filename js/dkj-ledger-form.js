@@ -79,6 +79,47 @@
     var editingId = null;
     var draftTimer = null;
 
+    /* 칸 단위 병합(DkjCloudSync.sheet) — 행 고정 대장만. base 는 이 화면이 불러오거나 마지막으로
+       저장한 시점의 rows 사본이다. 저장할 때 base 와 달라진 칸만 이 화면의 입력으로 보고, 나머지
+       칸은 저장소의 최신 값(다른 기기·다른 탭이 먼저 저장한 입력)을 받는다. */
+    var baseRows = null;
+    function sheetApi() {
+      return FIXED_ROWS && global.DkjCloudSync && global.DkjCloudSync.sheet ? global.DkjCloudSync.sheet : null;
+    }
+    function setBase() { baseRows = JSON.parse(JSON.stringify(state.rows || [])); }
+    function gridFocused() {
+      var host = $('ledgerGrid'), a = document.activeElement;
+      return !!(host && a && host.contains(a) && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName));
+    }
+    /** 저장 직전: 이 화면에서 바꾼 칸에 시각을 찍고, 안 바꾼 칸은 저장소의 최신 값을 받는다. */
+    async function mergeFromStored(stampNow) {
+      var api = sheetApi();
+      if (!api || !editingId || !baseRows) return 0;
+      var stored = (await DkjRecordStore.get(FORM_ID, editingId));
+      if (!stored) return 0;
+      var before = JSON.stringify(state.rows);
+      api.rebase(baseRows, state, stored, stampNow);
+      if (JSON.stringify(state.rows) !== before) renderGrid();
+      return 1;
+    }
+    /** 다른 기기·탭이 저장한 칸을 화면에 반영한다(이 화면에서 바꾼 칸은 건드리지 않는다). */
+    async function absorbFromStored() {
+      var api = sheetApi();
+      if (!api || !editingId || !baseRows || state.locked) return false;
+      var stored = (await DkjRecordStore.get(FORM_ID, editingId));
+      var hits = api.absorb(baseRows, state, stored);
+      if (!hits.length) return false;
+      if (!gridFocused()) renderGrid();
+      else {
+        // 입력 중인 칸의 포커스를 지키려고 전체를 다시 그리지 않고 입력칸 값만 바꾼다.
+        hits.forEach(function (h) {
+          var el = document.querySelector('#ledgerGrid [data-r="' + h[0] + '"][data-c="' + h[1] + '"]');
+          if (el && el !== document.activeElement) el.value = state.rows[h[0]][h[1]];
+        });
+      }
+      setStatus('다른 기기에서 입력한 ' + hits.length + '칸을 반영했습니다', true);
+      return true;
+    }
 
     /* 전자결재 패널 — 모듈이 없으면 그냥 건너뛴다 */
     var apvUi = null;
@@ -93,8 +134,10 @@
           if (editingId) {
             // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
             // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
+            (await mergeFromStored(Date.now()));
             var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
             (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId })));
+            setBase();
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
             (await renderHistory());
           } else {
@@ -911,6 +954,8 @@
         // 떴다가 그 타이머가 뒤늦게 "임시저장"으로 덮어써 버린다.
         clearTimeout(draftTimer);
         state.locked = !!lock;
+        (await mergeFromStored(Date.now()));
+        if (sheetApi() && !state.cellStamps) state.cellStamps = {};
         var first = (spec.infoFields || [])[0];
         var rec = (await DkjRecordStore.save(FORM_ID, Object.assign({}, state, {
           id: editingId || undefined,
@@ -918,6 +963,7 @@
           judge: '기록'
         })));
         editingId = rec.id;
+        setBase();
         setStatus(lock ? '작성완료 저장됨' : '저장됨', true);
         applyLock();
         refreshApproval();
@@ -946,6 +992,7 @@
           if (!r) return;
           editingId = r.id;
           state = Object.assign(emptyState(spec), r);
+          setBase();
           writeForm();
           setStatus('기록 불러옴', true);
         });
@@ -1144,6 +1191,7 @@
           !confirm(date + ' 저장 기록을 불러오면 지금 입력 중인 내용은 사라집니다. 불러올까요?')) return false;
       editingId = picked.editingId;
       state = picked.state;
+      setBase();
       writeForm();
       setStatus(picked.kind === 'record' ? date + ' 저장 기록 불러옴' : date + ' 임시저장 불러옴', true);
       return true;
@@ -1158,7 +1206,7 @@
       if (qd && !(spec.autoWeekday && qd.slice(0, 7) === thisMonth())) {
         dateHandled = true;
         var first = (await pickForDate(qd));
-        if (first) { editingId = first.editingId; state = first.state; }
+        if (first) { editingId = first.editingId; state = first.state; setBase(); }
         else { editingId = null; state = stateForDate(qd); }
       }
       writeForm();
@@ -1178,6 +1226,7 @@
         opened = (await DkjDeepLink.apply(FORM_ID, function (rec) {
           editingId = rec.id;
           state = Object.assign(emptyState(spec), rec);
+          setBase();
           writeForm();
         }));
         if (opened) setStatus('기록 불러옴', true);
@@ -1194,6 +1243,7 @@
         if (current) {
           editingId = current.id;
           state = Object.assign(emptyState(spec), current);
+          setBase();
           writeForm();
           setStatus('이번 달 기존 시트를 이어서 엽니다', true);
         } else if ((await hasLockedRecordForMonth())) {
@@ -1218,6 +1268,9 @@
       // 이어쓰기를 시도한다. 이미 뭔가 열려 있으면(작성 중이든 결재 중이든) 절대
       // 덮어쓰지 않는다.
       global.addEventListener('dkj:records-changed', async function () {
+        // 열려 있는 월 시트에 다른 기기·탭이 저장한 칸이 있으면 먼저 반영한다. 안 하면 이 화면이
+        // 오래된 사본을 들고 있다가 다음 저장 때 그 칸들을 비워 버린 것처럼 보였다.
+        try { (await absorbFromStored()); } catch (e) { console.error('[DkjLedgerForm] 동기화 반영 실패', e); }
         // 이 기기에서 뭔가 손댔으면(초안 존재) 절대 덮어쓰지 않는다 — 아래 두 갈래 공통.
         if ((await DkjRecordStore.loadDraft(FORM_ID))) return;
         if (!editingId) {
@@ -1225,6 +1278,7 @@
           if (!current) return;
           editingId = current.id;
           state = Object.assign(emptyState(spec), current);
+          setBase();
           writeForm();
           (await renderHistory());
           setStatus('동기화된 이번 달 시트를 불러왔습니다', true);
@@ -1241,6 +1295,7 @@
           var fresh = (await DkjRecordStore.get(FORM_ID, editingId));
           if (fresh && fresh.locked) {
             state = Object.assign(emptyState(spec), fresh);
+            setBase();
             writeForm();
             (await renderHistory());
             setStatus('다른 기기에서 작성완료(잠금) 처리된 최신 상태로 갱신했습니다', true);
