@@ -130,7 +130,7 @@
           '<span class="badge ' + st + '">' + doc.workflowStatus + '</span>' +
           '<span class="badge type">' + fileTypeLabel(doc.fileType) + '</span>' +
           (hasPdf(doc)
-            ? '<span class="badge pdf-ok" title="Google Drive의 PDF 정본을 바로 볼 수 있습니다">정본 PDF</span>'
+            ? '<span class="badge pdf-ok" title="연결된 PDF 정본을 바로 볼 수 있습니다">정본 PDF</span>'
             : hasDrive(doc)
               ? '<span class="badge pdf-ok" title="Google Drive 원본을 바로 볼 수 있습니다">Drive 원본</span>'
               : '<span class="badge pdf-none" title="연결된 원본 또는 PDF가 없습니다. 요약만 볼 수 있습니다">요약만</span>') +

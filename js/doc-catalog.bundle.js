@@ -1,5 +1,5 @@
 window.DKJ_DOC_CATALOG={
-  "updatedAt": "2026-07-16",
+  "updatedAt": "2026-10-22",
   "site": "동김제농협 산지유통센터",
   "certification": "FSSC22000 V6",
   "sourceLabel": "최종본260714",
@@ -59,10 +59,10 @@ window.DKJ_DOC_CATALOG={
       "label": "HACCP·CCP",
       "code": "DKJ-H",
       "icon": "🛡️",
-      "description": "CCP 점검·검증·교육·HACCP팀 양식",
+      "description": "HACCP 관리기준서 · CCP 점검·검증·교육·HACCP팀 양식",
       "menuGroup": "HACCP",
       "workflowStatus": "완료",
-      "count": 14
+      "count": 15
     },
     {
       "id": "form",
@@ -1493,6 +1493,29 @@ window.DKJ_DOC_CATALOG={
         "최종본 260714 정본",
         "FSSC22000 V6"
       ]
+    },
+    {
+      "id": "DKJ-H-01",
+      "category": "haccp",
+      "code": "DKJ-H-01",
+      "title": "HACCP 관리기준서",
+      "rev": "Rev0",
+      "workflowStatus": "완료",
+      "fileType": "pdf",
+      "mdrRev": "Rev11",
+      "mdrStatus": "운영중",
+      "tags": [
+        "HACCP",
+        "관리기준서",
+        "신선편의식품"
+      ],
+      "highlights": [
+        "동김제농협 산지유통센터 신선편의식품 HACCP 관리기준서",
+        "제정일자: 2026년 02월 13일 · 문서번호: DKJ-H-01",
+        "HACCP팀 구성, 제품설명서, 공정흐름도, HACCP 7원칙, 교육·훈련 및 기록관리",
+        "CCP: 소독·헹굼공정(CCP-1BC), 금속검출공정(CCP-2P)"
+      ],
+      "excerpt": "data/excerpts/DKJ-H-01.txt"
     },
     {
       "id": "DKJ-H-01-01",

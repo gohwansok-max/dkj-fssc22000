@@ -1,0 +1,30 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const root = path.join(__dirname, '..');
+const read = p => fs.readFileSync(path.join(root, p), 'utf8');
+const json = p => JSON.parse(read(p));
+test('HACCP main standard uses the existing catalog template and counts', () => {
+  const c = json('data/doc-catalog.json');
+  const h = c.documents.filter(d => d.category === 'haccp');
+  assert.equal(c.categories.find(d => d.id === 'haccp').count, h.length);
+  assert.equal(h[0].id, 'DKJ-H-01');
+  assert.equal(h[0].title, 'HACCP 관리기준서');
+  assert.equal(c.documents.filter(d => d.id === 'DKJ-H-01').length, 1);
+  assert.ok(fs.existsSync(path.join(root, h[0].excerpt)));
+  const scope = { window: {} };
+  vm.runInNewContext(read('js/doc-catalog.bundle.js'), scope);
+  assert.deepEqual(JSON.parse(JSON.stringify(scope.window.DKJ_DOC_CATALOG)), c);
+});
+test('HACCP main standard resolves to the supplied PDF and has a PDF badge', async () => {
+  const scope = { window: {}, fetch: async p => ({ ok: true, json: async () => json(p) }) };
+  vm.runInNewContext(read('js/dkj-links.js'), scope);
+  const links = scope.window.DkjLinks;
+  const pdf = await links.getPdfPath('DKJ-H-01', 'DKJ-H-01');
+  assert.equal(pdf, 'assets/pdf/DKJ-H-01.pdf');
+  assert.equal((await links.pdfIndex())['DKJ-H-01'], true);
+  assert.equal(fs.readFileSync(path.join(root, pdf)).subarray(0, 5).toString(), '%PDF-');
+  assert.match(read('doc-viewer.html'), /code === 'DKJ-H-01'/);
+});

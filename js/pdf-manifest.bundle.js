@@ -1,5 +1,5 @@
 window.DKJ_PDF_MANIFEST={
-  "updatedAt": "2026-08-22",
+  "updatedAt": "2026-10-22",
   "files": [
     {
       "id": "DKJ-M-01",
@@ -8,6 +8,10 @@ window.DKJ_PDF_MANIFEST={
     {
       "id": "DKJ-P-21",
       "pdf": "assets/pdf/DKJ-P-21.pdf"
+    },
+    {
+      "id": "DKJ-H-01",
+      "pdf": "assets/pdf/DKJ-H-01.pdf"
     }
   ]
 };

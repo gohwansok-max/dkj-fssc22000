@@ -1,13 +1,16 @@
 {
-    "updatedAt": "2026-08-22",
-    "map": {
-        "DKJ-M-01": {
-            "pdf": "assets/docs/DKJ-M-01/latest.pdf",
-            "source": "assets/docs/DKJ-M-01/latest.docx"
-        },
-        "DKJ-P-21": {
-            "pdf": "assets/pdf/DKJ-P-21.pdf",
-            "source": "assets/docs/DKJ-P-21_식품안전문화_절차서_Rev0_20260820.docx"
-        }
+  "updatedAt": "2026-10-22",
+  "map": {
+    "DKJ-M-01": {
+      "pdf": "assets/docs/DKJ-M-01/latest.pdf",
+      "source": "assets/docs/DKJ-M-01/latest.docx"
+    },
+    "DKJ-P-21": {
+      "pdf": "assets/pdf/DKJ-P-21.pdf",
+      "source": "assets/docs/DKJ-P-21_식품안전문화_절차서_Rev0_20260820.docx"
+    },
+    "DKJ-H-01": {
+      "pdf": "assets/pdf/DKJ-H-01.pdf"
     }
+  }
 }

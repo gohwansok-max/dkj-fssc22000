@@ -166,7 +166,7 @@
           if (pdf) {
             panel.innerHTML =
               '<div class="viewer-notice ok" style="margin:0 0 12px;">' +
-              '✓ <strong>Google Drive PDF 정본 연결됨</strong> · 인쇄는 PDF 정본을 사용하세요.' +
+              '✓ <strong>PDF 정본 연결됨</strong> · 인쇄는 PDF 정본을 사용하세요.' +
               '</div>' +
               '<div class="pdf-toolbar">' +
                 '<a class="pill-btn ghost" href="' + pdf + '" target="_blank" rel="noopener">PDF 새 탭 열기</a> ' +
@@ -211,7 +211,7 @@
           var code = (doc.code || '').toUpperCase();
           if ((pdf || driveDoc) && !params.get('tab') && (
             code.indexOf('DKJ-P') === 0 || code.indexOf('PRP') === 0 ||
-            code.indexOf('DKJ-W') === 0 || code.indexOf('DKJ-M') === 0 ||
+            code.indexOf('DKJ-W') === 0 || code.indexOf('DKJ-M') === 0 || code === 'DKJ-H-01' ||
             cat.indexOf('절차') >= 0 || cat.indexOf('sop') >= 0
           )) {
             setTab('pdf');
