@@ -677,19 +677,11 @@
             msg = '결재란에 적힌 이름은 「' + claimed + '」 이지만, 지금 로그인한 사람은 「' +
                   u.name + '」 입니다.\n\n서명은 로그인한 ' + u.name + ' 님으로 남습니다.\n' + msg;
           }
-          // 손서명 — 서명 창이 확정 확인을 겸한다(저장해 둔 서명이 있으면 버튼 한 번).
-          // 서명 모듈이 없을 때만 종전 확인창 방식.
+          // 손서명 입력은 2026-10-21 에 뺐다(현장 요청). 확정은 확인창 한 번으로 끝난다.
+          // 기존에 서명이 저장된 결재칸은 DkjSignature.isValid 를 거쳐 그대로 보이고 인쇄된다.
           var sig = null;
-          var skipConfirm = false;
-          if (global.DkjSignature) {
-            sig = await global.DkjSignature.capture({
-              stageLabel: stageOf(key).label, name: signer.name, empId: signer.empId, message: msg
-            });
-            if (!sig) return;
-          } else {
-            skipConfirm = key === 'writer' && u && claimed && claimed === u.name;
-            if (!skipConfirm && !confirm(msg)) return;
-          }
+          var skipConfirm = key === 'writer' && u && claimed && claimed === u.name;
+          if (!skipConfirm && !confirm(msg)) return;
 
           if (!st.signoff) st.signoff = {};
           st.signoff[key] = {
