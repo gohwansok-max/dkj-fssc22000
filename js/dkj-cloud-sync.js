@@ -264,6 +264,97 @@
 
   /* ------------------------------ 기존 배열 스키마 ------------------------------ */
 
+  /* ------------------------------ 월 시트 셀 단위 병합 ------------------------------
+   * 월 단위 대장(DKJ-S-02-05 등)은 한 달 치가 기록 한 건이다. 기록 단위로 'updatedAt 이 늦은 쪽이
+   * 통째로 이기면', 태블릿이 1일 칸을 쓰고 PC가 2일 칸을 쓴 뒤 동기화될 때 한쪽 입력이 통째로
+   * 사라진다(오래 열어 둔 화면이 저장해도 마찬가지). 그래서 행 고정 대장은 저장할 때 바뀐 칸에만
+   * 시각(cellStamps['행|열'] = epoch ms)을 남기고, 병합은 칸마다 시각이 늦은 쪽을 고른다.
+   * 두 쪽 모두 cellStamps 가 있는 기록에만 적용하고(옛 기록은 종전 규칙), 어느 한쪽이 작성완료
+   * (잠금)이거나 행 수·점검 월이 다르면 종전처럼 기록 단위로 고른다. */
+  var Sheet = {
+    ok: function (rec) {
+      return !!rec && typeof rec === 'object' && !rec.deleted && Array.isArray(rec.rows) &&
+        !!rec.cellStamps && typeof rec.cellStamps === 'object';
+    },
+    sk: function (ri, key) { return ri + '|' + key; },
+    eq: function (a, b) { return String(a == null ? '' : a) === String(b == null ? '' : b); },
+    /** local.rows 중 base 와 달라진 칸에 now 를 찍는다(local.cellStamps 를 제자리에서 갱신). */
+    stamp: function (base, local, now) {
+      if (!Array.isArray(base) || !Array.isArray(local.rows) || base.length !== local.rows.length) return 0;
+      if (!local.cellStamps || typeof local.cellStamps !== 'object') local.cellStamps = {};
+      var n = 0;
+      local.rows.forEach(function (row, ri) {
+        Object.keys(row || {}).forEach(function (k) {
+          if (!Sheet.eq(row[k], (base[ri] || {})[k])) { local.cellStamps[Sheet.sk(ri, k)] = now; n++; }
+        });
+      });
+      return n;
+    },
+    /** 두 사본을 칸 단위로 합친 새 기록. 합칠 수 없으면 null(기록 단위 규칙으로). */
+    merge: function (a, b) {
+      if (!Sheet.ok(a) || !Sheet.ok(b) || a.locked || b.locked) return null;
+      if (a.rows.length !== b.rows.length) return null;
+      var ma = a.info && a.info.month, mb = b.info && b.info.month;
+      if (ma != null && mb != null && String(ma) !== String(mb)) return null;
+      var ta = at(a), tb = at(b);
+      var win = ta !== tb ? (ta > tb ? a : b) : (JSON.stringify(a) >= JSON.stringify(b) ? a : b);
+      var out = clone(win), stamps = {};
+      out.rows.forEach(function (row, ri) {
+        var other = (win === a ? b : a).rows[ri] || {};
+        var keys = Object.keys(Object.assign({}, other, row));
+        keys.forEach(function (k) {
+          var id = Sheet.sk(ri, k), sw = win.cellStamps[id] || 0, so = (win === a ? b : a).cellStamps[id] || 0;
+          if (so > sw) { row[k] = other[k]; stamps[id] = so; }
+          else if (sw) stamps[id] = sw;
+        });
+      });
+      out.cellStamps = stamps;
+      return out;
+    },
+    /** 화면 갱신용: local 에서 base 와 같은(=이 화면에서 안 바꾼) 칸만 stored 의 값으로 바꾸고
+     *  base 도 같이 맞춘다. 바꾼 칸의 (행, 열) 목록을 돌려준다. */
+    absorb: function (base, local, stored) {
+      var hits = [];
+      if (!Array.isArray(base) || !Array.isArray(local.rows) || base.length !== local.rows.length) return hits;
+      if (!stored || stored.deleted || !Array.isArray(stored.rows) || stored.rows.length !== local.rows.length) return hits;
+      if (!local.cellStamps || typeof local.cellStamps !== 'object') local.cellStamps = {};
+      local.rows.forEach(function (row, ri) {
+        var theirs = stored.rows[ri] || {}, mine = base[ri] || (base[ri] = {});
+        Object.keys(Object.assign({}, theirs, row)).forEach(function (k) {
+          if (!Sheet.eq(row[k], mine[k])) return;          // 이 화면에서 바꾼 칸
+          if (Sheet.eq(row[k], theirs[k])) return;
+          row[k] = mine[k] = theirs[k] == null ? '' : theirs[k];
+          var id = Sheet.sk(ri, k), st = stored.cellStamps && stored.cellStamps[id];
+          if (st) local.cellStamps[id] = st; else delete local.cellStamps[id];
+          hits.push([ri, k]);
+        });
+      });
+      return hits;
+    },
+    /** 저장 직전: base(화면에 불러올 때·마지막 저장 때의 rows)와 비교해 이 화면에서 바꾼 칸만 남기고,
+     *  바꾸지 않은 칸은 저장소의 최신 값을 받는다. local 을 제자리에서 고치고 받아온 칸 수를 돌려준다. */
+    rebase: function (base, local, stored, now) {
+      if (!Array.isArray(base) || !Array.isArray(local.rows) || base.length !== local.rows.length) return 0;
+      Sheet.stamp(base, local, now);
+      var got = 0;
+      if (stored && !stored.deleted && Array.isArray(stored.rows) && stored.rows.length === local.rows.length) {
+        local.rows.forEach(function (row, ri) {
+          var theirs = stored.rows[ri] || {};
+          Object.keys(Object.assign({}, theirs, row)).forEach(function (k) {
+            var id = Sheet.sk(ri, k);
+            if (local.cellStamps && local.cellStamps[id] === now) return; // 이 화면에서 방금 바꾼 칸
+            if (Sheet.eq(row[k], theirs[k])) return;
+            row[k] = theirs[k] == null ? '' : theirs[k];
+            var st = stored.cellStamps && stored.cellStamps[id];
+            if (st) local.cellStamps[id] = st; else delete local.cellStamps[id];
+            got++;
+          });
+        });
+      }
+      return got;
+    }
+  };
+
   function mergeRecords(a, b) {
     var byId = {}, order = [];
     function take(list) {
@@ -272,7 +363,9 @@
         var id = rec.id || JSON.stringify(rec);
         var cur = byId[id];
         if (!cur) { byId[id] = rec; order.push(id); return; }
-        if (at(rec) > at(cur)) byId[id] = rec;
+        var cells = Sheet.merge(cur, rec);
+        if (cells) byId[id] = cells;
+        else if (at(rec) > at(cur)) byId[id] = rec;
       });
     }
     take(a); take(b);
@@ -705,6 +798,7 @@
     lastSync: async function () { try { return (await recordStorage().getItem(LAST_SYNC_KEY)); } catch (e) { return null; } },
     isSyncKey: isSyncKey,
     mergeRecords: mergeRecords,
+    sheet: Sheet,
     archiveReplaced: archiveReplaced,
     schemaMode: function () { return schemaMode; },
     removeRecord: removeRecord,
