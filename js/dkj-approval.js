@@ -34,18 +34,6 @@
     document.head.appendChild(s);
   }
 
-  /* 손서명 모듈 — 결재 화면·정본 인쇄가 모두 쓰므로 이 파일이 뜰 때 함께 불러온다
-     (서식 HTML 을 일일이 고치지 않아도 되게). 못 불러와도 종전 확인창 방식으로 동작한다. */
-  (function loadSignature() {
-    if (global.DkjSignature || !SELF_SRC) return;
-    var url = SELF_SRC.replace(/dkj-approval\.js(\?.*)?$/, 'dkj-signature.js$1');
-    if (url === SELF_SRC) return;
-    var s = document.createElement('script');
-    s.src = url;
-    s.onerror = function () { /* 서명 모듈이 없으면 종전 방식 */ };
-    document.head.appendChild(s);
-  })();
-
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -584,8 +572,6 @@
       return '<div class="apv-stage' + (done ? ' done' : '') + '">' +
         '<div class="apv-lab">' + esc(st.label) + '</div>' +
         '<div class="apv-name">' + esc(shown) + '</div>' + mismatch +
-        (done && global.DkjSignature && global.DkjSignature.isValid(sign.signature)
-          ? '<img class="apv-sig" src="' + sign.signature + '" alt="서명">' : '') +
         '<div class="apv-at">' + (done ? esc(fmt(sign.at)) : '미결재') + '</div>' +
         (done
           ? '<span class="apv-mark">서명됨</span>'
@@ -677,9 +663,7 @@
             msg = '결재란에 적힌 이름은 「' + claimed + '」 이지만, 지금 로그인한 사람은 「' +
                   u.name + '」 입니다.\n\n서명은 로그인한 ' + u.name + ' 님으로 남습니다.\n' + msg;
           }
-          // 손서명 입력은 2026-10-21 에 뺐다(현장 요청). 확정은 확인창 한 번으로 끝난다.
-          // 기존에 서명이 저장된 결재칸은 DkjSignature.isValid 를 거쳐 그대로 보이고 인쇄된다.
-          var sig = null;
+          // 손서명은 2026-10-21 에 제거했다(현장 요청). 확정은 확인창 한 번으로 끝난다.
           var skipConfirm = key === 'writer' && u && claimed && claimed === u.name;
           if (!skipConfirm && !confirm(msg)) return;
 
@@ -690,11 +674,10 @@
             uid: (u && u.uid) || '',
             source: signer.source,
             claimed: claimed && claimed !== signer.name ? claimed : undefined,
-            signature: sig ? sig.data : undefined,
             at: nowIso()
           };
           append(st, 'SIGN', u ? whoLabel(u) : signer.name,
-            stageOf(key).label + ' 결재' + (sig ? (sig.reused ? ' (저장된 손서명 사용)' : ' (손서명)') : ''));
+            stageOf(key).label + ' 결재');
           await onChange(st);
           render();
           // confirm() 을 생략한 경우는 확정됐다는 사실 자체를 알리는 화면 반응이
@@ -778,7 +761,7 @@
   global.addEventListener('load', attachStaffPickers);
   document.addEventListener('dkj:record-loaded', attachStaffPickers);
 
-  /** 인쇄용 결재 행 [{key,label,name,signed,at,signature}] — 확정된 서명(signoff)만 담는다. */
+  /** 인쇄용 결재 행 [{key,label,name,signed,at}] — 확정된 서명(signoff)만 담는다. */
   function signRows(state, opts) {
     var so = (state && state.signoff) || {};
     var keys = (opts && opts.stages) || ['writer', 'reviewer', 'approver'];
@@ -788,8 +771,7 @@
       return {
         key: st.key, label: st.label,
         name: done ? (rec.name || '') : '',
-        signed: done, at: done ? rec.at : '',
-        signature: done ? rec.signature : undefined
+        signed: done, at: done ? rec.at : ''
       };
     });
   }
