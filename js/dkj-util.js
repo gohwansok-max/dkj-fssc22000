@@ -415,8 +415,15 @@
    * 함께 넣어 각 엔진의 상태·일자별 자동 불러오기가 손으로 고른 것과 똑같이 반응한다.
    * 읽기전용·비활성(작성완료 잠금) 칸에서는 아무것도 하지 않는다. 인쇄에는 나오지 않는다.
    */
+  var UTIL_SRC = (document.currentScript && document.currentScript.src) || '';
   function installNowButtons() {
     if (!/\/records\//.test(global.location.pathname) || !global.MutationObserver) return;
+    // 사람·제품·업체·연도·문서 칸을 고르게 하는 공통 목록 (정본: 계정 디렉터리·products·incoming-catalog·mdr-catalog)
+    if (UTIL_SRC && !global.DkjFieldLists) {
+      var fl = document.createElement('script');
+      fl.src = UTIL_SRC.replace(/dkj-util\.js/, 'dkj-field-lists.js');
+      document.head.appendChild(fl);
+    }
     function pad(n) { return (n < 10 ? '0' : '') + n; }
     function nowValue(type) {
       var d = new Date();
@@ -648,7 +655,7 @@
       '.dkj-pop-disp{font-size:22px;font-weight:700;text-align:right;padding:4px 8px 8px;min-height:34px;color:#1d6b3f}' +
       '.dkj-pop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dkj-pop-row{display:flex;gap:6px;margin-top:6px}' +
       '.dkj-pop-row .go{flex:1;background:#e8f1fb}.dkj-pop-row .ok{background:#1d6b3f;color:#fff;border-color:#1d6b3f}' +
-      '.dkj-pop-list{display:flex;flex-wrap:wrap;gap:6px}.dkj-pop-list .me{background:#e3f3ea;border-color:#9fd0b2;font-weight:700}' +
+      '.dkj-pop-list{display:flex;flex-wrap:wrap;gap:6px;max-height:55vh;overflow-y:auto}.dkj-pop-list .me{background:#e3f3ea;border-color:#9fd0b2;font-weight:700}' +
       '.dkj-pop .kb{color:#667;font-size:14px}@media print{.dkj-pop{display:none!important}}';
     var queued = false;
     new MutationObserver(function () {
