@@ -18,6 +18,37 @@
     { key: 'c10', label: '수량 일치', hint: '발주·납품 수량 일치' }
   ];
 
+
+  /* 업체·품목 선택 목록 — 구분을 고르면 그 구분의 업체·품목만 나온다. */
+  // 정본: data/incoming-catalog.json (번들 js/incoming-catalog.bundle.js) — 여기에 목록을 따로 적지 않는다
+  var INCOMING = (window.DKJ_INCOMING_CATALOG && window.DKJ_INCOMING_CATALOG.categories) || {};
+
+  function fillList(id, list) {
+    var dl = $(id);
+    if (!dl) return;
+    dl.innerHTML = (list || []).map(function (v) { return '<option value="' + esc(v) + '"></option>'; }).join('');
+  }
+  function refreshIncomingLists() {
+    var c = INCOMING[state.materialType] || { vendors: [], items: [] };
+    fillList('fr014Vendors', c.vendors);
+    fillList('fr014Items', c.items);
+  }
+  /** 구분·품목을 고르면 외관 점검 항목을 O(해당 없는 항목은 -)로, 판정은 적합·입고로 미리 채운다.
+      사람이 이미 누른 칸은 덮어쓰지 않고, 측정하는 입고 온도(c06)는 원료일 때 비워 둔다. 작성 확정 때 확인창을 거친다. */
+  function applyIncomingDefaults() {
+    var c = INCOMING[state.materialType];
+    if (!c || c.items.indexOf(state.itemName) === -1) return false;
+    if (c.vendors.length === 1 && !state.supplier) state.supplier = c.vendors[0];
+    CHECK_ITEMS.forEach(function (it) {
+      if (state.checks[it.key]) return;
+      if (c.na.indexOf(it.key) !== -1) state.checks[it.key] = '-';
+      else if (it.key === 'c06' && state.materialType === '원료') return;
+      else state.checks[it.key] = 'O';
+    });
+    if (!state.lot && state.receiveDate) state.lot = String(state.receiveDate).replace(/[^0-9]/g, '');
+    return true;
+  }
+
   var state = emptyState();
   var editingId = null;
 
@@ -166,6 +197,17 @@
       });
     });
 
+    $('materialType').addEventListener('change', refreshIncomingLists);
+    $('itemName').addEventListener('change', function () {
+      if (!applyIncomingDefaults()) return;
+      $('supplier').value = state.supplier || '';
+      $('lot').value = state.lot || '';
+      renderOxGrid();
+      autoJudge();
+      scheduleDraft();
+    });
+    refreshIncomingLists();
+
     $('judgeOk').addEventListener('click', function () {
       state.judge = '적합';
       renderJudge();
@@ -200,6 +242,7 @@
     $('inspector').value = state.inspector || '';
     $('confirmer').value = state.confirmer || '';
     $('remark').value = state.remark || '';
+    refreshIncomingLists();
     renderOxGrid();
     renderJudge();
     syncApprovals();
@@ -342,6 +385,7 @@
     state.unit = preset.unit || 'kg';
     $('itemName').value = preset.name;
     $('materialType').value = state.materialType;
+    refreshIncomingLists();
     $('unit').value = state.unit;
     if (!state.lot) {
       state.lot = DkjMaster.suggestLot(state.receiveDate);

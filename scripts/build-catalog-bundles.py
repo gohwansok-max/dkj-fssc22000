@@ -21,6 +21,10 @@ BUNDLES = [
     # 생산일지(DKJ-F-053) 기준설정 — js/dkj-master-data.js 가 읽는다
     ("production-master.json", "production-master.bundle.js", "DKJ_PRODUCTION_MASTER"),
     # 직원별 결재 권한 — js/dkj-auth.js 가 읽는다
+    # 입고 업체·품목 단일 정본 — js/FR-014.js 가 읽는다 (DKJ-S-02-14/15 사양은 sync-incoming-catalog.py 가 채운다)
+    ("incoming-catalog.json", "incoming-catalog.bundle.js", "DKJ_INCOMING_CATALOG"),
+    # 장소·보관위치 선택 목록 — js/dkj-field-lists.js 가 읽는다
+    ("locations.json", "locations.bundle.js", "DKJ_LOCATIONS"),
     # MDR 카탈로그
     ("mdr-catalog.json", "mdr-catalog.bundle.js", "DKJ_MDR_CATALOG"),
     # Google Drive 정본 문서 매니페스트

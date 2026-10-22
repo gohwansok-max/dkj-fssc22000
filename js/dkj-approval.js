@@ -664,8 +664,16 @@
                   u.name + '」 입니다.\n\n서명은 로그인한 ' + u.name + ' 님으로 남습니다.\n' + msg;
           }
           // 손서명은 2026-10-21 에 제거했다(현장 요청). 확정은 확인창 한 번으로 끝난다.
-          var skipConfirm = key === 'writer' && u && claimed && claimed === u.name;
-          if (!skipConfirm && !confirm(msg)) return;
+          // 2026-10-22: 구분·제품 선택으로 O/적합이 미리 채워지는 서식이 늘어, 작성 확정은 '실제로 확인했는가'를
+          // 한 번 확인한 뒤에만 한다(미확인 일괄 적합은 심사에서 기록 위조 지적 사항). 탭 한 번이면 된다.
+          if (key === 'writer') {
+            msg = signer.name + ' 님이 모든 점검 항목을 실제로 확인하고 기록했음을 확정합니다.\n' +
+                  '(미리 채워진 O·적합 포함)  확정 후에는 취소할 수 없습니다.';
+            if (u && claimed && claimed !== u.name) {
+              msg = '결재란에 적힌 이름은 「' + claimed + '」 이지만, 지금 로그인한 사람은 「' + u.name + '」 입니다.\n\n' + msg;
+            }
+          }
+          if (!confirm(msg)) return;
 
           if (!st.signoff) st.signoff = {};
           st.signoff[key] = {

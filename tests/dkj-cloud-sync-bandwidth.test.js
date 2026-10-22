@@ -54,7 +54,7 @@ async function verifyHungRequest(useAbort,hangJson){
  if(hangJson)e.jsonHook(stuck);else e.hook(stuck);
  const flight=e.sync(),rejection=assert.rejects(flight,/timed out after 15000ms/);await e.flush();
  e.ctx.localStorage.setItem(key,JSON.stringify([rec('saved',3)]));
- const saveTimer=[...e.timeouts.entries()].find(([,t])=>t.ms===600);assert(saveTimer);e.timeouts.delete(saveTimer[0]);saveTimer[1].f();await e.flush();
+ const saveTimer=[...e.timeouts.entries()].find(([,t])=>t.ms===250);assert(saveTimer);e.timeouts.delete(saveTimer[0]);saveTimer[1].f();await e.flush();
  assert.equal(e.calls.some(c=>c.method==='PUT'),false);
  const timeout=[...e.timeouts.entries()].find(([,t])=>t.ms===15000);assert(timeout);timeout[1].f();await rejection;
  if(useAbort)assert.equal(e.calls.find(c=>c.path==='records'&&c.signal?.aborted)?.signal.aborted,true);
@@ -66,7 +66,7 @@ async function verifyHungRequest(useAbort,hangJson){
 test('hung PUT is aborted before next queued save writes',async()=>{
  const e=env();e.putLocal([rec('a')]);e.putRemote([rec('a')]);await e.sync();let first=true,aborted=false;
  e.hook(c=>{if(c.method==='PUT'&&first){first=false;return new Promise((resolve,reject)=>c.signal.addEventListener('abort',()=>{aborted=true;reject(new Error('AbortError'));}));}});
- function fireSave(){const item=[...e.timeouts.entries()].find(([,t])=>t.ms===600);assert(item);e.timeouts.delete(item[0]);item[1].f();}
+ function fireSave(){const item=[...e.timeouts.entries()].find(([,t])=>t.ms===250);assert(item);e.timeouts.delete(item[0]);item[1].f();}
  e.ctx.localStorage.setItem(key,JSON.stringify([rec('old-save',2)]));fireSave();await e.flush();
  e.ctx.localStorage.setItem(key,JSON.stringify([rec('new-save',3)]));fireSave();await e.flush();
  const timer=[...e.timeouts.entries()].find(([,t])=>t.ms===15000);assert(timer);timer[1].f();await e.flush();
