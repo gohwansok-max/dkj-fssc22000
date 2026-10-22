@@ -409,6 +409,55 @@
     }
   }
 
+  /**
+   * 일보(records/*.html)의 날짜·시각 칸 옆에 '오늘날짜'·'지금시각' 버튼을 붙인다(2026-10-22 현장 요청).
+   * 엔진마다 칸을 다시 그리므로 DOM 변화를 지켜보며 새로 생긴 칸에만 붙인다. 값은 input·change 이벤트와
+   * 함께 넣어 각 엔진의 상태·일자별 자동 불러오기가 손으로 고른 것과 똑같이 반응한다.
+   * 읽기전용·비활성(작성완료 잠금) 칸에서는 아무것도 하지 않는다. 인쇄에는 나오지 않는다.
+   */
+  function installNowButtons() {
+    if (!/\/records\//.test(global.location.pathname) || !global.MutationObserver) return;
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function nowValue(type) {
+      var d = new Date();
+      return type === 'time'
+        ? pad(d.getHours()) + ':' + pad(d.getMinutes())
+        : d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+    var st = document.createElement('style');
+    st.textContent = '.dkj-now-btn{display:block;margin:2px 0 0;padding:2px 6px;font:inherit;font-size:11px;' +
+      'line-height:1.3;color:#1d6b3f;background:#eef7f1;border:1px solid #b9dcc6;border-radius:6px;cursor:pointer;' +
+      'white-space:nowrap}.dkj-now-btn:hover{background:#dff0e5}@media print{.dkj-now-btn{display:none!important}}';
+    document.head.appendChild(st);
+    function attach(root) {
+      var list = (root || document).querySelectorAll('input[type="date"]:not([data-now-done]),input[type="time"]:not([data-now-done])');
+      Array.prototype.forEach.call(list, function (inp) {
+        inp.setAttribute('data-now-done', '1');
+        var isTime = inp.type === 'time';
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'dkj-now-btn';
+        b.textContent = isTime ? '지금시각' : '오늘날짜';
+        b.addEventListener('click', function () {
+          if (inp.disabled || inp.readOnly) return;
+          inp.value = nowValue(inp.type);
+          inp.dispatchEvent(new Event('input', { bubbles: true }));
+          inp.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        inp.parentNode.insertBefore(b, inp.nextSibling);
+      });
+    }
+    var queued = false;
+    new MutationObserver(function () {
+      if (queued) return;
+      queued = true;
+      (global.requestAnimationFrame || setTimeout)(function () { queued = false; attach(); });
+    }).observe(document.body, { childList: true, subtree: true });
+    attach();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installNowButtons);
+  else installNowButtons();
+
   global.esc = esc;
   global.today = today;
   global.DkjUtil = {
