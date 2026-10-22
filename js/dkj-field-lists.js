@@ -1,7 +1,7 @@
 /**
  * 서식 공통 선택 목록 — 사람·제품·업체·연도·문서 칸을 '글로 적는' 대신 고르게 한다(2026-10-22).
  * 정본은 각각 계정 디렉터리(직원), data/products.json(제품), data/incoming-catalog.json(입고 업체·품목),
- * data/mdr-catalog.json(문서번호·문서명·개정)이며 여기에는 목록을 적지 않는다.
+ * data/mdr-catalog.json(문서번호·문서명·개정), data/locations.json(장소·보관위치)이며 여기에는 목록을 적지 않는다.
  * 칸은 라벨 글자로 찾는다(<label for>). 목록에 없는 값은 PC 키보드·팝업의 '⌨ 직접 입력'으로 쓸 수 있다.
  * dkj-util.js 가 기록 화면에서만 불러온다.
  */
@@ -27,6 +27,7 @@
   var PRODUCT = /^(제품명|품명|품목\/공정|원료\/제품명|공급품목|품목|전환 품목)$/;
   var VENDOR = /^(업체명|공급업체|공급처|수거업체)$/;
   var YEAR = /(계획연도|평가연도)$/;
+  var LOCATION = /^(장소|보관위치|설치위치|라인\/구역|랙\/위치)$/;
   var DOCCODE = /^문서번호$/;
   var DOCNAME = /^문서명$/;
   var DOCREV = /^개정번호$/;
@@ -62,6 +63,10 @@
     });
     var y = new Date().getFullYear();
     docs = (M && M.entries) || [];
+    var L = global.DKJ_LOCATIONS;
+    if (L) Object.keys(L).forEach(function (k) {
+      if (Array.isArray(L[k])) setList('dkjFL_loc_' + k, L[k]);
+    });
     lists.product = 'dkjFL_product'; setList('dkjFL_product', products);
     lists.vendor = 'dkjFL_vendor'; setList('dkjFL_vendor', vendors);
     lists.year = 'dkjFL_year'; setList('dkjFL_year', [String(y - 1), String(y), String(y + 1)]);
@@ -104,6 +109,9 @@
       if (PERSON.test(l) && !/연락처/.test(l)) el.setAttribute('list', 'dkjStaffList');
       else if (PRODUCT.test(l)) el.setAttribute('list', lists.product);
       else if (VENDOR.test(l)) el.setAttribute('list', lists.vendor);
+      else if (LOCATION.test(l) && global.DKJ_LOCATIONS && global.DKJ_LOCATIONS.labels[l]) {
+        el.setAttribute('list', 'dkjFL_loc_' + global.DKJ_LOCATIONS.labels[l]);
+      }
       else if (YEAR.test(l)) el.setAttribute('list', lists.year);
       else if (DOCCODE.test(l) && docs.length) { el.setAttribute('list', lists.docCode); bindDoc(el, true); }
       else if (DOCNAME.test(l) && docs.length) { el.setAttribute('list', lists.docName); bindDoc(el, false); }
@@ -127,7 +135,8 @@
   Promise.all([
     loadBundle('products.bundle.js', 'DKJ_PRODUCTS'),
     loadBundle('incoming-catalog.bundle.js', 'DKJ_INCOMING_CATALOG'),
-    loadBundle('mdr-catalog.bundle.js', 'DKJ_MDR_CATALOG')
+    loadBundle('mdr-catalog.bundle.js', 'DKJ_MDR_CATALOG'),
+    loadBundle('locations.bundle.js', 'DKJ_LOCATIONS')
   ]).then(function () {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
   });

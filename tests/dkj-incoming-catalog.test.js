@@ -18,3 +18,9 @@ test('FR-014 번들이 정본과 같다',()=>{
  const raw=fs.readFileSync(path.join(root,'js/incoming-catalog.bundle.js'),'utf8').replace(/^window\.DKJ_INCOMING_CATALOG=/,'').replace(/;\s*$/,'');
  assert.deepEqual(JSON.parse(raw),cat);
 });
+test('장소·보관위치 번들이 정본과 같고 모든 라벨이 존재하는 목록을 가리킨다',()=>{
+ const loc=j('data/locations.json');
+ const raw=fs.readFileSync(path.join(root,'js/locations.bundle.js'),'utf8').replace(/^window\.DKJ_LOCATIONS=/,'').replace(/;\s*$/,'');
+ assert.deepEqual(JSON.parse(raw),loc);
+ for(const k of Object.values(loc.labels)) assert.ok(Array.isArray(loc[k])&&loc[k].length,k);
+});
