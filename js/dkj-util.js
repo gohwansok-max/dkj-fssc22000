@@ -514,6 +514,7 @@
       if (t === 'number') return 'num';
       if (t !== 'text') return '';
       if (el.getAttribute('list') === 'dkjStaffList' || el.id === 'inspector' || el.getAttribute('data-info') === 'inspector') return 'staff';
+      if (el.getAttribute('list')) return 'combo'; // 업체·품목처럼 목록에서 고르는 칸
       var h = [el.id, el.name, el.getAttribute('data-f'), el.getAttribute('data-c'), el.getAttribute('data-note'), el.placeholder].join(' ');
       if (/remark|비고|특이|mxf-note/i.test(h) || /mxf-note-in/.test(el.className)) return 'rem';
       return '';
@@ -525,6 +526,11 @@
     function closePop() { if (pop) { pop.remove(); pop = null; popFor = null; } }
     function staffNames() {
       var dl = document.getElementById('dkjStaffList'), out = [];
+      if (dl) Array.prototype.forEach.call(dl.options, function (o) { if (o.value) out.push(o.value); });
+      return out;
+    }
+    function comboOptions(el) {
+      var dl = document.getElementById(el.getAttribute('list')), out = [];
       if (dl) Array.prototype.forEach.call(dl.options, function (o) { if (o.value) out.push(o.value); });
       return out;
     }
@@ -601,7 +607,9 @@
         pop.appendChild(row);
         var k0 = btn('⌨', 'kb', manual); k0.title = '직접 입력'; row.appendChild(k0);
       } else {
-        var list = kind === 'staff' ? staffNames() : CHIPS.rem.concat(['정상 가동', '점검 완료']);
+        var list = kind === 'staff' ? staffNames()
+          : kind === 'combo' ? comboOptions(el)
+          : CHIPS.rem.concat(['정상 가동', '점검 완료']);
         var wrap = document.createElement('div');
         wrap.className = 'dkj-pop-list';
         if (kind === 'staff' && meName()) {
