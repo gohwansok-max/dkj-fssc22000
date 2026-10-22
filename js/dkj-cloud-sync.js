@@ -395,6 +395,9 @@
       await rememberRevision(key, stamp, raw);
       await flushRevMap();
     }
+    // 실시간 알림 — 다른 기기가 sync_pings 를 구독하고 있으면 이 번호를 보고 바로 이 서식만 받아 간다.
+    // 규칙이 아직 열려 있지 않거나 실패해도 기록 저장에는 영향이 없다(30초 주기 확인이 그대로 받쳐 준다).
+    request('sync_pings/' + nodeKey(key), 'PUT', stamp).catch(function () {});
   }
 
   function storageKeys() {
@@ -421,19 +424,10 @@
     return (await recordStorage().getItem(key)) === initial.raw && (localVersions[key] || 0) === initial.version;
   }
 
-  async function legacySyncAll(silent) {
-    var initialLocal = (await localSnapshot());
-    var cloud = (await request('records', 'GET', undefined, false, true)) || {};
-    var touched = 0, pushedNew = 0, pushedUpdated = 0;
-    var keys = Object.keys(cloud);
-    var cloudKeyCount = 0;
-    for (var i = 0; i < keys.length; i++) {
-      var encodedKey = keys[i];
-      var key = readNodeKey(encodedKey);
-      if (!isSyncKey(key)) continue;
-      cloudKeyCount++;
-      var revision = await request('records/' + encodedKey + '/updatedAt', 'GET');
-      if (!(await unchangedSince(initialLocal, key))) continue;
+  /* 서식 하나(키 하나)만 클라우드와 맞춘다 — 전체 동기화 루프와 실시간 알림 수신이 함께 쓴다. */
+  async function legacyPullOne(encodedKey, key, initialLocal, stats, knownRevision) {
+      var revision = knownRevision !== undefined ? knownRevision : await request('records/' + encodedKey + '/updatedAt', 'GET');
+      if (!(await unchangedSince(initialLocal, key))) return;
       var before = (await recordStorage().getItem(key));
       var localVal = parse(before);
       var cached = legacyCache[key];
@@ -443,33 +437,47 @@
         var saved = (await loadRevMap())[key];
         if (saved && saved.localHash && saved.revision === revision && (await sha(before)) === saved.localHash) {
           legacyCache[key] = { revision: revision, localRaw: before };
-          continue;
+          return;
         }
       }
       if (hasRevision && cached && cached.revision === revision &&
-          Array.isArray(localVal) && before === cached.localRaw) continue;
+          Array.isArray(localVal) && before === cached.localRaw) return;
       var version = localVersions[key] || 0;
       var row = await request('records/' + encodedKey, 'GET');
       // A save/removal during the network read must not be replaced by a stale merge.
-      if ((localVersions[key] || 0) !== version || (await recordStorage().getItem(key)) !== before) continue;
+      if ((localVersions[key] || 0) !== version || (await recordStorage().getItem(key)) !== before) return;
       localVal = Array.isArray(localVal) ? localVal : [];
       if (!row || !Array.isArray(row.value)) {
         // 클라우드 쪽 value 가 배열이 아니다 — 예전 버그로 빈 배열([])이 올라갔다가
         // RTDB 가 빈 배열 속성 자체를 지워버린 경우가 여기 걸린다. 이 상태로 두면
         // 이 서식은 어느 기기가 동기화를 돌려도 영원히 건너뛰기만 해서 스스로 못 고친다.
         // 이 기기에 유효한 기록이 있으면 그걸로 덮어써 복구한다.
-        if (localVal.length) { await legacyPushKey(key); pushedUpdated++; }
-        continue;
+        if (localVal.length) { await legacyPushKey(key); stats.pushedUpdated++; }
+        return;
       }
       var merged = mergeRecords(localVal, row.value);
-      if (!same(merged, localVal)) { if (!await writeLocal(key, merged, before)) continue; touched++; }
+      if (!same(merged, localVal)) { if (!await writeLocal(key, merged, before)) return; stats.touched++; }
       var mergedRaw = (await recordStorage().getItem(key));
-      if (!same(merged, row.value)) { await legacyPushKey(key); pushedUpdated++; }
+      if (!same(merged, row.value)) { await legacyPushKey(key); stats.pushedUpdated++; }
       else if (hasRevision && row.updatedAt === revision &&
           (localVersions[key] || 0) === version && (await recordStorage().getItem(key)) === mergedRaw) {
         legacyCache[key] = { revision: revision, localRaw: mergedRaw };
         await rememberRevision(key, revision, mergedRaw);
       }
+  }
+
+  async function legacySyncAll(silent) {
+    var initialLocal = (await localSnapshot());
+    var cloud = (await request('records', 'GET', undefined, false, true)) || {};
+    var stats = { touched: 0, pushedUpdated: 0 }, pushedNew = 0;
+    var keys = Object.keys(cloud);
+    var cloudKeyCount = 0;
+    for (var i = 0; i < keys.length; i++) {
+      var encodedKey = keys[i];
+      var key = readNodeKey(encodedKey);
+      if (!isSyncKey(key)) continue;
+      cloudKeyCount++;
+      await legacyPullOne(encodedKey, key, initialLocal, stats);
     }
     var localKeys = (await storageKeys());
     for (var i = 0; i < localKeys.length; i++) {
@@ -478,6 +486,7 @@
     }
     (await flushRevMap());
     (await markSynced());
+    var touched = stats.touched, pushedUpdated = stats.pushedUpdated;
     if (touched) {
       try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { source: 'cloud', mode: 'legacy' } })); } catch (e) {}
     }
@@ -712,7 +721,7 @@
         .catch(function (err) {
           console.info('[DkjCloudSync] 기기에 안전하게 저장됨 (클라우드 동기화 대기):', err && err.message);
         });
-    }, 600);
+    }, 250);
   }
 
   async function removeRecordNow(formId, record) {
@@ -730,6 +739,67 @@
     return exclusive(function () { return removeRecordNow(formId, record); });
   }
 
+
+  /* ------------------------------ 실시간 알림 수신 ------------------------------
+   * RTDB 의 sync_pings/<서식키> = 마지막 저장 시각(숫자) 한 줄만 서버-전송 이벤트로 구독한다.
+   * 기록 본문은 흘려보내지 않으므로(첫 연결도 80줄 남짓의 숫자뿐) 다운로드가 늘지 않는다.
+   * 알림이 오면 내가 아는 번호와 다를 때만 그 서식 하나를 받아 병합한다. 구독이 끊기거나
+   * 규칙이 없어 거부되면 조용히 멈추고 30초 주기 확인이 그대로 일한다. */
+  var stream = null, streamOpenedOnce = false, streamRetry = null, pullPending = Object.create(null);
+  function streamUrl() {
+    var root = String(CFG.databaseURL || '').replace(/\/$/, '') + '/' + (CFG.root || 'dkj-fssc22000');
+    var token = auth().token();
+    return root + '/sync_pings.json' + (isRealToken(token) ? ('?auth=' + encodeURIComponent(token)) : '');
+  }
+  function pullFromPing(encodedKey, rev) {
+    var key = readNodeKey(encodedKey);
+    if (!isSyncKey(key) || typeof rev !== 'number') return;
+    var known = legacyCache[key];
+    if (known && known.revision === rev) return;      // 내가 올린 것이거나 이미 받은 것
+    if (pullPending[key] === rev) return;
+    pullPending[key] = rev;
+    exclusive(async function () {
+      if (!ready() || schemaMode === 'v2') return;
+      var snap = Object.create(null);
+      snap[key] = { raw: (await recordStorage().getItem(key)), version: localVersions[key] || 0 };
+      var stats = { touched: 0, pushedUpdated: 0 };
+      await legacyPullOne(encodedKey, key, snap, stats, rev);
+      await flushRevMap();
+      if (stats.touched) {
+        try { global.dispatchEvent(new CustomEvent('dkj:records-changed', { detail: { source: 'cloud', mode: 'legacy', key: key, live: true } })); } catch (e) {}
+      }
+    }).catch(function () {}).then(function () { if (pullPending[key] === rev) delete pullPending[key]; });
+  }
+  function onPing(ev) {
+    var msg; try { msg = JSON.parse(ev.data); } catch (e) { return; }
+    if (!msg || typeof msg.path !== 'string' || msg.path === '/') return; // 첫 스냅샷은 시작 동기화가 맡는다
+    pullFromPing(msg.path.replace(/^\//, '').split('/')[0], msg.data);
+  }
+  function stopStream(retryMs) {
+    if (stream) { try { stream.close(); } catch (e) {} stream = null; }
+    clearTimeout(streamRetry);
+    if (retryMs) streamRetry = setTimeout(startStream, retryMs);
+  }
+  function startStream() {
+    if (stream || !ready() || !global.EventSource) return;
+    var es;
+    try { es = new EventSource(streamUrl()); } catch (e) { return; }
+    stream = es;
+    es.addEventListener('put', onPing);
+    es.addEventListener('patch', onPing);
+    es.addEventListener('cancel', function () { stopStream(60000); });
+    es.addEventListener('auth_revoked', function () { stopStream(60000); });
+    es.onopen = function () {
+      // 끊겼다가 다시 이어졌다면 그 사이 놓친 변경을 한 번 따라잡는다
+      if (streamOpenedOnce && visible()) syncAll(true).catch(function () {});
+      streamOpenedOnce = true;
+    };
+    es.onerror = function () {
+      // CLOSED 면 브라우저가 재연결을 포기한 것(규칙 거부 등) — 1분 뒤 다시 시도
+      if (es.readyState === 2) stopStream(60000);
+    };
+  }
+
   function startPoll() {
     clearInterval(poller);
     poller = setInterval(function () { if (ready() && visible()) syncAll(true).catch(function () {}); }, POLL_MS);
@@ -742,6 +812,7 @@
       console.info('[DkjCloudSync] 오프라인 또는 로컬 모드로 동작 중입니다.', err && err.message);
     });
     startPoll();
+    startStream();
 
 
     /* 태블릿·스마트폰은 화면이 꺼지거나 다른 앱으로 전환되면 브라우저가 배터리

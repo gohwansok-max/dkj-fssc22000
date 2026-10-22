@@ -8,6 +8,13 @@
           ".validate": "$recordKey === 'ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE' ? newData.hasChildren(['value', 'updatedAt']) && newData.child('updatedAt').isNumber() && newData.child('value').hasChild('calendar') && newData.child('value').child('calendar').hasChild('workdays') : newData.hasChild('value') && newData.hasChild('updatedAt') && newData.child('updatedAt').isNumber()"
         }
       },
+      "sync_pings": {
+        ".read": true,
+        "$recordKey": {
+          ".write": true,
+          ".validate": "newData.isNumber()"
+        }
+      },
       "sync_meta": {
         ".read": true,
         ".write": false

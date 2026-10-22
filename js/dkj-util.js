@@ -455,13 +455,57 @@
         inp.parentNode.insertBefore(b, inp.nextSibling);
       });
     }
+    // 서술 칸(이탈 내용·시정조치·비고)은 자주 쓰는 문구를 칩으로 한 번에 넣는다. 칩이 비어 있는 칸에는 그대로
+    // 넣고, 이미 글이 있으면 '; ' 로 이어 붙인다. 문구에 없는 내용만 직접 입력하면 된다.
+    var CHIPS = {
+      dev: ['이탈 없음', '해당없음', '-'],
+      fix: ['해당없음', '재측정 후 적합 확인', '재세척 후 재검사', '재작업(재포장)', '선별 후 사용', '반품 처리', '폐기 처리', '교육 실시'],
+      rem: ['이상 없음', '특이사항 없음', '-']
+    };
+    function chipKind(el) {
+      var t = [el.id, el.name, el.getAttribute('data-f'), el.getAttribute('data-c'), el.placeholder, el.getAttribute('aria-label')].join(' ');
+      if (/시정|조치|corrective/i.test(t)) return 'fix';
+      if (/이탈|deviation/i.test(t)) return 'dev';
+      if (/비고|remark|특이|notes?\b/i.test(t)) return 'rem';
+      return '';
+    }
+    function attachPhraseChips(root) {
+      Array.prototype.forEach.call((root || document).querySelectorAll('textarea:not([data-phrase-done])'), function (ta) {
+        ta.setAttribute('data-phrase-done', '1');
+        // 이미 상용구(DEFAULT_PRESETS)가 붙는 칸은 그쪽을 쓴다
+        if (DEFAULT_PRESETS[ta.id] || ta.getAttribute('data-chips-bound')) return;
+        var kind = chipKind(ta);
+        if (!kind) return;
+        var bar = document.createElement('div');
+        bar.className = 'dkj-phrase-bar';
+        CHIPS[kind].forEach(function (text) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'dkj-phrase';
+          b.textContent = text;
+          b.addEventListener('click', function () {
+            if (ta.disabled || ta.readOnly) return;
+            var cur = String(ta.value || '').trim();
+            ta.value = cur && cur !== '-' ? cur + '; ' + text : text;
+            ta.dispatchEvent(new Event('input', { bubbles: true }));
+            ta.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+          bar.appendChild(b);
+        });
+        ta.parentNode.insertBefore(bar, ta.nextSibling);
+      });
+    }
+    st.textContent += '.dkj-phrase-bar{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0 0}' +
+      '.dkj-phrase{padding:3px 9px;font:inherit;font-size:12px;color:#334;background:#f3f5f4;border:1px solid #cfd8d3;' +
+      'border-radius:999px;cursor:pointer}.dkj-phrase:hover{background:#e4ece7}@media print{.dkj-phrase-bar{display:none!important}}';
     var queued = false;
     new MutationObserver(function () {
       if (queued) return;
       queued = true;
-      (global.requestAnimationFrame || setTimeout)(function () { queued = false; attach(); });
+      (global.requestAnimationFrame || setTimeout)(function () { queued = false; attach(); attachPhraseChips(); });
     }).observe(document.body, { childList: true, subtree: true });
     attach();
+    attachPhraseChips();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installNowButtons);
   else installNowButtons();

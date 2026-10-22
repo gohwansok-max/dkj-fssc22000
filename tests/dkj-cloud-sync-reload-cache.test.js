@@ -17,6 +17,7 @@ function device(){
   class Storage{constructor(){this.map=new Map();}get length(){return this.map.size;}key(i){return [...this.map.keys()][i]??null;}getItem(k){return this.map.get(k)??null;}setItem(k,v){this.map.set(k,String(v));}removeItem(k){this.map.delete(k);}}
   const ctx={console,Storage,localStorage:new Storage(),sessionStorage:new Storage(),crypto:webcrypto,TextEncoder,DkjStorage,DkjStore,
    document:{visibilityState:'visible',addEventListener(){},getElementById:()=>({style:{}}),createElement:()=>({style:{}}),body:{appendChild(){}}},
+   EventSource:class{constructor(u){this.url=u;this.h={};ctx.__es=this;}addEventListener(n,f){this.h[n]=f;}close(){this.closed=true;}},
    DKJ_FIREBASE:{apiKey:'t',databaseURL:'https://example.invalid',root:'root'},DkjAuth:{user:()=>({name:'test'}),token:()=> 'local-token-test'},navigator:{userAgent:'test'},location:{reload(){}},
    CustomEvent:function(n,o){this.type=n;this.detail=o?.detail;},dispatchEvent(){},addEventListener(){},setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},AbortController,
    btoa:s=>Buffer.from(s,'binary').toString('base64'),atob:s=>Buffer.from(s,'base64').toString('binary'),
@@ -65,4 +66,19 @@ test('이 기기 변경을 올린 직후에는 같은 화면·새 화면 모두 
  assert.deepEqual(d.db.records[encode(key)].value.map(r=>r.id).sort(),['a','new'],'변경이 클라우드에 올라가야 한다');
  await p.sync();assert.equal(p.full(),2,'방금 올린 목록을 다시 받았다');
  const p2=d.page();await p2.sync();assert.equal(p2.full(),0,'새로 연 화면이 방금 올린 목록을 다시 받았다');
+});
+
+test('실시간 알림: 다른 기기의 저장 번호가 오면 그 서식만 바로 받아 병합하고, 내 저장의 알림은 무시한다',async()=>{
+ const d=device();d.putLocal([rec('a')]);d.putRemote([rec('a')],1);
+ const p=d.page();await p.sync();
+ p.ctx.DkjCloudSync.start();await new Promise(r=>setImmediate(r));
+ assert.ok(p.ctx.__es&&/sync_pings\.json/.test(p.ctx.__es.url),'sync_pings 를 구독해야 한다');
+ const before=p.full();
+ const ping=(rev)=>p.ctx.__es.h.put({data:JSON.stringify({path:'/'+encode(key),data:rev})});
+ d.putRemote([rec('a'),rec('live',2)],2); // 다른 기기가 올림
+ ping(2);await new Promise(r=>setTimeout(r,50));
+ assert.equal(p.full(),before+1);
+ assert.deepEqual(JSON.parse(d.idb.get(key)).map(r=>r.id).sort(),['a','live']);
+ ping(2);await new Promise(r=>setTimeout(r,50)); // 이미 받은 번호
+ assert.equal(p.full(),before+1,'같은 번호로 다시 받았다');
 });
