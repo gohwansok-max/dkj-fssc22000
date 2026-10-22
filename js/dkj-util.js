@@ -498,14 +498,159 @@
     st.textContent += '.dkj-phrase-bar{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0 0}' +
       '.dkj-phrase{padding:3px 9px;font:inherit;font-size:12px;color:#334;background:#f3f5f4;border:1px solid #cfd8d3;' +
       'border-radius:999px;cursor:pointer}.dkj-phrase:hover{background:#e4ece7}@media print{.dkj-phrase-bar{display:none!important}}';
+
+    /* ---------- 터치 기기 입력 팝업 (2026-10-22: '글로 타자 치는 것 0' 목표) ----------
+     * 태블릿·스마트폰(pointer: coarse)에서만 동작한다. 칸을 누르면 화상 키보드 대신 팝업이 뜬다.
+     *  - 사람 칸(직원 목록 칸·점검자): 이름 버튼 + '나'(로그인한 사람)
+     *  - 숫자 칸: 숫자패드(+ '다음 칸'으로 연속 입력)
+     *  - 비고 칸: 자주 쓰는 문구
+     * 모두 '⌨ 직접 입력'으로 일반 키보드를 쓸 수 있다. PC(마우스)는 종전 그대로다. */
+    var touch = !!(global.matchMedia && global.matchMedia('(pointer: coarse)').matches);
+    var pop = null, popFor = null;
+    function popKind(el) {
+      if (!el || el.tagName !== 'INPUT' || el.disabled || el.readOnly) return '';
+      if (/^dkj/.test(el.id || '') || el.closest('[id^="dkj"],.dkj-login,#dkjChatbot')) return '';
+      var t = el.type;
+      if (t === 'number') return 'num';
+      if (t !== 'text') return '';
+      if (el.getAttribute('list') === 'dkjStaffList' || el.id === 'inspector' || el.getAttribute('data-info') === 'inspector') return 'staff';
+      var h = [el.id, el.name, el.getAttribute('data-f'), el.getAttribute('data-c'), el.getAttribute('data-note'), el.placeholder].join(' ');
+      if (/remark|비고|특이|mxf-note/i.test(h) || /mxf-note-in/.test(el.className)) return 'rem';
+      return '';
+    }
+    function fire(el) {
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function closePop() { if (pop) { pop.remove(); pop = null; popFor = null; } }
+    function staffNames() {
+      var dl = document.getElementById('dkjStaffList'), out = [];
+      if (dl) Array.prototype.forEach.call(dl.options, function (o) { if (o.value) out.push(o.value); });
+      return out;
+    }
+    function meName() {
+      try { var u = global.DkjAuth && global.DkjAuth.user(); return (u && (u.name || u.empId)) || ''; } catch (e) { return ''; }
+    }
+    function nextField(el, kind) {
+      var all = Array.prototype.filter.call(document.querySelectorAll('input'), function (x) {
+        return popKind(x) === kind && x.offsetParent !== null;
+      });
+      return all[all.indexOf(el) + 1] || null;
+    }
+    function place(el) {
+      var r = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+      var top = r.bottom + 6;
+      if (top + ph > global.innerHeight - 4) top = Math.max(4, r.top - ph - 6);
+      var left = Math.min(Math.max(4, r.left), Math.max(4, global.innerWidth - pw - 4));
+      pop.style.top = top + 'px';
+      pop.style.left = left + 'px';
+    }
+    function openPop(el) {
+      var kind = popKind(el);
+      if (!kind || el.getAttribute('data-pk-manual') === '1') return;
+      if (popFor === el) return;
+      closePop();
+      popFor = el;
+      pop = document.createElement('div');
+      pop.className = 'dkj-pop';
+      pop.addEventListener('pointerdown', function (e) { e.preventDefault(); }); // 칸의 포커스를 지키지 않는다
+      function btn(label, cls, fn) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.textContent = label; b.className = cls || '';
+        b.addEventListener('click', function (e) { e.preventDefault(); fn(b); });
+        return b;
+      }
+      function manual() {
+        closePop();
+        el.setAttribute('data-pk-manual', '1');
+        el.removeAttribute('inputmode');
+        el.focus();
+        el.addEventListener('blur', function () { el.removeAttribute('data-pk-manual'); markTouch(el); }, { once: true });
+      }
+      if (kind === 'num') {
+        var buf = String(el.value || '');
+        var disp = document.createElement('div');
+        disp.className = 'dkj-pop-disp';
+        pop.appendChild(disp);
+        var apply = function () {
+          disp.textContent = buf === '' ? '값 입력' : buf;
+          var n = parseFloat(buf);
+          el.value = isNaN(n) || buf === '-' ? '' : (/\.$/.test(buf) ? String(n) : buf);
+          fire(el);
+        };
+        apply();
+        var grid = document.createElement('div');
+        grid.className = 'dkj-pop-grid';
+        ['7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', '-'].forEach(function (k) {
+          grid.appendChild(btn(k, 'k', function () {
+            if (k === '.' && buf.indexOf('.') !== -1) return;
+            if (k === '-' && buf !== '') { buf = buf.charAt(0) === '-' ? buf.slice(1) : '-' + buf; apply(); return; }
+            buf += k; apply();
+          }));
+        });
+        pop.appendChild(grid);
+        var row = document.createElement('div');
+        row.className = 'dkj-pop-row';
+        row.appendChild(btn('⌫', '', function () { buf = buf.slice(0, -1); apply(); }));
+        row.appendChild(btn('지움', '', function () { buf = ''; apply(); }));
+        row.appendChild(btn('다음 칸 ▶', 'go', function () {
+          var nx = nextField(el, 'num'); closePop();
+          if (nx) nx.focus(); else el.blur();
+        }));
+        row.appendChild(btn('확인', 'ok', function () { closePop(); el.blur(); }));
+        pop.appendChild(row);
+        var k0 = btn('⌨', 'kb', manual); k0.title = '직접 입력'; row.appendChild(k0);
+      } else {
+        var list = kind === 'staff' ? staffNames() : CHIPS.rem.concat(['정상 가동', '점검 완료']);
+        var wrap = document.createElement('div');
+        wrap.className = 'dkj-pop-list';
+        if (kind === 'staff' && meName()) {
+          wrap.appendChild(btn('나 (' + meName() + ')', 'me', function () { el.value = meName(); fire(el); closePop(); el.blur(); }));
+        }
+        list.forEach(function (name) {
+          wrap.appendChild(btn(name, '', function () {
+            var cur = String(el.value || '').trim();
+            el.value = kind === 'rem' && cur && cur !== '-' ? cur + '; ' + name : name;
+            fire(el); closePop(); el.blur();
+          }));
+        });
+        wrap.appendChild(btn('⌨ 직접 입력', 'kb', manual));
+        pop.appendChild(wrap);
+      }
+      document.body.appendChild(pop);
+      place(el);
+    }
+    function markTouch(el) { if (touch && popKind(el) && el.getAttribute('data-pk-manual') !== '1') el.setAttribute('inputmode', 'none'); }
+    function markAll() {
+      if (!touch) return;
+      Array.prototype.forEach.call(document.querySelectorAll('input[type="number"],input[type="text"]'), markTouch);
+    }
+    if (touch) {
+      document.addEventListener('focusin', function (e) { markTouch(e.target); openPop(e.target); });
+      document.addEventListener('pointerdown', function (e) {
+        if (pop && !pop.contains(e.target) && e.target !== popFor) closePop();
+      }, true);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePop(); });
+      global.addEventListener('resize', closePop);
+    }
+    st.textContent += '.dkj-pop{position:fixed;z-index:99999;background:#fff;border:1px solid #b9c9bf;border-radius:12px;' +
+      'box-shadow:0 8px 28px rgba(0,0,0,.22);padding:8px;max-width:min(92vw,360px)}' +
+      '.dkj-pop button{font:inherit;font-size:16px;min-height:46px;min-width:46px;padding:6px 12px;border:1px solid #cfd8d3;' +
+      'border-radius:10px;background:#f6f8f7;color:#223;cursor:pointer}.dkj-pop button:active{background:#dfeee5}' +
+      '.dkj-pop-disp{font-size:22px;font-weight:700;text-align:right;padding:4px 8px 8px;min-height:34px;color:#1d6b3f}' +
+      '.dkj-pop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dkj-pop-row{display:flex;gap:6px;margin-top:6px}' +
+      '.dkj-pop-row .go{flex:1;background:#e8f1fb}.dkj-pop-row .ok{background:#1d6b3f;color:#fff;border-color:#1d6b3f}' +
+      '.dkj-pop-list{display:flex;flex-wrap:wrap;gap:6px}.dkj-pop-list .me{background:#e3f3ea;border-color:#9fd0b2;font-weight:700}' +
+      '.dkj-pop .kb{color:#667;font-size:14px}@media print{.dkj-pop{display:none!important}}';
     var queued = false;
     new MutationObserver(function () {
       if (queued) return;
       queued = true;
-      (global.requestAnimationFrame || setTimeout)(function () { queued = false; attach(); attachPhraseChips(); });
+      (global.requestAnimationFrame || setTimeout)(function () { queued = false; attach(); attachPhraseChips(); markAll(); });
     }).observe(document.body, { childList: true, subtree: true });
     attach();
     attachPhraseChips();
+    markAll();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installNowButtons);
   else installNowButtons();
