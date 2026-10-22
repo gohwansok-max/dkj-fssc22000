@@ -430,17 +430,25 @@
       'white-space:nowrap}.dkj-now-btn:hover{background:#dff0e5}@media print{.dkj-now-btn{display:none!important}}';
     document.head.appendChild(st);
     function attach(root) {
-      var list = (root || document).querySelectorAll('input[type="date"]:not([data-now-done]),input[type="time"]:not([data-now-done])');
+      var list = (root || document).querySelectorAll('input[type="date"]:not([data-now-done]),input[type="time"]:not([data-now-done]),input[type="text"][placeholder="08:00 ~ 08:30"]:not([data-now-done])');
       Array.prototype.forEach.call(list, function (inp) {
         inp.setAttribute('data-now-done', '1');
-        var isTime = inp.type === 'time';
+        // 서식이 이미 '지금시각' 버튼을 가진 칸(CCP 행, QC 순회 회차)은 중복으로 붙이지 않는다
+        if (inp.parentNode.querySelector('[data-now-row],[data-set-now],.mon-now-row-btn')) return;
+        var range = inp.type === 'text'; // 교육시간처럼 '시작 ~ 종료' 로 적는 글자 칸
+        var isTime = inp.type === 'time' || range;
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'dkj-now-btn';
         b.textContent = isTime ? '지금시각' : '오늘날짜';
         b.addEventListener('click', function () {
           if (inp.disabled || inp.readOnly) return;
-          inp.value = nowValue(inp.type);
+          if (range) {
+            // 첫 클릭은 시작시각, 시작만 적힌 상태의 다음 클릭은 종료시각을 채운다
+            var cur = String(inp.value || '').trim();
+            inp.value = /~\s*$/.test(cur) ? cur.replace(/\s*~\s*$/, '') + ' ~ ' + nowValue('time')
+              : nowValue('time') + ' ~ ';
+          } else inp.value = nowValue(inp.type);
           inp.dispatchEvent(new Event('input', { bubbles: true }));
           inp.dispatchEvent(new Event('change', { bubbles: true }));
         });
