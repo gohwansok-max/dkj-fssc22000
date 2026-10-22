@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-db5db45f35b7';
+self.DKJ_SW_VERSION = 'v1-1f15a619b43a';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -78,6 +78,7 @@ self.DKJ_PRECACHE = [
   './data/fr-form-specs/FR-046.json',
   './data/fr-form-specs/FR-047.json',
   './data/i18n-vi.json',
+  './data/incoming-catalog.json',
   './data/ledger-form-specs/DKJ-S-02-02.json',
   './data/ledger-form-specs/DKJ-S-02-04.json',
   './data/ledger-form-specs/DKJ-S-02-05.json',
@@ -309,6 +310,7 @@ self.DKJ_PRECACHE = [
   './js/fssc-four-domain.js',
   './js/haccp-team-settings.js',
   './js/html2pdf.bundle.min.js',
+  './js/incoming-catalog.bundle.js',
   './js/management-culture.js',
   './js/mdr-catalog.bundle.js',
   './js/mdr-register.js',

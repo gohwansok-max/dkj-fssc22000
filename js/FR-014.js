@@ -19,24 +19,9 @@
   ];
 
 
-  /* 업체·품목 선택 목록 — 입고검사 서식(DKJ-S-02-14/15)과 같은 값. 구분을 고르면 그 구분의 업체·품목만 나온다. */
-  var INCOMING = {
-    '원료': {
-      vendors: ['운봉농협', '샐러디팜', '햇뜸'],
-      items: ['로메인', '프릴', '카이피라', '라디치오', '케일', '양상추', '양상추(중국산)'],
-      na: ['c09']
-    },
-    '포장재': {
-      vendors: ['영광산업'],
-      items: ['슬로우캘리 샐러드 채소믹스 포장지', '샐러디아 샐러드 채소믹스 포장지', '농협샐러드 채소믹스 포장지', '무지 삼방봉투'],
-      na: ['c06', 'c08', 'c09']
-    },
-    '부자재': {
-      vendors: ['자재센터'],
-      items: ['슬로우캘리 샐러드 채소믹스 박스', '샐러디아 샐러드 채소믹스 박스', '농협샐러드 채소믹스 박스', '샐러드 4봉 박스 (무인쇄)'],
-      na: ['c06', 'c08', 'c09']
-    }
-  };
+  /* 업체·품목 선택 목록 — 구분을 고르면 그 구분의 업체·품목만 나온다. */
+  // 정본: data/incoming-catalog.json (번들 js/incoming-catalog.bundle.js) — 여기에 목록을 따로 적지 않는다
+  var INCOMING = (window.DKJ_INCOMING_CATALOG && window.DKJ_INCOMING_CATALOG.categories) || {};
 
   function fillList(id, list) {
     var dl = $(id);
