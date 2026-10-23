@@ -711,7 +711,7 @@
     checkDeviations();
     var message = validationMessage(state, true);
     if (message) { showValidationError(message); setStatus('확정 불가 — 입력 내용을 확인하세요.', false); return false; }
-    if (!editingId) { showValidationError('먼저 저장한 뒤 작성 확정·결재를 진행하세요.'); return false; }
+    // 저장 전이면 결재 패널이 확정 직전에 먼저 저장한다(ensureSaved) — 여기서 따로 막지 않는다.
     showValidationError('');
     return true;
   }

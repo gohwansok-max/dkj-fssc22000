@@ -123,7 +123,11 @@
             // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
             // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
             var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
-            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId })));
+            // judge 는 save() 가 비어 있으면 '작성완료' 로 채워 저장한다. state.judge('')로 덮으면 내용이
+            // 바뀐 것으로 보여 작성완료(잠금) 뒤 검토·승인 서명이 거부됐다(2026-10-23 전 서식 결재 점검).
+            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, {
+              id: editingId, title: prev.title || state.title, judge: state.judge || prev.judge || ''
+            })));
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
             (await renderHistory());
           } else {
