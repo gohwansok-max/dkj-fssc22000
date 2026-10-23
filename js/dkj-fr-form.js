@@ -108,6 +108,9 @@
     function mountApproval() {
       if (!global.DkjApproval || apvUi) return;
       apvUi = global.DkjApproval.mount({
+        // 한 번도 저장 안 한 새 시트에서 결재를 누르면 먼저 저장한다(검증 포함) — 안 그러면 서명이
+        // 이 기기 임시본에만 남아 다른 기기의 검토·승인자에게 보이지 않았다(2026-10-23 점검).
+        ensureSaved: async function () { if (!editingId) (await save(false)); return !!editingId; },
         // 이름을 입력한 직후(임시저장 디바운스 400ms 전) 확정을 눌러도
         // 빈 이름으로 반려되지 않도록 화면 값을 먼저 읽는다
         getState: function () { readForm(); return state; },

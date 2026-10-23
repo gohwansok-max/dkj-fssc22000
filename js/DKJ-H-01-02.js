@@ -322,6 +322,9 @@
   function mountApproval() {
     if (!window.DkjApproval || apvUi) return;
     apvUi = DkjApproval.mount({
+      // 한 번도 저장 안 한 새 시트에서 결재를 누르면 먼저 저장한다(검증 포함) — 안 그러면 서명이
+      // 이 기기 임시본에만 남아 다른 기기의 검토·승인자에게 보이지 않았다(2026-10-23 점검).
+      ensureSaved: async function () { if (!editingId) (await save(false)); return !!editingId; },
       stages: ['writer', 'reviewer', 'approver'],
       getState: function () { readForm(); return state; },
       // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라

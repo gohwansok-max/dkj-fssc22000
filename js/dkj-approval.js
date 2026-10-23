@@ -674,6 +674,9 @@
             }
           }
           if (!confirm(msg)) return;
+          // 아직 저장 안 된 새 기록이면 먼저 저장한다. 필수 항목이 비어 저장이 안 되면 서명도 하지 않는다.
+          if (opts.ensureSaved && !(await opts.ensureSaved())) return;
+          st = getState();
 
           if (!st.signoff) st.signoff = {};
           st.signoff[key] = {
@@ -688,9 +691,9 @@
             stageOf(key).label + ' 결재');
           await onChange(st);
           render();
-          // confirm() 을 생략한 경우는 확정됐다는 사실 자체를 알리는 화면 반응이
-          // 없으면 눌렀는지 안 눌렀는지 헷갈린다 — 짧게 토스트로 알린다.
-          if (skipConfirm && global.DkjUtil && global.DkjUtil.toast) {
+          // 확정됐다는 화면 반응을 짧게 토스트로 남긴다. (2026-10-23: 작성 단계 확인창 생략을 없애면서
+          // skipConfirm 변수를 지웠는데 이 줄이 남아 결재 확정 직후 ReferenceError 가 나던 것을 고침)
+          if (global.DkjUtil && global.DkjUtil.toast) {
             global.DkjUtil.toast('✓ ' + signer.name + ' 님으로 ' + stageOf(key).label + ' 결재가 확정됐습니다.');
           }
           notifyStageProgress(stageIdx, signer.name);
