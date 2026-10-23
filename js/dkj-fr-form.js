@@ -119,15 +119,9 @@
         // 아직 한 번도 저장 안 한 기록(editingId 없음)에는 서명할 대상이 없으므로
         // 그때만 예전처럼 임시저장으로 남긴다.
         onChange: async function () {
-          if (editingId) {
-            // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
-            // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
-            var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
-            // judge 는 save() 가 비어 있으면 '작성완료' 로 채워 저장한다. state.judge('')로 덮으면 내용이
-            // 바뀐 것으로 보여 작성완료(잠금) 뒤 검토·승인 서명이 거부됐다(2026-10-23 전 서식 결재 점검).
-            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, {
-              id: editingId, title: prev.title || state.title, judge: state.judge || prev.judge || ''
-            })));
+          // 결재 저장은 DkjApproval.persistSign 한 곳에서 한다 — 잠긴 기록은 서명·이력만 덧붙이고,
+          // 잠기지 않은 기록은 이 서식의 저장(검증·제목·판정 계산 포함)을 그대로 거친다.
+          if (await global.DkjApproval.persistSign(FORM_ID, editingId, state, function () { return save(false); })) {
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
             (await renderHistory());
           } else {

@@ -76,12 +76,9 @@
       // 이 서식은 state.locked 를 실시간으로 유지하지 않으므로(잠금은 collect() 결과에만
       // 적용) 저장돼 있던 기록의 실제 잠금 여부를 다시 물어 덮어쓰지 않게 한다.
       onChange: async function () {
-        if (editingId) {
-          var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
-          // title·locked 는 saveRecord() 안에서만 계산되고 state 에는 남지 않으므로,
-          // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목·잠금이 사라지지 않는다.
-          var data = Object.assign({}, prev, collect(), { id: editingId, locked: !!prev.locked });
-          (await DkjRecordStore.save(FORM_ID, data));
+        // 결재 저장은 DkjApproval.persistSign 한 곳에서 한다 — 잠긴 기록은 서명·이력만 덧붙이고,
+        // 잠기지 않은 기록은 이 서식의 저장(검증·제목·판정 계산 포함)을 그대로 거친다.
+        if (await window.DkjApproval.persistSign(FORM_ID, editingId, state, function () { return saveRecord(false); })) {
           setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
           (await renderHistory());
         } else {

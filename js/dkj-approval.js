@@ -689,7 +689,16 @@
           };
           append(st, 'SIGN', u ? whoLabel(u) : signer.name,
             stageOf(key).label + ' 결재');
-          await onChange(st);
+          try {
+            await onChange(st);
+          } catch (err) {
+            // 저장에 실패한 서명은 화면에서도 되돌린다(서명된 것처럼 보이는데 기록에는 없는 상태를 막는다).
+            delete st.signoff[key];
+            if (st.audit && st.audit.length) st.audit.pop();
+            render();
+            alert((err && err.message) || '결재 저장에 실패했습니다.');
+            return;
+          }
           render();
           // 확정됐다는 화면 반응을 짧게 토스트로 남긴다. (2026-10-23: 작성 단계 확인창 생략을 없애면서
           // skipConfirm 변수를 지웠는데 이 줄이 남아 결재 확정 직후 ReferenceError 가 나던 것을 고침)
@@ -787,8 +796,37 @@
     });
   }
 
+  /**
+   * 결재 서명을 저장 기록에 반영한다 — 서식 엔진 11곳이 각자 복사해 쓰던 코드를 한 곳으로 모았다(2026-10-23).
+   *  - 작성완료(잠금) 기록: 저장된 기록에 서명(signoff)·감사이력(audit)만 덧붙인다. 화면 state 전체를 덮으면
+   *    저장 때만 계산되는 칸(judge·title 등)이 달라져 '잠금 기록 수정'으로 거부됐다(FR 45종 실제 버그).
+   *  - 잠기지 않은 기록: 서식의 저장 함수(saveFull)를 그대로 부른다 — 검증·제목·판정 계산이 저장과 같다.
+   *  - 아직 저장된 기록이 없으면 false — 호출한 쪽이 임시저장으로 남긴다(보통 ensureSaved 가 먼저 저장한다).
+   */
+  async function persistSign(formId, id, state, saveFull) {
+    var store = global.DkjRecordStore;
+    var prev = id && store ? (await store.get(formId, id)) : null;
+    if (!prev) return false;
+    if (prev.locked || typeof saveFull !== 'function') {
+      (await store.save(formId, Object.assign({}, prev, {
+        id: id,
+        signoff: state.signoff || {},
+        audit: state.audit || []
+      })));
+    } else {
+      (await saveFull());
+    }
+    // 저장 함수가 검증·확인창에서 멈추면 서명이 화면에만 남는다 — 실제로 들어갔는지 확인하고, 아니면 알린다.
+    var after = (await store.get(formId, id)) || {};
+    var want = Object.keys(state.signoff || {}).filter(function (k) { return state.signoff[k] && state.signoff[k].at; });
+    var missing = want.filter(function (k) { return !(after.signoff && after.signoff[k] && after.signoff[k].at === state.signoff[k].at); });
+    if (missing.length) throw new Error('결재가 저장되지 않았습니다. 입력 내용을 확인한 뒤 다시 확정하세요.');
+    return true;
+  }
+
   global.DkjApproval = {
     mount: mount,
+    persistSign: persistSign,
     signRows: signRows,
     formatAt: fmt,
     bindFlat: bindFlat,

@@ -1801,11 +1801,9 @@
         // 결재 서명은 임시저장(이 기기에만 남고 클라우드 동기화 안 됨)이 아니라
         // 실제 저장 레코드에 바로 반영해야 다른 기기·다른 사람에게도 보인다.
         onChange: async function () {
-          if (editingId) {
-            // title/judge/workDate 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
-            // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
-            var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
-            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId, judge: inspectionResult().judge })));
+          // 결재 저장은 DkjApproval.persistSign 한 곳에서 한다 — 잠긴 기록은 서명·이력만 덧붙이고,
+          // 잠기지 않은 기록은 이 서식의 저장(검증·제목·판정 계산 포함)을 그대로 거친다.
+          if (await global.DkjApproval.persistSign(FORM_ID, editingId, state, function () { return save(false); })) {
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
             (await renderHistory());
           } else {
