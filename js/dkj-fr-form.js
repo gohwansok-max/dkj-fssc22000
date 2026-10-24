@@ -108,6 +108,9 @@
     function mountApproval() {
       if (!global.DkjApproval || apvUi) return;
       apvUi = global.DkjApproval.mount({
+        // 한 번도 저장 안 한 새 시트에서 결재를 누르면 먼저 저장한다(검증 포함) — 안 그러면 서명이
+        // 이 기기 임시본에만 남아 다른 기기의 검토·승인자에게 보이지 않았다(2026-10-23 점검).
+        ensureSaved: async function () { if (!editingId) (await save(false)); return !!editingId; },
         // 이름을 입력한 직후(임시저장 디바운스 400ms 전) 확정을 눌러도
         // 빈 이름으로 반려되지 않도록 화면 값을 먼저 읽는다
         getState: function () { readForm(); return state; },
@@ -116,11 +119,9 @@
         // 아직 한 번도 저장 안 한 기록(editingId 없음)에는 서명할 대상이 없으므로
         // 그때만 예전처럼 임시저장으로 남긴다.
         onChange: async function () {
-          if (editingId) {
-            // title/judge 는 save() 안에서만 계산되고 state 에는 남지 않으므로,
-            // 이전에 저장된 기록을 바탕으로 덮어써야 결재만 눌러도 제목이 비지 않는다.
-            var prev = (await DkjRecordStore.get(FORM_ID, editingId)) || {};
-            (await DkjRecordStore.save(FORM_ID, Object.assign({}, prev, state, { id: editingId })));
+          // 결재 저장은 DkjApproval.persistSign 한 곳에서 한다 — 잠긴 기록은 서명·이력만 덧붙이고,
+          // 잠기지 않은 기록은 이 서식의 저장(검증·제목·판정 계산 포함)을 그대로 거친다.
+          if (await global.DkjApproval.persistSign(FORM_ID, editingId, state, function () { return save(false); })) {
             setStatus('결재 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'), true);
             (await renderHistory());
           } else {

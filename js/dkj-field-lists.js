@@ -67,6 +67,8 @@
     if (L) Object.keys(L).forEach(function (k) {
       if (Array.isArray(L[k])) setList('dkjFL_loc_' + k, L[k]);
     });
+    // 장소 칸 = 교육장·사무실 등 + 작업장 구역 (구역은 workAreas 한 곳에서만 관리)
+    if (L) setList('dkjFL_loc_places', (L.placesExtra || []).concat(L.workAreas || []));
     lists.product = 'dkjFL_product'; setList('dkjFL_product', products);
     lists.vendor = 'dkjFL_vendor'; setList('dkjFL_vendor', vendors);
     lists.year = 'dkjFL_year'; setList('dkjFL_year', [String(y - 1), String(y), String(y + 1)]);

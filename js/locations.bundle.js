@@ -1,31 +1,25 @@
 window.DKJ_LOCATIONS={
-  "_doc": "장소·보관위치 선택 목록의 단일 정본. 고친 뒤 python scripts/build-catalog-bundles.py 를 돌린다(js/dkj-field-lists.js 가 번들을 읽어 서식 칸에 붙인다). workAreas 는 DKJ-S-02-05 온도 일보·DKJ-S-02-04 이물관리 점검의 구역명을 따랐다. [확인 필요] places·storage 의 사무실·문서 보관 항목은 일반 예시이니 현장 실제 명칭으로 고칠 것.",
+  "_doc": "장소·보관위치 선택 목록의 단일 정본. 고친 뒤 python scripts/build-catalog-bundles.py 를 돌린다(js/dkj-field-lists.js 가 번들을 읽어 서식 칸에 붙인다). workAreas 는 대장 서식(DKJ-S-02-02/04/05/07)의 구역명을 따랐고, tests/dkj-incoming-catalog.test.js 가 그 서식들의 구역명이 이 목록과 어긋나면 실패한다(구역을 새로 쓰면 여기에 먼저 추가). 장소 칸 목록은 placesExtra + workAreas. [확인 필요] placesExtra·storage 는 일반 예시이니 현장 실제 명칭으로 고칠 것.",
   "workAreas": [
     "출입구",
     "탈의실",
+    "화장실",
+    "복도",
+    "전실",
     "위생전실",
     "입·출고전실",
+    "입·출고장",
+    "자재창고",
     "전처리실",
     "소분작업장",
     "소독/헹굼실",
     "내포장실",
     "외포장실",
+    "냉장창고",
     "원재료 냉장창고",
     "완제품 냉장창고"
   ],
   "cold": [
-    "원재료 냉장창고",
-    "완제품 냉장창고"
-  ],
-  "places": [
-    "교육장",
-    "사무실",
-    "회의실",
-    "전처리실",
-    "소분작업장",
-    "소독/헹굼실",
-    "내포장실",
-    "외포장실",
     "원재료 냉장창고",
     "완제품 냉장창고"
   ],
@@ -40,5 +34,10 @@ window.DKJ_LOCATIONS={
     "설치위치": "workAreas",
     "라인/구역": "workAreas",
     "랙/위치": "cold"
-  }
+  },
+  "placesExtra": [
+    "교육장",
+    "사무실",
+    "회의실"
+  ]
 };
