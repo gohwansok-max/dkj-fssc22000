@@ -452,6 +452,10 @@
 
 .lgf-table input.lgf-calc:focus { outline: none; box-shadow: none; }
 
+/* 오늘 일자 행(scrollToToday 서식) — 한 달 시트에서 오늘 줄을 바로 찾게 노란 띠로 강조한다. 인쇄에는 나오지 않는다. */
+.lgf-table tr.lgf-row-today td { box-shadow: inset 0 2px 0 #f2b400, inset 0 -2px 0 #f2b400; background-color: #fff8dc; }
+.lgf-table tr.lgf-row-today td:first-child { box-shadow: inset 2px 2px 0 #f2b400, inset 0 -2px 0 #f2b400; }
+
 /* 휴무일(예: 토요일) 행 — 기재 대상이 아니므로 통째로 잠근다 */
 .lgf-table tr.lgf-row-off td { background: #f2f3f2; }
 
