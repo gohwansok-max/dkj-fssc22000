@@ -517,7 +517,10 @@
     /* 숫자패드 팝업을 쓰지 않는 서식 — 칸을 누르면 기기 기본 키보드로 바로 입력한다.
      * 작업장 온도(DKJ-S-02-05)는 한 달 시트에서 칸이 많아 팝업이 오히려 불편하다는 현장 요청(2026-10-26). */
     var NO_NUM_POPUP = /\/DKJ-S-02-05\.html(?:$|[?#])/.test((global.location && (global.location.pathname + global.location.search)) || '');
+    /* 제조시설·설비점검표(DKJ-S-02-12)는 칸마다 직원 선택 팝업이 떠 불편하다는 현장 요청(2026-10-26)으로 팝업을 전부 끈다. */
+    var NO_ANY_POPUP = /\/DKJ-S-02-12\.html(?:$|[?#])/.test((global.location && (global.location.pathname + global.location.search)) || '');
     function popKind(el) {
+      if (NO_ANY_POPUP) return '';
       if (!el || el.tagName !== 'INPUT' || el.disabled || el.readOnly) return '';
       if (/^dkj/.test(el.id || '') || el.closest('[id^="dkj"],.dkj-login,#dkjChatbot')) return '';
       var t = el.type;
