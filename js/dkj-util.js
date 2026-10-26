@@ -514,11 +514,14 @@
      * 모두 '⌨ 직접 입력'으로 일반 키보드를 쓸 수 있다. PC(마우스)는 종전 그대로다. */
     var touch = !!(global.matchMedia && global.matchMedia('(pointer: coarse)').matches);
     var pop = null, popFor = null;
+    /* 숫자패드 팝업을 쓰지 않는 서식 — 칸을 누르면 기기 기본 키보드로 바로 입력한다.
+     * 작업장 온도(DKJ-S-02-05)는 한 달 시트에서 칸이 많아 팝업이 오히려 불편하다는 현장 요청(2026-10-26). */
+    var NO_NUM_POPUP = /\/DKJ-S-02-05\.html(?:$|[?#])/.test((global.location && (global.location.pathname + global.location.search)) || '');
     function popKind(el) {
       if (!el || el.tagName !== 'INPUT' || el.disabled || el.readOnly) return '';
       if (/^dkj/.test(el.id || '') || el.closest('[id^="dkj"],.dkj-login,#dkjChatbot')) return '';
       var t = el.type;
-      if (t === 'number') return 'num';
+      if (t === 'number') return NO_NUM_POPUP ? '' : 'num';
       if (t !== 'text') return '';
       if (el.getAttribute('list') === 'dkjStaffList' || el.id === 'inspector' || el.getAttribute('data-info') === 'inspector') return 'staff';
       if (el.getAttribute('list')) return 'combo'; // 업체·품목처럼 목록에서 고르는 칸
