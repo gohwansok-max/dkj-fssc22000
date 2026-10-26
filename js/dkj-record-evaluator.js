@@ -45,8 +45,23 @@
     if (rec && rec.locked) return res;
     return { state: 'part', note: res.note + ' · 작성완료(결재) 전' };
   }
+  /** check.sheetUntilApproved — 한 달을 한 시트에서 쓰는 서식(작업장 온도·제조시설 설비점검표).
+   *  그 달 시트가 이미 있으면 오늘 칸이 비어 있어도, 전 칸을 채워 작성완료(잠금)했어도
+   *  최종 결재(승인) 전까지는 '작성 필요'·'작성 완료'로 내리지 않고 '작성 중'으로 둔다.
+   *  기준 이탈(ng)은 그대로 드러내고, 이번 달 시트가 아직 없으면(todo) 종전대로 '작성 필요'다. */
+  function holdUntilApproved(form, res, rec) {
+    if (!(form.check && form.check.sheetUntilApproved) || !rec || !res) return res;
+    if (res.state !== 'todo' && res.state !== 'done') return res;
+    var approved = rec.signoff && rec.signoff.approver && rec.signoff.approver.at;
+    if (approved) return res;
+    return { state: 'part', note: '이번 달 시트 작성 중 · 최종 결재(승인) 전' + (res.state === 'todo' ? ' · 오늘 미입력' : '') };
+  }
   /** 반환: {state:'todo'|'done'|'part'|'ng'|'none'|'off', note:string} */
   function evaluate(form, date, records, draft, isProductionDay) {
+    var ctx = { rec: null };
+    return holdUntilApproved(form, evaluateCore(form, date, records, draft, isProductionDay, ctx), ctx.rec);
+  }
+  function evaluateCore(form, date, records, draft, isProductionDay, ctx) {
     if (form._dailyDuty && !isProductionDay(date)) return { state: 'off', note: '비생산일 · 작성 의무 없음' };
 
     var mode = (form.check || {}).mode || 'event';
@@ -112,6 +127,7 @@
           ng ? { state: 'ng', note: '기준 이탈 있음' } : { state: 'done', note: unitLabel + ' 열 완료' };
         bestState = best(bestState, current);
       }
+      ctx.rec = matchedRec;
       // 임시본은 보관함에 아직 없는 기록이므로 완료로 집계하지 않는다.
       // 저장본이 없거나 저장본이 아직 미입력인 경우에만 작성 중으로 표시한다.
       if (draft && draft.days && draft.checks && (!bestState || bestState.state === 'todo')) {
@@ -168,6 +184,7 @@
         rowState = best(rowState, !written ? { state: 'todo', note: '오늘 행 미입력' } :
           bad ? { state: 'ng', note: '기준 이탈 있음' } : { state: 'done', note: '오늘 행 입력됨' });
       }
+      ctx.rec = monthRec;
       // 입력 중인 임시본은 기록보관함의 확정 기록이 아니다. 따라서 값이
       // 채워져 있어도 완료가 아니라 작성 중으로만 표시한다.
       if (draft && draft.rows && yearMonthOf(draft, monthField) === targetYm && (!rowState || rowState.state === 'todo')) {

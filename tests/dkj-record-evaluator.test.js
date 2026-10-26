@@ -112,3 +112,19 @@ test('monthlyApproval forms stay in progress until the month sheet is locked', (
   assert.equal(evaluate(row, [ledger(true)]).state, 'done');
   assert.equal(evaluate(column, [{ locked: false, days: ['2026-08-21'], checks: { a: ['X'] } }]).state, 'ng');
 });
+
+test('sheetUntilApproved keeps the month sheet in progress until the approver signs', () => {
+  const row = { mode: 'monthRows', dayKey: 'day', monthlyApproval: true, sheetUntilApproved: true };
+  const ledger = (extra) => ({ info: { month: '2026-08' }, rows: [{ day: '20', a: '18' }, { day: '21' }], ...extra });
+  assert.equal(evaluate(row, []).state, 'todo');
+  assert.equal(evaluate(row, [ledger({})]).state, 'part');
+  assert.equal(evaluate(row, [ledger({ locked: true, signoff: { writer: { at: 'x' } } })]).state, 'part');
+  assert.equal(evaluate(row, [ledger({ locked: true, signoff: { approver: { at: 'x' } } })]).state, 'todo');
+  assert.equal(evaluate({ mode: 'monthRows', dayKey: 'day' }, [ledger({})]).state, 'todo');
+  const column = { mode: 'dayColumn', monthlyApproval: true, sheetUntilApproved: true };
+  const sheet = (extra) => ({ days: ['2026-08-21'], checks: { a: [''], b: [''] }, ...extra });
+  assert.equal(evaluate(column, [sheet({})]).state, 'part');
+  assert.equal(evaluate(column, [sheet({ checks: { a: ['O'], b: ['O'] }, locked: true })]).state, 'part');
+  assert.equal(evaluate(column, [sheet({ checks: { a: ['O'], b: ['O'] }, locked: true, signoff: { approver: { at: 'x' } } })]).state, 'done');
+  assert.equal(evaluate(column, [sheet({ checks: { a: ['X'], b: ['O'] } })]).state, 'ng');
+});

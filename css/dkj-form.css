@@ -671,6 +671,8 @@ input[type="number"]:out-of-range {
   .nv-bar { padding: 0 14px; }
   .nv-panel { padding: 12px 14px 16px; }
   .dkj-form-toolbar { top: 52px; }
+  /* 좁은 화면에서는 제목 헤더 고정을 풀어, 툴바(작업 일자·저장)가 메뉴 바로 아래에 보이게 한다 */
+  .dkj-form-header { position: static; }
 }
 
 @media print {
