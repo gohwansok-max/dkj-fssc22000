@@ -7,7 +7,8 @@ window.DKJ_CONSOLE_FORMS={
     "perDay": "1일 1장 — info 날짜가 오늘인 기록이 있는지 본다.",
     "perPeriod": "주/월 1장 — 이번 주(월)에 해당하는 기록이 있는지 본다.",
     "event": "발생 시 작성 — 미작성 판정을 하지 않고 최근 기록만 보여준다.",
-    "monthlyApproval": "check.monthlyApproval:true — 월 단위 결재 서식. 오늘 입력을 마쳐도 그 달 시트가 작성완료(잠금)되기 전에는 '작성 중'으로 남긴다."
+    "monthlyApproval": "check.monthlyApproval:true — 월 단위 결재 서식. 오늘 입력을 마쳐도 그 달 시트가 작성완료(잠금)되기 전에는 '작성 중'으로 남긴다.",
+    "sheetUntilApproved": "check.sheetUntilApproved:true — 한 달을 한 시트에서 쓰는 서식(작업장 온도·제조시설 설비점검표). 그 달 시트가 있으면 오늘 칸이 비어 있거나 작성완료(잠금)했어도 최종 결재(승인) 전까지 '작성 중'으로 둔다. 시트가 아직 없으면 '작성 필요', 기준 이탈은 그대로 부적합."
   },
   "operationCalendar": {
     "label": "기본 생산일: 월요일~금요일",
@@ -65,7 +66,8 @@ window.DKJ_CONSOLE_FORMS={
           "check": {
             "mode": "monthRows",
             "dayKey": "day",
-            "monthlyApproval": true
+            "monthlyApproval": true,
+            "sheetUntilApproved": true
           }
         },
         {
@@ -75,7 +77,8 @@ window.DKJ_CONSOLE_FORMS={
           "href": "records/DKJ-S-02-12.html",
           "check": {
             "mode": "dayColumn",
-            "monthlyApproval": true
+            "monthlyApproval": true,
+            "sheetUntilApproved": true
           }
         },
         {

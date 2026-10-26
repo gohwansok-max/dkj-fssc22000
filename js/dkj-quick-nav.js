@@ -105,12 +105,105 @@
     document.body.appendChild(nav);
   }
 
+  /* ---------- 작업 일자 상단 고정 (2026-10-26, 현장 요청) ----------
+   * 일보를 아래로 스크롤하면 맨 위 '작업 일자' 칸이 화면 밖으로 나가 오늘 날짜가 안 보였다.
+   * 이미 상단에 고정된 툴바(.dkj-form-toolbar)에 일자 표시를 같이 띄운다. 값은 화면에 보이는 일자 칸을
+   * 그대로 읽기만 하므로 저장 데이터·입력 경로에는 손대지 않는다. 대장 서식처럼 칸이 통째로 다시
+   * 그려져도 따라가도록 관찰자로 다시 찾는다. 인쇄에서는 툴바째 숨겨진다. */
+  var WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+
+  function isFormPage() {
+    return !!(document.body && document.body.classList.contains('dkj-form-page'));
+  }
+
+  /** 표에 들어 있지 않은 첫 번째 날짜·월 입력칸 = 그 서식의 작업(점검) 일자 */
+  function findDateInput() {
+    var list = document.querySelectorAll('main input[type="date"], main input[type="month"]');
+    for (var i = 0; i < list.length; i++) {
+      if (!list[i].closest('table') && !list[i].closest('.dkj-form-toolbar')) return list[i];
+    }
+    return null;
+  }
+
+  function todayIso() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+
+  function describeDate(input) {
+    var v = (input && input.value) || '';
+    var m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) {
+      var wd = WEEK[new Date(+m[1], +m[2] - 1, +m[3]).getDay()];
+      return { text: m[1] + '. ' + m[2] + '. ' + m[3] + '. (' + wd + ')', isToday: v === todayIso(), empty: false };
+    }
+    m = v.match(/^(\d{4})-(\d{2})$/);
+    if (m) return { text: m[1] + '. ' + m[2] + '월', isToday: v === todayIso().slice(0, 7), empty: false };
+    return { text: '일자 미입력', isToday: false, empty: true };
+  }
+
+  function labelOf(input) {
+    var lab = input.id ? document.querySelector('label[for="' + input.id + '"]') : null;
+    var t = lab ? lab.textContent.replace(/[*\s]+$/g, '').trim() : '';
+    return t || '작업 일자';
+  }
+
+  function syncDatePin() {
+    var bar = document.querySelector('.dkj-form-toolbar');
+    if (!bar) return;
+    var input = findDateInput();
+    var pin = document.getElementById('dkjDatePin');
+    if (!input) { if (pin) pin.hidden = true; return; }
+    if (!pin) {
+      pin = document.createElement('button');
+      pin.type = 'button';
+      pin.id = 'dkjDatePin';
+      pin.className = 'dkj-date-pin';
+      pin.title = '누르면 일자 입력칸으로 이동합니다.';
+      pin.addEventListener('click', function () {
+        var el = findDateInput();
+        if (!el) return;
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        try { el.focus({ preventScroll: true }); } catch (e) { /* 포커스 불가 환경 */ }
+      });
+      bar.insertBefore(pin, bar.firstChild);
+    }
+    var info = describeDate(input);
+    var html = '<span class="dkj-date-pin__label"></span><strong class="dkj-date-pin__value"></strong>' +
+      '<span class="dkj-date-pin__tag"></span>';
+    if (!pin.firstChild) pin.innerHTML = html;
+    pin.hidden = false;
+    pin.querySelector('.dkj-date-pin__label').textContent = labelOf(input);
+    pin.querySelector('.dkj-date-pin__value').textContent = info.text;
+    pin.querySelector('.dkj-date-pin__tag').textContent = info.empty ? '' : (info.isToday ? '오늘' : '오늘 아님');
+    pin.classList.toggle('is-today', info.isToday);
+    pin.classList.toggle('is-other', !info.isToday);
+  }
+
+  function initDatePin() {
+    if (!isFormPage()) return;
+    var queued = false;
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      (global.requestAnimationFrame || global.setTimeout)(function () { queued = false; syncDatePin(); });
+    }
+    document.addEventListener('input', schedule, true);
+    document.addEventListener('change', schedule, true);
+    if (global.MutationObserver) {
+      new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+    }
+    schedule();
+  }
+
   global.DkjQuickNav = { render: render };
 
+  function boot() { render(); initDatePin(); }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', render);
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    render();
+    boot();
   }
 })(window);
 
