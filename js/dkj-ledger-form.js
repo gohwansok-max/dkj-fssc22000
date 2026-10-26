@@ -637,9 +637,47 @@
       return (c.min != null && n < c.min) || (c.max != null && n > c.max);
     }
 
+    /** scrollToToday — 한 달 시트에서 오늘 일자 행의 위치(없으면 -1). 시트의 점검 월이 이번 달일 때만 찾는다.
+     *  지난달 시트를 열었는데 같은 번호의 날을 오늘로 강조하면 틀린 행을 가리키게 된다. */
+    function todayRowIndex() {
+      var cfg = spec.scrollToToday && spec.autoWeekday;
+      if (!cfg || normMonth(state.info[cfg.monthField]) !== thisMonth()) return -1;
+      var day = new Date().getDate();
+      for (var i = 0; i < state.rows.length; i++) {
+        if (Number(String(state.rows[i][cfg.dayKey] || '').replace(/\D/g, '')) === day) return i;
+      }
+      return -1;
+    }
+    var todayScrolled = false;
+    /** 화면을 연 뒤 한 번만, 오늘 행이 화면 가운데 오도록 스크롤한다. 아래쪽 영역이 늦게 그려져 한 번에
+     *  못 닿는 경우가 있어, 행이 실제로 화면에 들어올 때까지 확인하며 재시도한다. 사용자가 직접
+     *  스크롤·터치하거나 칸에 입력 중이면 즉시 멈춘다. */
+    function scrollToTodayOnce() {
+      if (todayScrolled || todayRowIndex() < 0) return;
+      todayScrolled = true;
+      var tries = 0, stop = false;
+      function cancel() { stop = true; }
+      ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (ev) {
+        global.addEventListener(ev, cancel, { once: true, passive: true });
+      });
+      (function attempt() {
+        if (stop) return;
+        var ae = document.activeElement;
+        if (ae && ae.closest && ae.closest('#ledgerGrid')) return;
+        var tr = document.querySelector('#ledgerGrid tr.lgf-row-today');
+        if (tr && tr.offsetParent !== null) {
+          var r = tr.getBoundingClientRect();
+          if (r.top >= 0 && r.bottom <= global.innerHeight) { if (tries > 0) return; }
+          tr.scrollIntoView({ block: 'center' });
+        }
+        if (++tries < 20) global.setTimeout(attempt, 400);
+      })();
+    }
+
     function renderGrid() {
       var host = $('ledgerGrid');
       if (!host) return;
+      var todayIdx = todayRowIndex();
       var thead = global.DkjLedgerPrint
         ? global.DkjLedgerPrint.theadHtml(
             FIXED_ROWS ? COLS : COLS.concat([{ key: '__act', label: '' }]))
@@ -650,7 +688,8 @@
           : COLS.map(function (c) {
               return '<td>' + cellInput(c, ri, r[c.key] || '', r) + '</td>';
             }).join('');
-        return '<tr' + (isRowDisabled(r) ? ' class="lgf-row-off"' : '') + '>' + cells +
+        var trCls = (isRowDisabled(r) ? 'lgf-row-off' : '') + (ri === todayIdx ? ' lgf-row-today' : '');
+        return '<tr' + (trCls.trim() ? ' class="' + trCls.trim() + '"' : '') + '>' + cells +
           (FIXED_ROWS ? '' :
             '<td class="lgf-act"><button type="button" class="lgf-del" data-del="' + ri +
             '">삭제</button></td>') + '</tr>';
@@ -783,6 +822,7 @@
         });
       });
       applyLock();
+      scrollToTodayOnce();
     }
 
     /** 하단 부가 기재표(spec.extraTable) — 예: 방충방서 카트리지 교체일자·교체 수량·파손 개수 */

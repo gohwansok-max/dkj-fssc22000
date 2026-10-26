@@ -643,6 +643,7 @@
     "label": "휴무"
   },
   "pageClass": "temperature-log-page",
+  "scrollToToday": true,
   "bulkChoice": {
     "label": "냉장창고 적/부",
     "aria": "냉장창고 적합 여부 일괄 입력",
