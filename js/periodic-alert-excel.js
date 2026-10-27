@@ -16,6 +16,8 @@
     environment: '환경모니터링',
     'health-certificate': '보건증'
   };
+  /* 자가품질검사·보건증은 '자가품질검사 · 보건증' 탭(QS-ITEMS)이 정본이다(2026-10-27 통합). 이 엑셀로는 올리지 않는다. */
+  var BLOCKED_TYPES = { 'self-quality': true, 'health-certificate': true };
   var TYPE_ALIASES = {
     calibration: 'calibration', '계측기 검교정': 'calibration', '검교정': 'calibration',
     'self-quality': 'self-quality', '자가품질검사': 'self-quality', '자가 품질 검사': 'self-quality',
@@ -123,7 +125,7 @@
       sheet.addRow(HEADERS.map(function (pair) { return pair[1]; }));
       setHeader(sheet); setWidths(sheet);
       if (!isTemplate) {
-        (items || []).forEach(function (item) {
+        (items || []).filter(function (item) { return !BLOCKED_TYPES[item.type]; }).forEach(function (item) {
           sheet.addRow(HEADERS.map(function (pair) {
             var key = pair[0], value = item[key];
             if (key === 'type') value = TYPES[value] || value || '';
@@ -132,7 +134,7 @@
           }));
         });
       }
-      sheet.dataValidations.add('B2:B1001', { type: 'list', allowBlank: false, formulae: ['"계측기 검교정,자가품질검사,환경모니터링,보건증"'] });
+      sheet.dataValidations.add('B2:B1001', { type: 'list', allowBlank: false, formulae: ['"계측기 검교정,환경모니터링"'] });
       sheet.dataValidations.add('I2:I1001', { type: 'list', allowBlank: true, formulae: ['"사용,미사용"'] });
       sheet.getColumn(6).numFmt = 'yyyy-mm-dd';
 
@@ -147,7 +149,7 @@
         ['업로드 원칙', '모든 데이터 행이 검증을 통과할 때만 일괄 반영합니다. 오류가 한 행이라도 있으면 전체 업로드가 차단됩니다.'],
         ['관리 ID', '같은 ID는 기존 항목 수정, 빈 ID는 신규 등록입니다. 같은 파일 안에서는 동일 ID를 중복 입력할 수 없습니다.'],
         ['필수 입력', '관리 유형, 세부 관리 항목, 다음 예정일, 관리 주기(일), 사전 알림(일)을 입력하세요.'],
-        ['관리 유형', '계측기 검교정 / 자가품질검사 / 환경모니터링 / 보건증 중 하나를 선택하세요.'],
+        ['관리 유형', '계측기 검교정 / 환경모니터링 중 하나를 선택하세요. (자가품질검사·보건증은 \'자가품질검사 · 보건증\' 탭에서 등록합니다.)'],
         ['날짜 형식', 'YYYY-MM-DD 형식의 실제 날짜를 입력하세요. 예: 2026-09-01'],
         ['주기·사전 알림', '관리 주기는 1~3650일, 사전 알림은 0~365일의 정수만 입력할 수 있습니다.'],
         ['사용 여부', '사용 또는 미사용으로 입력합니다. 비어 있으면 사용으로 처리합니다.'],
@@ -204,7 +206,8 @@
             if (allBlank) { skipped++; continue; }
 
             var type = typeCode(typeRaw), dueDate = dateText(dueRaw), cycleDays = numeric(cycleRaw), leadDays = numeric(leadRaw), active = activeValue(activeRaw);
-            if (!type) issue(rowErrors, rowNo, 'type', '허용된 관리 유형 중 하나를 입력하세요.');
+            if (BLOCKED_TYPES[type]) issue(rowErrors, rowNo, 'type', '자가품질검사·보건증은 이 엑셀로 올릴 수 없습니다. \'자가품질검사 · 보건증\' 탭의 엑셀 양식을 사용하세요.');
+            else if (!type) issue(rowErrors, rowNo, 'type', '허용된 관리 유형(계측기 검교정·환경모니터링) 중 하나를 입력하세요.');
             if (!name || name.length > 80) issue(rowErrors, rowNo, 'name', '1~80자로 입력하세요.');
             if (!dueDate) issue(rowErrors, rowNo, 'dueDate', 'YYYY-MM-DD 형식의 올바른 날짜를 입력하세요.');
             if (!Number.isInteger(cycleDays) || cycleDays < 1 || cycleDays > 3650) issue(rowErrors, rowNo, 'cycleDays', '1~3650일의 정수를 입력하세요.');
