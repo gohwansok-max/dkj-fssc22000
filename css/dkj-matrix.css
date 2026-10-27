@@ -436,6 +436,8 @@
 .lgf-tg-btn[data-v="X"].on,
 .lgf-tg-btn[data-v="부"].on,
 .lgf-tg-btn[data-v="유"].on { background: #fdf1f0; border-color: #d93025; color: #b3261e; }
+.lgf-tg-btn[data-tone="good"].on { background: #eef7f1; border-color: #009a44; color: #00753a; }
+.lgf-tg-btn[data-tone="bad"].on { background: #fdf1f0; border-color: #d93025; color: #b3261e; }
 .lgf-tg-btn[data-v="-"].on { background: #f0f1f0; border-color: #9aa5a0; color: #5b6660; }
 
 /* 자동계산 칸(전일재고·현재 재고) — 옅은 회색으로 '여기는 적는 칸이 아니다'를
