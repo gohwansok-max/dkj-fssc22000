@@ -200,6 +200,36 @@
     }
   }
 
+  /**
+   * 완성된 HTML 본문을 그대로 보내는 범용 전송(자가품질검사·보건증 스케줄러용).
+   * 불편접수 형식으로 감싸지 않는다. Chat ID 는 쉼표·공백으로 여러 개를 줄 수 있다.
+   * @param {{text:string, buttons?:Array}} options  buttons: 인라인 키보드 행 배열
+   */
+  async function sendRaw(options) {
+    var cfg = getStorageConfig();
+    var botToken = String(cfg.botToken || '').trim();
+    var chatIds = String(cfg.chatId || '').split(/[\s,;]+/).filter(Boolean);
+    if (!botToken || !chatIds.length) {
+      return { success: false, error: 'NO_CONFIG', message: '텔레그램 봇 토큰 또는 Chat ID가 설정되지 않았습니다. [시스템 설정]에서 등록하세요.' };
+    }
+    var failures = [];
+    for (var i = 0; i < chatIds.length; i++) {
+      try {
+        var body = { chat_id: chatIds[i], text: options.text, parse_mode: 'HTML', disable_web_page_preview: true };
+        if (options.buttons && options.buttons.length) body.reply_markup = { inline_keyboard: options.buttons };
+        var response = await fetch('https://api.telegram.org/bot' + encodeURIComponent(botToken) + '/sendMessage', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+        });
+        var result = await response.json();
+        if (!result.ok) failures.push(chatIds[i] + ': ' + (result.description || '오류'));
+      } catch (err) {
+        failures.push(chatIds[i] + ': ' + err.message);
+      }
+    }
+    if (failures.length) return { success: false, error: 'SEND_FAILED', message: '텔레그램 전송 실패 — ' + failures.join(' / ') };
+    return { success: true, message: '텔레그램으로 전송했습니다.' };
+  }
+
   function escapeHtml(str) {
     return String(str == null ? '' : str)
       .replace(/&/g, '&amp;')
@@ -212,7 +242,8 @@
     getConfig: getStorageConfig,
     saveConfig: saveConfig,
     syncFromCloud: syncFromCloud,
-    sendMessage: sendMessage
+    sendMessage: sendMessage,
+    sendRaw: sendRaw
   };
 
   // 클라우드 동기화 이벤트 리스닝

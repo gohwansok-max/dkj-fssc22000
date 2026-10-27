@@ -89,7 +89,7 @@
       if (!m) continue;
       var formId = m[1];
       // 알림 설정도 list 저장 형식을 쓰지만 업무 서식은 아니다. 원본/백업은 보존한다.
-      if (formId === 'PERIODIC-ALERTS' || formId === 'PERIODIC-ALERT-SETTINGS') continue;
+      if (formId === 'PERIODIC-ALERTS' || formId === 'PERIODIC-ALERT-SETTINGS' || formId === 'QS-ITEMS') continue;
       var list;
       try { list = JSON.parse((await recordStorage().getItem(key))) || []; } catch (e) { continue; }
       if (!Array.isArray(list)) continue;

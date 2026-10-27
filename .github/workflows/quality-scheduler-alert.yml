@@ -1,0 +1,38 @@
+name: 자가품질검사·보건증 일일 알림
+
+# 매일 09:00(KST)에 scripts/quality-scheduler-alert.cjs 를 돌려 RTDB 의 스케줄러 데이터를 읽고
+# 검사 마감 초과·임박, 최신 성적서 미등록, 보건증 만료 임박 대상을 텔레그램으로 보낸다.
+# 봇 토큰·Chat ID 는 시스템 설정 화면에 등록한 값(system/settings/telegram)을 그대로 쓰므로
+# 별도 GitHub Secrets 가 필요 없다.
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # 00:00 UTC = 09:00 KST
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '텔레그램을 보내지 않고 콘솔에만 출력'
+        type: boolean
+        default: true
+      test_send:
+        description: '판정과 무관하게 연결 시험 메시지 1건만 발송(켜면 dry_run 무시, 실제 발송)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 일일 알림
+        env:
+          # 스케줄 실행은 항상 실제 발송. 수동 실행(workflow_dispatch)은 기본 dry-run.
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          TEST_SEND: ${{ github.event_name == 'workflow_dispatch' && inputs.test_send || 'false' }}
+        run: node scripts/quality-scheduler-alert.cjs
