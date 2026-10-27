@@ -203,7 +203,11 @@
         "무",
         "-"
       ],
-      "ui": "toggle"
+      "ui": "toggle",
+      "toggleTone": {
+        "유": "good",
+        "무": "bad"
+      }
     },
     {
       "key": "judge",
@@ -253,6 +257,19 @@
           "doc": "유",
           "judge": "적",
           "result": "입고"
+        }
+      }
+    }
+  ],
+  "autoSetByValue": [
+    {
+      "on": "vendor",
+      "values": {
+        "영광산업": {
+          "kind": "포장재"
+        },
+        "자재센터": {
+          "kind": "박스"
         }
       }
     }
