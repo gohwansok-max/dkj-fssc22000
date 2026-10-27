@@ -39,6 +39,12 @@
     display: block !important;
   }
 
+  /* 저장 상태·저장 실패 안내는 화면 전용이다. 시트 아래 흐름에 남으면 A4 1쪽 서식이 2쪽으로 넘어간다. */
+  #dkj-storage-status,
+  #dkj-write-failure {
+    display: none !important;
+  }
+
   .ps-page {
     font-family: "Noto Sans KR", "맑은 고딕", "Malgun Gothic", sans-serif;
     font-size: 9pt;
