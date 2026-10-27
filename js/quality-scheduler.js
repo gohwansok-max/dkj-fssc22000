@@ -1,5 +1,5 @@
 /**
- * 자가품질검사·보건증 스케줄러 화면
+ * 자가품질검사·보건증 스케줄러 화면 — 정기 알림 화면(periodic-alerts.html)의 '자가품질검사 · 보건증' 탭
  *
  * 저장: 제품·유형·보건증·성적서·설정을 모두 서식 'QS-ITEMS' 하나의 기록 목록에 kind 로 구분해 담는다
  *       (DkjRecordStore → 이 기기 IndexedDB + 클라우드 동기화. 정기 알림 화면과 같은 방식).
@@ -389,7 +389,7 @@
   async function sendToday(testOnly) {
     var tg = telegramInfo();
     if (!tg.ready) { toast('텔레그램 설정이 없습니다. 시스템 설정에서 등록하세요.', true); return; }
-    var buttons = location.protocol === 'https:' ? [[{ text: '🗓️ 스케줄러 열기', url: location.origin + location.pathname.replace(/[^/]*$/, '') + 'quality-scheduler.html' }]] : [];
+    var buttons = location.protocol === 'https:' ? [[{ text: '🗓️ 스케줄러 열기', url: location.origin + location.pathname.replace(/[^/]*$/, '') + 'periodic-alerts.html#quality' }]] : [];
     var res;
     if (testOnly) res = await DkjTelegram.sendRaw({ text: '🔧 <b>[동김제농협] 자가품질검사·보건증 알림 — 시험 메시지</b>\n이 메시지가 보이면 텔레그램 연결이 정상입니다.', buttons: buttons });
     else {
@@ -771,7 +771,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('#qsTabs button'), function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === tab); });
     ['dashboard', 'products', 'types', 'health', 'certs', 'settings'].forEach(function (t) { $('view-' + t).hidden = t !== tab; });
     renderCurrent();
-    try { history.replaceState(null, '', '#' + tab); } catch (e) {}
+    try { history.replaceState(null, '', '#quality-' + tab); } catch (e) {}
   }
   function renderCurrent() {
     refreshTypeSelects();
@@ -870,12 +870,29 @@
     setInterval(function () { if (!document.hidden && !$('qsDialog').open) refresh(); }, 60000);
   }
 
+  var TABS = ['dashboard', 'products', 'types', 'health', 'certs', 'settings'];
+  /** 정기 알림 화면의 위쪽 구분: periodic(정기 관리 항목) / quality(이 화면) */
+  function setTop(which) {
+    var quality = which === 'quality';
+    $('paPane').hidden = quality; $('qsPane').hidden = !quality;
+    Array.prototype.forEach.call(document.querySelectorAll('#paTopTabs button'), function (b) { b.classList.toggle('on', b.getAttribute('data-top') === which); });
+    if (quality) renderCurrent();
+    try { history.replaceState(null, '', quality ? '#quality-' + S.tab : '#periodic'); } catch (e) {}
+  }
+  function routeFromHash() {
+    var h = (location.hash || '').replace('#', ''), m = /^quality(?:-(\w+))?$/.exec(h);
+    if (!m) { setTop('periodic'); return; }
+    if (m[1] && TABS.indexOf(m[1]) !== -1) S.tab = m[1];
+    setTop('quality'); switchTab(S.tab);
+  }
   async function init() {
     bind();
+    $('paTopTabs').addEventListener('click', function (e) { var b = e.target.closest('button[data-top]'); if (b) setTop(b.getAttribute('data-top')); });
+    document.addEventListener('click', function (e) { var a = e.target.closest('[data-go-quality]'); if (a) { e.preventDefault(); setTop('quality'); switchTab('dashboard'); } });
+    window.addEventListener('hashchange', routeFromHash);
     try { if (window.DkjUtil && DkjUtil.ensureStaffDatalist) DkjUtil.ensureStaffDatalist(); } catch (e) {}
     await load();
-    var hash = (location.hash || '').replace('#', '');
-    switchTab(['dashboard', 'products', 'types', 'health', 'certs', 'settings'].indexOf(hash) !== -1 ? hash : 'dashboard');
+    routeFromHash();
     if (window.DkjTelegram && DkjTelegram.syncFromCloud) DkjTelegram.syncFromCloud().then(function () { if (S.tab === 'settings') renderSettingsTab(); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

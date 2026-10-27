@@ -12,12 +12,10 @@
 
   var DEFAULT_ITEMS = [
     { id: 'pa-default-calibration', type: 'calibration', name: '계측기 검교정', target: '', owner: '품질관리팀', dueDate: '', cycleDays: 365, leadDays: 7, link: 'records/FR-027.html', memo: '계측기별로 관리번호·다음 검교정일을 등록하세요.', active: true },
-    { id: 'pa-default-self-quality', type: 'self-quality', name: '자가품질검사', target: '', owner: '품질관리팀', dueDate: '', cycleDays: 30, leadDays: 7, link: '', memo: '제품·검사항목별 다음 의뢰일을 등록하세요.', active: true },
     { id: 'pa-default-personal-hygiene', type: 'environment', name: '작업자 개인위생 점검', target: '', owner: '품질관리팀', dueDate: '', cycleDays: 30, leadDays: 7, link: 'records/FR-038.html', memo: '환경모니터링 계획 기준에 맞춰 예정일을 등록하세요.', active: true },
     { id: 'pa-default-settle-plate', type: 'environment', name: '낙하균 검사', target: '', owner: '품질관리팀', dueDate: '', cycleDays: 30, leadDays: 7, link: 'records/FR-038.html', memo: '채취지점 또는 구역별로 항목을 추가 등록할 수 있습니다.', active: true },
     { id: 'pa-default-equipment-hygiene', type: 'environment', name: '설비위생점검', target: '', owner: '품질관리팀', dueDate: '', cycleDays: 30, leadDays: 7, link: '', memo: '설비 또는 구역별로 항목을 추가 등록할 수 있습니다.', active: true },
     { id: 'pa-default-water-test', type: 'environment', name: '용수검사', target: '', owner: '품질관리팀', dueDate: '', cycleDays: 90, leadDays: 7, link: 'records/FR-038.html', memo: '용수 종류·채수 지점을 대상란에 기입하세요.', active: true },
-    { id: 'pa-default-health-certificate', type: 'health-certificate', name: '보건증', target: '', owner: '인사·품질관리팀', dueDate: '', cycleDays: 365, leadDays: 7, link: '', memo: '작업자별로 성명을 넣어 개별 등록하세요.', active: true }
   ];
 
   function esc(value) {
@@ -278,8 +276,17 @@
     sessionStorage.setItem('dkj_periodic_alert_opened', '1');
     setTimeout(function () { openDialog('paAlertDialog'); }, 260);
   }
+  function renderLegacyNotice() {
+    var box = $('paLegacyNotice'); if (!box) return;
+    var legacy = state.items.filter(function (item) { return item.active && (item.type === 'self-quality' || item.type === 'health-certificate'); });
+    if (!legacy.length) { box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    box.innerHTML = '<b>이전 방식으로 등록된 자가품질검사·보건증 항목이 ' + legacy.length + '건 있습니다.</b> 이 항목은 자동으로 옮겨지지 않습니다. ' +
+      '<a href="#quality" data-go-quality>자가품질검사 · 보건증 탭</a>에서 제품·작업자를 새로 등록한 뒤(엑셀 양식으로 일괄 등록 가능), 여기 항목은 수정 화면에서 <b>알림 관리에 포함</b>을 끄세요. 두 곳에 모두 두면 같은 알림이 이중으로 나갑니다.';
+  }
   async function render() {
     state.items = (await loadItems());
+    renderLegacyNotice();
     renderSummary(); renderAlerts(); renderTable(); (await renderEmailSettings()); renderLiveInfo(); notifyNewAlerts(); maybeOpenAlertWindow();
     state.initialized = true;
   }
@@ -373,7 +380,12 @@
   function populateEditor(item) {
     item = item || blankItem();
     $('paItemId').value = item.id || '';
-    $('paItemType').value = item.type || 'calibration';
+    var typeSel = $('paItemType'), wantType = item.type || 'calibration';
+    // 자가품질검사·보건증은 이제 '자가품질검사 · 보건증' 탭에서 관리한다. 옛 항목을 열 때만 그 유형을 보여 준다.
+    if (!Array.prototype.some.call(typeSel.options, function (o) { return o.value === wantType; })) {
+      var legacy = document.createElement('option'); legacy.value = wantType; legacy.textContent = typeName(wantType) + ' (이전 방식)'; typeSel.appendChild(legacy);
+    }
+    typeSel.value = wantType;
     $('paItemName').value = item.name || '';
     $('paItemTarget').value = item.target || '';
     $('paItemOwner').value = item.owner || '';

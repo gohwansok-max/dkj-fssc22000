@@ -1,6 +1,14 @@
-# 자가품질검사·보건증 스케줄러 (quality-scheduler.html)
+# 자가품질검사·보건증 스케줄러 (정기 알림 화면의 '자가품질검사 · 보건증' 탭)
 
 코엔에프 `conf-quality-scheduler`(Supabase 기반 단일 페이지 앱)의 기능을 동김제 시스템 구조에 맞춰 이식했다. 2026-10-27.
+
+## 정기 알림과 한 화면으로 통합 (2026-10-27)
+
+`periodic-alerts.html` 위쪽에 두 탭이 있다: **정기 관리 항목**(계측기 검교정·환경모니터링·이메일 자동 발송) / **자가품질검사 · 보건증**(이 문서의 기능). 주소는 `periodic-alerts.html#quality`(탭별 `#quality-products` 등). `quality-scheduler.html`은 옛 북마크용 이동 페이지만 남겼다.
+
+- 자가품질검사·보건증의 정본은 이 탭 하나다. 정기 관리 항목에서는 두 유형을 새로 등록할 수 없고, 기본 시드 항목에서도 뺐다.
+- **이미 정기 관리 항목에 입력된 자가품질검사·보건증 항목은 자동 이관하지 않는다**(제품·식품유형 기반 vs 단순 예정일 구조라 1:1 변환이 안 된다). 화면에 안내 띠가 뜨며, 새 탭에 등록한 뒤 옛 항목은 `알림 관리에 포함`을 꺼야 알림이 이중으로 나가지 않는다.
+- `functions-periodic`(이메일)은 정기 관리 항목만 읽으므로 옛 항목을 끄면 이메일에서도 빠진다. 텔레그램은 이 탭의 데이터(`QS-ITEMS`)만 본다.
 
 ## 기능
 
@@ -47,7 +55,7 @@
 - 파일은 JSON 백업·기록보관함 내보내기에 **포함되지 않는다**(`QS-ITEMS`는 기록보관함 집계에서 제외). 목록은 엑셀 다운로드로 별도 보관한다.
 - 오프라인에서는 목록 조회·등록은 되지만(동기화 대기) 파일 열람·업로드는 되지 않는다.
 - 자가품질검사 법정 주기·건강진단 주기(식품위생법 제40조, 시행규칙 제49조)는 사용자가 입력하는 값이며 화면에 [확인 필요]로 표기했다. 식품유형·영업 형태별 기준은 1차 출처로 확인 후 입력한다.
-- 기존 `정기 알림`(periodic-alerts.html)에도 자가품질검사·보건증 유형이 있다. 이 화면과 데이터가 **연동되지 않는다** — 한쪽만 쓰도록 정하지 않으면 같은 항목이 이중 관리된다.
+- 정기 관리 항목에 옛 방식으로 입력된 자가품질검사·보건증은 이관되지 않는다(위 통합 절 참고).
 
 ## 검증
 
@@ -55,4 +63,4 @@
 
 ## 되돌리기
 
-`quality-scheduler.html`, `css/dkj-quality-scheduler.css`, `js/quality-scheduler*.js`, 워크플로·스크립트, 메뉴 링크(`data/menu-catalog.json`, `js/dkj-sidebar.js`), `dkj-export.js` 의 `QS-ITEMS` 제외, `dkj-telegram-config.js` 의 `sendRaw` 를 되돌리고 프리캐시를 재생성한다. 이미 저장된 `QS-ITEMS` 기록과 `records/…qsfile…` 노드는 남는다(무해).
+`periodic-alerts.html` 의 탭 마크업·`quality-scheduler.html`(이동 페이지), `css/dkj-quality-scheduler.css`, `js/quality-scheduler*.js`, 워크플로·스크립트, 메뉴 링크(`data/menu-catalog.json`, `js/dkj-sidebar.js`), `dkj-export.js` 의 `QS-ITEMS` 제외, `dkj-telegram-config.js` 의 `sendRaw` 를 되돌리고 프리캐시를 재생성한다. 이미 저장된 `QS-ITEMS` 기록과 `records/…qsfile…` 노드는 남는다(무해).

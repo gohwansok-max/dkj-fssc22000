@@ -86,3 +86,15 @@ body.qs-page{background:var(--qs-bg);color:var(--qs-ink);font-family:"Noto Sans 
 @media(max-width:900px){.qs-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.qs-bars{grid-template-columns:repeat(7,minmax(0,1fr))}.qs-hero{flex-direction:column;align-items:flex-start}}
 @media(max-width:620px){.qs-main{padding:12px 10px 50px}.qs-hero{padding:18px}.qs-hero h1{font-size:22px}.qs-form-grid{grid-template-columns:1fr}.qs-card{padding:14px}.qs-filters input[type=search]{min-width:0;flex:1 1 100%}}
 @media print{.ck-header,.qs-hero-actions,.qs-tabs,.qs-actions,.qs-filters,.qs-row-actions,.qs-quick,.qs-toast,.qs-btn,.qs-status{display:none!important}.qs-main{padding:0}.qs-hero{color:#000;background:none;box-shadow:none;padding:0}.qs-hero p,.qs-eyebrow{color:#333}.qs-card{box-shadow:none;break-inside:avoid}body.qs-page{background:#fff}}
+
+/* 정기 알림 화면 위쪽 구분 탭(정기 관리 항목 / 자가품질검사·보건증) */
+.pa-top-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
+.pa-top-tabs button{display:flex;flex-direction:column;gap:3px;padding:13px 16px;border:2px solid var(--qs-line);border-radius:13px;background:#fff;color:#31574a;text-align:left;font:800 15px "Noto Sans KR",sans-serif;cursor:pointer}
+.pa-top-tabs button small{color:var(--qs-muted);font-size:12px;font-weight:500}
+.pa-top-tabs button.on{border-color:var(--qs-green);background:#e7f6ee;color:var(--qs-green)}
+.pa-legacy{margin:0 0 16px;padding:12px 15px;border:1px solid #f0dc9d;border-radius:11px;background:var(--qs-amber-bg);color:#7b520a;font-size:13px;line-height:1.7}
+.pa-legacy[hidden]{display:none}
+#qsPane[hidden],#paPane[hidden]{display:none}
+.qs-hero-title{margin:0;font-size:27px;letter-spacing:-.04em}
+@media(max-width:620px){.pa-top-tabs{grid-template-columns:1fr}}
+@media print{.pa-top-tabs,.pa-legacy{display:none!important}}

@@ -141,8 +141,8 @@ window.DKJ_MENU_CATALOG={
               "href": "records-center.html?cat=daily"
             },
             {
-              "label": "자가품질검사·보건증 스케줄러",
-              "href": "quality-scheduler.html"
+              "label": "정기 알림 · 자가품질검사·보건증",
+              "href": "periodic-alerts.html#quality"
             },
             {
               "label": "DKJ-S-02-01 작업장 위생점검일지",

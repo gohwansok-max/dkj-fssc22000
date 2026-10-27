@@ -71,7 +71,7 @@ async function main() {
     console.log('텔레그램 설정이 없거나 꺼져 있어 알림을 보내지 않습니다. (시스템 설정 화면에서 등록)');
     return;
   }
-  const buttons = [[{ text: '🗓️ 스케줄러 열기', url: `${SITE_BASE}quality-scheduler.html` }]];
+  const buttons = [[{ text: '🗓️ 스케줄러 열기', url: `${SITE_BASE}periodic-alerts.html#quality` }]];
 
   if (TEST_SEND) {
     const text = `🔧 <b>[동김제농협] 자가품질검사·보건증 알림 — 연결 테스트</b>\n실행 ${today} (KST)\n이 메시지가 보이면 일일 알림 발송 경로가 정상입니다.`;
