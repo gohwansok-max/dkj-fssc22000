@@ -630,13 +630,13 @@
       "title": "이물 관리 대장",
       "rev": "Rev0",
       "fileType": "html",
-      "frequency": "이슈",
+      "frequency": "매일",
       "relatedProcedures": [],
       "htmlReady": true,
       "htmlPath": "records/DKJ-S-02-31.html",
       "mdrCode": "DKJ-S-02-31",
       "file": "records/DKJ-S-02-31.html",
-      "period": "이슈"
+      "period": "매일"
     },
     {
       "id": "DKJ-STORE-01",

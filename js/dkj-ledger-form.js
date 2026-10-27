@@ -674,6 +674,17 @@
       })();
     }
 
+    /** mergeKeys 열의 세로 병합 길이 — 묶음의 첫 행이면 길이, 이미 위 행에 합쳐진 행이면 0, 합치지 않으면 1 */
+    function mergeSpan(rows, c, i, from, to) {
+      if (!c || (spec.mergeKeys || []).indexOf(c.key) === -1) return 1;
+      var v = String(rows[i][c.key] || '').trim();
+      if (!v) return 1;
+      if (i > from && String(rows[i - 1][c.key] || '').trim() === v) return 0;
+      var n = 1;
+      while (i + n < to && String(rows[i + n][c.key] || '').trim() === v) n++;
+      return n;
+    }
+
     function renderGrid() {
       var host = $('ledgerGrid');
       if (!host) return;
@@ -686,7 +697,11 @@
         var cells = isRowDisabled(r)
           ? offRowCells(r, ri)
           : COLS.map(function (c) {
-              return '<td>' + cellInput(c, ri, r[c.key] || '', r) + '</td>';
+              // mergeKeys — 같은 값이 이어지는 미리 인쇄된 칸(작업실 등)은 세로로 합쳐 한 번만 보여준다.
+              var span = mergeSpan(state.rows, c, ri, 0, state.rows.length);
+              if (span === 0) return '';
+              return '<td' + (span > 1 ? ' rowspan="' + span + '" class="lgf-merged"' : '') + '>' +
+                cellInput(c, ri, r[c.key] || '', r) + '</td>';
             }).join('');
         var trCls = (isRowDisabled(r) ? 'lgf-row-off' : '') + (ri === todayIdx ? ' lgf-row-today' : '');
         return '<tr' + (trCls.trim() ? ' class="' + trCls.trim() + '"' : '') + '>' + cells +

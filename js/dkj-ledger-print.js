@@ -175,8 +175,16 @@
         }
         // lg-fix = 서식에 미리 인쇄된 칸(구역·항목 등). 길이를 알고 있어서 조밀
         // 인쇄에서 한 줄로 눌러도 되지만, 사람이 적는 칸은 눌러선 안 된다.
+        // mergeKeys — 같은 값이 이어지는 칸(작업실 등)은 세로로 합쳐 한 번만 찍는다.
+        var span = 1;
+        if ((spec.mergeKeys || []).indexOf(c.key) !== -1 && String(r[c.key] || '').trim()) {
+          var v = String(r[c.key]).trim();
+          if (i > a && String((rows[i - 1] || {})[c.key] || '').trim() === v) return '';
+          while (i + span < b && String((rows[i + span] || {})[c.key] || '').trim() === v) span++;
+        }
         return '<td class="' + (c.align === 'left' ? 'l' : 'c') + ' lg-cell' +
-          (c.readonly ? ' lg-fix' : '') + '">' + cellText(c, r[c.key]) + '</td>';
+          (c.readonly ? ' lg-fix' : '') + '"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '>' +
+          cellText(c, r[c.key]) + '</td>';
       }).join('') + '</tr>';
     }
     return '<table class="off-grid lg-grid"><thead>' + theadHtml(cols) + '</thead><tbody>' +

@@ -6,14 +6,17 @@
   await DkjLedgerForm.mount({
   "code": "DKJ-S-02-31",
   "title": "이물 관리 대장",
-  "subtitle": "선행요건 · 작업실별 이물 유발 물품 관리 · 건별 기록",
   "pattern": "ledger",
   "docNo": "DKJ-S-02-31",
   "rev": "0",
   "enactDate": "2026.04.21",
   "reviseDate": "-",
   "orgName": "동김제농협 산지유통센터",
-  "rows": 28,
+  "subtitle": "선행요건 · 매일 1회 · 작업실별 이물 유발 물품 점검",
+  "noAddRow": true,
+  "mergeKeys": [
+    "room"
+  ],
   "infoFields": [
     {
       "id": "checkDate",
@@ -22,8 +25,8 @@
       "required": true
     },
     {
-      "id": "writer2",
-      "label": "작성자",
+      "id": "inspector",
+      "label": "점검자",
       "type": "text",
       "required": true,
       "span": 3
@@ -34,35 +37,20 @@
       "key": "room",
       "label": "작업실",
       "width": "13%",
-      "required": true,
-      "type": "choice",
-      "choices": [
-        "소독/헹굼실",
-        "내포장실",
-        "전처리실",
-        "외포장실",
-        "소분작업장",
-        "원재료 냉장창고",
-        "완제품 냉장창고"
-      ]
+      "readonly": true
     },
     {
       "key": "item",
       "label": "품목",
-      "width": "20%",
+      "width": "19%",
       "align": "left",
-      "required": true
+      "readonly": true
     },
     {
       "key": "kind",
-      "label": "이물 유형",
-      "width": "13%",
-      "type": "choice",
-      "choices": [
-        "플라스틱",
-        "금속",
-        "유리"
-      ]
+      "label": "이물유형",
+      "width": "11%",
+      "readonly": true
     },
     {
       "key": "qty",
@@ -72,39 +60,206 @@
     },
     {
       "key": "broken",
-      "label": "파손여부",
-      "width": "10%",
+      "label": "파손여부 (양호O/불량X)",
+      "width": "11%",
       "type": "choice",
       "choices": [
         "O",
         "X"
-      ]
+      ],
+      "ui": "toggle"
     },
     {
       "key": "clean",
-      "label": "청결상태",
-      "width": "10%",
+      "label": "청결상태 (양호O/불량X)",
+      "width": "11%",
       "type": "choice",
       "choices": [
         "O",
         "X"
-      ]
+      ],
+      "ui": "toggle"
     },
     {
       "key": "replaced",
-      "label": "교체여부",
-      "width": "10%",
+      "label": "교체여부 (양호O/불량X)",
+      "width": "11%",
       "type": "choice",
       "choices": [
         "O",
         "X"
-      ]
+      ],
+      "ui": "toggle"
     },
     {
       "key": "remark",
       "label": "비고",
       "width": "16%",
       "align": "left"
+    }
+  ],
+  "defaultRows": [
+    {
+      "room": "전처리실",
+      "item": "시계",
+      "kind": "유리",
+      "qty": "2"
+    },
+    {
+      "room": "전처리실",
+      "item": "전처리용 콘티",
+      "kind": "플라스틱",
+      "qty": ""
+    },
+    {
+      "room": "전처리실",
+      "item": "온습도계",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "전처리실",
+      "item": "연필꽂이",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "전처리실",
+      "item": "볼펜형 보드마카",
+      "kind": "플라스틱",
+      "qty": "2"
+    },
+    {
+      "room": "전처리실",
+      "item": "손소독제",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "소독헹굼실",
+      "item": "밀대걸이",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "소독헹굼실",
+      "item": "바구니",
+      "kind": "플라스틱",
+      "qty": "4"
+    },
+    {
+      "room": "소독헹굼실",
+      "item": "타이머",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "소독헹굼실",
+      "item": "온습도계",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "소독헹굼실",
+      "item": "볼펜",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "소독헹굼실",
+      "item": "클립보드",
+      "kind": "플라스틱",
+      "qty": "2"
+    },
+    {
+      "room": "내포장실",
+      "item": "부적합품 콘티",
+      "kind": "플라스틱",
+      "qty": "3"
+    },
+    {
+      "room": "내포장실",
+      "item": "분무기",
+      "kind": "플라스틱",
+      "qty": "2"
+    },
+    {
+      "room": "내포장실",
+      "item": "온습도계",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "내포장실",
+      "item": "연필꽂이",
+      "kind": "플라스틱",
+      "qty": "2"
+    },
+    {
+      "room": "내포장실",
+      "item": "볼펜형 보드마카",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "내포장실",
+      "item": "볼펜",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "소분작업장",
+      "item": "박스 받침 P박스",
+      "kind": "플라스틱",
+      "qty": "6"
+    },
+    {
+      "room": "소분작업장",
+      "item": "분무기",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "소분작업장",
+      "item": "가위",
+      "kind": "금속",
+      "qty": "1"
+    },
+    {
+      "room": "외포장실",
+      "item": "박스 받침 P박스",
+      "kind": "플라스틱",
+      "qty": "11"
+    },
+    {
+      "room": "외포장실",
+      "item": "파레트",
+      "kind": "플라스틱",
+      "qty": ""
+    },
+    {
+      "room": "외포장실",
+      "item": "온습도계",
+      "kind": "플라스틱",
+      "qty": "1"
+    },
+    {
+      "room": "외포장실",
+      "item": "볼펜형 보드마카",
+      "kind": "플라스틱",
+      "qty": "5"
+    },
+    {
+      "room": "원재료 냉장창고",
+      "item": "원물 P박스",
+      "kind": "플라스틱",
+      "qty": ""
+    },
+    {
+      "room": "원재료 냉장창고",
+      "item": "파레트",
+      "kind": "플라스틱",
+      "qty": ""
     }
   ],
   "quickFillColumns": [
@@ -114,7 +269,7 @@
       "label": "비고 \"이상없음\" 일괄채움"
     }
   ],
-  "legend": "※ 평가 - 양호 : O, 불량 : X    ※ 이물 유발 가능 물품은 작업실별로 수량을 파악해 관리한다.",
+  "legend": "※ 평가 - 양호 : O, 불량 : X    ※ 이물 유발 가능 물품은 작업실별로 수량을 파악해 매일 1회 점검한다.",
   "printDensity": {
     "rowHeight": "20pt",
     "fontSize": "7.5pt"
