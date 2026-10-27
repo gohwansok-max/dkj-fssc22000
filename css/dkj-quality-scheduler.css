@@ -1,0 +1,100 @@
+:root{--qs-green:#006b3f;--qs-green2:#009a44;--qs-ink:#172b3a;--qs-muted:#60756b;--qs-line:#d9e6df;--qs-bg:#f3f8f5;--qs-red:#b42318;--qs-red-bg:#fff1f0;--qs-amber:#a45d00;--qs-amber-bg:#fff7e6;--qs-blue:#1b5fa8;--qs-blue-bg:#eef5ff;--qs-gray:#6b7a74;--qs-gray-bg:#eef1ef;--qs-purple:#6b3fa0;--qs-purple-bg:#f4eefb}
+body.qs-page{background:var(--qs-bg);color:var(--qs-ink);font-family:"Noto Sans KR",sans-serif}
+.qs-main{max-width:1320px;margin:0 auto;padding:22px 18px 70px}
+.qs-hero{display:flex;gap:20px;align-items:flex-end;justify-content:space-between;padding:26px 28px;border-radius:18px;color:#fff;background:linear-gradient(130deg,#00522f,#007f4a 62%,#12a064);box-shadow:0 10px 26px #00522f26}
+.qs-eyebrow{margin:0 0 6px;color:#c6f2d9;font-size:12px;font-weight:800;letter-spacing:.12em}
+.qs-hero h1{margin:0;font-size:27px;letter-spacing:-.04em}
+.qs-hero p{max-width:820px;margin:8px 0 0;color:#e9fff2;font-size:14px;line-height:1.7}
+.qs-hero-actions{display:flex;gap:8px;flex-wrap:wrap}
+.qs-btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border:1px solid transparent;border-radius:9px;font:700 13px "Noto Sans KR",sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap}
+.qs-btn.primary{color:#fff;background:var(--qs-green)}.qs-btn.primary:hover{background:#00562f}
+.qs-btn.light{color:#00522f;background:#fff}
+.qs-btn.outline{color:var(--qs-green);border-color:#b5d6c4;background:#fff}.qs-btn.outline:hover{background:#eef8f2}
+.qs-btn.danger{color:#fff;background:var(--qs-red)}
+.qs-btn.small{min-height:30px;padding:0 10px;font-size:12px}
+.qs-btn:disabled{opacity:.5;cursor:not-allowed}
+.qs-status{min-height:0;margin:12px 0 0;padding:0 2px;font-size:13px;font-weight:700;color:var(--qs-green)}
+.qs-status.show{padding:10px 14px;border-radius:9px;background:#e7f6ee}.qs-status.bad{color:var(--qs-red);background:var(--qs-red-bg)}
+.qs-tabs{display:flex;gap:4px;margin:14px 0;overflow-x:auto;border-bottom:2px solid var(--qs-line)}
+.qs-tabs button{flex:none;padding:11px 16px;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;color:var(--qs-muted);font:700 14px "Noto Sans KR",sans-serif;cursor:pointer}
+.qs-tabs button.on{color:var(--qs-green);border-bottom-color:var(--qs-green)}
+.qs-view[hidden]{display:none}
+.qs-card{margin-top:14px;padding:20px;border:1px solid var(--qs-line);border-radius:14px;background:#fff;box-shadow:0 4px 16px #164c2910}
+.qs-card-head{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap}
+.qs-card-head h2{margin:0;font-size:18px;letter-spacing:-.03em;color:#12402a}
+.qs-card-head p{margin:5px 0 0;color:var(--qs-muted);font-size:13px;line-height:1.65;max-width:860px}
+.qs-note{color:var(--qs-amber);font-weight:700}
+.qs-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.qs-count{display:inline-block;margin-left:6px;padding:2px 9px;border-radius:99px;background:#e7f1ec;color:var(--qs-green);font-size:12px;font-weight:800}
+.qs-banner{padding:14px 18px;border:1px solid #f1b8b2;border-radius:12px;background:var(--qs-red-bg);color:#8d261d}
+.qs-banner h3{margin:0 0 4px;font-size:15px}.qs-banner p{margin:0;font-size:13px;line-height:1.6}
+.qs-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:14px}
+.qs-kpi{display:flex;flex-direction:column;gap:6px;padding:16px;border:1px solid var(--qs-line);border-radius:12px;background:#fff;text-align:left;font-family:inherit;cursor:pointer}
+.qs-kpi span{color:var(--qs-muted);font-size:12px;font-weight:700}.qs-kpi b{font-size:28px;letter-spacing:-.04em}
+.qs-kpi.overdue b{color:var(--qs-red)}.qs-kpi.urgent b{color:var(--qs-amber)}.qs-kpi.safe b{color:var(--qs-green)}.qs-kpi.health b{color:var(--qs-purple)}
+.qs-kpi:hover,.qs-kpi.on{border-color:var(--qs-green);box-shadow:0 3px 10px #00522f1f}
+.qs-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.qs-filters input[type=search],.qs-filters select,.qs-form-grid input,.qs-form-grid select,.qs-form-grid textarea{min-height:38px;padding:7px 10px;border:1px solid #c7d9ce;border-radius:8px;background:#fff;color:var(--qs-ink);font:14px "Noto Sans KR",sans-serif}
+.qs-filters input[type=search]{min-width:200px}
+.qs-check{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--qs-muted)}
+.qs-seg{display:inline-flex;border:1px solid #c7d9ce;border-radius:9px;overflow:hidden}
+.qs-seg button{padding:8px 13px;border:0;background:#fff;color:var(--qs-muted);font:700 13px "Noto Sans KR",sans-serif;cursor:pointer}
+.qs-seg button.on{background:var(--qs-green);color:#fff}
+.qs-table-wrap{overflow-x:auto}
+.qs-table{width:100%;border-collapse:collapse;font-size:13px}
+.qs-table th{padding:10px 9px;border-bottom:2px solid var(--qs-line);background:#f4faf6;color:#31574a;text-align:left;white-space:nowrap;font-size:12px}
+.qs-table td{padding:10px 9px;border-bottom:1px solid #e8f0eb;vertical-align:middle}
+.qs-table td small{display:block;margin-top:2px;color:var(--qs-muted);font-size:11px}
+.qs-table tr.is-stopped td,.qs-table tr.is-inactive td{color:#8a9791}
+.qs-empty{padding:34px 12px;text-align:center;color:#87998f}
+.qs-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:800;white-space:nowrap}
+.qs-badge i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.qs-badge.overdue{color:var(--qs-red);background:var(--qs-red-bg)}.qs-badge.urgent{color:var(--qs-amber);background:var(--qs-amber-bg)}
+.qs-badge.safe{color:var(--qs-green);background:#e7f6ee}.qs-badge.stopped,.qs-badge.inactive{color:var(--qs-gray);background:var(--qs-gray-bg)}
+.qs-badge.paused{color:var(--qs-purple);background:var(--qs-purple-bg)}
+.qs-row-actions{display:flex;gap:5px;flex-wrap:wrap}
+.qs-quick{display:flex;gap:5px;align-items:center}.qs-quick input{width:132px;min-height:30px;padding:3px 6px;border:1px solid #c7d9ce;border-radius:7px;font:12px "Noto Sans KR",sans-serif}
+.qs-bars{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:8px;align-items:end;min-height:150px}
+.qs-bar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;font-size:11px;color:var(--qs-muted)}
+.qs-bar i{display:block;width:100%;max-width:38px;min-height:3px;border-radius:5px 5px 0 0;background:var(--qs-green2)}
+.qs-bar.warn i{background:#e0902a}.qs-bar.bad i{background:var(--qs-red)}.qs-bar b{color:var(--qs-ink);font-size:13px}
+.qs-bar-names{max-width:100%;text-align:center;line-height:1.35;word-break:keep-all}
+.qs-matrix th,.qs-matrix td{text-align:center}.qs-matrix th:first-child,.qs-matrix td:first-child{text-align:left}
+.qs-matrix td.has{background:#e7f6ee;color:var(--qs-green);font-weight:800}.qs-matrix td.has.late{background:var(--qs-red-bg);color:var(--qs-red)}
+.qs-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.qs-form-grid label{display:flex;flex-direction:column;gap:5px;color:#31574a;font-size:12px;font-weight:800}
+.qs-form-grid label.wide{grid-column:1/-1}.qs-form-grid textarea{min-height:70px;resize:vertical}
+.qs-form-grid .req{color:var(--qs-red)}
+.qs-hint{margin:12px 0 0;padding:11px 13px;border-left:4px solid var(--qs-green2);border-radius:7px;background:#eef8f2;color:#31574a;font-size:13px;line-height:1.65}
+.qs-hint.warn{border-color:#e09224;background:var(--qs-amber-bg);color:#7b520a}
+.qs-list{margin:0;padding-left:20px;color:#385a4b;font-size:13px;line-height:1.85}
+.qs-tg{margin-bottom:12px;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.7;background:var(--qs-gray-bg)}
+.qs-tg.ok{background:#e7f6ee;color:#0b5932}.qs-tg.warn{background:var(--qs-amber-bg);color:#7b520a}
+.qs-excel-errors{margin-bottom:12px;padding:12px 14px;border:1px solid #f1c4bd;border-radius:10px;background:#fff7f6;color:#8d261d;font-size:12px}
+.qs-excel-errors ul{margin:6px 0 0;padding-left:18px}
+.qs-dialog{width:min(640px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:0;border:0;border-radius:16px;box-shadow:0 18px 60px #0007}
+.qs-dialog::backdrop{background:#0b1f1699}
+.qs-dialog-form{display:flex;flex-direction:column;max-height:calc(100vh - 24px)}
+.qs-dialog-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--qs-line)}
+.qs-dialog-head h2{margin:0;font-size:18px}
+.qs-icon-btn{width:34px;height:34px;border:0;border-radius:50%;background:#eef3f0;font-size:20px;cursor:pointer}
+.qs-dialog-body{padding:18px 20px;overflow-y:auto}
+.qs-dialog-actions{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--qs-line)}
+.qs-dialog-actions .spacer{flex:1}
+.qs-toast{position:fixed;left:50%;bottom:24px;z-index:9999;max-width:calc(100vw - 32px);padding:12px 18px;border-radius:10px;background:#12402a;color:#fff;font-size:13px;font-weight:700;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:.2s}
+.qs-toast.show{opacity:1;transform:translate(-50%,0)}.qs-toast.bad{background:var(--qs-red)}
+@media(max-width:900px){.qs-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.qs-bars{grid-template-columns:repeat(7,minmax(0,1fr))}.qs-hero{flex-direction:column;align-items:flex-start}}
+@media(max-width:620px){.qs-main{padding:12px 10px 50px}.qs-hero{padding:18px}.qs-hero h1{font-size:22px}.qs-form-grid{grid-template-columns:1fr}.qs-card{padding:14px}.qs-filters input[type=search]{min-width:0;flex:1 1 100%}}
+@media print{.ck-header,.qs-hero-actions,.qs-tabs,.qs-actions,.qs-filters,.qs-row-actions,.qs-quick,.qs-toast,.qs-btn,.qs-status{display:none!important}.qs-main{padding:0}.qs-hero{color:#000;background:none;box-shadow:none;padding:0}.qs-hero p,.qs-eyebrow{color:#333}.qs-card{box-shadow:none;break-inside:avoid}body.qs-page{background:#fff}}
+
+/* 정기 알림 화면 위쪽 구분 탭(정기 관리 항목 / 자가품질검사·보건증) */
+.pa-top-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
+.pa-top-tabs button{display:flex;flex-direction:column;gap:3px;padding:13px 16px;border:2px solid var(--qs-line);border-radius:13px;background:#fff;color:#31574a;text-align:left;font:800 15px "Noto Sans KR",sans-serif;cursor:pointer}
+.pa-top-tabs button small{color:var(--qs-muted);font-size:12px;font-weight:500}
+.pa-top-tabs button.on{border-color:var(--qs-green);background:#e7f6ee;color:var(--qs-green)}
+.pa-legacy{margin:0 0 16px;padding:12px 15px;border:1px solid #f0dc9d;border-radius:11px;background:var(--qs-amber-bg);color:#7b520a;font-size:13px;line-height:1.7}
+.pa-legacy[hidden]{display:none}
+#qsPane[hidden],#paPane[hidden]{display:none}
+.qs-hero-title{margin:0;font-size:27px;letter-spacing:-.04em}
+@media(max-width:620px){.pa-top-tabs{grid-template-columns:1fr}}
+@media print{.pa-top-tabs,.pa-legacy{display:none!important}}

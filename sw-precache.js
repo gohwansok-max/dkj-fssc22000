@@ -1,5 +1,5 @@
 /* 자동 생성 — scripts/build-sw-precache.py. 직접 고치지 마세요. */
-self.DKJ_SW_VERSION = 'v1-657afb0e12b8';
+self.DKJ_SW_VERSION = 'v1-87db90fbc820';
 self.DKJ_PRECACHE = [
   './assets/brand/dkj-icon-maskable.svg',
   './assets/brand/dkj-icon.svg',
@@ -21,6 +21,7 @@ self.DKJ_PRECACHE = [
   './css/dkj-periodic-alerts.css',
   './css/dkj-print.css',
   './css/dkj-production.css',
+  './css/dkj-quality-scheduler.css',
   './css/dkj-quick-nav.css',
   './css/dkj-sidebar.css',
   './css/dkj-tokens.css',
@@ -327,6 +328,8 @@ self.DKJ_PRECACHE = [
   './js/production-master.bundle.js',
   './js/products.bundle.js',
   './js/quality-dashboard.js',
+  './js/quality-scheduler-core.js',
+  './js/quality-scheduler.js',
   './js/record-catalog.bundle.js',
   './js/records-archive.js',
   './js/records-center.js',
@@ -341,6 +344,7 @@ self.DKJ_PRECACHE = [
   './periodic-alerts.html',
   './production-dashboard.html',
   './quality-dashboard.html',
+  './quality-scheduler.html',
   './record-viewer.html',
   './records-archive.html',
   './records-center.html',

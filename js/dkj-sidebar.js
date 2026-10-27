@@ -15,7 +15,7 @@
       ['경영검토·식품안전문화', 'management-culture.html'], ['비상·식품방어 훈련', 'emergency-drills.html']
     ] },
     { title: '운영 · 관리', links: [
-      ['정기 알림', 'periodic-alerts.html'], ['HACCP팀 설정', 'haccp-team-settings.html'],
+      ['정기 알림 · 검사·보건증', 'periodic-alerts.html'], ['HACCP팀 설정', 'haccp-team-settings.html'],
       ['임원 통합 현황', 'executive-dashboard.html'], ['전자결재·감사이력', 'audit-trail.html'],
       ['회사소개서', 'company-profile.html']
     ] }
