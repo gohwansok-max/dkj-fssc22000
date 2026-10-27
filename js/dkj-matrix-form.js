@@ -749,7 +749,13 @@
           });
           // 잘못 눌렀을 때를 위한 되돌리기 — 이 클릭으로 실제 바뀐 칸만 기억해 둔다
           // (이미 X·— 등이 적혀 있던 칸은 안 건드렸으니 되돌릴 것도 없다).
-          lastFillO = changed.length ? { day: d, keys: changed } : null;
+          // 개별 칸 클릭과 같이, 그 날 점검자(서명)칸이 비어 있으면 작성자로 채운다.
+          var signFilled = false;
+          if (changed.length && !state.signs[d] && state.approvals.writer) {
+            state.signs[d] = state.approvals.writer;
+            signFilled = true;
+          }
+          lastFillO = changed.length ? { day: d, keys: changed, sign: signFilled } : null;
           refreshUndoFillO();
           renderMatrix();
           renderSummary();
@@ -762,6 +768,7 @@
           lastFillO.keys.forEach(function (key) {
             if (state.checks[key]) state.checks[key][lastFillO.day] = '';
           });
+          if (lastFillO.sign && state.signs[lastFillO.day] === state.approvals.writer) state.signs[lastFillO.day] = '';
           lastFillO = null;
           refreshUndoFillO();
           renderMatrix();
