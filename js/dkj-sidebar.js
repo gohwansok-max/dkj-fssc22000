@@ -4,9 +4,7 @@
   var GROUPS = [
     { title: '현장 업무', links: [
       ['오늘 할 일', 'index.html#todayTasks'], ['기록센터 · 서식 작성', 'records-center.html'],
-      ['기록보관함', 'records-archive.html'], ['QC 공정검사일보', 'records/DKJ-QC-001.html'],
-      ['생산일지', 'records/DKJ-F-053.html'], ['생산분석', 'production-dashboard.html'],
-      ['품질 경보', 'quality-dashboard.html']
+      ['기록보관함', 'records-archive.html']
     ] },
     { title: '문서 · 인증', links: [
       ['문서센터', 'docs-center.html'], ['정본 열람실', 'official-documents.html'],
@@ -18,11 +16,13 @@
       ['회사소개서', 'company-profile.html']
     ] }
   ];
-  /* 2026-10-27 사이드바 정리 — 버튼만 숨겼고 화면·문서는 그대로 있다(상단 메뉴·직접 주소로 열림).
+  /* 2026-10-27~28 사이드바 정리 — 버튼만 숨겼고 화면·문서는 그대로 있다(상단 메뉴·직접 주소로 열림).
    * 다시 보이게 하려면 아래 항목을 '문서 · 인증' 그룹 links 로 옮긴다. */
   var HIDDEN_LINKS = [
     ['추적성·모의회수', 'traceability.html'], ['FSSC 심사준비', 'fssc-audit-readiness.html'],
-    ['경영검토·식품안전문화', 'management-culture.html'], ['비상·식품방어 훈련', 'emergency-drills.html']
+    ['경영검토·식품안전문화', 'management-culture.html'], ['비상·식품방어 훈련', 'emergency-drills.html'],
+    ['QC 공정검사일보', 'records/DKJ-QC-001.html'], ['생산일지', 'records/DKJ-F-053.html'],
+    ['생산분석', 'production-dashboard.html'], ['품질 경보', 'quality-dashboard.html']
   ];
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
   function activePath(href) {
