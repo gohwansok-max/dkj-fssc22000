@@ -128,3 +128,13 @@ test('sheetUntilApproved keeps the month sheet in progress until the approver si
   assert.equal(evaluate(column, [sheet({ checks: { a: ['O'], b: ['O'] }, locked: true, signoff: { approver: { at: 'x' } } })]).state, 'done');
   assert.equal(evaluate(column, [sheet({ checks: { a: ['X'], b: ['O'] } })]).state, 'ng');
 });
+
+test('sheetInProgress keeps a partly written weekly sheet in progress even when today is empty', () => {
+  const check = { mode: 'dayColumn', sheetInProgress: true };
+  const sheet = (today, other) => ({ days: ['2026-08-20', '2026-08-21'], checks: { a: [other, today], b: ['', ''] } });
+  assert.equal(evaluate(check, [sheet('', '')]).state, 'todo');
+  assert.equal(evaluate(check, [sheet('', 'O')]).state, 'part');
+  assert.equal(evaluate(check, [], sheet('', 'O')).state, 'part');
+  assert.equal(evaluate(check, [sheet('O', 'O')]).state, 'part');
+  assert.equal(evaluate({ mode: 'dayColumn' }, [sheet('', 'O')]).state, 'todo');
+});

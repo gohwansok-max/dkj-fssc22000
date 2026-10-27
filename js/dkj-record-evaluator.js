@@ -37,6 +37,13 @@
     var m = raw.match(/(\d{4})\D+(\d{1,2})/);
     return m ? (Number(m[1]) * 100 + Number(m[2])) : null;
   }
+  /** 시트(기록 또는 임시본)에 입력된 칸이 하나라도 있는가 */
+  function sheetHasInput(rec) {
+    var checks = (rec && rec.checks) || {};
+    return Object.keys(checks).some(function (key) {
+      return (checks[key] || []).some(function (v) { return String(v || '').trim(); });
+    });
+  }
   /** check.monthlyApproval — 월 단위로 결재하는 서식은 오늘 입력을 마쳤어도 그 달 시트가
    *  '작성완료'(잠금)되기 전에는 완료로 보지 않고 '작성 중'으로 남겨 목록에서 계속 챙기게 한다.
    *  기준 이탈(ng)은 그대로 드러낸다. rec 는 오늘이 속한 달 시트 기록. */
@@ -139,6 +146,13 @@
           });
           if (draftFilled) return { state: 'part', note: '작성 중' };
         }
+      }
+      // check.sheetInProgress — 한 시트(예: 6일 단위)를 며칠에 걸쳐 쓰는 서식은 오늘 열이 비어 있어도
+      // 같은 시트에 입력한 칸이 하나라도 있으면 '작성 필요'가 아니라 '작성 중'으로 둔다.
+      if (form.check.sheetInProgress && (!bestState || bestState.state === 'todo')) {
+        var sheetRec = matchedRec && sheetHasInput(matchedRec) ? matchedRec :
+          (draft && draft.days && draft.checks && draft.days.indexOf(target) >= 0 && sheetHasInput(draft) ? draft : null);
+        if (sheetRec) return { state: 'part', note: '이번 시트 작성 중 · ' + unitLabel + ' 열 미입력' };
       }
       if (!bestState) return { state: 'todo', note: '이번 시트 없음' };
       // weekMode — 주 1회 점검이지만 결재는 그 달 시트 전체(모든 주)가 끝나야

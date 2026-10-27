@@ -1,7 +1,7 @@
 window.DKJ_CONSOLE_FORMS={
   "_doc": "업무 콘솔이 읽는 서식 레지스트리. check.mode 가 '오늘 작성했는가' 판정 방식을 정한다.",
   "_modes": {
-    "dayColumn": "매트릭스 서식 — 시트는 주/월 단위지만 기입은 날짜 열마다 한다. 오늘 열이 채워졌는지 본다. check.dayMode:'week'(+weekStartDay)를 주면 열이 요일이 아니라 주차라, '오늘'이 아니라 '이번 주' 열을 찾고, 결재도 그 달 시트 전체 주가 다 채워져야 완료로 본다(예: 저수조관리, 매주 금요일 점검·월 단위 결재).",
+    "dayColumn": "매트릭스 서식 — 시트는 주/월 단위지만 기입은 날짜 열마다 한다. 오늘 열이 채워졌는지 본다. check.dayMode:'week'(+weekStartDay)를 주면 열이 요일이 아니라 주차라, '오늘'이 아니라 '이번 주' 열을 찾고, 결재도 그 달 시트 전체 주가 다 채워져야 완료로 본다(예: 저수조관리, 매주 금요일 점검·월 단위 결재). check.sheetInProgress:true — 한 시트를 며칠에 걸쳐 쓰는 서식(작업장·개인위생 점검)은 오늘 열이 비어 있어도 같은 시트에 입력한 칸이 하나라도 있으면 '작성 필요' 대신 '작성 중'으로 둔다.",
     "dayRow": "대장 서식 — 행이 1~31일이다. 오늘 일자 행이 채워졌는지 본다.",
     "monthRows": "대장 서식(dayRow와 동일한 데이터) — 오늘 행이 비어 있으면 dayRow처럼 '작성 필요'로 재촉하되, 오늘 행을 채워도 이번 달 생산일 행이 전부 채워지기 전까지는 '완료'로 숨기지 않고 '작성 중'으로 남긴다. 매일 적지만 월 단위로 마감하는 서식(작업장 온도 등)용.",
     "perDay": "1일 1장 — info 날짜가 오늘인 기록이 있는지 본다.",
@@ -35,7 +35,8 @@ window.DKJ_CONSOLE_FORMS={
           "href": "records/DKJ-S-02-01.html",
           "check": {
             "mode": "dayColumn",
-            "monthlyApproval": true
+            "monthlyApproval": true,
+            "sheetInProgress": true
           }
         },
         {
@@ -45,7 +46,8 @@ window.DKJ_CONSOLE_FORMS={
           "href": "records/DKJ-S-02-03.html",
           "check": {
             "mode": "dayColumn",
-            "monthlyApproval": true
+            "monthlyApproval": true,
+            "sheetInProgress": true
           }
         },
         {
