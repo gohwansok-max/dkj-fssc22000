@@ -790,6 +790,8 @@
                 state.checks[r.key][d] = 'O';
               }
             });
+            // 전체 적합으로 채운 날의 빈 점검자(서명)칸도 작성자로 채운다.
+            fillEmptySigns();
             renderMatrix();
             renderSummary();
             scheduleDraft();
