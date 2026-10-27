@@ -141,7 +141,7 @@ window.DKJ_MENU_CATALOG={
               "href": "records-center.html?cat=daily"
             },
             {
-              "label": "정기 알림 · 자가품질검사·보건증",
+              "label": "자가품질검사·보건증",
               "href": "periodic-alerts.html#quality"
             },
             {

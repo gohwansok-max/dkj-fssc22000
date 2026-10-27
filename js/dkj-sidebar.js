@@ -15,7 +15,7 @@
       ['경영검토·식품안전문화', 'management-culture.html'], ['비상·식품방어 훈련', 'emergency-drills.html']
     ] },
     { title: '운영 · 관리', links: [
-      ['정기 알림 · 검사·보건증', 'periodic-alerts.html'], ['HACCP팀 설정', 'haccp-team-settings.html'],
+      ['정기 알림', 'periodic-alerts.html#periodic'], ['자가품질검사·보건증', 'periodic-alerts.html#quality'], ['HACCP팀 설정', 'haccp-team-settings.html'],
       ['임원 통합 현황', 'executive-dashboard.html'], ['전자결재·감사이력', 'audit-trail.html'],
       ['회사소개서', 'company-profile.html']
     ] }
@@ -24,7 +24,13 @@
   function activePath(href) {
     var path = href.split('#')[0].split('?')[0];
     var current = location.pathname.replace(/^.*\//, '') || 'index.html';
-    return current === (path.replace(/^.*\//, '') || 'index.html');
+    if (current !== (path.replace(/^.*\//, '') || 'index.html')) return false;
+    // 정기 알림 화면은 한 페이지 안에 두 탭이 있어 해시로 어느 메뉴인지 가른다.
+    if (current === 'periodic-alerts.html') {
+      var quality = /^#quality/.test(location.hash || '');
+      return /#quality/.test(href) ? quality : !quality;
+    }
+    return true;
   }
   function loadCss(base) {
     if (document.getElementById('dkjSidebarCss')) return;
@@ -49,6 +55,9 @@
       return;
     }
     root._dkjSidebarMounted = true;
+    global.addEventListener('hashchange', function () {
+      root.querySelectorAll('.dkj-sidebar-link').forEach(function (a) { a.classList.toggle('is-active', activePath(a.getAttribute('href'))); });
+    });
     root.id = 'gnb'; root.classList.add('dkj-nav', 'dkj-sidebar');
     root.setAttribute('aria-label', '주요 메뉴');
     root.innerHTML = '<div class="dkj-sidebar-head"><a class="dkj-sidebar-brand" href="' + esc(base + 'index.html') + '">동김제농협<span>산지유통센터</span></a>' +
