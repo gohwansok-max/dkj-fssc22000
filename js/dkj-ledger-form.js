@@ -490,7 +490,8 @@
       if (v && choices.indexOf(v) === -1) choices.push(v);
       return '<div class="lgf-tg" role="group">' + choices.map(function (o) {
         return '<button type="button" class="lgf-tg-btn' + (v === o ? ' on' : '') +
-          '" data-r="' + ri + '" data-tg="' + c.key + '" data-v="' + esc(o) + '">' + esc(o) + '</button>';
+          '" data-r="' + ri + '" data-tg="' + c.key + '" data-v="' + esc(o) + '"' +
+          (c.toggleTone && c.toggleTone[o] ? ' data-tone="' + esc(c.toggleTone[o]) + '"' : '') + '>' + esc(o) + '</button>';
       }).join('') + '</div>';
     }
 
@@ -630,6 +631,26 @@
       return done;
     }
 
+    /** autoSetByValue — 값을 고르면 다른 선택 칸을 정해진 값으로 바꾼다(예: 업체명 → 구분).
+        바뀐 구분에 autoFillByChoice 가 있으면 구분을 직접 고른 것과 같이 점검 칸도 채운다.
+        고른 직후에만 적용하고, 이미 같은 값이면 아무것도 건드리지 않는다. */
+    function applyAutoSet(key, ri, value) {
+      var changed = false;
+      if (state.locked || !String(value || '').trim()) return false;
+      (spec.autoSetByValue || []).forEach(function (as) {
+        if (as.on !== key) return;
+        var vals = as.values && as.values[value];
+        if (!vals) return;
+        Object.keys(vals).forEach(function (fk) {
+          if (state.rows[ri][fk] === vals[fk]) return;
+          state.rows[ri][fk] = vals[fk];
+          applyAutoFill(fk, ri, vals[fk]);
+          changed = true;
+        });
+      });
+      return changed;
+    }
+
     /** allowDash 숫자 칸의 관리기준 이탈 여부 — '-'·빈칸·숫자가 아닌 글자는 이탈이 아니다 */
     function isOutOfRange(c, v) {
       var n = parseFloat(v);
@@ -748,7 +769,9 @@
           if (STOCK_INPUT[key]) { recalcStock(); syncCalcCells(); }
           // autoFillByChoice — 구분(박스 등)을 고르면 정해진 점검 칸을 한 번에 채운다.
           // 고른 직후에만 적용하므로 저장된 기록을 열 때는 값이 바뀌지 않고, 이후 손으로 고칠 수 있다.
-          var filled = el.tagName === 'SELECT' && applyAutoFill(key, ri, el.value);
+          // autoSetByValue — 업체명 등을 고르면 구분 같은 다른 선택 칸을 함께 정한다(값이 바뀔 때만).
+          var setOther = applyAutoSet(key, ri, el.value);
+          var filled = (el.tagName === 'SELECT' && applyAutoFill(key, ri, el.value)) || setOther;
           if (filled || (el.tagName === 'SELECT' && COLS.some(function (cc) {
             return cc.choicesBy && cc.choicesBy.field === key;
           }))) { renderGrid(); scheduleDraft(); return; }
