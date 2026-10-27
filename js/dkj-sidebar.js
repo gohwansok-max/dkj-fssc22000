@@ -10,15 +10,19 @@
     ] },
     { title: '문서 · 인증', links: [
       ['문서센터', 'docs-center.html'], ['정본 열람실', 'official-documents.html'],
-      ['문서관리대장', 'mdr-register.html'], ['CAPA 관리', 'capa-management.html'],
-      ['추적성·모의회수', 'traceability.html'], ['FSSC 심사준비', 'fssc-audit-readiness.html'],
-      ['경영검토·식품안전문화', 'management-culture.html'], ['비상·식품방어 훈련', 'emergency-drills.html']
+      ['문서관리대장', 'mdr-register.html'], ['CAPA 관리', 'capa-management.html']
     ] },
     { title: '운영 · 관리', links: [
       ['정기 알림', 'periodic-alerts.html#periodic'], ['자가품질검사·보건증', 'periodic-alerts.html#quality'], ['HACCP팀 설정', 'haccp-team-settings.html'],
       ['임원 통합 현황', 'executive-dashboard.html'], ['전자결재·감사이력', 'audit-trail.html'],
       ['회사소개서', 'company-profile.html']
     ] }
+  ];
+  /* 2026-10-27 사이드바 정리 — 버튼만 숨겼고 화면·문서는 그대로 있다(상단 메뉴·직접 주소로 열림).
+   * 다시 보이게 하려면 아래 항목을 '문서 · 인증' 그룹 links 로 옮긴다. */
+  var HIDDEN_LINKS = [
+    ['추적성·모의회수', 'traceability.html'], ['FSSC 심사준비', 'fssc-audit-readiness.html'],
+    ['경영검토·식품안전문화', 'management-culture.html'], ['비상·식품방어 훈련', 'emergency-drills.html']
   ];
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
   function activePath(href) {
