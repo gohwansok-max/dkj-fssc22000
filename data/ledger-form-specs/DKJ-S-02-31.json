@@ -9,6 +9,20 @@
   "orgName": "동김제농협 산지유통센터",
   "subtitle": "선행요건 · 매일 1회 · 작업실별 이물 유발 물품 점검",
   "noAddRow": true,
+  "bulkChoiceKeys": [
+    "broken",
+    "clean",
+    "replaced"
+  ],
+  "bulkChoiceValues": [
+    "O"
+  ],
+  "bulkChoiceLabel": "파손·청결·교체 전체",
+  "bulkChoice": {
+    "label": "점검결과",
+    "aria": "파손여부·청결상태·교체여부 일괄 입력",
+    "okText": "전체 O"
+  },
   "mergeKeys": [
     "room"
   ],
