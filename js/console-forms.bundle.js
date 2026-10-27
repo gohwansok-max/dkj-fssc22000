@@ -59,6 +59,15 @@ window.DKJ_CONSOLE_FORMS={
           }
         },
         {
+          "code": "DKJ-S-02-31",
+          "title": "이물 관리대장",
+          "href": "records/DKJ-S-02-31.html",
+          "check": {
+            "mode": "perDay",
+            "dateField": "checkDate"
+          }
+        },
+        {
           "code": "DKJ-S-02-05",
           "title": "작업장 온도",
           "priority": "high",
@@ -202,14 +211,6 @@ window.DKJ_CONSOLE_FORMS={
           "code": "DKJ-S-02-08",
           "title": "폐기물 관리",
           "href": "records/DKJ-S-02-08.html",
-          "check": {
-            "mode": "event"
-          }
-        },
-        {
-          "code": "DKJ-S-02-31",
-          "title": "이물 관리대장",
-          "href": "records/DKJ-S-02-31.html",
           "check": {
             "mode": "event"
           }
