@@ -428,15 +428,18 @@
   function fv(id) { var el = $(id); return el ? String(el.value).trim() : ''; }
   function field(label, html, wide, req) { return '<label' + (wide ? ' class="wide"' : '') + '>' + esc(label) + (req ? ' <span class="req">*</span>' : '') + html + '</label>'; }
 
-  function openTypeDialog(id) {
+  /** opts.prefillName: 새 유형의 기본 이름 / opts.thenProduct: 저장 후 이어서 제품 등록 창을 연다 */
+  function openTypeDialog(id, opts) {
+    opts = opts || {};
     var t = id ? byId(S.items.type, id) : null;
-    openDialog(t ? '식품유형 수정' : '새 식품유형 등록',
+    openDialog(t ? '식품유형 수정' : (opts.thenProduct ? '식품유형 등록 (제품 등록 전 1회)' : '새 식품유형 등록'),
       '<div class="qs-form-grid">' +
-      field('식품유형명', '<input id="fName" maxlength="60" value="' + esc(t ? t.name : '') + '" placeholder="예: 액상차">', true, true) +
-      field('기준 검사 주기(개월)', '<input id="fInterval" type="number" min="1" max="60" step="1" value="' + esc(t ? t.intervalMonths : 2) + '">', false, true) +
+      field('식품유형명', '<input id="fName" maxlength="60" value="' + esc(t ? t.name : (opts.prefillName || '')) + '" placeholder="예: 액상차">', true, true) +
+      field('기준 검사 주기(개월)', '<input id="fInterval" type="number" min="1" max="60" step="1" value="' + esc(t ? t.intervalMonths : (opts.prefillInterval || 2)) + '">', false, true) +
       field('주요 시험 검사항목', '<input id="fItems" maxlength="200" value="' + esc(t ? t.testItems || '' : '') + '" placeholder="예: 세균수, 대장균군, 보존료">', false) +
-      '</div><p class="qs-hint">검사주기는 식품유형별 법정 기준과 사내 기준 중 더 짧은 쪽으로 입력하세요. 수정하면 이 유형 제품의 주기도 함께 바뀝니다. [확인 필요: 식품위생법 시행규칙 자가품질검사 기준]</p>',
-      { onSave: async function () {
+      '</div><p class="qs-hint">검사주기는 식품유형별 법정 기준과 사내 기준 중 더 짧은 쪽으로 입력하세요. 수정하면 이 유형 제품의 주기도 함께 바뀝니다. [확인 필요: 식품위생법 시행규칙 자가품질검사 기준]</p>' +
+      (opts.thenProduct ? '<p class="qs-hint warn">제품은 식품유형을 먼저 정해야 등록할 수 있습니다. 아래 유형과 <b>검사 주기를 확인</b>한 뒤 저장하면 바로 제품 등록 창이 열립니다.</p>' : ''),
+      { saveLabel: opts.thenProduct ? '저장 후 제품 등록' : '저장', onSave: async function () {
         var name = fv('fName'), interval = Number(fv('fInterval'));
         if (!name) return toast('식품유형명을 입력하세요.', true);
         if (!Number.isInteger(interval) || interval < 1 || interval > 60) return toast('검사 주기는 1~60 사이의 정수(개월)로 입력하세요.', true);
@@ -445,13 +448,17 @@
         if (t && t.intervalMonths !== interval) {
           await DkjAsync.forEach(S.items.product.filter(function (p) { return p.typeId === t.id; }), async function (p) { await saveRec(Object.assign({}, p, { intervalMonths: interval })); });
         }
-        closeDialog(); await refresh(); toast('식품유형을 저장했습니다.'); return saved;
+        closeDialog(); await refresh(); toast('식품유형을 저장했습니다.');
+        if (opts.thenProduct) openProductDialog();
+        return saved;
       } });
   }
 
   function openProductDialog(id) {
     var p = id ? byId(S.items.product, id) : null;
-    if (!S.items.type.length) return toast('먼저 식품유형을 등록하세요.', true);
+    // 식품유형이 하나도 없으면 막지 않고 유형 등록 창을 먼저 열어 준다(저장 후 제품 등록 창으로 이어짐).
+    // 이 사업장은 신선편의식품 한 종류가 기본이라 이름을 미리 채운다. 주기(개월)는 사용자가 확인해 저장한다.
+    if (!S.items.type.length) return openTypeDialog(null, { thenProduct: true, prefillName: '신선편의식품', prefillInterval: 1 });
     openDialog(p ? '제품 수정' : '새 제품 등록',
       '<div class="qs-form-grid">' +
       field('제품명', '<input id="fName" maxlength="100" value="' + esc(p ? p.name : '') + '">', true, true) +
