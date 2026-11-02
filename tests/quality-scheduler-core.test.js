@@ -105,3 +105,11 @@ test('buildAlerts + telegramMessage', () => {
   assert.match(msg, /최신 성적서 미등록 · 1건/);
   assert.match(core.telegramMessage(core.buildAlerts({ types, products: [], health: [], certs: [], settings: {} }, TODAY), TODAY), /확인이 필요한 품목이 없습니다/);
 });
+
+test('보건증 만료일은 발급일 +1년 -1일이다', () => {
+  assert.equal(core.healthExpiry('2026-11-02'), '2027-11-01');
+  assert.equal(core.healthExpiry('2026-01-01'), '2026-12-31');
+  assert.equal(core.healthExpiry('2024-02-29'), '2025-02-28');
+  assert.equal(core.healthExpiry('2023-03-01'), '2024-02-29');
+  assert.equal(core.healthExpiry('bad'), '');
+});

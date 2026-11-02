@@ -525,7 +525,7 @@
       field('담당자명', '<input id="fName" list="dkjStaffList" maxlength="40" value="' + esc(h ? h.employeeName : '') + '" autocomplete="off">', false, true) +
       field('부서/직무', '<input id="fDept" maxlength="60" value="' + esc(h ? h.department || '' : '') + '" placeholder="예: 생산팀 / 선별">', false) +
       field('발급일자', '<input id="fIssued" type="date" max="' + today() + '" value="' + esc(h ? h.issuedAt || '' : '') + '">', false, true) +
-      field('만료일자 (발급일 +1년 자동)', '<input id="fExpires" type="date" value="' + esc(h ? h.expiresAt || '' : '') + '">', false, true) +
+      field('만료일자 (발급일 +1년 -1일 자동)', '<input id="fExpires" type="date" value="' + esc(h ? h.expiresAt || '' : '') + '">', false, true) +
       field('재직 상태', '<select id="fEmp"><option value="active"' + (!h || h.employmentStatus !== 'inactive' ? ' selected' : '') + '>재직</option><option value="inactive"' + (h && h.employmentStatus === 'inactive' ? ' selected' : '') + '>퇴직·제외</option></select>', false) +
       field('알림', '<select id="fAlert"><option value="active"' + (!h || h.alertStatus !== 'paused' ? ' selected' : '') + '>켜짐</option><option value="paused"' + (h && h.alertStatus === 'paused' ? ' selected' : '') + '>일시 중지</option></select>', false) +
       fileField(h && h.fileId ? h : null) +
@@ -535,7 +535,7 @@
         var name = fv('fName'), issued = fv('fIssued'), expires = fv('fExpires');
         if (!name) return toast('담당자명을 입력하세요.', true);
         if (!core.parseDate(issued)) return toast('발급일자를 입력하세요.', true);
-        if (!expires) expires = core.addMonths(issued, 12);
+        if (!expires) expires = core.healthExpiry(issued);
         if (!core.parseDate(expires)) return toast('만료일자를 확인하세요.', true);
         if (expires < issued) return toast('만료일자가 발급일자보다 빠릅니다.', true);
         var up;
@@ -548,7 +548,7 @@
         closeDialog(); await refresh(); toast('보건증을 저장했습니다.');
       } });
     var issuedEl = $('fIssued'), expEl = $('fExpires');
-    issuedEl.addEventListener('change', function () { if (!expEl.value && core.parseDate(issuedEl.value)) expEl.value = core.addMonths(issuedEl.value, 12); });
+    issuedEl.addEventListener('change', function () { if (!expEl.value && core.parseDate(issuedEl.value)) expEl.value = core.healthExpiry(issuedEl.value); });
   }
 
   function nextCertNumber() {
@@ -662,7 +662,7 @@
       var info = wb.addWorksheet('안내');
       info.getColumn(1).width = 100;
       ['자가품질검사·보건증 일괄 등록 양식', '', '1. [제품] 시트: 제품명·식품유형·최근제조일은 필수입니다. 식품유형이 앱에 없으면 새로 만듭니다(검사주기 빈칸이면 2개월).',
-        '2. [보건증] 시트: 성명·발급일은 필수입니다. 만료일이 비어 있으면 발급일 +1년으로 계산합니다.', '3. 날짜는 2026-10-27 형식(또는 엑셀 날짜)으로 입력하세요.',
+        '2. [보건증] 시트: 성명·발급일은 필수입니다. 만료일이 비어 있으면 발급일 +1년 -1일로 계산합니다.', '3. 날짜는 2026-10-27 형식(또는 엑셀 날짜)으로 입력하세요.',
         '4. 같은 제품명(같은 식품유형)·같은 성명은 새로 만들지 않고 날짜를 갱신합니다.', '5. 오류가 한 행이라도 있으면 아무것도 저장하지 않고 행 번호와 사유를 안내합니다.',
         '6. 보건증 사본·성적서 파일은 엑셀로 올릴 수 없습니다. 화면에서 개별 등록하세요.'].forEach(function (t) { info.addRow([t]); });
       info.getRow(1).font = { bold: true, size: 14 };
@@ -729,7 +729,7 @@
         if (!core.parseDate(issued)) errors.push('[보건증] ' + n + '행: 발급일 형식이 올바르지 않습니다.');
         if (expires && !core.parseDate(expires)) errors.push('[보건증] ' + n + '행: 만료일 형식이 올바르지 않습니다.');
         if (errors.length === e0) {
-          if (!expires) expires = core.addMonths(issued, 12);
+          if (!expires) expires = core.healthExpiry(issued);
           if (expires < issued) errors.push('[보건증] ' + n + '행: 만료일이 발급일보다 빠릅니다.');
           else healthRows.push({ name: name, dept: cellText(row.getCell(2).value), issued: issued, expires: expires, memo: cellText(row.getCell(5).value), row: n });
         }
