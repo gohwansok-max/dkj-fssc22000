@@ -181,7 +181,7 @@ def render_matrix(code: str, spec: dict, v: str) -> str:
         <div class="dkj-field"><label>점검 기간</label><div class="mxf-range" id="weekRange">—</div></div>
       </div>
       <div class="dkj-field-grid mxf-approval-row">
-        <div class="dkj-field"><label for="writer">작성 *</label><input type="text" id="writer" placeholder="점검자"></div>
+        <div class="dkj-field"><label for="writer">작성 *</label><input type="text" id="writer" placeholder="작성자"></div>
         <div class="dkj-field"><label for="reviewer">검토</label><input type="text" id="reviewer" placeholder="HACCP팀장"></div>
         <div class="dkj-field"><label for="approver">승인</label><input type="text" id="approver" placeholder="센터장"></div>
       </div>
@@ -304,7 +304,7 @@ def render_ox(code: str, spec: dict, v: str) -> str:
         </div>
         <div class="dkj-field full"><label for="corrective">부적합 시 즉시조치</label>
           <textarea id="corrective" placeholder="내용·조치자·완료시각"></textarea></div>
-        <div class="dkj-field"><label for="inspector">점검자 *</label><input type="text" id="inspector" placeholder=""></div><div class="dkj-field"><label for="confirmer">확인자</label><input type="text" id="confirmer" placeholder=""></div>
+        <div class="dkj-field"><label for="inspector">작성자 *</label><input type="text" id="inspector" placeholder=""></div><div class="dkj-field"><label for="confirmer">확인자</label><input type="text" id="confirmer" placeholder=""></div>
         <div class="dkj-field full"><label for="remark">비고</label><textarea id="remark"></textarea></div>
       </div>{footer_links(spec)}
     </section>

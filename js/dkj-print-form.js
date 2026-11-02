@@ -91,7 +91,7 @@
     return (
       '<table class="ps-info">' +
       '<tr><th>점검일자</th><td>' + esc(dateVal) + '</td>' +
-      '<th>점검자</th><td>' + esc(state.inspector || '') + '</td>' +
+      '<th>작성자</th><td>' + esc(state.inspector || '') + '</td>' +
       extra + '</tr></table>'
     );
   }

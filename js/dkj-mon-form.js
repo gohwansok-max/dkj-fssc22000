@@ -203,7 +203,7 @@
       state.zones.forEach(evalZone);
       refreshDev();
       if (!state.checkDate) return '점검일자를 입력하세요.';
-      if (!state.inspector) return '점검자를 입력하세요.';
+      if (!state.inspector) return '작성자를 입력하세요.';
       if (!hasAnyMeasure()) return '측정값을 1건 이상 입력하세요.';
       if (state.hasDeviation && !(state.corrective || '').trim()) {
         return '이탈 시 즉시조치를 기록하세요.';

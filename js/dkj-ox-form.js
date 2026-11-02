@@ -381,7 +381,7 @@
       readForm();
       var dateVal = state.checkDate || state.storeDate;
       if (!dateVal) return '점검일자를 입력하세요.';
-      if (!state.inspector) return '점검자(담당자)를 입력하세요.';
+      if (!state.inspector) return '작성자를 입력하세요.';
       if (!state.judge) return '종합판정을 선택하세요.';
       if (state.judge === '부적합' && !(state.corrective || '').trim()) {
         return '부적합 시 즉시조치를 기록하세요.';
