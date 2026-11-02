@@ -195,6 +195,14 @@
           }
         },
         {
+          "code": "DKJ-S-02-18",
+          "title": "운송차량 위생점검표",
+          "href": "records/DKJ-S-02-18.html",
+          "check": {
+            "mode": "event"
+          }
+        },
+        {
           "code": "DKJ-S-02-19",
           "title": "부적합품 처리",
           "href": "records/DKJ-S-02-19.html",
