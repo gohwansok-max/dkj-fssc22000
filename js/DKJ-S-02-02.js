@@ -20,13 +20,6 @@
       "label": "점검일자",
       "type": "date",
       "required": true
-    },
-    {
-      "id": "inspector",
-      "label": "점검자",
-      "type": "text",
-      "required": true,
-      "span": 3
     }
   ],
   "columns": [
@@ -66,7 +59,8 @@
       "key": "value",
       "label": "측정치 (Lux)",
       "width": "10%",
-      "type": "num"
+      "type": "num",
+      "textKeyboard": true
     },
     {
       "key": "offCnt",

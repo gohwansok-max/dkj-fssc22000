@@ -529,8 +529,9 @@
       }
       // allowDash — '-'(해당없음)도 적어야 하는 숫자 칸(예: 냉장차량 온도). number 칸은 글자를
       // 받지 못하므로 글자 칸으로 그리고, min~max 를 벗어난 숫자만 이탈 색(lgf-oor)을 입힌다.
-      if (c.type === 'num' && c.allowDash) {
-        return '<input type="text" inputmode="decimal" class="lgf-dashnum' + (isOutOfRange(c, v) ? ' lgf-oor' : '') +
+      // textKeyboard — 태블릿에서 숫자패드 대신 기본(문자) 키보드를 띄운다(2026-11-02, 조도 점검일지 현장 요청).
+      if (c.type === 'num' && (c.allowDash || c.textKeyboard)) {
+        return '<input type="text" inputmode="' + (c.textKeyboard ? 'text' : 'decimal') + '" class="lgf-dashnum' + (isOutOfRange(c, v) ? ' lgf-oor' : '') +
           '" data-r="' + ri + '" data-c="' + c.key + '" value="' + esc(v) + '" placeholder="' + esc(c.unit || '') + '">';
       }
       var t = c.type === 'num' ? 'number' : (c.type === 'date' ? 'date' : 'text');
@@ -755,12 +756,12 @@
           }
           var prevVal = state.rows[ri][key];
           state.rows[ri][key] = el.value;
-          if (keyCol && keyCol.allowDash) el.classList.toggle('lgf-oor', isOutOfRange(keyCol, el.value));
+          if (keyCol && (keyCol.allowDash || keyCol.textKeyboard)) el.classList.toggle('lgf-oor', isOutOfRange(keyCol, el.value));
           // autoStaff 열(반출자명 등)은 비어 있으면 맨 위 점검자로 채운다. 사람이 고른 값은 덮어쓰지 않는다.
           COLS.forEach(function (ac) {
             if (!ac.autoStaff || ac.key === key) return;
             if (String(state.rows[ri][ac.key] || '').trim()) return;
-            var who = state.info && state.info.inspector;
+            var who = (state.approvals && state.approvals.writer) || (state.info && state.info.inspector);
             if (!who) return;
             state.rows[ri][ac.key] = who;
             var at = host.querySelector('[data-r="' + ri + '"][data-c="' + ac.key + '"]');
@@ -1051,7 +1052,7 @@
     async function renderHistory() {
       var el = $('historyList');
       if (!el) return;
-      var list = (await DkjRecordStore.list(FORM_ID)).slice(0, 12);
+      var list = (await DkjRecordStore.list(FORM_ID)).filter(function (r) { return !(window.DkjApproval && window.DkjApproval.isFullyApproved && window.DkjApproval.isFullyApproved(r)); }).slice(0, 12);
       if (!list.length) {
         el.innerHTML = '<p style="color:#888;font-size:13px;">저장 기록 없음</p>';
         return;

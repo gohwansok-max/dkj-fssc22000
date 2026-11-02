@@ -13,7 +13,7 @@
 
   var CACHE_KEY = 'dkj:operation-calendar:v1';
   var REMOTE_NODE = 'ZGtqOm9wZXJhdGlvbi1jYWxlbmRhcjpzaGFyZWQ6djE';
-  var DEFAULT_CALENDAR = { workdays: [1, 2, 3, 4, 5], nonProductionDates: [], productionDates: [] };
+  var DEFAULT_CALENDAR = { workdays: [0, 1, 2, 3, 4, 5], nonProductionDates: [], productionDates: [] };
 
   var calendarModel = global.DkjOperationCalendarModel;
   var normalizeCalendar = calendarModel.normalize;

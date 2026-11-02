@@ -31,7 +31,7 @@
   "orgName": "동김제농협 산지유통센터",
   "pageBreakAfter": [],
   "legend": "양호 : ○, 불량 : X    /    점검주기 : 주간",
-  "signRowLabel": "점검자 (서명)",
+  "signRowLabel": "작성자 (서명)",
   "incident": {
     "label": "이상발생 내역",
     "rows": 3,

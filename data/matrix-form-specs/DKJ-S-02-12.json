@@ -19,7 +19,7 @@
   "pageBreakAfter": [],
   "printOrientation": "landscape",
   "legend": "양호 : ○, 부적합(시정조치 필요) : ×, 해당없음 : —    /    점검주기 : 매일",
-  "signRowLabel": "점검자 (서명)",
+  "signRowLabel": "작성자 (서명)",
   "incident": {
     "label": "이상발생 내역",
     "rows": 3,

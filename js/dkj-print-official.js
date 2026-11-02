@@ -886,7 +886,7 @@
       '<table class="off-grid">' +
       '<tr><th class="lab" style="width:14%">종합판정</th><td class="c" style="width:20%">' + esc(state.judge || '') + '</td>' +
       '<th class="lab" style="width:14%">처리조치</th><td class="c">' + esc(state.action || '') + '</td></tr>' +
-      '<tr><th class="lab">점검자</th><td class="c">' + esc(state.inspector || '') + '</td>' +
+      '<tr><th class="lab">작성자</th><td class="c">' + esc(state.inspector || '') + '</td>' +
       '<th class="lab">확인자</th><td class="c">' + esc(state.confirmer || '') + '</td></tr>' +
       '<tr><th class="lab">비고</th><td class="l" colspan="3">' + esc(state.remark || '') + '</td></tr></table>' +
       '<div class="off-note tiny">※ 평가 — 양호: ○ , 부적합: × , 해당없음: — · 부적합 시 FR-015 연계</div>' +

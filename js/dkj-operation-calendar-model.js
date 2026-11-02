@@ -16,16 +16,18 @@
     }).sort();
   }
   function normalizeCalendar(value) {
-    var source = value || {}, workdays = Array.isArray(source.workdays) ? source.workdays : [1, 2, 3, 4, 5];
+    var source = value || {}, workdays = Array.isArray(source.workdays) ? source.workdays : [0, 1, 2, 3, 4, 5];
     workdays = workdays.map(function (day) { return Number(day); }).filter(function (day, index, list) {
       return day >= 0 && day <= 6 && list.indexOf(day) === index;
     }).sort(function (a, b) { return a - b; });
+    // 2026-11-02: 농협은 토요일만 비생산일. 예전 기본값(월~금)으로 저장된 공유 달력도 일요일 생산으로 읽는다.
+    if (workdays.join(',') === '1,2,3,4,5') workdays = [0, 1, 2, 3, 4, 5];
     var productionDates = normalizeDates(source.productionDates);
     var nonProductionDates = normalizeDates(source.nonProductionDates).filter(function (date) {
       return productionDates.indexOf(date) === -1;
     });
     return {
-      label: String(source.label || '기본 생산일: 월요일~금요일'),
+      label: String(source.label || '기본 생산일: 일요일~금요일 (토요일 비생산)'),
       workdays: workdays,
       nonProductionDates: nonProductionDates,
       productionDates: productionDates,
@@ -38,7 +40,7 @@
     var day = iso(date);
     if (hasDate(calendar.productionDates, day)) return true;
     if (hasDate(calendar.nonProductionDates, day)) return false;
-    return (calendar.workdays || [1, 2, 3, 4, 5]).indexOf(date.getDay()) !== -1;
+    return (calendar.workdays || [0, 1, 2, 3, 4, 5]).indexOf(date.getDay()) !== -1;
   }
 
   global.DkjOperationCalendarModel = {

@@ -49,7 +49,7 @@ function loadConsole(isAdmin, request = async () => ({})) {
 
 test('date overrides take precedence over the weekday rule and can be reset', async () => {
   const consoleApi = loadConsole(true);
-  const sunday = new Date(2026, 7, 23);
+  const sunday = new Date(2026, 7, 22); // 토요일(비생산일) — 파일 내 변수명은 기존 유지
   assert.equal(consoleApi.isProductionDay(sunday), false);
 
   await consoleApi.setOperationDate(sunday, 'production');

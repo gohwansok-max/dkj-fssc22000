@@ -113,7 +113,7 @@ def send_telegram(bot_token: str, chat_id: str, text: str) -> None:
 
 
 def load_operation_calendar() -> dict:
-    default = {'workdays': [1, 2, 3, 4, 5], 'nonProductionDates': [], 'productionDates': []}
+    default = {'workdays': [0, 1, 2, 3, 4, 5], 'nonProductionDates': [], 'productionDates': []}
     try:
         console = json.loads(CONSOLE_FORMS_PATH.read_text(encoding='utf-8'))
         default.update(console.get('operationCalendar') or {})
@@ -128,7 +128,7 @@ def load_operation_calendar() -> dict:
         cal = (remote.get('value') or {}).get('calendar')
         if isinstance(cal, dict) and cal.get('workdays'):
             return {
-                'workdays': cal.get('workdays') or default['workdays'],
+                'workdays': ([0, 1, 2, 3, 4, 5] if sorted(cal.get('workdays') or []) == [1, 2, 3, 4, 5] else (cal.get('workdays') or default['workdays'])),
                 'nonProductionDates': cal.get('nonProductionDates') or [],
                 'productionDates': cal.get('productionDates') or []
             }
@@ -142,7 +142,7 @@ def is_production_day(d: date, calendar: dict) -> bool:
     if iso in (calendar.get('nonProductionDates') or []):
         return False
     js_dow = (d.weekday() + 1) % 7  # Python Mon=0..Sun=6 -> JS Sun=0..Sat=6
-    return js_dow in (calendar.get('workdays') or [1, 2, 3, 4, 5])
+    return js_dow in (calendar.get('workdays') or [0, 1, 2, 3, 4, 5])
 
 
 def monday_of(d: date) -> date:
