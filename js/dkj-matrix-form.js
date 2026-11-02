@@ -75,8 +75,10 @@
 
   /** period='month' 시트가 속한 "달"의 週 시작일만 생성한다(4주·5주는 그 달의 실제
       주 수에 따라 달라진다 — 항상 5주를 고정으로 만들면 다음 달 날짜가 섞여 나온다). */
-  function monthWeekStarts(refWs, startDow) {
-    var d0 = new Date(refWs + 'T00:00:00');
+  function monthWeekStarts(refWs, startDow, monthIso) {
+    // monthIso: 사용자가 고른(또는 오늘) 실제 날짜 — 달은 이 날짜로 정한다. 주 시작일(refWs)로 정하면
+    // 월 초(예: 11/2 월요일 → 주 시작 10/30 금요일)에 전달 시트가 열려 '오늘날짜' 버튼이 먹통처럼 보인다.
+    var d0 = new Date((monthIso || refWs) + 'T00:00:00');
     var year = d0.getFullYear(), month = d0.getMonth();
     var firstOfMonth = toISO(new Date(year, month, 1));
     var cur = weekStartOf(firstOfMonth, startDow);
@@ -108,7 +110,7 @@
     var refWs = weekStartOf(refIso || null, startDow);
     var isMonth = spec.period === 'month';
     var isDayMonth = isMonth && spec.dayMode === 'day';
-    var days = isDayMonth ? monthDays(refIso || null) : isMonth ? monthWeekStarts(refWs, startDow) : buildDays(refWs, spec.days || 6, 1);
+    var days = isDayMonth ? monthDays(refIso || null) : isMonth ? monthWeekStarts(refWs, startDow, refIso || toISO(new Date())) : buildDays(refWs, spec.days || 6, 1);
     var ws = isMonth ? days[0] : refWs;
     var n = days.length;
     var checks = {};
@@ -687,7 +689,7 @@
           var startDow = resolveStartDow(spec);
           var ws = weekStartOf(this.value, startDow);
           if (spec.period === 'month') {
-            state.days = spec.dayMode === 'day' ? monthDays(this.value) : monthWeekStarts(ws, startDow);
+            state.days = spec.dayMode === 'day' ? monthDays(this.value) : monthWeekStarts(ws, startDow, this.value);
           } else {
             state.days = buildDays(ws, N, 1);
           }
@@ -802,7 +804,7 @@
             var startDow = resolveStartDow(spec);
             var ws = weekStartOf(null, startDow);
             if (spec.period === 'month') {
-              state.days = spec.dayMode === 'day' ? monthDays(null) : monthWeekStarts(ws, startDow);
+              state.days = spec.dayMode === 'day' ? monthDays(null) : monthWeekStarts(ws, startDow, toISO(new Date()));
             } else {
               state.days = buildDays(ws, N, 1);
             }
