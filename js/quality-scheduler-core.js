@@ -50,6 +50,14 @@
     return fmt(new Date(t.getTime() + Number(days || 0) * 86400000));
   }
 
+  /** 보건증 만료일 = 발급일 + 1년 - 1일 (2026-11-02 현장 요청: 2026-11-02 발급 → 2027-11-01 만료). */
+  function healthExpiry(issuedText) {
+    var t = parseDate(issuedText);
+    if (!t) return '';
+    // 윤일(2/29) 발급은 다음 해 3/1 로 넘긴 뒤 하루를 뺀다 → 2/28. 말일 보정(addMonths)을 쓰면 하루 더 일찍 끝난다.
+    return fmt(new Date(Date.UTC(t.getUTCFullYear() + 1, t.getUTCMonth(), t.getUTCDate() - 1)));
+  }
+
   /** target - today (일). 날짜가 올바르지 않으면 null */
   function dDay(target, today) {
     var a = parseDate(target), b = parseDate(today);
@@ -237,7 +245,7 @@
   return {
     DEFAULT_WARNING_DAYS: DEFAULT_WARNING_DAYS,
     DEFAULT_HEALTH_ALERT_DAYS: DEFAULT_HEALTH_ALERT_DAYS,
-    todayKst: todayKst, parseDate: parseDate, addMonths: addMonths, addDays: addDays, dDay: dDay, formatDDay: formatDDay,
+    todayKst: todayKst, parseDate: parseDate, addMonths: addMonths, addDays: addDays, healthExpiry: healthExpiry, dDay: dDay, formatDDay: formatDDay,
     normalizeHealthAlertDays: normalizeHealthAlertDays, settingsOf: settingsOf,
     productComputed: productComputed, healthComputed: healthComputed,
     representativeProducts: representativeProducts, missingCertificate: missingCertificate,
