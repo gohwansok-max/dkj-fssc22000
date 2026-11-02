@@ -597,7 +597,7 @@
       var el = $('historyList');
       if (!el) return;
       // 이전 양식(O/X 1일 1장)으로 저장된 기록은 days 배열이 없어 이 시트로 열 수 없으므로 목록에서 뺀다.
-      var list = (await DkjRecordStore.list(FORM_ID)).filter(function (r) { return Array.isArray(r.days); }).slice(0, 12);
+      var list = (await DkjRecordStore.list(FORM_ID)).filter(function (r) { return Array.isArray(r.days); }).filter(function (r) { return !(window.DkjApproval && window.DkjApproval.isFullyApproved && window.DkjApproval.isFullyApproved(r)); }).slice(0, 12);
       if (!list.length) {
         el.innerHTML = '<p style="color:#888;font-size:13px;">저장 기록 없음</p>';
         return;

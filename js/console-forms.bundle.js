@@ -11,8 +11,9 @@ window.DKJ_CONSOLE_FORMS={
     "sheetUntilApproved": "check.sheetUntilApproved:true — 한 달을 한 시트에서 쓰는 서식(작업장 온도·제조시설 설비점검표). 그 달 시트가 있으면 오늘 칸이 비어 있거나 작성완료(잠금)했어도 최종 결재(승인) 전까지 '작성 중'으로 둔다. 시트가 아직 없으면 '작성 필요', 기준 이탈은 그대로 부적합."
   },
   "operationCalendar": {
-    "label": "기본 생산일: 월요일~금요일",
+    "label": "기본 생산일: 일요일~금요일 (토요일 비생산)",
     "workdays": [
+      0,
       1,
       2,
       3,

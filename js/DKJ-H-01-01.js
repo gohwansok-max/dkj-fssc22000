@@ -654,7 +654,7 @@
   }
 
   async function renderHistory() {
-    var list = (await DkjRecordStore.list(FORM_ID)).slice(0, 12);
+    var list = (await DkjRecordStore.list(FORM_ID)).filter(function (r) { return !(window.DkjApproval && window.DkjApproval.isFullyApproved && window.DkjApproval.isFullyApproved(r)); }).slice(0, 12);
     var el = $('historyList');
     if (!list.length) {
       el.innerHTML = '<p style="color:#888;font-size:13px;">저장된 기록이 없습니다.</p>';

@@ -824,7 +824,15 @@
     return true;
   }
 
+  /** 3단(2단) 결재가 끝난 기록인가 — 승인(최종 단계)은 앞 단계가 모두 확정돼야 눌러지므로 approver 서명만 보면 된다.
+   *  '최근 저장' 목록에서 최종 완료 기록을 빼는 데 쓴다(2026-11-02 현장 요청). 완료 기록은 기록보관함에서 본다. */
+  function isFullyApproved(rec) {
+    var a = rec && rec.signoff && rec.signoff.approver;
+    return !!(a && a.at);
+  }
+
   global.DkjApproval = {
+    isFullyApproved: isFullyApproved,
     mount: mount,
     persistSign: persistSign,
     signRows: signRows,

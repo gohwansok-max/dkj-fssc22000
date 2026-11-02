@@ -316,7 +316,7 @@
     async function renderHistory() {
       var el = $('historyList');
       if (!el) return;
-      var list = (await DkjRecordStore.list(FORM_ID)).slice(0, 12);
+      var list = (await DkjRecordStore.list(FORM_ID)).filter(function (r) { return !(window.DkjApproval && window.DkjApproval.isFullyApproved && window.DkjApproval.isFullyApproved(r)); }).slice(0, 12);
       if (!list.length) {
         el.innerHTML = '<p style="color:#888;font-size:13px;">저장 기록 없음</p>';
         return;

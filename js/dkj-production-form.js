@@ -669,7 +669,7 @@
 
     async function renderHistory() {
       var el = $('historyList'); if (!el) return;
-      var list = (await DkjRecordStore.list(FORM_ID)).slice(0, 14);
+      var list = (await DkjRecordStore.list(FORM_ID)).filter(function (r) { return !(window.DkjApproval && window.DkjApproval.isFullyApproved && window.DkjApproval.isFullyApproved(r)); }).slice(0, 14);
       if (!list.length) { el.innerHTML = '<p style="color:#888;font-size:13px;">저장 기록 없음</p>'; return; }
       el.innerHTML = list.map(function (r) {
         var s = r.summary || {};

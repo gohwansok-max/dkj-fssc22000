@@ -75,7 +75,7 @@ test('monthly ledger counts production days and does not mutate inputs', () => {
   const before = JSON.stringify(saved);
   const result = evaluate(check, saved);
   assert.equal(result.state, 'part');
-  assert.match(result.note, /1\/21 완료/);
+  assert.match(result.note, /1\/26 완료/);
   assert.equal(evaluate(check, saved, null, {}, (day) => day.getDate() === 21).state, 'done');
   assert.equal(JSON.stringify(saved), before);
 });

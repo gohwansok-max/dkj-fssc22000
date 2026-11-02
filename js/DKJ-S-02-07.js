@@ -20,13 +20,6 @@
       "label": "작성일자",
       "type": "date",
       "required": true
-    },
-    {
-      "id": "inspector",
-      "label": "점검자",
-      "type": "text",
-      "required": true,
-      "span": 3
     }
   ],
   "columns": [
