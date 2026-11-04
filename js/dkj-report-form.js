@@ -397,7 +397,7 @@
         });
       });
       if ($('btnSave')) $('btnSave').addEventListener('click', async function () { (await save(false)); });
-      if ($('btnLock')) $('btnLock').addEventListener('click', async function () { (await save(true)); });
+      if ($('btnLock')) $('btnLock').addEventListener('click', async function () { if (await DkjUtil.confirmComplete()) { (await save(true)); } });
       if ($('btnNew')) $('btnNew').addEventListener('click', function () {
         editingId = null; state = emptyState(spec); writeForm(); setStatus('새 보고서', false);
       });

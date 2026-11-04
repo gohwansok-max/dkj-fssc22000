@@ -825,7 +825,7 @@
         renderByproductBody(); recalcAll(); scheduleDraft();
       });
       if ($('btnSave')) $('btnSave').addEventListener('click', async function () { (await save(false)); });
-      if ($('btnLock')) $('btnLock').addEventListener('click', async function () { (await save(true)); });
+      if ($('btnLock')) $('btnLock').addEventListener('click', async function () { if (await DkjUtil.confirmComplete()) { (await save(true)); } });
       if ($('btnNew')) $('btnNew').addEventListener('click', async function () {
         editingId = null; state = (await buildNextState()); writeForm(); setStatus('새 기록 — 어제 기록에서 이어받음', false);
       });

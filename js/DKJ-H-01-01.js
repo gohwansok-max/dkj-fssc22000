@@ -827,7 +827,7 @@
     });
 
     $('btnSave').addEventListener('click', async function () { (await save(false)); });
-    $('btnLock').addEventListener('click', async function () { (await save(true)); });
+    $('btnLock').addEventListener('click', async function () { if (await DkjUtil.confirmComplete()) { (await save(true)); } });
     $('btnNew').addEventListener('click', function () {
       editingId = null;
       state = emptyState();
