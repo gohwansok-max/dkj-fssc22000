@@ -467,7 +467,7 @@
 
     $('btnSave').addEventListener('click', async function () { (await saveRecord(false)); });
     $('btnLock').addEventListener('click', async function () {
-      if (confirm('작성완료 후에는 수정이 제한됩니다. 완료할까요?')) (await saveRecord(true));
+      if (await DkjUtil.confirmComplete()) (await saveRecord(true));
     });
     $('btnNew').addEventListener('click', newEntry);
 

@@ -192,6 +192,65 @@
     return true;
   }
 
+  /** 작성완료(잠금) 직전 확인창 — 화면 가운데 모달로 '예 / 아니오'를 묻는다.
+   *  작성완료하면 기록이 잠겨 이후 수정할 수 없으므로 한 번 더 검토하게 한다(2026-11-04, 현장 요청).
+   *  Promise<boolean> 를 돌려준다. 기본 포커스는 '아니오'(실수로 Enter 를 눌러도 잠기지 않게).
+   *  모달을 만들 수 없는 환경(DOM 없음)에서는 confirm() 으로 대신한다. */
+  function confirmComplete(opts) {
+    opts = opts || {};
+    var msg = '작성완료 처리할까요?';
+    if (typeof document === 'undefined' || !document.body) {
+      return Promise.resolve(typeof global.confirm === 'function' ? global.confirm(msg) : true);
+    }
+    return new Promise(function (resolve) {
+      if (!document.getElementById('dkjConfirmCss')) {
+        var st = document.createElement('style');
+        st.id = 'dkjConfirmCss';
+        st.textContent =
+          '.dkj-cm-back{position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:16px}' +
+          '.dkj-cm-box{background:#fff;color:#111827;border-radius:14px;max-width:420px;width:100%;padding:24px 22px 18px;box-shadow:0 20px 50px rgba(0,0,0,.35);font-size:16px;line-height:1.55}' +
+          '.dkj-cm-box h3{margin:0 0 10px;font-size:20px}' +
+          '.dkj-cm-box p{margin:0 0 6px}.dkj-cm-box .dkj-cm-warn{color:#b45309;font-weight:600}' +
+          '.dkj-cm-btns{display:flex;gap:10px;margin-top:18px}' +
+          '.dkj-cm-btns button{flex:1;min-height:48px;border-radius:10px;border:1px solid #cbd5e1;font-size:17px;font-weight:700;cursor:pointer;background:#f1f5f9;color:#111827}' +
+          '.dkj-cm-btns button.dkj-cm-yes{background:#1d4ed8;border-color:#1d4ed8;color:#fff}' +
+          '.dkj-cm-btns button:focus{outline:3px solid #f59e0b;outline-offset:2px}';
+        document.head.appendChild(st);
+      }
+      var back = document.createElement('div');
+      back.className = 'dkj-cm-back';
+      back.setAttribute('role', 'alertdialog');
+      back.setAttribute('aria-modal', 'true');
+      back.innerHTML =
+        '<div class="dkj-cm-box"><h3>' + esc(opts.title || '작성완료 하시겠습니까?') + '</h3>' +
+        '<p>입력한 날짜·수치·판정·사진이 맞는지 다시 확인해 주세요.</p>' +
+        '<p class="dkj-cm-warn">작성완료하면 기록이 잠겨 이후 수정할 수 없습니다.</p>' +
+        '<div class="dkj-cm-btns"><button type="button" class="dkj-cm-no">아니오</button>' +
+        '<button type="button" class="dkj-cm-yes">예, 작성완료</button></div></div>';
+      var prevFocus = document.activeElement;
+      function done(v) {
+        document.removeEventListener('keydown', onKey, true);
+        if (back.parentNode) back.parentNode.removeChild(back);
+        try { if (prevFocus && prevFocus.focus) prevFocus.focus(); } catch (e) { /* 무시 */ }
+        resolve(v);
+      }
+      function onKey(e) {
+        if (e.key === 'Escape') { e.preventDefault(); done(false); }
+        else if (e.key === 'Tab') {
+          var b = back.querySelectorAll('button');
+          if (e.shiftKey && document.activeElement === b[0]) { e.preventDefault(); b[b.length - 1].focus(); }
+          else if (!e.shiftKey && document.activeElement === b[b.length - 1]) { e.preventDefault(); b[0].focus(); }
+        }
+      }
+      back.querySelector('.dkj-cm-no').addEventListener('click', function () { done(false); });
+      back.querySelector('.dkj-cm-yes').addEventListener('click', function () { done(true); });
+      back.addEventListener('click', function (e) { if (e.target === back) done(false); });
+      document.addEventListener('keydown', onKey, true);
+      document.body.appendChild(back);
+      back.querySelector('.dkj-cm-no').focus();
+    });
+  }
+
   /** 서식 툴바에 빠른 작성 도구 (전체 적합 / 최근기록 복사) 자동 주입 */
   async function attachQuickToolbar(toolbarEl, options) {
     if (!toolbarEl) toolbarEl = document.querySelector('.dkj-form-toolbar');
@@ -687,6 +746,7 @@
     attachQuickToolbar: attachQuickToolbar,
     confirmMissingTime: confirmMissingTime,
     blockMissingTime: blockMissingTime,
+    confirmComplete: confirmComplete,
     ensureStaffDatalist: ensureStaffDatalist,
     compressImageToDataUrl: compressImageToDataUrl,
     DEFAULT_PRESETS: DEFAULT_PRESETS
