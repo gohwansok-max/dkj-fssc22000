@@ -19,7 +19,7 @@
     '급식(바로먹는 유러피언 샐러드 채소믹스)'
   ];
 
-  var PPM_PRESETS = ['200', '210', '220', '230', '240', '250', '260', '270', '280', '290', '300'];
+  var PPM_PRESETS = (function () { var a = []; for (var n = 200; n <= 300; n += 5) a.push(String(n)); return a; })();
   function secRange(from, to) { var a = []; for (var n = from; n <= to; n++) a.push(String(n)); return a; }
   var SOAK_PRESETS = secRange(20, 30);
   var RINSE_SEC_PRESETS = secRange(50, 60);
