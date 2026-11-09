@@ -22,7 +22,9 @@
   var PPM_PRESETS = ['200', '210', '220', '230', '240', '250', '260', '270', '280', '290', '300'];
   var SOAK_PRESETS = ['20', '22', '24', '25', '26', '28', '30'];
   var RINSE_SEC_PRESETS = ['50', '52', '54', '55', '56', '58', '60'];
-  var RESIDUAL_CL_PRESETS = ['0', '0.05', '0.1', '0.5', '1', '1.5', '2'];
+  var RESIDUAL_CL_PRESETS = ['0', '0.05', '0.1', '0.2', '0.5', '0.6'];
+  // 유효염소 기본값 — 새 행·작업 전 확인에 미리 채우고, 필요할 때만 바꾼다(관리기준 200~300ppm의 하한).
+  var DEFAULT_PPM = '200';
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -37,7 +39,7 @@
 
   function emptyRow() {
     return {
-      time: '', productName: '', rawMaterialKg: '', ppm: '', soak: '', rinseSec: '', residualCl: '', judge: '',
+      time: '', productName: '', rawMaterialKg: '', ppm: DEFAULT_PPM, soak: '', rinseSec: '', residualCl: '', judge: '',
       isCustomPpm: false, isCustomSoak: false, isCustomRinseSec: false, isCustomResidualCl: false, isCustomProduct: false,
       // paper(시험지)로 실측한 유효염소·잔류염소 결과를 사진으로 남긴다(측정행당 1장).
       // 인쇄 시 맨 뒤에 별첨으로 붙는다 — ccp1bc() 의 photoAttachmentHtml 참고.
@@ -54,7 +56,7 @@
       disinfectant: 'NaOCl',
       productName: '',
       rawMaterialKg: '',
-      preWorkPpm: '',
+      preWorkPpm: DEFAULT_PPM,
       lot: dateToLot(td),
       preWorkTime: '',
       waterChangeTimes: '08:00, 11:00, 14:00',
@@ -575,8 +577,8 @@
       return value !== '' && value != null && (!Number.isFinite(Number(value)) || Number(value) < 0 || Number(value) >= 8);
     });
     if (invalidRowQuantity) return '행별 원물 투입량은 0 이상 8kg 미만으로 입력하세요.';
-    var filled = state.rows.filter(function (r) { return r.ppm || r.soak || r.rinseSec || r.residualCl; });
-    if (!filled.length && !state.preWorkPpm) return '모니터링 측정값을 1건 이상 입력하세요.';
+    var filled = state.rows.filter(function (r) { return (r.ppm && r.ppm !== DEFAULT_PPM) || r.soak || r.rinseSec || r.residualCl; });
+    if (!filled.length && (!state.preWorkPpm || state.preWorkPpm === DEFAULT_PPM) && !state.preWorkTime) return '모니터링 측정값을 1건 이상 입력하세요.';
     if (state.hasDeviation) {
       if (!(state.deviation || '').trim() || /^(-|해당\s*없음)$/.test(state.deviation.trim())) {
         return '한계기준 이탈 시 이탈 내용을 기록하세요.';
@@ -609,10 +611,10 @@
       var missingTime = [];
       (state.rows || []).forEach(function (r, i) {
         if (!r || r.time) return;
-        if (!((r.productName || '').trim() || r.ppm || r.soak || r.rinseSec || r.residualCl || r.rawMaterialKg)) return;
+        if (!((r.productName || '').trim() || (r.ppm && r.ppm !== DEFAULT_PPM) || r.soak || r.rinseSec || r.residualCl || r.rawMaterialKg)) return;
         missingTime.push({ idx: i, label: (i + 1) + '행' + (r.productName ? ' ' + r.productName : '') });
       });
-      if (!state.preWorkTime && state.preWorkPpm) missingTime.unshift({ idx: -1, label: '작업 시작 전 확인' });
+      if (!state.preWorkTime && state.preWorkPpm && state.preWorkPpm !== DEFAULT_PPM) missingTime.unshift({ idx: -1, label: '작업 시작 전 확인' });
       if (missingTime.length && window.DkjUtil && (lock ? DkjUtil.blockMissingTime(missingTime.map(function (m) { return m.label; })) : !DkjUtil.confirmMissingTime(missingTime.map(function (m) { return m.label; }), false))) {
         var firstEl = null;
         missingTime.forEach(function (m) {
