@@ -41,4 +41,8 @@ jobs:
           # 스케줄 실행은 항상 실제 발송. 수동 실행(workflow_dispatch)은 기본 dry-run.
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
           TEST_SEND: ${{ github.event_name == 'workflow_dispatch' && inputs.test_send || 'false' }}
+          # 이메일 알림(선택) — 저장소 Secrets 에 등록. 하나라도 비어 있으면 메일은 건너뛴다.
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
         run: python3 scripts/notify_missing_records.py

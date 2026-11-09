@@ -112,6 +112,15 @@ def send_telegram(bot_token: str, chat_id: str, text: str) -> None:
         raise RuntimeError(f'텔레그램 전송 실패: {body}')
 
 
+def send_email_safe(subject: str, text: str) -> None:
+    """같은 내용을 이메일로도 보낸다. 실패해도 텔레그램 알림·상태 저장은 계속한다."""
+    try:
+        from send_email import send_mail
+        send_mail(subject, text, dry_run=DRY_RUN)
+    except Exception as e:
+        print(f'이메일 발송 실패(텔레그램 알림은 영향 없음): {e}', file=sys.stderr)
+
+
 def load_operation_calendar() -> dict:
     default = {'workdays': [0, 1, 2, 3, 4, 5], 'nonProductionDates': [], 'productionDates': []}
     try:
@@ -414,8 +423,14 @@ def main(now: datetime | None = None) -> int:
         return 1
     bot_token = str(tg.get('botToken') or '').strip()
     chat_id = str(tg.get('chatId') or '').strip()
-    if tg.get('enabled') is False or not bot_token or not chat_id:
-        print('텔레그램 설정이 없거나 꺼져 있어 알림을 보내지 않습니다.')
+    telegram_on = not (tg.get('enabled') is False or not bot_token or not chat_id)
+    try:
+        from send_email import configured as email_on
+        email_on = email_on()
+    except Exception:
+        email_on = False
+    if not telegram_on and not email_on:
+        print('텔레그램·이메일 설정이 모두 없어 알림을 보내지 않습니다.')
         return 0
 
     if TEST_SEND:
@@ -425,14 +440,17 @@ def main(now: datetime | None = None) -> int:
         was_dry_run = DRY_RUN
         DRY_RUN = False
         try:
-            send_telegram(bot_token, chat_id, '\n'.join([
+            test_text = '\n'.join([
                 '🔧 <b>[동김제농협 스마트 HACCP] 일지 미작성 알림 — 연결 테스트</b>',
                 '━━━━━━━━━━━━━━━━━━━━',
                 f'실행 시각: {now.strftime("%Y-%m-%d %H:%M")} (KST)',
-                '이 메시지가 보이면 텔레그램 발송 경로가 정상 동작하는 것입니다.',
+                '이 메시지가 보이면 발송 경로가 정상 동작하는 것입니다.',
                 '(실제 미작성 판정과는 무관한 테스트 메시지입니다.)',
                 '━━━━━━━━━━━━━━━━━━━━'
-            ]))
+            ])
+            if telegram_on:
+                send_telegram(bot_token, chat_id, test_text)
+            send_email_safe('[동김제농협] 일지 미작성 알림 — 연결 테스트', test_text)
         finally:
             DRY_RUN = was_dry_run
         print('테스트 메시지 발송 완료')
@@ -478,7 +496,12 @@ def main(now: datetime | None = None) -> int:
 
     # 서식마다 따로 보내지 않고, 이번 실행에서 새로 알릴 게 있으면 전부 모아 한 번에 보낸다.
     if overdue_items or resolved_items:
-        send_telegram(bot_token, chat_id, build_batch_message(overdue_items, resolved_items))
+        message = build_batch_message(overdue_items, resolved_items)
+        if telegram_on:
+            send_telegram(bot_token, chat_id, message)
+        subject = (f'[동김제농협] 일지 미작성 {len(overdue_items)}건'
+                   + (f' · 해소 {len(resolved_items)}건' if resolved_items else ''))
+        send_email_safe(subject, message)
 
     save_alert_state(state, now)
     print(

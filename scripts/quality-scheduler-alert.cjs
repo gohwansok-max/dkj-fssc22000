@@ -62,20 +62,36 @@ async function sendTelegram(token, chatId, text, buttons) {
   if (!body.ok) throw new Error(body.description || `HTTP ${res.status}`);
 }
 
+// 같은 내용을 이메일로도 보낸다(scripts/send_email.py — Gmail SMTP, 설정은 GitHub Secrets).
+// 설정이 없으면 건너뛰고, 실패해도 텔레그램 알림 결과에는 영향을 주지 않는다.
+function emailConfigured() {
+  return !!(process.env.SMTP_USER && process.env.SMTP_PASSWORD && String(process.env.MAIL_TO || '').trim());
+}
+function sendEmail(subject, text) {
+  if (!emailConfigured()) return;
+  const args = [path.join(__dirname, 'send_email.py'), '--subject', subject];
+  if (DRY_RUN) args.push('--dry-run');
+  const res = require('child_process').spawnSync('python3', args, { input: text, encoding: 'utf8' });
+  if (res.stdout) console.log(res.stdout.trim());
+  if (res.status !== 0) console.error('이메일 발송 실패(텔레그램 알림은 영향 없음): ' + String(res.stderr || '').trim());
+}
+
 async function main() {
   const today = core.todayKst();
   const tg = (await rtdbGet('system/settings/telegram')) || {};
   const token = String(tg.botToken || '').trim();
   const chatIds = [...new Set(String(tg.chatId || '').split(/[\s,;]+/).map((v) => v.trim()).filter(Boolean))];
-  if (tg.enabled === false || !token || !chatIds.length) {
-    console.log('텔레그램 설정이 없거나 꺼져 있어 알림을 보내지 않습니다. (시스템 설정 화면에서 등록)');
+  const telegramOn = !(tg.enabled === false || !token || !chatIds.length);
+  if (!telegramOn && !emailConfigured()) {
+    console.log('텔레그램·이메일 설정이 모두 없어 알림을 보내지 않습니다. (텔레그램은 시스템 설정 화면에서 등록)');
     return;
   }
   const buttons = [[{ text: '🗓️ 스케줄러 열기', url: `${SITE_BASE}periodic-alerts.html#quality` }]];
 
   if (TEST_SEND) {
     const text = `🔧 <b>[동김제농협] 자가품질검사·보건증 알림 — 연결 테스트</b>\n실행 ${today} (KST)\n이 메시지가 보이면 일일 알림 발송 경로가 정상입니다.`;
-    for (const id of chatIds) await sendTelegram(token, id, text, buttons);
+    if (telegramOn) for (const id of chatIds) await sendTelegram(token, id, text, buttons);
+    sendEmail('[동김제농협] 자가품질검사·보건증 알림 — 연결 테스트', text);
     console.log('테스트 메시지 발송 완료');
     return;
   }
@@ -85,12 +101,13 @@ async function main() {
   const alerts = core.buildAlerts(data, today);
   const text = core.telegramMessage(alerts, today);
   console.log(`제품 ${data.products.length} · 보건증 ${data.health.length} · 성적서 ${data.certs.length} → 알림 ${alerts.total}건`);
-  if (DRY_RUN) { console.log('[dry-run] 발송 내용:\n' + text); return; }
+  if (DRY_RUN) { console.log('[dry-run] 발송 내용:\n' + text); sendEmail(`[동김제농협] 자가품질검사·보건증 알림 ${alerts.total}건`, text); return; }
   // 등록된 데이터가 아직 하나도 없으면 "정상"이라는 거짓 안심 메시지를 보내지 않는다.
   if (!data.products.length && !data.health.length) { console.log('등록된 제품·보건증이 없어 발송하지 않습니다.'); return; }
 
   const failures = [];
-  for (const id of chatIds) {
+  sendEmail(`[동김제농협] 자가품질검사·보건증 알림 ${alerts.total}건 (${today})`, text);
+  if (telegramOn) for (const id of chatIds) {
     try { await sendTelegram(token, id, text, buttons); console.log(`발송 완료: ${id}`); }
     catch (e) { failures.push(`${id}: ${e.message}`); }
   }
