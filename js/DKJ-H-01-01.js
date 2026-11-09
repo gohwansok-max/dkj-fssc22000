@@ -19,7 +19,7 @@
     '급식(바로먹는 유러피언 샐러드 채소믹스)'
   ];
 
-  var PPM_PRESETS = ['200', '210', '220', '230', '240', '250', '260', '270', '280', '290', '300'];
+  var PPM_PRESETS = (function () { var a = []; for (var n = 200; n <= 300; n += 5) a.push(String(n)); return a; })();
   function secRange(from, to) { var a = []; for (var n = from; n <= to; n++) a.push(String(n)); return a; }
   var SOAK_PRESETS = secRange(20, 30);
   var RINSE_SEC_PRESETS = secRange(50, 60);
@@ -548,6 +548,12 @@
     renderChangeTimeList();
 
     if (!state.rows || !state.rows.length) state.rows = [emptyRow()];
+    // 예전 임시본·미잠금 기록은 유효염소가 빈 채 저장돼 있다 — 작성 중인 시트에만 기본값 200을 채운다.
+    // 작성완료(잠금) 기록은 그날의 증거이므로 건드리지 않는다.
+    if (!state.locked) {
+      state.rows.forEach(function (r) { if (r && (r.ppm == null || r.ppm === '')) r.ppm = DEFAULT_PPM; });
+      if (state.preWorkPpm == null || state.preWorkPpm === '') state.preWorkPpm = DEFAULT_PPM;
+    }
     if (state.productName && !state.rows.some(function (r) { return (r.productName || '').trim(); })) {
       state.rows[0].productName = state.productName;
       state.rows[0].isCustomProduct = PRODUCT_PRESETS.indexOf(state.productName) === -1;
