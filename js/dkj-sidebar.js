@@ -11,7 +11,7 @@
       ['문서관리대장', 'mdr-register.html'], ['CAPA 관리', 'capa-management.html']
     ] },
     { title: '운영 · 관리', links: [
-      ['정기 알림', 'periodic-alerts.html#periodic'], ['자가품질검사·보건증', 'periodic-alerts.html#quality'], ['HACCP팀 설정', 'haccp-team-settings.html'],
+      ['자가품질검사·보건증', 'periodic-alerts.html#quality'], ['HACCP팀 설정', 'haccp-team-settings.html'],
       ['임원 통합 현황', 'executive-dashboard.html'], ['전자결재·감사이력', 'audit-trail.html'],
       ['회사소개서', 'company-profile.html']
     ] }
@@ -39,7 +39,7 @@
   function loadCss(base) {
     if (document.getElementById('dkjSidebarCss')) return;
     var link = document.createElement('link'); link.id = 'dkjSidebarCss'; link.rel = 'stylesheet';
-    link.href = base + 'css/dkj-sidebar.css?v=174'; document.head.appendChild(link);
+    link.href = base + 'css/dkj-sidebar.css?v=175'; document.head.appendChild(link);
   }
   function mount(options) {
     options = options || {};
