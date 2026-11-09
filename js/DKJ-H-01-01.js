@@ -477,7 +477,7 @@
     host.innerHTML = state.changeTimes.map(function (t, i) {
       return '<div style="display:flex;gap:8px;align-items:center;">' +
         '<input type="time" class="mon-in" data-ct="' + i + '" value="' + esc(t) + '" style="flex:1;min-width:140px;max-width:220px;">' +
-        (state.changeTimes.length > 1
+        (state.changeTimes.length > 1 || t
           ? '<button type="button" class="pill-btn ghost" data-ct-del="' + i + '">삭제</button>'
           : '') +
         '</div>';
@@ -496,6 +496,7 @@
       btn.addEventListener('click', function () {
         if (state.locked) return;
         var i = Number(btn.getAttribute('data-ct-del'));
+        // 물 교체를 안 하는 날은 마지막 칸까지 지워 '교체 시각 없음'으로 저장·인쇄한다.
         state.changeTimes.splice(i, 1);
         if (!state.changeTimes.length) state.changeTimes = [''];
         syncWaterChangeTimesString();
