@@ -361,7 +361,7 @@
     }
 
     var prePpm = parseFloat(state.preWorkPpm);
-    var preJudge = isNaN(prePpm) ? '' : (prePpm >= Number(state.clMin || 200) && prePpm <= Number(state.clMax || 300) ? '○' : '×');
+    var preJudge = (isNaN(prePpm) || (state.preWorkPpm === '200' && !state.preWorkTime)) ? '' : (prePpm >= Number(state.clMin || 200) && prePpm <= Number(state.clMax || 300) ? '○' : '×');
     var replacementTimes = (Array.isArray(state.changeTimes) ? state.changeTimes : (state.waterChangeTimes || '').split(','))
       .map(function (t) { return String(t || '').trim(); }).filter(Boolean);
     var replacementBody = replacementTimes.length
@@ -371,7 +371,7 @@
       : '<tr><td style="height:14pt"></td></tr>';
     var monBody = '<tr><td class="c strong">' + esc(state.preWorkTime || '') + '</td>' +
       '<td class="c strong">작업 시작 전 확인</td><td class="c"></td>' +
-      '<td class="c">' + esc(state.preWorkPpm || '') + '</td><td></td><td></td><td></td>' +
+      '<td class="c">' + esc((state.preWorkPpm === '200' && !state.preWorkTime) ? '' : (state.preWorkPpm || '')) + '</td><td></td><td></td><td></td>' +
       '<td class="c">' + preJudge + '</td><td class="c">' + esc(state.monitorName || writer) + '</td></tr>' +
       rows.map(function (r, i) {
         var rowProduct = r.productName || (!hasRowProduct && i === 0 ? prod : '');
@@ -380,7 +380,7 @@
         '<td class="c">' + esc(r.time || '') + '</td>' +
         '<td class="l">' + esc(rowProduct) + '</td>' +
         '<td class="c">' + esc(rowQty) + '</td>' +
-        '<td class="c">' + esc(r.ppm || '') + '</td>' +
+        '<td class="c">' + esc((r.ppm === '200' && !(r.time || r.productName || r.soak || r.rinseSec || r.residualCl || r.rawMaterialKg)) ? '' : (r.ppm || '')) + '</td>' +
         '<td class="c">' + esc(r.soak || '') + '</td>' +
         '<td class="c">' + esc(r.rinseSec || '') + '</td>' +
         '<td class="c">' + esc(r.residualCl || '') + '</td>' +
