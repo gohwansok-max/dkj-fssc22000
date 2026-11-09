@@ -237,6 +237,90 @@
     }
   }
 
+  /* ---------- 이메일 알림 수신자 ----------
+   * 정본: RTDB records/<nodeKey(EMAIL_KEY)> = { value: { enabled, recipients:[{name,email}] }, updatedAt }.
+   * records/* 는 규칙이 이미 열려 있어 database.rules.json 재게시가 필요 없다.
+   * 발송 스크립트(notify_missing_records.py, quality-scheduler-alert.cjs)가 같은 키를 읽는다.
+   * 발송용 Gmail 계정은 GitHub Secrets — 이 화면에는 두지 않는다(RTDB 가 공개 읽기라서). */
+  var EMAIL_KEY = 'dkj:settings:email-recipients:v1';
+  var mailRows = [];
+  var EMAIL_RE = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
+
+  function emailPath() { return 'records/' + window.DkjCloudSync.nodeKey(EMAIL_KEY); }
+
+  function renderMailRows() {
+    var host = $('mailRecipientList');
+    if (!host) return;
+    if (!mailRows.length) {
+      host.innerHTML = '<div class="note">등록된 수신자가 없습니다. [수신자 추가]를 눌러 이메일을 등록하세요.</div>';
+      return;
+    }
+    host.innerHTML = mailRows.map(function (r, i) {
+      return '<div style="display:grid;grid-template-columns:minmax(90px,1fr) minmax(180px,2fr) auto;gap:8px;align-items:center;">' +
+        '<input type="text" data-mail-name="' + i + '" value="' + esc(r.name) + '" placeholder="이름·구분(메모)" maxlength="30">' +
+        '<input type="email" data-mail-email="' + i + '" value="' + esc(r.email) + '" placeholder="이메일 주소" inputmode="email" autocomplete="off">' +
+        '<button type="button" class="btn-save" data-mail-del="' + i + '" style="height:38px;padding:0 12px;">삭제</button>' +
+        '</div>';
+    }).join('');
+    host.querySelectorAll('[data-mail-name]').forEach(function (el) {
+      el.addEventListener('input', function () { mailRows[Number(el.getAttribute('data-mail-name'))].name = el.value; });
+    });
+    host.querySelectorAll('[data-mail-email]').forEach(function (el) {
+      el.addEventListener('input', function () { mailRows[Number(el.getAttribute('data-mail-email'))].email = el.value; });
+    });
+    host.querySelectorAll('[data-mail-del]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        mailRows.splice(Number(btn.getAttribute('data-mail-del')), 1);
+        renderMailRows();
+      });
+    });
+  }
+
+  async function loadEmailConfig() {
+    if (!$('emailConfigCard')) return;
+    var statusEl = $('mailStatusMsg');
+    try {
+      var node = await window.DkjAuth.request(emailPath(), 'GET');
+      var value = (node && node.value) || {};
+      mailRows = (value.recipients || []).map(function (r) { return { name: String(r.name || ''), email: String(r.email || '') }; });
+      if ($('mailEnabled')) $('mailEnabled').checked = value.enabled !== false;
+    } catch (e) {
+      if (statusEl) { statusEl.textContent = '⚠️ 수신자 목록을 불러오지 못했습니다. 인터넷 연결을 확인해주세요.'; statusEl.style.color = '#b45309'; }
+    }
+    renderMailRows();
+  }
+
+  async function handleSaveEmail() {
+    var statusEl = $('mailStatusMsg');
+    var saveBtn = $('btnSaveEmail');
+    var rows = mailRows.map(function (r) { return { name: String(r.name || '').trim(), email: String(r.email || '').trim() }; })
+      .filter(function (r) { return r.name || r.email; });
+    var bad = rows.filter(function (r) { return !EMAIL_RE.test(r.email); });
+    if (bad.length) {
+      alert('이메일 주소 형식이 올바르지 않습니다: ' + bad.map(function (r) { return r.email || '(빈 칸)'; }).join(', ') + '\n저장하지 않았습니다.');
+      return;
+    }
+    var seen = {};
+    rows = rows.filter(function (r) { var k = r.email.toLowerCase(); if (seen[k]) return false; seen[k] = true; return true; });
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ 저장 중...'; }
+    if (statusEl) { statusEl.textContent = '클라우드에 저장하고 확인하고 있습니다...'; statusEl.style.color = '#0284c7'; }
+    try {
+      var enabled = !$('mailEnabled') || $('mailEnabled').checked;
+      await window.DkjAuth.request(emailPath(), 'PUT', { value: { enabled: enabled, recipients: rows }, updatedAt: Date.now() });
+      var back = await window.DkjAuth.request(emailPath(), 'GET');
+      var got = ((back && back.value && back.value.recipients) || []).length;
+      if (got !== rows.length) throw new Error('VERIFY_FAILED');
+      mailRows = rows;
+      renderMailRows();
+      if (statusEl) { statusEl.textContent = '✅ 저장 완료 — 수신자 ' + rows.length + '명, 다음 알림 발송부터 적용됩니다.'; statusEl.style.color = '#006b3f'; }
+      addAudit('이메일 알림 수신자 변경', '시스템', '수신자 ' + rows.length + '명 · ' + (enabled ? '사용' : '사용 안 함'));
+    } catch (e) {
+      if (statusEl) { statusEl.textContent = '❌ 저장하지 못했습니다. 입력값은 그대로 두었으니 연결을 확인하고 다시 저장해주세요.'; statusEl.style.color = '#b42318'; }
+    } finally {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 이메일 수신자 저장'; }
+    }
+  }
+
   async function loadTelegramConfig() {
     if (!window.DkjTelegram) return;
     if (window.DkjTelegram.syncFromCloud) {
@@ -426,6 +510,7 @@
     renderUsers();
     renderAudit();
     await loadTelegramConfig();
+    await loadEmailConfig();
     (await renderLastBackupStatus());
   }
 
@@ -433,6 +518,14 @@
     var btnCreate = $('btnCreateUser');
     if (btnCreate) {
       btnCreate.addEventListener('click', handleCreateUser);
+    }
+    var btnAddMail = $('btnAddMailRecipient');
+    if (btnAddMail) {
+      btnAddMail.addEventListener('click', function () { mailRows.push({ name: '', email: '' }); renderMailRows(); });
+    }
+    var btnSaveMail = $('btnSaveEmail');
+    if (btnSaveMail) {
+      btnSaveMail.addEventListener('click', handleSaveEmail);
     }
     var btnSaveTg = $('btnSaveTelegram');
     if (btnSaveTg) {

@@ -126,3 +126,32 @@ DRY_RUN=1 python3 scripts/notify_missing_records.py
 - 정말 완전한 서버형 알림(이메일·카카오 알림톡·문자까지)이 필요해지면
   `docs/QUALITY_ALERT_AUTOMATION.md`의 인프라를 확장하는 방향으로 가되, 그건
   Firebase Blaze 전환과 Cloud Scheduler 함수 신규 작성이 필요한 별도 작업이다.
+
+## 이메일 알림 (Gmail, 선택)
+
+텔레그램과 같은 내용을 메일로도 보낸다 — 일지 미작성(`notify_missing_records.py`)과
+자가품질검사·보건증 일일 알림(`quality-scheduler-alert.cjs`) 모두 `scripts/send_email.py` 를 쓴다
+(표준 라이브러리 `smtplib`, Gmail SMTP SSL 465).
+
+저장소 **Settings → Secrets and variables → Actions → Repository secrets** 에 3개를 등록한다.
+코드·배포 사이트에는 주소·비밀번호를 넣지 않는다.
+
+| Secret | 값 |
+|---|---|
+| `SMTP_USER` | 발송 Gmail 주소 |
+| `SMTP_PASSWORD` | Gmail **앱 비밀번호** 16자리 (Google 계정 → 보안 → 2단계 인증 켠 뒤 → 앱 비밀번호) |
+| `MAIL_TO` | (선택) 고정 수신자. 여러 명이면 쉼표로 구분 |
+
+- 셋 중 하나라도 비어 있으면 메일은 건너뛰고 텔레그램만 동작한다(오류 아님).
+- 메일 발송이 실패해도 텔레그램 알림과 미작성 알림 상태 저장은 그대로 진행한다.
+- 텔레그램이 꺼져 있어도 메일 설정이 있으면 메일은 간다.
+- 시험: Actions 탭에서 워크플로를 수동 실행하고 `test_send` 를 켜면 연결 시험 메일이 간다.
+- 브라우저에서 즉시 나가는 알림(결재·불편접수·이탈)은 이 경로가 아니라 메일로 가지 않는다.
+
+### 수신자 등록 (시스템 설정 화면)
+시스템 설정(`system-settings.html`, 4343 전용)의 **이메일 알림 수신자** 카드에서 이름·이메일을 추가·삭제하고
+저장한다. 정본은 RTDB `records/<nodeKey('dkj:settings:email-recipients:v1')>` 의
+`{ value: { enabled, recipients: [{name, email}] }, updatedAt }` 이며(`records/*` 는 규칙이 이미 열려 있어
+`database.rules.json` 재게시 불필요), 발송 스크립트가 매번 읽어 `MAIL_TO` Secret 과 합쳐 중복 없이 보낸다.
+`이메일 알림 사용`을 끄면 화면 등록분은 무시한다(`MAIL_TO` 는 유지). **발송용 Gmail 계정·앱 비밀번호는
+RTDB 가 공개 읽기이므로 화면에 두지 않고 Secrets 에만 둔다.**
