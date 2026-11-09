@@ -64,12 +64,25 @@ async function sendTelegram(token, chatId, text, buttons) {
 
 // 같은 내용을 이메일로도 보낸다(scripts/send_email.py — Gmail SMTP, 설정은 GitHub Secrets).
 // 설정이 없으면 건너뛰고, 실패해도 텔레그램 알림 결과에는 영향을 주지 않는다.
+const EMAIL_SETTINGS_KEY = 'dkj:settings:email-recipients:v1'; // js/system-settings.js 와 같은 키
+let emailTo = []; // 시스템 설정 화면에서 등록한 수신자
+async function loadEmailRecipients() {
+  try {
+    const node = (await rtdbGet(`records/${nodeKey(EMAIL_SETTINGS_KEY)}`)) || {};
+    const value = node.value || {};
+    if (value.enabled === false) return [];
+    return (value.recipients || []).map((r) => String((r && r.email) || '').trim()).filter(Boolean);
+  } catch (e) {
+    console.error('이메일 수신자 설정 조회 실패(Secrets 수신자만 사용): ' + e.message);
+    return [];
+  }
+}
 function emailConfigured() {
-  return !!(process.env.SMTP_USER && process.env.SMTP_PASSWORD && String(process.env.MAIL_TO || '').trim());
+  return !!(process.env.SMTP_USER && process.env.SMTP_PASSWORD && (String(process.env.MAIL_TO || '').trim() || emailTo.length));
 }
 function sendEmail(subject, text) {
   if (!emailConfigured()) return;
-  const args = [path.join(__dirname, 'send_email.py'), '--subject', subject];
+  const args = [path.join(__dirname, 'send_email.py'), '--subject', subject, '--to', emailTo.join(',')];
   if (DRY_RUN) args.push('--dry-run');
   const res = require('child_process').spawnSync('python3', args, { input: text, encoding: 'utf8' });
   if (res.stdout) console.log(res.stdout.trim());
@@ -78,6 +91,7 @@ function sendEmail(subject, text) {
 
 async function main() {
   const today = core.todayKst();
+  emailTo = await loadEmailRecipients();
   const tg = (await rtdbGet('system/settings/telegram')) || {};
   const token = String(tg.botToken || '').trim();
   const chatIds = [...new Set(String(tg.chatId || '').split(/[\s,;]+/).map((v) => v.trim()).filter(Boolean))];

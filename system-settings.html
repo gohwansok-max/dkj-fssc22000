@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dkj-tokens.css?v=222">
-  <link rel="stylesheet" href="css/dkj-hub.css?v=222">
-  <link rel="manifest" href="manifest.json?v=222">
+  <link rel="stylesheet" href="css/dkj-tokens.css?v=223">
+  <link rel="stylesheet" href="css/dkj-hub.css?v=223">
+  <link rel="manifest" href="manifest.json?v=223">
   <style>
     :root{--green:#006b3f;--green2:#087e4c;--ink:#12253a;--muted:#61746a;--line:#d8e5dd;--bg:#f3f8f5;--amber:#9b5c00;--red:#b42318}
     *{box-sizing:border-box}
@@ -85,7 +85,7 @@
       .system-status{font-size:13px}
     }
   </style>
-  <link rel="stylesheet" href="css/dkj-accessibility.css?v=222">
+  <link rel="stylesheet" href="css/dkj-accessibility.css?v=223">
 </head>
 <body class="hub-page">
   <header class="ck-header">
@@ -226,6 +226,24 @@
         </details>
       </section>
 
+      <!-- 이메일 알림 수신자 (관리자 전용) -->
+      <section class="card" id="emailConfigCard">
+        <h2>✉️ 이메일 알림 수신자 <span class="admin-lock">4343 관리자 전용</span></h2>
+        <p class="desc">일지 미작성 알림과 자가품질검사·보건증 일일 알림이 텔레그램과 같은 내용으로 아래 수신자에게 이메일로도 발송됩니다. 수신자는 여기서 추가·삭제하면 다음 발송부터 바로 적용됩니다.</p>
+        <div style="background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:12px;padding:18px;margin-bottom:16px;">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:12px;">
+            <input type="checkbox" id="mailEnabled" checked> 이메일 알림 사용
+          </label>
+          <div id="mailRecipientList" style="display:grid;gap:8px;margin-bottom:12px;"></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <button type="button" id="btnAddMailRecipient" class="btn-save" style="height:40px;padding:0 16px;">＋ 수신자 추가</button>
+            <button type="button" id="btnSaveEmail" class="btn-create" style="height:40px;background:#006b3f;">💾 이메일 수신자 저장</button>
+            <span id="mailStatusMsg" style="font-size:13px;font-weight:700;color:#006b3f;"></span>
+          </div>
+        </div>
+        <p class="note">발송용 Gmail 계정(앱 비밀번호)은 보안상 이 화면이 아니라 GitHub 저장소 Secrets(<code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>)에 등록합니다. 자세한 방법은 <code>docs/MISSING_RECORD_ALERT.md</code> 이메일 절을 참고하세요.</p>
+      </section>
+
       <!-- 4단계 역할 기준 -->
       <section class="card">
         <h2>4단계 역할 기준</h2>
@@ -246,22 +264,22 @@
       </section>
     </div>
   </main>
-  <script src="js/dkj-async.js?v=222"></script>
-  <script src="js/dkj-store.js?v=222"></script>
-  <script src="js/dkj-storage-migration.js?v=222"></script>
-  <script src="js/dkj-storage.js?v=222"></script>
-  <script src="js/dkj-util.js?v=222"></script>
-  <script src="js/dkj-firebase-config.js?v=222"></script>
-  <script src="js/dkj-auth.js?v=222"></script>
-  <script src="js/dkj-cloud-sync.js?v=222"></script>
-  <script src="js/dkj-telegram-config.js?v=222"></script>
-  <script src="js/dkj-export.js?v=222"></script>
-  <script src="js/dkj-backup-reminder.js?v=222"></script>
-  <script src="js/menu-catalog.bundle.js?v=222"></script>
-  <script src="js/dkj-nav.js?v=222"></script>
-  <script src="js/system-settings.js?v=222"></script>
-  <script src="js/dkj-chatbot.js?v=222"></script>
-  <script src="js/dkj-pwa.js?v=222"></script>
-  <script src="js/dkj-accessibility.js?v=222"></script>
+  <script src="js/dkj-async.js?v=223"></script>
+  <script src="js/dkj-store.js?v=223"></script>
+  <script src="js/dkj-storage-migration.js?v=223"></script>
+  <script src="js/dkj-storage.js?v=223"></script>
+  <script src="js/dkj-util.js?v=223"></script>
+  <script src="js/dkj-firebase-config.js?v=223"></script>
+  <script src="js/dkj-auth.js?v=223"></script>
+  <script src="js/dkj-cloud-sync.js?v=223"></script>
+  <script src="js/dkj-telegram-config.js?v=223"></script>
+  <script src="js/dkj-export.js?v=223"></script>
+  <script src="js/dkj-backup-reminder.js?v=223"></script>
+  <script src="js/menu-catalog.bundle.js?v=223"></script>
+  <script src="js/dkj-nav.js?v=223"></script>
+  <script src="js/system-settings.js?v=223"></script>
+  <script src="js/dkj-chatbot.js?v=223"></script>
+  <script src="js/dkj-pwa.js?v=223"></script>
+  <script src="js/dkj-accessibility.js?v=223"></script>
 </body>
 </html>

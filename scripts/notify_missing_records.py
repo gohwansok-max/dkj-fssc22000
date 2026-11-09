@@ -112,11 +112,30 @@ def send_telegram(bot_token: str, chat_id: str, text: str) -> None:
         raise RuntimeError(f'텔레그램 전송 실패: {body}')
 
 
+EMAIL_SETTINGS_KEY = 'dkj:settings:email-recipients:v1'  # js/system-settings.js 와 같은 키
+
+
+def load_email_recipients() -> list[str]:
+    """시스템 설정 화면에서 등록한 이메일 수신자(records/<고정키>.value.recipients)."""
+    try:
+        node = rtdb_get('records/' + node_key(EMAIL_SETTINGS_KEY)) or {}
+        value = node.get('value') or {}
+        if value.get('enabled') is False:
+            return []
+        return [str(r.get('email') or '').strip() for r in (value.get('recipients') or []) if isinstance(r, dict)]
+    except Exception as e:
+        print(f'이메일 수신자 설정 조회 실패(Secrets 수신자만 사용): {e}', file=sys.stderr)
+        return []
+
+
+EMAIL_TO: list[str] = []
+
+
 def send_email_safe(subject: str, text: str) -> None:
     """같은 내용을 이메일로도 보낸다. 실패해도 텔레그램 알림·상태 저장은 계속한다."""
     try:
         from send_email import send_mail
-        send_mail(subject, text, dry_run=DRY_RUN)
+        send_mail(subject, text, dry_run=DRY_RUN, extra_to=EMAIL_TO)
     except Exception as e:
         print(f'이메일 발송 실패(텔레그램 알림은 영향 없음): {e}', file=sys.stderr)
 
@@ -424,9 +443,11 @@ def main(now: datetime | None = None) -> int:
     bot_token = str(tg.get('botToken') or '').strip()
     chat_id = str(tg.get('chatId') or '').strip()
     telegram_on = not (tg.get('enabled') is False or not bot_token or not chat_id)
+    global EMAIL_TO
+    EMAIL_TO = load_email_recipients()
     try:
         from send_email import configured as email_on
-        email_on = email_on()
+        email_on = email_on(EMAIL_TO)
     except Exception:
         email_on = False
     if not telegram_on and not email_on:
