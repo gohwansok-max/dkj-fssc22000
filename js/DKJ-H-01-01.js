@@ -20,8 +20,9 @@
   ];
 
   var PPM_PRESETS = ['200', '210', '220', '230', '240', '250', '260', '270', '280', '290', '300'];
-  var SOAK_PRESETS = ['20', '22', '24', '25', '26', '28', '30'];
-  var RINSE_SEC_PRESETS = ['50', '52', '54', '55', '56', '58', '60'];
+  function secRange(from, to) { var a = []; for (var n = from; n <= to; n++) a.push(String(n)); return a; }
+  var SOAK_PRESETS = secRange(20, 30);
+  var RINSE_SEC_PRESETS = secRange(50, 60);
   var RESIDUAL_CL_PRESETS = ['0', '0.05', '0.1', '0.2', '0.5', '0.6'];
   // 유효염소 기본값 — 새 행·작업 전 확인에 미리 채우고, 필요할 때만 바꾼다(관리기준 200~300ppm의 하한).
   var DEFAULT_PPM = '200';
