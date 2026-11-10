@@ -1008,6 +1008,7 @@ def render_html(spec: dict) -> str:
   <script src="../js/dkj-storage-migration.js?v={v}"></script>
   <script src="../js/dkj-storage.js?v={v}"></script>
   <script src="../js/dkj-util.js?v={v}"></script>
+  <script src="../js/dkj-time-picker.js?v={v}"></script>
   <script src="../js/dkj-firebase-config.js?v={v}"></script>
   <script src="../js/dkj-auth.js?v={v}"></script>
   <script src="../js/dkj-cloud-sync.js?v={v}"></script>

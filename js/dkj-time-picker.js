@@ -5,6 +5,7 @@
  *       팝업이 닫혀 버렸다(DKJ-H-01-01 현장 제보). 그래서 읽기전용 글자 칸(data-time-pick)을
  *       탭하면 이 팝업을 열고, [설정]에서만 값을 넣고 input·change 이벤트를 한 번씩 낸다.
  *
+ * 이 파일을 싣은 화면의 type=time 칸은 자동으로 이 방식으로 바뀐다(upgradeAll).
  * 사용: <input type="text" readonly inputmode="none" data-time-pick value="14:30">
  *       값 형식은 기존 type=time 과 같은 24시간 'HH:MM' 이므로 저장 데이터·정본 인쇄는 그대로다.
  */
@@ -158,7 +159,6 @@
     var t = e.target && e.target.closest ? e.target.closest('input[data-time-pick]') : null;
     if (!t) return;
     e.preventDefault();
-    if (t.readOnly && t.getAttribute('data-locked') === '1') return;
     open(t);
   });
   doc.addEventListener('keydown', function (e) {
@@ -174,5 +174,35 @@
     }
   });
 
-  global.DkjTimePicker = { open: open, close: close };
+  /** 서식 엔진·전용 스크립트가 만든 type=time 칸을 모두 이 팝업 칸으로 바꾼다.
+   *  기본 time 입력은 오전/오후만 바꿔도 input 이벤트가 떠 화면이 다시 그려지며 팝업이 닫힌다.
+   *  기본 입력을 그대로 쓰고 싶은 칸은 data-native-time 을 준다. 값(HH:MM)은 그대로 보존한다. */
+  function upgrade(el) {
+    if (!el || el.type !== 'time' || el.hasAttribute('data-native-time')) return;
+    var v = el.value;
+    el.setAttribute('type', 'text');
+    el.setAttribute('readonly', '');
+    el.setAttribute('inputmode', 'none');
+    el.setAttribute('data-time-pick', '1');
+    if (!el.getAttribute('placeholder')) el.setAttribute('placeholder', '--:--');
+    el.removeAttribute('step');
+    el.value = v;
+  }
+  function upgradeAll(root) {
+    var list = (root && root.querySelectorAll ? root : doc).querySelectorAll('input[type="time"]');
+    Array.prototype.forEach.call(list, upgrade);
+  }
+  function startAuto() {
+    upgradeAll(doc);
+    var queued = false;
+    new MutationObserver(function () {
+      if (queued) return;
+      queued = true;
+      (global.requestAnimationFrame || setTimeout)(function () { queued = false; upgradeAll(doc); });
+    }).observe(doc.documentElement, { childList: true, subtree: true });
+  }
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', startAuto);
+  else startAuto();
+
+  global.DkjTimePicker = { open: open, close: close, upgrade: upgradeAll };
 })(window);
