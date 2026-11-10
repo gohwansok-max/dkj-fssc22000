@@ -502,20 +502,22 @@
         // 서식이 이미 '지금시각' 버튼을 가진 칸(CCP 행, QC 순회 회차)은 중복으로 붙이지 않는다
         if (inp.parentNode.querySelector('[data-now-row],[data-set-now],.mon-now-row-btn')) return;
         var pick = inp.hasAttribute('data-time-pick'); // 시간 선택 팝업 칸은 단일 시각이다
-        var range = inp.type === 'text' && !pick; // 교육시간처럼 '시작 ~ 종료' 로 적는 글자 칸
+        var range = inp.type === 'text' && !pick && /~/.test(inp.getAttribute('placeholder') || ''); // 교육시간처럼 '시작 ~ 종료' 로 적는 글자 칸
         var isTime = inp.type === 'time' || pick || range;
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'dkj-now-btn';
         b.textContent = isTime ? '지금시각' : '오늘날짜';
         b.addEventListener('click', function () {
-          if (inp.disabled || inp.readOnly) return;
+          // 시간 선택 팝업 칸은 읽기전용이지만 '지금시각' 으로는 채울 수 있다(클릭 시점에 판단 — 칸이 나중에 바뀔 수 있다).
+          var pickNow = inp.hasAttribute('data-time-pick');
+          if (inp.disabled || (inp.readOnly && !pickNow)) return;
           if (range) {
             // 첫 클릭은 시작시각, 시작만 적힌 상태의 다음 클릭은 종료시각을 채운다
             var cur = String(inp.value || '').trim();
             inp.value = /~\s*$/.test(cur) ? cur.replace(/\s*~\s*$/, '') + ' ~ ' + nowValue('time')
               : nowValue('time') + ' ~ ';
-          } else inp.value = nowValue(pick ? 'time' : inp.type);
+          } else inp.value = nowValue(isTime || pickNow ? 'time' : inp.type);
           inp.dispatchEvent(new Event('input', { bubbles: true }));
           inp.dispatchEvent(new Event('change', { bubbles: true }));
         });
