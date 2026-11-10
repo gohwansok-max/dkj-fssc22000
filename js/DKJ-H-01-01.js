@@ -317,14 +317,14 @@
     var body = $('monBody');
     if (!body) return;
     var preWorkRow = '<tr class="prework-row" data-i="-1">' +
-      '<td><input type="time" class="mon-in" data-f="time" data-prework="1" value="' + esc(state.preWorkTime || '') + '"></td>' +
+      '<td><input type="text" readonly inputmode="none" data-time-pick="1" placeholder="--:--" class="mon-in" data-f="time" data-prework="1" value="' + esc(state.preWorkTime || '') + '"></td>' +
       '<td class="c strong">작업 시작 전 확인</td><td class="c">-</td>' +
       '<td>' + buildPreWorkPpmCell() + '</td>' +
       '<td class="c">-</td><td class="c">-</td><td class="c">-</td><td class="c">-</td><td class="c">-</td><td class="c">-</td></tr>';
     body.innerHTML = preWorkRow + state.rows.map(function (row, i) {
       evaluateRow(row);
       return '<tr data-i="' + i + '">' +
-        '<td><input type="time" class="mon-in" data-f="time" value="' + (row.time || '') + '"></td>' +
+        '<td><input type="text" readonly inputmode="none" data-time-pick="1" placeholder="--:--" class="mon-in" data-f="time" value="' + esc(row.time || '') + '"></td>' +
         '<td>' + buildProductCell(row, i) + '</td>' +
         '<td><input type="number" class="mon-in" data-f="rawMaterialKg" min="0" max="7.99" step="0.01" inputmode="decimal" aria-label="원물 투입량(kg)" placeholder="kg" value="' + esc(row.rawMaterialKg == null ? '' : row.rawMaterialKg) + '"></td>' +
         '<td>' + buildPpmCell(row, i) + '</td>' +
@@ -468,7 +468,7 @@
   }
 
   /** 소독액·헹굼수 교체 시각 — 하루 1~2회로 들쭉날쭉해서 칸을 자유롭게
-   *  늘리고 줄일 수 있게 한다. 각 칸은 type=time 이라 탭하면 시계 picker 가 뜬다. */
+   *  늘리고 줄일 수 있게 한다. 각 칸을 탭하면 시간 선택 팝업(js/dkj-time-picker.js)이 뜨고 [설정]을 눌러야 입력된다. */
   function renderChangeTimeList() {
     var host = $('changeTimeList');
     if (!host) return;
@@ -476,7 +476,7 @@
 
     host.innerHTML = state.changeTimes.map(function (t, i) {
       return '<div style="display:flex;gap:8px;align-items:center;">' +
-        '<input type="time" class="mon-in" data-ct="' + i + '" value="' + esc(t) + '" style="flex:1;min-width:140px;max-width:220px;">' +
+        '<input type="text" readonly inputmode="none" data-time-pick="1" placeholder="--:--" class="mon-in" data-ct="' + i + '" value="' + esc(t) + '" style="flex:1;min-width:140px;max-width:220px;">' +
         (state.changeTimes.length > 1 || t
           ? '<button type="button" class="pill-btn ghost" data-ct-del="' + i + '">삭제</button>'
           : '') +
